@@ -174,7 +174,7 @@ Works to 400px. Data views scroll horizontally inside their own containers; the 
 
 ## 8. Licensing
 
-**Apps are GPL-3.0-or-later. Libraries are MIT.** This is Frotz, Inc. policy.
+**Apps are GPL-3.0-or-later. Libraries are MIT.** This is [Frotz, Inc.](https://frotzinc.com) policy.
 
 Frotzsmith is GPL because it bundles the GPLv3 ZILF compiler; Frotzlens's app and CLI match it so the two can share code freely. Every `@frotzinc/*` package is MIT so that other people's tools — editor extensions, interpreters, archive bots — can depend on the parser without a license review. Two rules keep the line clean: dependencies point only from apps to libraries, and no library ever bundles GPL code. The Inform 6 compiler (Artistic 2.0), the Standard Library (Artistic 2.0), and PunyInform (MIT) are all fine to wrap in a library; ZILF stays in the Frotzsmith app.
 

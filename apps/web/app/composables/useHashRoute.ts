@@ -11,7 +11,12 @@ export interface HashRoute {
 const current = ref<HashRoute>({ view: 'overview' })
 
 function read(): HashRoute {
-  const h = decodeURIComponent(location.hash.replace(/^#/, ''))
+  let h: string
+  try {
+    h = decodeURIComponent(location.hash.replace(/^#/, ''))
+  } catch {
+    return { view: 'overview' } // a malformed escape (a stray '%'): not a route
+  }
   if (!h) return { view: 'overview' }
   const slash = h.indexOf('/')
   return slash < 0 ? { view: h } : { view: h.slice(0, slash), id: h.slice(slash + 1) }
@@ -33,5 +38,10 @@ export function useHashRoute() {
     const i = id.indexOf(':')
     go(id.slice(0, i), id.slice(i + 1))
   }
-  return { route: current, go, goToId }
+  /** Replace the current route without a history entry (replaceState fires no hashchange). */
+  const replace = (view: string) => {
+    history.replaceState(null, '', `#${view}`)
+    current.value = read()
+  }
+  return { route: current, go, goToId, replace }
 }

@@ -33,7 +33,8 @@ const groups = computed(() => {
     {
       id: 'strings',
       label: 'Strings',
-      items: s.strings.map(x => ({ label: clip(x.text), suffix: hex(x.address), icon: 'i-lucide-quote', onSelect: pick(x.id) })),
+      // Shown clipped, searched whole: `text` is a search key, not displayed.
+      items: s.strings.map(x => ({ label: clip(x.text), text: x.text, suffix: hex(x.address), icon: 'i-lucide-quote', onSelect: pick(x.id) })),
     },
   ]
 })
@@ -42,7 +43,7 @@ const groups = computed(() => {
 <template>
   <UModal v-model:open="open" title="Go to" description="Find a routine, object, string or dictionary word by name or address.">
     <template #content>
-      <UCommandPalette :groups="groups" placeholder="Search by name or address…" class="h-96" :fuse="{ resultLimit: 40, fuseOptions: { keys: ['label', 'suffix'] } }" @update:open="open = $event" />
+      <UCommandPalette :groups="groups" placeholder="Search by name or address…" class="h-96" :fuse="{ resultLimit: 40, fuseOptions: { keys: ['label', 'suffix', 'text'] } }" @update:open="open = $event" />
     </template>
   </UModal>
 </template>

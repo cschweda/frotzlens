@@ -36,7 +36,9 @@ export default defineNuxtConfig({
       meta: [
         { name: 'viewport', content: 'width=device-width, initial-scale=1' },
         { name: 'description', content: site.description },
-        { name: 'theme-color', content: '#0e1116' },
+        // The browser chrome follows the palette's --frotz-ground (nuxt-base/css/palette.css).
+        { name: 'theme-color', content: '#0e1116', media: '(prefers-color-scheme: dark)' },
+        { name: 'theme-color', content: '#f3f1ea', media: '(prefers-color-scheme: light)' },
         { property: 'og:type', content: 'website' },
         { property: 'og:site_name', content: site.name },
         { property: 'og:title', content: title },

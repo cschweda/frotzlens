@@ -36,7 +36,7 @@ const go = (key: string) => { location.hash = `memory/${key}` }
   <section aria-labelledby="map-title" class="flex flex-col gap-4">
     <h2 id="map-title" class="font-display text-2xl font-semibold text-highlighted sm:text-[1.6rem]">Memory map</h2>
     <p class="text-sm text-muted">
-      The whole file, {{ story.memory.size.toLocaleString() }} bytes, drawn to scale. Select a part to open it.
+      The whole file, {{ story.memory.size.toLocaleString() }} bytes, drawn to scale.
     </p>
 
     <!-- Regions: dynamic, static, high (§1.1). Static and high may overlap. -->

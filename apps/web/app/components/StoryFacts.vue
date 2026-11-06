@@ -14,7 +14,10 @@ const facts = computed(() => {
   if (grammar) {
     rows.push(['Grammar', `Inform grammar version ${grammar.version}${grammar.version === 3 ? ' (as PunyInform writes it)' : ''}`])
   }
-  rows.push(['Checksum', h.checksumOk ? `${h.checksum.toString(16).padStart(4, '0')}, correct` : `${h.checksum.toString(16).padStart(4, '0')}, does not match`])
+  // A truncated file is never summed: say so rather than "does not match".
+  const sum = h.checksum.toString(16).padStart(4, '0')
+  const mismatch = props.story.errors.some(e => e.code === 'checksum')
+  rows.push(['Checksum', h.checksumOk ? `${sum}, correct` : mismatch ? `${sum}, does not match` : `${sum}, not checked`])
   rows.push(['Debug symbols', 'Not loaded'])
   return rows
 })

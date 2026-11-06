@@ -15,6 +15,10 @@ const failure = ref('')
 
 const PARSE_TIMEOUT_MS = 30_000
 let workerBroken = false
+/** Each load takes a number; only the latest may commit, so a slow earlier load never wins. */
+let generation = 0
+/** The parse in flight: the next one's timeout starts when it settles (the worker is busy until then). */
+let previous: Promise<unknown> = Promise.resolve()
 
 const rpc = import.meta.client
   ? createWorkerRpc<StoryFile>({
@@ -28,7 +32,9 @@ const rpc = import.meta.client
 
 async function parse(bytes: Uint8Array): Promise<StoryFile> {
   if (rpc && !workerBroken && typeof Worker !== 'undefined') {
-    const outcome = await rpc.call({ bytes }, { timeoutMs: PARSE_TIMEOUT_MS })
+    const call = rpc.call({ bytes }, { timeoutMs: PARSE_TIMEOUT_MS, clockStartsAfter: previous })
+    previous = call
+    const outcome = await call
     if (outcome.kind === 'ok') return outcome.value
     if (outcome.kind === 'timeout') throw new Error(`Reading the file took more than ${PARSE_TIMEOUT_MS / 1000} seconds and was stopped.`)
     if (outcome.kind === 'unavailable') workerBroken = true
@@ -38,39 +44,48 @@ async function parse(bytes: Uint8Array): Promise<StoryFile> {
 }
 
 export function useStory() {
-  async function open(name: string, bytes: Uint8Array) {
+  /** Read the bytes (a file or a URL), parse them, and commit, unless a newer load started meanwhile. */
+  async function load(name: string, read: () => Promise<ArrayBuffer>, what: string) {
+    const mine = ++generation
     status.value = 'loading'
-    fileName.value = name
     failure.value = ''
+    let bytes: Uint8Array
     try {
-      story.value = markRaw(await parse(bytes))
+      bytes = new Uint8Array(await read())
+    } catch (e) {
+      if (mine !== generation) return
+      failure.value = `${what} couldn't be read: ${e instanceof Error ? e.message : String(e)}`
+      status.value = 'failed'
+      return
+    }
+    try {
+      const parsed = await parse(bytes)
+      if (mine !== generation) return
+      story.value = markRaw(parsed)
+      fileName.value = name
       status.value = 'ready'
     } catch (e) {
+      if (mine !== generation) return
       story.value = null
       failure.value = e instanceof Error ? e.message : String(e)
       status.value = 'failed'
     }
   }
 
-  async function openFile(file: File) {
-    await open(file.name, new Uint8Array(await file.arrayBuffer()))
-  }
+  const openFile = (file: File) => load(file.name, () => file.arrayBuffer(), 'The file')
 
-  async function openUrl(name: string, url: string) {
-    status.value = 'loading'
-    try {
+  const openUrl = (name: string, url: string) =>
+    load(name, async () => {
       const res = await fetch(url)
       if (!res.ok) throw new Error(`${res.status} ${res.statusText}`)
-      await open(name, new Uint8Array(await res.arrayBuffer()))
-    } catch (e) {
-      failure.value = `The sample couldn't be loaded: ${e instanceof Error ? e.message : String(e)}`
-      status.value = 'failed'
-    }
-  }
+      return res.arrayBuffer()
+    }, 'The sample')
 
   function close() {
+    generation++ // a load still running is dropped
     story.value = null
     fileName.value = ''
+    failure.value = ''
     status.value = 'empty'
   }
 

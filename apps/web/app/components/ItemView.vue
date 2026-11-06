@@ -9,7 +9,13 @@ import { formatRoutine } from '@frotzinc/zcode/format'
  */
 const props = defineProps<{ story: StoryFile; view: string; id?: string }>()
 const hex = (n: number) => n.toString(16).padStart(4, '0')
-const n = computed(() => (props.id ? parseInt(props.id, props.view === 'object' ? 10 : 16) : NaN))
+// The whole Id must be a number (decimal for objects, hex otherwise): parseInt alone
+// would read "28oops" as 28.
+const n = computed(() => {
+  const decimal = props.view === 'object'
+  if (!props.id || !(decimal ? /^\d+$/ : /^[0-9a-f]+$/i).test(props.id)) return NaN
+  return parseInt(props.id, decimal ? 10 : 16)
+})
 
 const routine = computed(() => (props.view === 'routine' ? formatRoutine(props.story, n.value) : undefined))
 const object = computed(() => (props.view === 'object' ? props.story.objects.objects[n.value - 1] : undefined))
@@ -17,7 +23,7 @@ const string = computed(() => (props.view === 'string' ? props.story.strings.fin
 const word = computed(() => (props.view === 'dict' ? props.story.dictionary.entries.find(e => e.address === n.value) : undefined))
 const name = (o?: number) => (o ? props.story.objects.objects[o - 1]?.shortName.text || `object ${o}` : '—')
 
-const LISTS: Record<string, string> = {
+const LISTS: Record<string, string> = Object.assign(Object.create(null), {
   objects: 'the object tree',
   routines: 'every routine',
   strings: 'every string',
@@ -25,7 +31,7 @@ const LISTS: Record<string, string> = {
   grammar: 'the grammar',
   memory: 'the memory and hex view',
   symbols: 'debug symbols',
-}
+})
 const flags = (w: NonNullable<typeof word.value>) =>
   w.inform ? Object.entries(w.inform).filter(([, on]) => on).map(([k]) => k).join(', ') || 'none' : '—'
 </script>
