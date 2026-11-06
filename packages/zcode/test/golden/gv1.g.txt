@@ -1,0 +1,52 @@
+
+Story file is gv1.z5
+
+    **** Parse tables ****
+
+  Verb entries = 3
+
+255. 2 entries, verb = "get", synonyms = "take"
+    [01 00 00 00 00 00 00 00] "get NOUN"
+    [01 ff 00 00 00 00 00 01] "get off NOUN"
+
+254. 3 entries, verb = "drop"
+    [01 00 00 00 00 00 00 01] "drop NOUN"
+    [02 00 fe 00 00 00 00 02] "drop NOUN in NOUN"
+    [02 00 fd 00 00 00 00 02] "drop NOUN on NOUN"
+
+253. 3 entries, verb = "l", synonyms = "look"
+    [00 00 00 00 00 00 00 03] "l"
+    [01 fc 00 00 00 00 00 03] "l at NOUN"
+    [01 30 00 00 00 00 00 03] "l TEXT [parse 0]"
+
+    **** Verb action routines ****
+
+  Action table entries = 4
+
+action# action-routine "verb..."
+
+  0.   604  "get NOUN"
+  1.   608  "get off NOUN"
+            "drop NOUN"
+  2.   60c  "drop NOUN in NOUN"
+            "drop NOUN on NOUN"
+  3.   610  "l"
+            "l at NOUN"
+            "l TEXT [parse 0]"
+
+    **** Parsing routines ****
+
+  Number of parsing routines = 1
+
+parse# parsing-routine "verb..."
+
+  0.   614  "l TEXT [parse 0]"
+
+    **** Prepositions ****
+
+  Table entries = 4
+
+252. "at"
+253. "on"
+254. "in"
+255. "off"

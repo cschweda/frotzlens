@@ -1,0 +1,27 @@
+
+Story file is gv1.z5
+Inform Version: 644
+
+    **** Story file map ****
+
+ Base    End   Size
+    0     3f     40  Story file header
+   40     41      2  Abbreviation data
+   42    101     c0  Abbreviation pointer table
+  102    109      8  Header extension table
+  10a    1db     d2  Object table
+  1dc    23a     5f  Property data
+  23b    244      a  Class Prototype Object Numbers
+  245    2d4     90  Property Names Table
+  2d5    334     60  Attribute Names Table
+  335    33c      8
+  33d    51c    1e0  Global variables
+  51d    51d      1
+  51e    523      6  Grammar pointer table
+  524    566     43  Grammar data
+  567    56e      8  Action routine table
+  56f    570      2  Parsing routine table
+  571    582     12  Preposition table
+  583    5f5     73  Dictionary
+  5f6    5f7      2
+  5f8    67b     84  Paged memory

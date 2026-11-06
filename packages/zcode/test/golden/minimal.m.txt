@@ -1,0 +1,22 @@
+
+Story file is minimal.z5
+Inform Version: 644
+
+    **** Story file map ****
+
+ Base    End   Size
+    0     3f     40  Story file header
+   40     41      2  Abbreviation data
+   42    101     c0  Abbreviation pointer table
+  102    109      8  Header extension table
+  10a    1bf     b6  Object table
+  1c0    1fb     3c  Property data
+  1fc    1fd      2  Class Prototype Object Numbers
+  1fe  201fd  20000  Property Names Table
+  300    4df    1e0  Global variables
+  4e0    4e2      3
+  4e3    4e9      7  Dictionary
+  4ea    4eb      2
+  4ec    547     5c  Paged memory
+  548  201fd  1fcb6
+201fe  2025d     60  Attribute Names Table

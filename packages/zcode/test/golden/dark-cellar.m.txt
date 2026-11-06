@@ -1,0 +1,25 @@
+
+Story file is dark-cellar.z5
+Inform Version: 644
+
+    **** Story file map ****
+
+ Base    End   Size
+    0     3f     40  Story file header
+   40     41      2  Abbreviation data
+   42    101     c0  Abbreviation pointer table
+  102    109      8  Header extension table
+  10a    31d    214  Object table
+  31e    6b7    39a  Property data
+  6b8    6c5      e  Class Prototype Object Numbers
+  6c6    7a9     e4  Property Names Table
+  7aa    809     60  Attribute Names Table
+  80a    a7e    275
+  a7f    c5e    1e0  Global variables
+  c5f   142f    7d1
+ 1430   14ef     c0  Grammar pointer table
+ 14f0   1bb8    6c9  Grammar data
+ 1bb9   1c94     dc  Action routine table
+ 1c95   1c96      2
+ 1c97   27ef    b59  Dictionary
+ 27f0  15293  12aa4  Paged memory

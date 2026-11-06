@@ -10,8 +10,8 @@ It's the browser-native successor to Ztools' `txd` and `infodump`, with an Infor
 |---|---|---|
 | 0 | Shared libraries extracted from Frotzsmith | **Done.** `@frotzinc/worker-rpc`, `nuxt-base` and `inform6-wasm` 0.1.0 on npm; Frotzsmith uses them. |
 | 1 | Core parser and CLI | **Done.** Header, memory map, text, dictionary, objects and globals for v3, v4, v5 and v8. The CLI's output matches `infodump` byte for byte on every fixture. |
-| 2 | Disassembler: routines, strings, grammar, cross-references | Next |
-| 3 | Web app shell and Overview dashboard | |
+| 2 | Disassembler: routines, strings, grammar, cross-references | **Done.** Every routine and string, Inform grammar (versions 1, 2 and 3), cross-references. The CLI's disassembly matches `txd` byte for byte, and `-f` matches `infodump -f`. |
+| 3 | Web app shell and Overview dashboard | Next |
 | 4 | Data views | |
 | 5 | Debug symbols, Inform fingerprinting, Blorb, polish; frotzlens.com 0.1.0 | |
 
@@ -21,8 +21,8 @@ The plan and its decisions are in [`docs/`](docs/), starting with [`00-master-de
 
 | Package | License | | npm |
 |---|---|---|---|
-| [`@frotzinc/zcode`](packages/zcode) | MIT | The parser: `Uint8Array` in, typed model out, plus infodump-format text | not yet (Phase 5) |
-| [`frotzlens`](packages/cli) | GPL-3.0-or-later | The CLI: `frotzlens --objects game.z5` | 0.0.1 placeholder; the CLI ships in Phase 5 |
+| [`@frotzinc/zcode`](packages/zcode) | MIT | The parser and disassembler: `Uint8Array` in, typed model out, plus `txd`- and `infodump`-format text | not yet (Phase 5) |
+| [`frotzlens`](packages/cli) | GPL-3.0-or-later | The CLI: `frotzlens game.z5` | 0.0.1 placeholder; the CLI ships in Phase 5 |
 | [`@frotzinc/worker-rpc`](packages/worker-rpc) | MIT | Long-lived Web Worker request/response client | 0.1.0 |
 | [`@frotzinc/nuxt-base`](packages/nuxt-base) | MIT | Shared Frotz, Inc. Nuxt layer and Netlify tools | 0.1.0 |
 | [`@frotzinc/inform6-wasm`](packages/inform6-wasm) | MIT (wrapper) | Inform 6.44 in WebAssembly, with the Standard Library and PunyInform | 0.1.0 |
@@ -34,12 +34,14 @@ Apps are GPL; libraries are MIT. See [`LICENSING.md`](LICENSING.md).
 
 ```sh
 pnpm install && pnpm build
-node packages/cli/dist/bin.js --objects samples/dark-cellar.z5
+node packages/cli/dist/bin.js samples/dark-cellar.z5                  # the disassembly, as txd prints it
+node packages/cli/dist/bin.js --routine 27f8 samples/dark-cellar.z5   # one routine
+node packages/cli/dist/bin.js -f samples/dark-cellar.z5               # everything infodump prints
 ```
 
 [`samples/`](samples/) holds 34 story files to try it on, from a 1.5 KB library-free story to the 135 KB *Mingus I*, as v3, v5 and v8: Frotzsmith's Inform 6 samples plus a minimal Frotzlens fixture, rebuilt with `pnpm samples`.
 
-It takes `infodump`'s options for the sections it prints (`-i -a -o -t -d`, plus `-w`), with the same output, so scripts that use those keep working. `infodump`'s memory map (`-m`) and grammar (`-g`) aren't there yet, and `-f` prints only the five sections. `--json` prints the parsed model instead. See [`packages/cli`](packages/cli).
+With no options it prints the disassembly the way `txd` does (`-n` for `txd -n`); with `infodump`'s options (`-i -m -a -o -t -g -d -f -w`) those sections the way `infodump` does, so scripts written for either keep working. `--json` prints the parsed model instead. See [`packages/cli`](packages/cli).
 
 ## Development
 
@@ -54,9 +56,9 @@ pnpm test
 
 **Test fixtures** are compiled at test time from Inform 6 sources in [`packages/zcode/test/fixtures/src`](packages/zcode/test/fixtures/src) by `@frotzinc/inform6-wasm`, with a fixed serial number so every build is byte-for-byte the same. No story files are checked in.
 
-**Golden files.** `packages/zcode/test/golden` holds `infodump`'s output for each fixture, and the tests require ours to match it exactly. Ztools has no license, so none of it is in this repository. To regenerate the files, build `infodump` yourself outside the repo and run `packages/zcode/scripts/golden.sh <path-to-infodump>`. [`PROVENANCE.md`](packages/zcode/test/golden/PROVENANCE.md) has the exact build command and the archive's checksum.
+**Golden files.** `packages/zcode/test/golden` holds `infodump`'s and `txd`'s output for each fixture, and the tests require ours to match it exactly. Ztools has no license, so none of it is in this repository. To regenerate the files, build `infodump` and `txd` yourself outside the repo and run `packages/zcode/scripts/golden.sh <path-to-infodump> <path-to-txd>`. [`PROVENANCE.md`](packages/zcode/test/golden/PROVENANCE.md) has the exact build command and the archive's checksum.
 
-With `INFODUMP=/path/to/infodump pnpm test`, the tests also compare every hand-observed header case, and every story in `samples/`, against the real `infodump`.
+With `INFODUMP=/path/to/infodump TXD=/path/to/txd pnpm test`, the tests also compare every hand-observed header case, and every story in `samples/`, against the real tools.
 
 CI (`.github/workflows/ci.yml`) runs install, build, typecheck and test on every push to `main`, every pull request and every release tag.
 

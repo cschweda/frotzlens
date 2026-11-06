@@ -1,0 +1,26 @@
+
+Story file is architect-legacy.z5
+Inform Version: 644
+
+    **** Story file map ****
+
+ Base    End   Size
+    0     3f     40  Story file header
+   40     41      2  Abbreviation data
+   42    101     c0  Abbreviation pointer table
+  102    109      8  Header extension table
+  10a    737    62e  Object table
+  738   148b    d54  Property data
+ 148c   14a3     18  Class Prototype Object Numbers
+ 14a4   159d     fa  Property Names Table
+ 159e   15fd     60  Attribute Names Table
+ 15fe   19bf    3c2
+ 19c0   1b9f    1e0  Global variables
+ 1ba0   239b    7fc
+ 239c   245f     c4  Grammar pointer table
+ 2460   2b81    722  Grammar data
+ 2b82   2c61     e0  Action routine table
+ 2c62   2c63      2
+ 2c64   40e0   147d  Dictionary
+ 40e1   40e3      3
+ 40e4  1d0a7  18fc4  Paged memory

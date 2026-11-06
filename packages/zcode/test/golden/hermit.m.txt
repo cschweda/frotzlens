@@ -1,0 +1,26 @@
+
+Story file is hermit.z5
+Inform Version: 644
+
+    **** Story file map ****
+
+ Base    End   Size
+    0     3f     40  Story file header
+   40     41      2  Abbreviation data
+   42    101     c0  Abbreviation pointer table
+  102    109      8  Header extension table
+  10a    31d    214  Object table
+  31e    6c3    3a6  Property data
+  6c4    6d1      e  Class Prototype Object Numbers
+  6d2    7b5     e4  Property Names Table
+  7b6    815     60  Attribute Names Table
+  816    a8a    275
+  a8b    c6a    1e0  Global variables
+  c6b   143b    7d1
+ 143c   14fb     c0  Grammar pointer table
+ 14fc   1bc4    6c9  Grammar data
+ 1bc5   1ca0     dc  Action routine table
+ 1ca1   1ca2      2
+ 1ca3   27f2    b50  Dictionary
+ 27f3   27f3      1
+ 27f4  1533b  12b48  Paged memory

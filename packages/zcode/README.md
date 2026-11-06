@@ -1,6 +1,6 @@
 # @frotzinc/zcode
 
-A parser for Z-machine story files. `Uint8Array` in, a typed model out. It's pure TypeScript with no DOM and no dependencies, and runs the same in a browser, a Web Worker or Node.
+A parser and disassembler for Z-machine story files. `Uint8Array` in, a typed model out. It's pure TypeScript with no DOM and no dependencies, and runs the same in a browser, a Web Worker or Node.
 
 ```ts
 import { parseStory } from '@frotzinc/zcode'
@@ -25,6 +25,10 @@ It covers versions 3, 4, 5 and 8. For versions 1, 2, 6 and 7 it reads the header
 | `dictionary` | Word separators, entry length, every word decoded, with its data bytes and, for Inform files, its flags | §13 |
 | `objects` | Property defaults, and every object: attributes, parent/sibling/child, short name, properties (v1–3 and v4+ size bytes) | §12 |
 | `globals` | All 240 global variables | §6.2 |
+| `code` | Every routine, in address order: locals, and each instruction decoded (operands, store, branch, inline text) | §4, §5 |
+| `strings` | The packed strings after the code | §3 |
+| `grammar` | Inform's grammar table (versions 1, 2 and 3): verbs, lines, tokens, actions, prepositions | Inform |
+| `xrefs` | For each routine, string, object, global and dictionary word: what refers to it, and what it refers to | |
 | `errors` | `{ code, severity, message, address? }`. A table that can't be read comes back empty and the others still come back. Nothing throws. | |
 
 The model is plain data: it survives `structuredClone` (so it crosses a worker boundary), and everything but `bytes`, the story itself, serialises to JSON as it is. Every addressable thing has a stable `id` (`object:47`, `dict:1ca3`, `global:3`, `abbrev:12`).
@@ -37,6 +41,6 @@ import { formatObjects } from '@frotzinc/zcode/format'
 process.stdout.write(formatObjects(story, { fileName: 'game.z5' }))
 ```
 
-`formatHeader`, `formatAbbreviations`, `formatObjects`, `formatTree` and `formatDictionary` produce the text of Ztools' `infodump -i`, `-a`, `-o`, `-t` and `-d`. On every test fixture the output is byte for byte the same. The deliberate differences, none of which any fixture shows, are listed in `test/golden.test.ts`: one `infodump` mislabelling of v3 flags, and non-printable header bytes (and control characters from a story's Unicode table) printed as `?`. The [`frotzlens`](https://www.npmjs.com/package/frotzlens) CLI is built on these.
+`formatHeader`, `formatMap`, `formatAbbreviations`, `formatObjects`, `formatTree`, `formatGrammar` and `formatDictionary` produce the text of Ztools' `infodump -i`, `-m`, `-a`, `-o`, `-t`, `-g` and `-d`; `formatTxd` and `formatRoutine` produce `txd`'s disassembly (`addresses: true` for `txd -n`). On every test fixture the output is byte for byte the same. The deliberate differences, none of which any fixture shows, are listed in `test/golden.test.ts`: one `infodump` mislabelling of v3 flags, and non-printable header bytes (and control characters from a story's Unicode table) printed as `?`. The [`frotzlens`](https://www.npmjs.com/package/frotzlens) CLI is built on these.
 
 MIT. Part of [Frotzlens](https://frotzlens.com), from Frotz, Inc.

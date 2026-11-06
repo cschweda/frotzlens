@@ -1,0 +1,26 @@
+
+Story file is locked-chest.z5
+Inform Version: 644
+
+    **** Story file map ****
+
+ Base    End   Size
+    0     3f     40  Story file header
+   40     41      2  Abbreviation data
+   42    101     c0  Abbreviation pointer table
+  102    109      8  Header extension table
+  10a    31d    214  Object table
+  31e    6b8    39b  Property data
+  6b9    6c6      e  Class Prototype Object Numbers
+  6c7    7aa     e4  Property Names Table
+  7ab    80a     60  Attribute Names Table
+  80b    a7f    275
+  a80    c5f    1e0  Global variables
+  c60   1430    7d1
+ 1431   14f0     c0  Grammar pointer table
+ 14f1   1bb9    6c9  Grammar data
+ 1bba   1c95     dc  Action routine table
+ 1c96   1c97      2
+ 1c98   27f0    b59  Dictionary
+ 27f1   27f3      3
+ 27f4  15283  12a90  Paged memory
