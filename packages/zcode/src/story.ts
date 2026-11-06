@@ -7,7 +7,7 @@ import { parseObjects, type ObjectsResult } from './objects.js'
 import { parseGrammar } from './grammar.js'
 import { MAX_SWEEP_WORK, sweepRoutines } from './routines.js'
 import { sweepStrings } from './strings.js'
-import { buildXrefs } from './xrefs.js'
+import { MAX_XREFS, buildXrefs } from './xrefs.js'
 import { MAX_TEXT, MAX_TOTAL_TEXT, defaultExtra, readAlphabetTable, readString, readUnicodeTable, type TextContext } from './text.js'
 import type { Code, Dictionary, Header, ParseError, ParseOptions, StoryFile, Version, ZString } from './types.js'
 
@@ -191,7 +191,10 @@ function parse(data: Uint8Array, opts: ParseOptions): StoryFile {
       )
     : undefined
   progress('grammar', 1)
-  const xrefs = buildXrefs(version, routines, strings, objects.table, dictionary, grammar)
+  const { xrefs, full } = buildXrefs(version, routines, strings, objects.table, dictionary, grammar)
+  if (full) {
+    errors.push({ code: 'bad-address', severity: 'warning', message: `The cross-reference index was cut at ${MAX_XREFS.toLocaleString('en')} references.` })
+  }
   progress('xrefs', 1)
 
   if (text.truncated) {

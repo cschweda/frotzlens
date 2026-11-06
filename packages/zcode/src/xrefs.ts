@@ -36,6 +36,16 @@ export interface XrefEntry {
 /** By Id; an Id with no references either way has no entry. */
 export type Xrefs = Record<string, XrefEntry>
 
+/**
+ * The most references the index records. A crafted grammar (many synonyms ×
+ * many lines × many tokens) could otherwise ask for an enormous index; real
+ * stories record a few thousand (Mingus I: ~12,000). Past it, the index is cut
+ * and parseStory warns.
+ */
+export const MAX_XREFS = 1_000_000
+
+class XrefsFull extends Error {}
+
 export function buildXrefs(
   version: Version,
   routines: Routine[],
@@ -43,14 +53,31 @@ export function buildXrefs(
   objects: ObjectTable,
   dictionary: Dictionary,
   grammar?: Grammar,
-): Xrefs {
+): { xrefs: Xrefs; full: boolean } {
   const out: Xrefs = {}
   const entry = (id: Id) => (out[id] ??= { from: [], to: [] })
+  // `to` stays an ordered list in the model; a Set beside it keeps each link O(1).
+  const toSets = new Map<Id, Set<Id>>()
+  let links = 0
   const link = (from: Id, at: number, to: Id) => {
+    if (++links > MAX_XREFS) throw new XrefsFull()
     entry(to).from.push({ id: from, address: at })
-    const e = entry(from)
-    if (!e.to.includes(to)) e.to.push(to)
+    let seen = toSets.get(from)
+    if (!seen) toSets.set(from, (seen = new Set()))
+    if (!seen.has(to)) {
+      seen.add(to)
+      entry(from).to.push(to)
+    }
   }
+  try {
+    build()
+  } catch (e) {
+    if (!(e instanceof XrefsFull)) throw e
+    return { xrefs: out, full: true }
+  }
+  return { xrefs: out, full: false }
+
+  function build() {
 
   const routineIds = new Map(routines.map(r => [r.address, r.id]))
   const stringIds = new Map(strings.map(s => [s.address, s.id]))
@@ -117,26 +144,28 @@ export function buildXrefs(
     const parsingRoutine = (data: number) =>
       grammar.version === 1 ? grammar.parsingRoutines[data] : grammar.version === 2 ? unpack(data, version) : undefined
     for (const verb of grammar.verbs) {
-      // Every word of the verb — the verb and its synonyms — refers through the same lines.
-      for (const verbWord of verb.words) {
-        const from = wordByText.get(verbWord)
-        if (!from) continue
-        for (const line of verb.lines) {
-          const action = routineIds.get(grammar.actions[line.action] ?? -1)
-          if (action) link(from, line.address, action)
-          for (const t of line.tokens) {
-            if (t.kind === 'preposition') {
-              const prep = prepositionWord(t.data)
-              if (prep) link(from, line.address, prep)
-            } else if (t.kind === 'routine' || t.kind === 'noun-routine' || t.kind === 'scope-routine') {
-              const at = parsingRoutine(t.data)
-              const routine = at !== undefined ? routineIds.get(at) : undefined
-              if (routine) link(from, line.address, routine)
-            }
+      // What the verb's lines name — worked out once, then given to each of its words (the verb
+      // and its synonyms), which all refer through the same lines.
+      const targets: { at: number; to: Id }[] = []
+      for (const line of verb.lines) {
+        const action = routineIds.get(grammar.actions[line.action] ?? -1)
+        if (action) targets.push({ at: line.address, to: action })
+        for (const t of line.tokens) {
+          if (t.kind === 'preposition') {
+            const prep = prepositionWord(t.data)
+            if (prep) targets.push({ at: line.address, to: prep })
+          } else if (t.kind === 'routine' || t.kind === 'noun-routine' || t.kind === 'scope-routine') {
+            const at = parsingRoutine(t.data)
+            const routine = at !== undefined ? routineIds.get(at) : undefined
+            if (routine) targets.push({ at: line.address, to: routine })
           }
         }
       }
+      for (const verbWord of verb.words) {
+        const from = wordByText.get(verbWord)
+        if (from) for (const t of targets) link(from, t.at, t.to)
+      }
     }
   }
-  return out
+  }
 }
