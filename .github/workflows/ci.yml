@@ -23,6 +23,8 @@ jobs:
           node-version-file: .nvmrc
           cache: pnpm
       - run: pnpm install --frozen-lockfile
+      # Build first: packages typecheck and test against their dependencies' dist/
+      # (the CLI against @frotzinc/zcode, zcode's fixtures against inform6-wasm).
+      - run: pnpm build
       - run: pnpm typecheck
       - run: pnpm test
-      - run: pnpm build

@@ -1,9 +1,10 @@
 {
   "name": "frotzlens",
   "version": "0.0.1",
-  "description": "Browser-based Z-machine story file disassembler and inspector \u2014 CLI. In development.",
+  "description": "Inspect Z-machine story files from the terminal: header, abbreviations, objects, object tree and dictionary, in infodump's format or as JSON. The CLI of Frotzlens.",
   "license": "GPL-3.0-or-later",
   "author": "Christopher Schweda",
+  "type": "module",
   "homepage": "https://frotzlens.com",
   "repository": {
     "type": "git",
@@ -13,10 +14,32 @@
   "bugs": {
     "url": "https://github.com/cschweda/frotzlens/issues"
   },
+  "bin": {
+    "frotzlens": "dist/bin.js"
+  },
   "files": [
+    "dist",
+    "!dist/**/*.test.*",
     "README.md",
     "LICENSE"
   ],
+  "engines": {
+    "node": ">=22.12"
+  },
+  "scripts": {
+    "build": "rm -rf dist && tsc -p tsconfig.build.json && chmod +x dist/bin.js",
+    "test": "pnpm run build && vitest run",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "prepack": "pnpm run build"
+  },
+  "dependencies": {
+    "@frotzinc/zcode": "workspace:*"
+  },
+  "devDependencies": {
+    "typescript": "5.9.3",
+    "vitest": "^5.1.0",
+    "@types/node": "^22.20.5"
+  },
   "keywords": [
     "z-machine",
     "z-code",

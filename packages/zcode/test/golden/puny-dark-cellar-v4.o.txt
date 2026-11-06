@@ -1,0 +1,100 @@
+
+Story file is puny-dark-cellar-v4.z4
+
+    **** Objects ****
+
+  Object count = 11
+
+  1. Attributes: None
+     Parent object:   0  Sibling object:   0  Child object:   0
+     Property address: 0222
+         Description: "Class"
+          Properties:
+
+  2. Attributes: None
+     Parent object:   0  Sibling object:   0  Child object:   0
+     Property address: 0232
+         Description: "Object"
+          Properties:
+
+  3. Attributes: None
+     Parent object:   0  Sibling object:   0  Child object:   0
+     Property address: 0244
+         Description: "Routine"
+          Properties:
+
+  4. Attributes: None
+     Parent object:   0  Sibling object:   0  Child object:   0
+     Property address: 0256
+         Description: "String"
+          Properties:
+
+  5. Attributes: 13
+     Parent object:   0  Sibling object:   0  Child object:   0
+     Property address: 0268
+         Description: "(Directions)"
+          Properties:
+              [23] 05 57 
+              [12] 05 54 
+              [ 7] 18 e9 
+
+  6. Attributes: 7, 10, 12, 15
+     Parent object:   0  Sibling object:   0  Child object:   0
+     Property address: 027d
+         Description: "you"
+          Properties:
+              [28] ff ff 
+              [25] 00 20 
+              [24] 00 00 
+              [23] 00 00 
+              [22] 00 00 
+              [15] ff ff 
+              [14] ff ff 
+              [13] ff ff 
+              [12] 16 a7 
+              [11] ff ff 
+              [ 7] 1a 57 
+              [ 5] ff ff 
+              [ 3] 04 b7 
+              [ 1] 11 1d 11 38 12 d6 
+
+  7. Attributes: None
+     Parent object:   0  Sibling object:   0  Child object:   0
+     Property address: 02b0
+         Description: "Darkness"
+          Properties:
+              [12] 00 00 
+              [ 7] 1a 5c 
+              [ 6] 00 00 
+
+  8. Attributes: 0
+     Parent object:   0  Sibling object:   0  Child object:   9
+     Property address: 02c1
+         Description: "Hall"
+          Properties:
+              [21] 00 0a 
+              [ 7] 1a 60 
+
+  9. Attributes: 0
+     Parent object:   8  Sibling object:   0  Child object:   0
+     Property address: 02cd
+         Description: "brass lantern"
+          Properties:
+              [ 7] 1a 69 
+              [ 1] 0e 8c 10 d5 10 cc 10 f0 
+
+ 10. Attributes: None
+     Parent object:   0  Sibling object:   0  Child object:  11
+     Property address: 02e6
+         Description: "Cellar"
+          Properties:
+              [20] 00 08 
+              [ 7] 1a 72 
+
+ 11. Attributes: None
+     Parent object:  10  Sibling object:   0  Child object:   0
+     Property address: 02f4
+         Description: "rusty key"
+          Properties:
+              [ 7] 1a 7e 
+              [ 1] 12 7c 11 89 10 b1 

@@ -1,0 +1,8 @@
+
+Story file is minimal.z5
+
+    **** Dictionary ****
+
+  Word separators = ".,""
+  Word count = 0, word size = 9
+

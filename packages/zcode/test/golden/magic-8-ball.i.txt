@@ -1,0 +1,25 @@
+
+Story file is magic-8-ball.z5
+
+    **** Story file header ****
+
+Z-code version:           5
+Interpreter flags:        None
+Release number:           1
+Size of resident memory:  27d8
+Start PC:                 27d9
+Dictionary address:       1c73
+Object table address:     010a
+Global variables address: 0a50
+Size of dynamic memory:   1401
+Game flags:               Supports undo
+Serial number:            000000
+Abbreviations address:    0042
+File size:                15328
+Checksum:                 a835
+Terminating keys address: 1400
+    Keys used: 
+Header extension address: 0102
+Inform Version:           6.44
+Header extension length:  0003
+Unicode table address:    0000

@@ -1,0 +1,31 @@
+{
+  "name": "@frotzinc/zcode",
+  "version": "0.0.0",
+  "description": "Z-machine story file parser: header, memory map, text, dictionary, object table, globals — a typed model from a Uint8Array. Pure TypeScript; runs in a browser, a Web Worker, or Node.",
+  "license": "MIT",
+  "author": "Christopher Schweda",
+  "type": "module",
+  "homepage": "https://github.com/cschweda/frotzlens/tree/main/packages/zcode",
+  "repository": { "type": "git", "url": "git+https://github.com/cschweda/frotzlens.git", "directory": "packages/zcode" },
+  "bugs": { "url": "https://github.com/cschweda/frotzlens/issues" },
+  "keywords": ["z-machine", "z-code", "zcode", "inform", "inform6", "interactive-fiction", "parser", "disassembler", "frotzinc"],
+  "sideEffects": false,
+  "exports": {
+    ".": { "types": "./dist/index.d.ts", "default": "./dist/index.js" },
+    "./format": { "types": "./dist/format/index.d.ts", "default": "./dist/format/index.js" },
+    "./package.json": "./package.json"
+  },
+  "files": ["dist", "!dist/**/*.test.*", "README.md", "CHANGELOG.md", "LICENSE"],
+  "scripts": {
+    "fixtures": "node scripts/build-fixtures.mjs",
+    "build": "rm -rf dist && tsc -p tsconfig.build.json",
+    "test": "pnpm run fixtures && vitest run",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "prepack": "pnpm run build"
+  },
+  "devDependencies": {
+    "@frotzinc/inform6-wasm": "workspace:*",
+    "typescript": "5.9.3",
+    "vitest": "^5.1.0"
+  }
+}

@@ -1,0 +1,38 @@
+! ============================================================================
+!  GRAMMAR VERSION 1  —  Frotzlens test fixture
+! ----------------------------------------------------------------------------
+!  A two-room Standard Library game compiled with Inform's older grammar
+!  table format (Grammar__Version 1), so the grammar decoder sees both
+!  encodings. Copyright Christopher Schweda; MIT, as part of @frotzinc/zcode's
+!  tests.
+! ============================================================================
+
+Constant Grammar__Version 1;
+Constant Story "GRAMMAR ONE";
+Constant Headline "^A Frotzlens fixture.^";
+
+Include "Parser";
+Include "VerbLib";
+
+Object Porch "Porch"
+  with description "A wooden porch. A door leads north.",
+       n_to Parlour,
+  has light;
+
+Object Parlour "Parlour"
+  with description "A dusty parlour. The porch is south.",
+       s_to Porch,
+  has light;
+
+Object -> bell "brass bell"
+  with name 'brass' 'bell',
+       description "A small brass bell.";
+
+[ Initialise; location = Porch; ];
+
+[ RingSub; "Ding."; ];
+
+Include "Grammar";
+
+Verb 'ring' 'chime'
+  * noun -> Ring;

@@ -1,0 +1,25 @@
+
+Story file is puny-dark-cellar.z5
+
+    **** Story file header ****
+
+Z-code version:           5
+Interpreter flags:        None
+Release number:           1
+Size of resident memory:  1548
+Start PC:                 1549
+Dictionary address:       0e08
+Object table address:     010a
+Global variables address: 04be
+Size of dynamic memory:   09e5
+Game flags:               Supports colour
+Serial number:            000000
+Abbreviations address:    0042
+File size:                06d98
+Checksum:                 1d50
+Terminating keys address: 09e4
+    Keys used: 
+Header extension address: 0102
+Inform Version:           6.44
+Header extension length:  0003
+Unicode table address:    0000

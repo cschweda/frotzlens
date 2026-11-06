@@ -1,0 +1,30 @@
+
+Story file is minimal.z5
+
+    **** Objects ****
+
+  Object count = 4
+
+  1. Attributes: None
+     Parent object:   0  Sibling object:   0  Child object:   0
+     Property address: 01c0
+         Description: "Class"
+          Properties:
+
+  2. Attributes: None
+     Parent object:   0  Sibling object:   0  Child object:   0
+     Property address: 01d0
+         Description: "Object"
+          Properties:
+
+  3. Attributes: None
+     Parent object:   0  Sibling object:   0  Child object:   0
+     Property address: 01e2
+         Description: "Routine"
+          Properties:
+
+  4. Attributes: None
+     Parent object:   0  Sibling object:   0  Child object:   0
+     Property address: 01f4
+         Description: "String"
+          Properties:
