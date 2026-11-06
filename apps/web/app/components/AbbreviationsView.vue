@@ -11,8 +11,8 @@ const used = computed(() => props.story.abbreviations.filter(a => a.text.length)
   <div class="flex flex-col gap-6">
     <ViewHeader title="Abbreviations" :eyebrow="fileName" :copy="() => formatAbbreviations(story, { fileName })" copy-label="Copy the abbreviations (infodump)">
       Text the compiler stores once, so the story’s strings can point to it instead of spelling it out.
-      Inform only fills the table when asked to (economy mode, <code class="data">-e</code>); here
-      {{ used }} of {{ story.abbreviations.length }} entries hold text.
+      Inform only fills the table when asked to (economy mode, <code class="data">-e</code>)<template v-if="story.abbreviations.length">; here
+      {{ used }} of {{ story.abbreviations.length }} entries hold text</template>.
     </ViewHeader>
     <p v-if="!story.abbreviations.length" class="text-muted">This file has no abbreviation table.</p>
     <div v-else class="overflow-x-auto rounded-xl border border-default">

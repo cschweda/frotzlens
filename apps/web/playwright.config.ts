@@ -6,10 +6,12 @@ const URL = `http://127.0.0.1:${PORT}`
 
 /**
  * The smoke test: the generated site (run `pnpm generate` first), served with
- * the production CSP by scripts/serve.mjs, in Chromium.
+ * the production CSP by scripts/serve.mjs, in Chromium. zcode's fixtures are
+ * built first (e2e/global-setup.ts), for the symbols test.
  */
 export default defineConfig({
   testDir: './e2e',
+  globalSetup: './e2e/global-setup.ts',
   timeout: 60_000,
   fullyParallel: true,
   forbidOnly: !!process.env.CI,

@@ -80,11 +80,13 @@ const DIRECTION_NAMES: Record<string, string> = {
 /** --info: the fingerprint, and a Blorb's contents. */
 function formatInfo(story: StoryFile, file: string): string {
   const fp = story.fingerprint
-  const lines = [`Story file is ${file}`, '']
+  const lines = [`Story file is ${file}`]
+  // A Blorb with no Z-machine story has no fingerprint: only its contents are listed.
+  if (fp) lines.push('')
   const v = fp?.compilerVersion
   const compiler = fp?.compiler === 'inform6' ? `Inform ${v ?? '6'}` : fp?.compiler === 'zilf' ? `ZILF${v ? ` ${v}` : ''}` : 'unknown'
-  lines.push(`Compiler:  ${compiler}`)
-  lines.push(`Library:   ${fp?.library ? `${fp.library.name}${fp.library.version ? ` ${fp.library.version}` : ''}` : 'none recognised'}`)
+  if (fp) lines.push(`Compiler:  ${compiler}`)
+  if (fp) lines.push(`Library:   ${fp.library ? `${fp.library.name}${fp.library.version ? ` ${fp.library.version}` : ''}` : 'none recognised'}`)
   if (fp?.compiler === 'inform6') {
     const names = Object.entries(fp.veneer).sort(([a], [b]) => Number(a) - Number(b))
     lines.push(`Veneer:    ${names.length} routine${names.length === 1 ? '' : 's'} recognised`)
@@ -103,7 +105,7 @@ function formatInfo(story: StoryFile, file: string): string {
 
 /** --rooms: each room, its exits, and where the game starts. */
 function formatRooms(story: StoryFile, g: RoomGraph): string {
-  const name = (n: number) => `${story.objects.objects[n - 1]?.shortName.text ?? '?'} (${n})`
+  const name = (n: number) => `${story.objects.objects[n - 1]?.shortName.text || 'object'} (${n})`
   const lines: string[] = [`${g.rooms.length} room${g.rooms.length === 1 ? '' : 's'}${g.start ? `; the game starts in ${name(g.start)}` : ''}`, '']
   for (const r of g.rooms) {
     lines.push(name(r.number))
@@ -217,7 +219,7 @@ export function main(argv: string[], io: Io): number {
   }
 
   let status = 0
-  const models: (Omit<StoryFile, 'bytes'> & { file: string; symbols?: Symbols; rooms?: RoomGraph })[] = []
+  const models: (Omit<StoryFile, 'bytes'> & { file: string; symbols?: Omit<Symbols, 'prefix'> & { prefix?: string }; rooms?: RoomGraph })[] = []
   for (const file of files) {
     let bytes: Uint8Array
     try {
@@ -235,15 +237,21 @@ export function main(argv: string[], io: Io): number {
     if (symbols && !own) io.stderr(`frotzlens: ${file}: ${symbolsFile} was written for another story; its names are left out\n`)
     const graph = own && rooms ? roomGraph(story, own) : undefined
     if (json) {
-      models.push({ file, ...forJson(story), ...(own ? { symbols: own } : {}), ...(graph ? { rooms: graph } : {}) })
+      // The debug file's story prefix as hex, not a typed array's 64 numbered keys.
+      const symbolsJson = own && { ...own, prefix: own.prefix ? Array.from(own.prefix, b => b.toString(16).padStart(2, '0')).join('') : undefined }
+      models.push({ file, ...forJson(story), ...(symbolsJson ? { symbols: symbolsJson } : {}), ...(graph ? { rooms: graph } : {}) })
       continue
     }
     // Nothing to show for a file that isn't a story (a Blorb with no story in it, a bad or missing
     // header); the errors above say why. A version 1, 2, 6 or 7 file still has a real header to show.
+    // --info lists a Blorb's contents even when there's no story in it to read.
+    if (info && story.blorb && story.errors.some(e => e.code === 'blorb-unsupported')) io.stdout(formatInfo(story, file))
     const notAStory = story.bytes.length < 64 || story.errors.some(e => e.code === 'bad-header' || e.code === 'blorb-unsupported')
     if (notAStory) continue
-    if (info) io.stdout(formatInfo(story, file))
-    if (rooms) {
+    // Versions 1, 2, 6 and 7 have only a header to show: nothing to fingerprint or map.
+    const unsupported = story.errors.some(e => e.code === 'unsupported-version')
+    if (info && !unsupported) io.stdout(formatInfo(story, file))
+    if (rooms && !unsupported) {
       if (graph) io.stdout(formatRooms(story, graph))
       else if (own) io.stderr(`frotzlens: ${file}: no direction properties (n_to, s_to, …) to find exits by\n`)
     }

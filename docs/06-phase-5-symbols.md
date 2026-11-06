@@ -75,5 +75,5 @@ ZILF-compiled stories were checked against Ztools before this phase (PR #8): eve
   - Each room links to its object. The SVG is a labelled group, because a `role="img"` can't contain links.
   - Below the picture, the same map as a list: each room and its exits. That list is the map for anyone who can't see the picture.
   - "Copy the map" gives Frotzsmith's shape.
-- **Smoke test.** A new Playwright test opens the `mingus-1` fixture, refuses `demo.dbg`, loads `mingus-1.dbg`, finds `Initialise` and `location`, checks the map (19 rooms, starting in Wind-Scoured Mesa), and runs axe on each view. Then it switches names off.
+- **Smoke test.** A new Playwright test opens the `mingus-1` fixture, refuses `demo.dbg`, loads `mingus-1.dbg`, finds `Initialise` and `location`, checks the map (19 rooms, starting in Wind-Scoured Mesa), and runs axe on the Symbols view (before and after loading), a global, the Map and Abbreviations. Then it switches names off. The existing tests cover the other views.
   - axe caught two problems along the way, both fixed: links in the exit sentences needed underlines (link-in-text-block), and the map's SVG had `role="img"` around links (nested-interactive).

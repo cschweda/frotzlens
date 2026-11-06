@@ -104,7 +104,8 @@ function grammarAnnotations(story: StoryFile, width: number): Map<number, string
 }
 
 const routineName = (c: Context, address: number) => {
-  const named = c.symbols?.routines[address]?.name
+  // txd -n's addresses win over names, as they do over labels.
+  const named = c.addresses ? undefined : c.symbols?.routines[address]?.name
   if (named) return named
   const n = c.routineNumber.get(address)
   return c.addresses || n === undefined ? hx(address) : `R${String(n).padStart(4, '0')}`

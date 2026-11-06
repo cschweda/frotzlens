@@ -33,14 +33,29 @@ const DIRS: Record<string, string> = {
   n: 'north', s: 'south', e: 'east', w: 'west', ne: 'northeast', nw: 'northwest', se: 'southeast', sw: 'southwest',
   u: 'up', d: 'down', in: 'in', out: 'out',
 }
-const name = (n: number) => objectName(props.story, n)
+// A room's label: its short name, with its number when another room has the same name (as toMapGraph does).
+const nameCount = computed(() => {
+  const m = new Map<string, number>()
+  for (const r of graph.value?.rooms ?? []) m.set(objectName(props.story, r.number), (m.get(objectName(props.story, r.number)) ?? 0) + 1)
+  return m
+})
+const name = (n: number) => {
+  const plain = objectName(props.story, n)
+  return (nameCount.value.get(plain) ?? 0) > 1 ? `${plain} (${n})` : plain
+}
 function exitText(e: RoomExit): string {
   if (e.kind === 'room') return ''
   if (e.kind === 'door') return `through ${name(e.door!)}`
   if (e.kind === 'routine') return e.candidates?.length ? 'decided as the game runs: perhaps' : 'decided as the game runs'
   return 'no way through (a message)'
 }
-const exitsFrom = (n: number) => graph.value?.exits.filter(e => e.from === n) ?? []
+// Each room's exits, indexed once (a big map would otherwise rescan every exit per room).
+const exitIndex = computed(() => {
+  const m = new Map<number, RoomExit[]>()
+  for (const e of graph.value?.exits ?? []) m.set(e.from, [...(m.get(e.from) ?? []), e])
+  return m
+})
+const exitsFrom = (n: number) => exitIndex.value.get(n) ?? []
 const LINK = 'text-lamp underline decoration-dotted underline-offset-4 hover:decoration-solid'
 const copy = () => JSON.stringify(toMapGraph(graph.value!), null, 2) + '\n'
 </script>
@@ -81,12 +96,12 @@ const copy = () => JSON.stringify(toMapGraph(graph.value!), null, 2) + '\n'
               :y2="centre(c.to).y"
               stroke="var(--frotz-lamp-text)"
               stroke-width="2"
-              :stroke-dasharray="c.grid && exitsFrom(c.from).find(e => e.dir === c.dir)?.kind !== 'routine' ? undefined : '6 5'"
+              :stroke-dasharray="c.routine ? '6 5' : undefined"
               stroke-opacity="0.7"
             />
           </g>
           <a v-for="r in map.rooms" :key="r.number" :href="`#object/${r.number}`">
-            <title>{{ r.name || `object ${r.number}` }}</title>
+            <title>{{ name(r.number) }}</title>
             <rect
               :x="r.col * CELL - W / 2"
               :y="r.row * CELL - H / 2"
@@ -97,7 +112,7 @@ const copy = () => JSON.stringify(toMapGraph(graph.value!), null, 2) + '\n'
               :stroke="r.number === graph.start ? 'var(--frotz-lamp-text)' : 'var(--ui-border-accented)'"
               :stroke-width="r.number === graph.start ? 3 : 1.5"
             />
-            <text :x="r.col * CELL" :y="r.row * CELL + 5" text-anchor="middle" font-size="14" fill="var(--ui-text-highlighted)">{{ short(r.name || `object ${r.number}`) }}</text>
+            <text :x="r.col * CELL" :y="r.row * CELL + 5" text-anchor="middle" font-size="14" fill="var(--ui-text-highlighted)">{{ short(name(r.number)) }}</text>
           </a>
         </svg>
       </div>

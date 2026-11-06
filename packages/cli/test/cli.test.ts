@@ -198,6 +198,11 @@ describe('--symbols, --info, --rooms', () => {
     expect(r.code).toBe(0)
     expect(r.err).toBe('')
     expect(r.out).toContain('Routine Initialise, 0 locals\n\n       STORE           location,#001a\n')
+    expect(r.out).toMatch(/PULL +i\n/) // a local, by name
+    // -n's addresses win over routine names.
+    const n = run(['-n', '--symbols', 'dark-cellar.dbg', 'dark-cellar.z5']).out
+    expect(n).not.toContain('Routine Initialise')
+    expect(n).toMatch(/STORE +location,#001a/)
     expect(run(['--symbols', 'dark-cellar.dbg', '--routine', run(['-n', 'dark-cellar.z5']).out.match(/Routine ([0-9a-f]+), 0 locals\n\n *\S+: +STORE +G[0-9a-f]+,#001a/)![1]!, 'dark-cellar.z5']).out).toMatch(/^Routine Initialise/)
   })
 
@@ -227,7 +232,37 @@ describe('--symbols, --info, --rooms', () => {
     const m = JSON.parse(run(['--json', '--rooms', '--symbols', 'dark-cellar.dbg', 'dark-cellar.z5']).out)
     expect(m.fingerprint.compiler).toBe('inform6')
     expect(Object.values(m.symbols.routines).some((r: any) => r.name === 'Initialise')).toBe(true)
+    expect(m.symbols.prefix).toMatch(/^[0-9a-f]{128}$/)
     expect(m.rooms.rooms.map((r: any) => r.name)).toEqual(['Hall', 'Cellar'])
+  })
+
+  it('--info and --rooms have nothing to say about a version they only read the header of', () => {
+    const dir = mkdtempSync(join(tmpdir(), 'frotzlens-cli-'))
+    try {
+      const v6 = readFileSync(FIXTURES + 'demo.z5')
+      v6[0] = 6
+      writeFileSync(join(dir, 'v6.z6'), v6)
+      const r = spawnSync(process.execPath, [BIN, '--info', '--rooms', '--symbols', join(FIXTURES, 'demo.dbg'), 'v6.z6'], { cwd: dir, encoding: 'utf8' })
+      expect(r.stdout).toBe('')
+      expect(r.stderr).toContain('not supported')
+    } finally {
+      rmSync(dir, { recursive: true, force: true })
+    }
+  })
+
+  it('--info lists a Blorb with no story in it', () => {
+    const be = (n: number) => Buffer.from([(n >>> 24) & 255, (n >>> 16) & 255, (n >>> 8) & 255, n & 255])
+    const glul = Buffer.concat([Buffer.from('GLUL'), be(4), Buffer.from([1, 2, 3, 4])])
+    const dir = mkdtempSync(join(tmpdir(), 'frotzlens-cli-'))
+    try {
+      writeFileSync(join(dir, 'g.zblorb'), Buffer.concat([Buffer.from('FORM'), be(4 + glul.length), Buffer.from('IFRS'), glul]))
+      const r = spawnSync(process.execPath, [BIN, '--info', 'g.zblorb'], { cwd: dir, encoding: 'utf8' })
+      expect(r.status).toBe(1)
+      expect(r.stdout).toBe('Story file is g.zblorb\n\nBlorb:\n       c  GLUL  4 bytes\n')
+      expect(r.stderr).toContain('Glulx')
+    } finally {
+      rmSync(dir, { recursive: true, force: true })
+    }
   })
 
   it('an unreadable debug file stops before any story is read', () => {

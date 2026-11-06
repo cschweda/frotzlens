@@ -27,7 +27,8 @@ const facts = computed(() => {
   if (blorb) {
     const pictures = blorb.resources.filter(r => r.usage === 'Pict').length
     const sounds = blorb.resources.filter(r => r.usage === 'Snd ').length
-    rows.push(['Container', `Blorb: the story, ${pictures} picture${pictures === 1 ? '' : 's'}, ${sounds} sound${sounds === 1 ? '' : 's'}${blorb.frontispiece !== undefined ? ' (picture ' + blorb.frontispiece + ' is the cover)' : ''}`])
+    const what = blorb.storyOffset !== undefined ? 'the story' : 'no Z-machine story'
+    rows.push(['Container', `Blorb: ${what}, ${pictures} picture${pictures === 1 ? '' : 's'}, ${sounds} sound${sounds === 1 ? '' : 's'}${blorb.frontispiece !== undefined ? ' (picture ' + blorb.frontispiece + ' is the cover)' : ''}`])
     if (blorb.title) rows.push(['Title', blorb.title])
     if (blorb.author) rows.push(['Author', blorb.author])
   }

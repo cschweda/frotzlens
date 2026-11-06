@@ -12,11 +12,10 @@ const rows = computed(() => {
   const s = props.story
   const q = filter.value.trim().toLowerCase()
   return s.globals
-    .map(g => ({ g, name: globalName(g.number), txd: `G${hex(g.number, 2)}`, uses: new Set((s.xrefs[g.id]?.from ?? []).map(f => f.id)).size }))
+    // Uses: each place an instruction reads or writes it, as the detail's "Used by" counts them.
+    .map(g => ({ g, name: globalName(g.number), txd: `G${hex(g.number, 2)}`, uses: s.xrefs[g.id]?.from.length ?? 0 }))
     .filter(r => !q || r.name.toLowerCase().includes(q) || r.txd.toLowerCase() === q || hex(r.g.value).includes(q.replace(/^#|0x/, '')))
 })
-const list = useLimit(() => rows.value, 240)
-watch(filter, () => list.reset())
 
 /** As text: each global, its name if any, and its starting value. */
 const asText = () =>
@@ -45,7 +44,7 @@ const asText = () =>
           </tr>
         </thead>
         <tbody>
-          <tr v-for="r in list.shown.value" :key="r.g.number" class="border-t border-default">
+          <tr v-for="r in rows" :key="r.g.number" class="border-t border-default">
             <td class="data px-4 py-1.5"><a :href="`#global/${r.g.number}`" class="text-lamp hover:underline">{{ r.name }}</a></td>
             <td v-if="activeSymbols" class="data px-4 py-1.5 text-muted">{{ r.txd }}</td>
             <td class="data px-4 py-1.5 text-muted">{{ hex(r.g.address) }}</td>
@@ -56,7 +55,6 @@ const asText = () =>
       </table>
     </div>
     <p v-if="!rows.length" class="text-muted">{{ story.globals.length ? `No global matches “${filter}”.` : 'This file has no globals table.' }}</p>
-    <UButton v-if="list.remaining.value" color="neutral" variant="outline" class="w-fit" @click="list.more">Show more ({{ list.remaining.value }} left)</UButton>
   </div>
 
   <div v-else-if="global" class="flex flex-col gap-6">

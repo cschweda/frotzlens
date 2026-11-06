@@ -9,7 +9,8 @@
 import type { Direction, RoomGraph } from '@frotzinc/zcode'
 
 export interface PlacedRoom { number: number; name: string; col: number; row: number }
-export interface Connector { from: number; to: number; dir: Direction; grid: boolean }
+/** grid: drawn on its compass step; routine: an exit a routine decides (drawn dashed). */
+export interface Connector { from: number; to: number; dir: Direction; grid: boolean; routine: boolean }
 export interface MapLayout {
   rooms: PlacedRoom[]
   connectors: Connector[]
@@ -23,9 +24,11 @@ export const DELTA: Record<Direction, [number, number]> = {
 }
 
 /** Each exit that reaches a room, or for a routine exit each room it can return: what the map draws. */
-export function mapEdges(g: RoomGraph): { from: number; to: number; dir: Direction }[] {
+export function mapEdges(g: RoomGraph): { from: number; to: number; dir: Direction; routine: boolean }[] {
   const rooms = new Set(g.rooms.map(r => r.number))
-  return g.exits.flatMap(e => (e.to !== undefined ? [e.to] : (e.candidates ?? [])).filter(t => rooms.has(t)).map(to => ({ from: e.from, to, dir: e.dir })))
+  return g.exits.flatMap(e =>
+    (e.to !== undefined ? [e.to] : (e.candidates ?? [])).filter(t => rooms.has(t)).map(to => ({ from: e.from, to, dir: e.dir, routine: e.kind === 'routine' })),
+  )
 }
 
 export function layoutMap(g: RoomGraph): MapLayout {
@@ -37,27 +40,37 @@ export function layoutMap(g: RoomGraph): MapLayout {
     pos.set(room, [c, r])
     occupied.add(key(c, r))
   }
+  // Rings outward until a free cell: there are only so many rooms, so one always turns up.
   const nearestFree = (c: number, r: number): [number, number] => {
-    for (let ring = 0; ring < 64; ring++)
+    for (let ring = 0; ; ring++)
       for (let dc = -ring; dc <= ring; dc++)
         for (let dr = -ring; dr <= ring; dr++) {
           if (Math.max(Math.abs(dc), Math.abs(dr)) !== ring) continue
           if (!occupied.has(key(c + dc, r + dr))) return [c + dc, r + dr]
         }
-    return [c, r]
   }
-  // Place each exit's room by its source, by the exit's compass step, until nothing more can be placed.
+  const compass = (e: { dir: Direction }) => DELTA[e.dir][0] !== 0 || DELTA[e.dir][1] !== 0
+  /**
+   * Place rooms from placed ones until nothing more can be. Compass exits go first, each to its step
+   * (or the nearest free cell); only when none is left does one up/down/in/out exit place its room,
+   * so a room any compass exit reaches is put by that, whatever order the exits come in.
+   */
   const relax = () => {
-    for (let changed = true; changed; ) {
-      changed = false
+    for (;;) {
+      let changed = false
       for (const e of edges) {
         const from = pos.get(e.from)
-        if (!from || pos.has(e.to)) continue
+        if (!from || pos.has(e.to) || !compass(e)) continue
         const [dc, dr] = DELTA[e.dir]
-        if ((dc || dr) && !occupied.has(key(from[0] + dc, from[1] + dr))) place(e.to, from[0] + dc, from[1] + dr)
+        if (!occupied.has(key(from[0] + dc, from[1] + dr))) place(e.to, from[0] + dc, from[1] + dr)
         else place(e.to, ...nearestFree(from[0] + dc, from[1] + dr))
         changed = true
       }
+      if (changed) continue
+      const e = edges.find(x => pos.has(x.from) && !pos.has(x.to))
+      if (!e) return
+      const from = pos.get(e.from)!
+      place(e.to, ...nearestFree(from[0], from[1]))
     }
   }
   const first = g.start ?? g.rooms[0]?.number
