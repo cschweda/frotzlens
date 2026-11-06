@@ -5,7 +5,7 @@
 import { readFileSync, readdirSync } from 'node:fs'
 import { fileURLToPath } from 'node:url'
 import { describe, expect, it } from 'vitest'
-import { formatRoutine, formatStrings, formatTxd, routineView } from '../src/format/index.js'
+import { formatRoutine, formatStrings, formatTxd, routineView, txdRoutineName, txdStringName } from '../src/format/index.js'
 import { parseStory } from '../src/index.js'
 import type { StoryFile } from '../src/types.js'
 
@@ -56,6 +56,23 @@ describe('routineView', () => {
 
   it('is undefined for an address that is not a routine', () => {
     expect(routineView(load('dark-cellar.z5'), 1)).toBeUndefined()
+  })
+})
+
+describe('txd names', () => {
+  it('are the names the disassembly uses', () => {
+    const s = load('dark-cellar.z5')
+    for (const r of s.code.routines) expect(txdRoutineName(s, r.address)).toBe(routineView(s, r.address)!.name)
+    expect(txdStringName(s, s.strings[0]!.address)).toBe('S001')
+    expect(txdRoutineName(s, 1)).toBe('1')
+  })
+})
+
+describe('property words in the cross-references', () => {
+  it("an object's name words refer to their dictionary entries", () => {
+    const s = load('dark-cellar.z5')
+    const fromObjects = Object.entries(s.xrefs).filter(([k, e]) => k.startsWith('dict:') && e.from.some(f => f.id.startsWith('object:')))
+    expect(fromObjects.length).toBeGreaterThan(10)
   })
 })
 

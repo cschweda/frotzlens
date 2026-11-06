@@ -49,14 +49,22 @@ const rows = computed(() => {
 const inPart = (a: number) => !part.value || (a >= part.value.start && a < part.value.end)
 
 const jump = ref('')
+const jumpError = ref('')
 function onJump() {
-  const a = parseInt(jump.value.trim().replace(/^(0x|\$)/i, ''), 16)
-  if (Number.isFinite(a) && a >= 0 && a < size.value) goTo(a)
+  const text = jump.value.trim().replace(/^(0x|\$)/i, '')
+  const a = /^[0-9a-f]+$/i.test(text) ? parseInt(text, 16) : NaN
+  if (Number.isNaN(a)) jumpError.value = `“${jump.value}” isn't a hex address.`
+  else if (a >= size.value) jumpError.value = `${hex(a)} is past the end of the file (${hex(size.value - 1)}).`
+  else {
+    jumpError.value = ''
+    goTo(a)
+  }
 }
 </script>
 
 <template>
-  <div class="flex flex-col gap-8">
+  <NotFound v-if="id && !part" :what="`part of memory called “${id}”`" back="#memory" back-label="Memory" />
+  <div v-else class="flex flex-col gap-8">
     <ViewHeader
       :title="part ? part.label : 'Memory'"
       :eyebrow="part ? `${hex(part.start)}–${hex(part.end - 1)} · ${(part.end - part.start).toLocaleString()} bytes` : fileName"
@@ -72,16 +80,20 @@ function onJump() {
         <h2 id="hex-title" class="font-display text-2xl font-semibold text-highlighted">Bytes</h2>
         <form class="flex items-center gap-2" @submit.prevent="onJump">
           <label for="hex-jump" class="text-sm text-muted">Go to address</label>
-          <UInput id="hex-jump" v-model="jump" placeholder="1c97" class="data w-28" />
+          <UInput id="hex-jump" v-model="jump" placeholder="1c97" class="data w-28" :aria-invalid="!!jumpError || undefined" />
           <UButton type="submit" color="neutral" variant="outline">Go</UButton>
         </form>
       </div>
-      <div class="flex flex-wrap items-center gap-2">
+      <p v-if="jumpError" role="alert" class="text-sm text-error">{{ jumpError }}</p>
+      <div v-if="!size">
+        <p class="text-muted">The file is empty.</p>
+      </div>
+      <div v-if="size" class="flex flex-wrap items-center gap-2">
         <UButton color="neutral" variant="outline" icon="i-lucide-chevrons-up" :disabled="top === 0" aria-label="Previous page of bytes" @click="goTo(top - ROWS * 16)" />
         <UButton color="neutral" variant="outline" icon="i-lucide-chevrons-down" :disabled="top + ROWS * 16 >= size" aria-label="Next page of bytes" @click="goTo(top + ROWS * 16)" />
         <span class="data text-sm text-muted">{{ hex(top) }}–{{ hex(Math.min(top + ROWS * 16, size) - 1) }} of {{ hex(size - 1) }}</span>
       </div>
-      <div class="overflow-x-auto rounded-xl border border-default bg-muted" role="region" aria-label="Bytes" tabindex="0">
+      <div v-if="size" class="overflow-x-auto rounded-xl border border-default bg-muted" role="region" aria-label="Bytes" tabindex="0">
         <table class="data min-w-max text-sm leading-6">
           <caption class="sr-only">Bytes from {{ hex(top) }}, 16 to a row</caption>
           <thead class="sr-only">

@@ -6,6 +6,10 @@ const props = defineProps<{ story: StoryFile; id: string; fromTitle?: string; to
 const entry = computed(() => props.story.xrefs[props.id])
 const from = useLimit(() => entry.value?.from ?? [], 100)
 const to = useLimit(() => entry.value?.to ?? [], 100)
+watch(() => props.id, () => {
+  from.reset()
+  to.reset()
+})
 </script>
 
 <template>

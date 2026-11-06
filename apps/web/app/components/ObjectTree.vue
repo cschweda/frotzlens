@@ -43,28 +43,43 @@ watch(() => props.selected, (n) => {
   open.value = next
 }, { immediate: true })
 
-interface Row { n: number; level: number; setSize: number; posInSet: number; parent: number }
+interface Row { key: string; n: number; level: number; setSize: number; posInSet: number; parent: number }
+/**
+ * The visible rows, depth first, without recursion (a deep tree can't overflow the stack). An object
+ * shows at most once: in a broken file one could be reached twice, or in a loop.
+ */
 const rows = computed<Row[]>(() => {
   const out: Row[] = []
-  const walk = (list: number[], level: number, parent: number, path: Set<number>) => {
-    list.forEach((n, i) => {
-      out.push({ n, level, setSize: list.length, posInSet: i + 1, parent })
-      if (open.value.has(n) && !path.has(n)) walk(children.value.get(n) ?? [], level + 1, n, new Set(path).add(n))
-    })
+  const shown = new Set<number>()
+  const stack: { list: number[]; i: number; level: number; parent: number }[] = [{ list: roots.value, i: 0, level: 1, parent: 0 }]
+  while (stack.length) {
+    const top = stack.at(-1)!
+    if (top.i >= top.list.length) {
+      stack.pop()
+      continue
+    }
+    const n = top.list[top.i++]!
+    if (shown.has(n)) continue
+    shown.add(n)
+    out.push({ key: `${top.parent}-${n}`, n, level: top.level, setSize: top.list.length, posInSet: top.i, parent: top.parent })
+    if (open.value.has(n)) stack.push({ list: children.value.get(n) ?? [], i: 0, level: top.level + 1, parent: n })
   }
-  walk(roots.value, 1, 0, new Set())
   return out
 })
 
-const focused = ref(0)
+/** The tab stop follows a node, not a row index, so opening or closing a branch above it keeps it. */
+const focusedKey = ref('')
+const focused = computed(() => Math.max(0, rows.value.findIndex(r => r.key === focusedKey.value)))
 watch(() => props.selected, (n) => {
-  const i = rows.value.findIndex(r => r.n === n)
-  if (i >= 0) focused.value = i
+  const r = rows.value.find(x => x.n === n)
+  if (r) focusedKey.value = r.key
 }, { immediate: true, flush: 'post' })
 
 const tree = useTemplateRef<HTMLElement>('tree')
 function focusRow(i: number) {
-  focused.value = Math.max(0, Math.min(rows.value.length - 1, i))
+  const r = rows.value[Math.max(0, Math.min(rows.value.length - 1, i))]
+  if (!r) return
+  focusedKey.value = r.key
   nextTick(() => tree.value?.querySelector<HTMLElement>(`[data-row="${focused.value}"]`)?.focus())
 }
 function toggle(n: number) {
@@ -121,7 +136,7 @@ function onKey(e: KeyboardEvent) {
   <ul ref="tree" role="tree" aria-label="Object tree" class="flex flex-col py-1 text-sm" @keydown="onKey">
     <li
       v-for="(r, i) in rows"
-      :key="`${r.parent}-${r.n}`"
+      :key="r.key"
       role="treeitem"
       :data-row="i"
       :aria-level="r.level"
@@ -133,12 +148,12 @@ function onKey(e: KeyboardEvent) {
       class="flex cursor-pointer items-center gap-1 rounded py-1 pr-2 outline-offset-[-2px] hover:bg-elevated"
       :class="r.n === selected ? 'bg-elevated font-semibold text-highlighted' : ''"
       :style="{ paddingLeft: `${(r.level - 1) * 1.1 + 0.25}rem` }"
-      @click="focused = i; go(r.n)"
+      @click="focusedKey = r.key; go(r.n)"
     >
       <span
         class="inline-flex size-5 shrink-0 items-center justify-center text-muted"
         aria-hidden="true"
-        @click.stop="hasChildren(r.n) && toggle(r.n)"
+        @click.stop="focusedKey = r.key; hasChildren(r.n) && toggle(r.n)"
       >
         <UIcon v-if="hasChildren(r.n)" :name="open.has(r.n) ? 'i-lucide-chevron-down' : 'i-lucide-chevron-right'" class="size-4" />
       </span>

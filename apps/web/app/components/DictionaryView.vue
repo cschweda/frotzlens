@@ -63,7 +63,7 @@ const sep = computed(() => props.story.dictionary.separators.map(c => (c === ' '
         </tbody>
       </table>
     </div>
-    <p v-if="!rows.length" class="text-muted">No word contains “{{ filter }}”.</p>
+    <p v-if="!rows.length" class="text-muted">{{ filter.trim() ? `No word contains “${filter}”.` : 'The dictionary is empty.' }}</p>
     <UButton v-if="list.remaining.value" color="neutral" variant="outline" class="w-fit" @click="list.more">Show more ({{ list.remaining.value }} left)</UButton>
   </div>
 

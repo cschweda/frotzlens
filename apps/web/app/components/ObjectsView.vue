@@ -19,12 +19,12 @@ const copyAll = () => `${formatObjects(props.story, { fileName: props.fileName }
  * Only what resolves to something real is shown; the rest stays bytes.
  */
 function meanings(data: number[]): string[] {
-  if (data.length % 2) return []
   const s = props.story
   const idx = storyIndex(s)
   const ver = s.header.version as Parameters<typeof unpack>[1]
   const out: string[] = []
-  for (let i = 0; i < data.length; i += 2) {
+  // Whole words only: an odd-sized property's last byte is left as a byte.
+  for (let i = 0; i + 1 < data.length; i += 2) {
     const w = (data[i]! << 8) | data[i + 1]!
     if (!w) continue
     if (idx.dictByAddress.has(w)) out.push(`dict:${hex(w)}`)
@@ -116,7 +116,7 @@ function meanings(data: number[]): string[] {
 
         <Referrers :story="story" :id="object.id" />
       </div>
-      <p v-else-if="id !== undefined" class="text-muted">There's no object {{ id }} in this file.</p>
+      <p v-else-if="id" class="text-muted">There's no object {{ id }} in this file.</p>
     </div>
   </div>
 </template>

@@ -48,7 +48,7 @@ watch(filter, () => list.reset())
         </tbody>
       </table>
     </div>
-    <p v-if="!rows.length" class="text-muted">No string contains “{{ filter }}”.</p>
+    <p v-if="!rows.length" class="text-muted">{{ filter.trim() ? `No string contains “${filter}”.` : 'This file has no strings after its code.' }}</p>
     <UButton v-if="list.remaining.value" color="neutral" variant="outline" class="w-fit" @click="list.more">Show more ({{ list.remaining.value }} left)</UButton>
   </div>
 

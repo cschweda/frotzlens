@@ -123,15 +123,20 @@ const num = (o: Operand) => (o.kind === 'large' ? `#${hx(o.value, 4)}` : `#${hx(
  * dictionary). Observed: `#12d9` in a 193-word v3 dictionary is entry 193.
  */
 function dictionaryText(c: Context, address: number): string | undefined {
+  return dictionaryAt(c, address)?.text
+}
+
+/** dictionaryText, and whether the address is one of the entries (not txd's one past the end). */
+function dictionaryAt(c: Context, address: number): { text: string; entry: boolean } | undefined {
   const { entries, entryLength } = c.story.dictionary
   if (!entries.length || !entryLength) return undefined
   const offset = address - entries[0]!.address
   if (offset < 0 || offset % entryLength) return undefined
   const index = offset / entryLength
-  if (index < entries.length) return entries[index]!.word
+  if (index < entries.length) return { text: entries[index]!.word, entry: true }
   if (index > entries.length) return undefined
   try {
-    return readString(c.text, address).text
+    return { text: readString(c.text, address).text, entry: false }
   } catch {
     return undefined
   }
@@ -160,10 +165,9 @@ function operandPieces(ins: Instruction, i: number, c: Context): DisassemblyPiec
   if (o.kind === 'variable') return plain(variable(o.value, false))
   const kind: Kind = operandKind(ins, i)
   // A dictionary word, linked when it is one of the entries (not txd's one-past-the-end).
-  const word = (address: number, t: string): DisassemblyPiece => {
-    const { entries } = c.story.dictionary
-    const e = entries.length ? entries.find(x => x.address === address) : undefined
-    return e ? { text: `"${t}"`, id: dictId(address) } : { text: `"${t}"` }
+  const word = (address: number): DisassemblyPiece | undefined => {
+    const d = dictionaryAt(c, address)
+    return d && (d.entry ? { text: `"${d.text}"`, id: dictId(address) } : { text: `"${d.text}"` })
   }
   switch (kind) {
     case 'ref':
@@ -188,24 +192,28 @@ function operandPieces(ins: Instruction, i: number, c: Context): DisassemblyPiec
       return s !== undefined ? [{ text: stringName(s), id: stringId(address) }] : plain(num(o))
     }
     case 'low': {
-      const t = o.kind === 'large' ? dictionaryText(c, o.value) : undefined
-      return t !== undefined ? [word(o.value, t)] : plain(num(o))
+      const w = o.kind === 'large' ? word(o.value) : undefined
+      return w ? [w] : plain(num(o))
     }
     case 'any': {
       if (o.kind !== 'large') return plain(num(o))
       const address = c.unpack(o.value)
       const s = c.stringNumber.get(address)
-      const t = dictionaryText(c, o.value)
+      const w = word(o.value)
       const str: DisassemblyPiece | undefined = s !== undefined ? { text: stringName(s), id: stringId(address) } : undefined
-      if (str && t !== undefined) return [str, { text: ' OR ' }, word(o.value, t)]
+      if (str && w) return [str, { text: ' OR ' }, w]
       if (str) return [str]
-      if (t !== undefined) return [word(o.value, t)]
+      if (w) return [w]
       return plain(num(o))
     }
     default:
       return plain(num(o))
   }
 }
+
+/** A branch or jump target: a link to its line when it is one of this routine's labels. */
+const label = (c: Context, target: number): DisassemblyPiece =>
+  c.labels.has(target) ? { text: labelName(c, target), target } : { text: labelName(c, target) }
 
 const joined = (parts: DisassemblyPiece[][], sep: string): DisassemblyPiece[] =>
   parts.flatMap((p, i) => (i ? [{ text: sep }, ...p] : p))
@@ -218,7 +226,7 @@ function instructionPieces(ins: Instruction, c: Context): DisassemblyPiece[] {
     const args = all.slice(1)
     ops = args.length ? [...all[0]!, { text: ' (' }, ...joined(args, ','), { text: ')' }] : all[0]!
   } else if (ins.jumpTarget !== undefined) {
-    ops = [{ text: labelName(c, ins.jumpTarget), target: ins.jumpTarget }]
+    ops = [label(c, ins.jumpTarget)]
   } else {
     ops = joined(all, ',')
   }
@@ -235,7 +243,7 @@ function instructionPieces(ins: Instruction, c: Context): DisassemblyPiece[] {
   if (ins.branch) {
     push({ text: `${sep()}[${ins.branch.onTrue ? 'TRUE' : 'FALSE'}] ` })
     if (ins.branch.returns !== undefined) push({ text: ins.branch.returns ? 'RTRUE' : 'RFALSE' })
-    else push({ text: labelName(c, ins.branch.target!), target: ins.branch.target! })
+    else push(label(c, ins.branch.target!))
   }
   return out
 }
@@ -306,6 +314,25 @@ function routineBlock(r: Routine, c: Context, width: number): string {
 export function formatRoutine(story: StoryFile, address: number, opts: TxdOptions = {}): string | undefined {
   const r = story.code.routines.find(x => x.address === address)
   return r ? routineBlock(r, makeContext(story, opts), opts.width ?? 79) : undefined
+}
+
+const numbers = new WeakMap<StoryFile, { routines: Map<number, number>; strings: Map<number, number> }>()
+const storyNumbers = (story: StoryFile) => {
+  let n = numbers.get(story)
+  if (!n) numbers.set(story, (n = { routines: new Map(story.code.routines.map((r, i) => [r.address, i + 1])), strings: new Map(story.strings.map((s, i) => [s.address, i + 1])) }))
+  return n
+}
+
+/** txd's name for the routine at `address` (R0001), or its address when it isn't one of the story's. */
+export function txdRoutineName(story: StoryFile, address: number): string {
+  const n = storyNumbers(story).routines.get(address)
+  return n === undefined ? hx(address) : `R${String(n).padStart(4, '0')}`
+}
+
+/** txd's name for the string at `address` (S001), or its address when it isn't one of the story's. */
+export function txdStringName(story: StoryFile, address: number): string {
+  const n = storyNumbers(story).strings.get(address)
+  return n === undefined ? hx(address) : stringName(n)
 }
 
 /** One routine, for display: txd's text in pieces, unwrapped, with what each piece names. */

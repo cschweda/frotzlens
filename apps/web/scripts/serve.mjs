@@ -18,7 +18,13 @@ const TYPES = {
 }
 
 createServer((req, res) => {
-  const path = normalize(decodeURIComponent((req.url ?? '/').split('?')[0]))
+  let path
+  try {
+    path = normalize(decodeURIComponent((req.url ?? '/').split('?')[0]))
+  } catch {
+    res.writeHead(400).end() // a malformed escape: a bad request, not a crash
+    return
+  }
   let file = join(root, path)
   if (!file.startsWith(root.slice(0, -1))) {
     res.writeHead(403).end()

@@ -43,10 +43,10 @@ onBeforeUnmount(() => {
 })
 
 // A new view starts at the top, and focus moves to it (so a screen reader announces it).
-// The grammar view scrolls to its own verb.
-watch(() => [route.value.view, route.value.id], () => {
+// The grammar view scrolls to its own verb (#grammar/12). A deep link opened with a file counts too.
+watch(() => [story.value, route.value.view, route.value.id], () => {
   if (!story.value) return
-  if (route.value.view !== 'grammar') window.scrollTo({ top: 0 })
+  if (!(route.value.view === 'grammar' && route.value.id)) window.scrollTo({ top: 0 })
   nextTick(() => main.value?.focus({ preventScroll: true }))
 })
 

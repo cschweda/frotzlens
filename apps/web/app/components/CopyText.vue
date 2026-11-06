@@ -2,6 +2,7 @@
 /** "Copy as text": the view's section in Ztools' format, made only when asked for. */
 const props = defineProps<{ text: () => string; label?: string }>()
 const status = ref('')
+let timer: ReturnType<typeof setTimeout> | undefined
 
 async function copy() {
   try {
@@ -10,7 +11,8 @@ async function copy() {
   } catch {
     status.value = "Couldn't copy: the browser didn't allow it"
   }
-  setTimeout(() => (status.value = ''), 2500)
+  clearTimeout(timer)
+  timer = setTimeout(() => (status.value = ''), 2500)
 }
 </script>
 

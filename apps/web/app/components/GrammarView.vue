@@ -11,7 +11,7 @@ const dictByWord = computed(() => new Map(props.story.dictionary.entries.map(e =
 const filter = ref('')
 const verbs = computed(() => {
   const q = filter.value.trim().toLowerCase()
-  return (g.value?.verbs ?? []).map((v, i) => ({ v, i })).filter(x => !q || x.v.words.some(w => w.includes(q)))
+  return (g.value?.verbs ?? []).map((v, i) => ({ v, i })).filter(x => !q || x.v.words.some(w => w.toLowerCase().includes(q)))
 })
 const list = useLimit(() => verbs.value, 60)
 watch(filter, () => list.reset())
@@ -24,6 +24,7 @@ const selected = computed(() => (props.id && /^\d+$/.test(props.id) ? Number(pro
 watch(selected, async (i) => {
   if (i === undefined) return
   filter.value = ''
+  await nextTick() // the filter's watcher resets the list; page out to the verb after that
   while (list.shown.value.length <= i && list.remaining.value) list.more()
   await nextTick()
   const el = document.getElementById(`verb-${i}`)
@@ -40,7 +41,7 @@ watch(selected, async (i) => {
     </ViewHeader>
     <UInput v-model="filter" icon="i-lucide-search" placeholder="Find a verb" aria-label="Find a verb" class="max-w-md" />
     <ol class="flex flex-col gap-4">
-      <li v-for="x in list.shown.value" :id="`verb-${x.i}`" :key="x.i" tabindex="-1" class="rounded-xl border border-default p-4 focus:border-[var(--frotz-lamp)] focus:outline-none" :class="selected === x.i ? 'border-[var(--frotz-lamp)]' : ''">
+      <li v-for="x in list.shown.value" :id="`verb-${x.i}`" :key="x.i" tabindex="-1" class="rounded-xl border border-default p-4" :class="selected === x.i ? 'border-[var(--frotz-lamp-text)]' : ''">
         <h2 class="flex flex-wrap items-baseline gap-x-3 gap-y-1">
           <span class="data text-sm text-muted">verb {{ x.v.number }}</span>
           <span class="flex flex-wrap gap-x-2 text-lg font-semibold">

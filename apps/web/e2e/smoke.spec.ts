@@ -31,6 +31,13 @@ async function open(page: Page) {
 
 const go = (page: Page, hash: string) => page.evaluate(h => { location.hash = h }, hash)
 
+/** Go to a view and wait for its title (every view has one h1). */
+async function visit(page: Page, hash: string) {
+  await go(page, hash)
+  await expect(page).toHaveURL(new RegExp(`${hash}$`))
+  await expect(page.locator('main h1')).toBeVisible()
+}
+
 test('the sample opens at the Overview', async ({ page }) => {
   const errors = watchConsole(page)
   await page.goto('/')
@@ -84,6 +91,14 @@ test('every view of architect-legacy.z5', async ({ page }) => {
   await expect(page).toHaveURL(new RegExp(`${target}$`))
   await expect(page.getByRole('heading', { level: 1, name: /^Routine R\d{4}$/ })).toBeVisible()
 
+  // Memory: an unknown part is "Nothing here"; a bad address says why instead of jumping.
+  await visit(page, '#memory/typo')
+  await expect(page.getByRole('heading', { level: 1, name: 'Nothing here' })).toBeVisible()
+  await visit(page, '#memory')
+  await page.getByLabel('Go to address').fill('1c97zz')
+  await page.getByRole('button', { name: 'Go', exact: true }).click()
+  await expect(page.getByRole('alert')).toContainText("isn't a hex address")
+
   // A dictionary word, and a string, each with their referrers.
   await go(page, '#dictionary')
   await page.getByRole('cell').getByRole('link').nth(30).click()
@@ -98,23 +113,25 @@ test('every view of architect-legacy.z5', async ({ page }) => {
 })
 
 test('works at 400px', async ({ page }) => {
+  const errors = watchConsole(page)
   await page.setViewportSize({ width: 400, height: 860 })
   await open(page)
   for (const hash of ['#overview', '#objects', '#routines', '#memory']) {
-    await go(page, hash)
-    await page.waitForTimeout(300)
+    await visit(page, hash)
     expect(await page.evaluate(() => document.documentElement.scrollWidth - innerWidth), hash).toBe(0)
     await axe(page, `${hash} at 400px`)
   }
+  expect(errors).toEqual([])
 })
 
 test('light mode passes axe too', async ({ page }) => {
+  const errors = watchConsole(page)
   await page.emulateMedia({ colorScheme: 'light' })
   await open(page)
   await page.evaluate(() => document.documentElement.classList.replace('dark', 'light'))
   for (const hash of ['#overview', '#memory', '#objects', '#object/10', '#grammar', '#routines', '#strings']) {
-    await go(page, hash)
-    await page.waitForTimeout(300)
+    await visit(page, hash)
     await axe(page, `${hash} (light)`)
   }
+  expect(errors).toEqual([])
 })

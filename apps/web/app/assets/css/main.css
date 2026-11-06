@@ -38,9 +38,9 @@ body {
 
 /* Focus is always visible (WCAG 2.4.7 / 2.4.11). lamp-text, not lamp: the bright
    amber is about 2.4:1 on light-mode paper, under 1.4.11's 3:1; lamp-text is 5.65:1. */
-/* Not on what the app focuses for you (tabindex=-1: <main> after a new view, a jumped-to line):
-   those show their own, quieter state. Unlayered, so it would beat Tailwind's utilities. */
-:focus-visible:not([tabindex='-1']) {
+/* Not on <main>, which the app focuses after each new view so a screen reader announces it: a ring
+   round the whole page says nothing. Everything else, including a line a label jumps to, keeps it. */
+:focus-visible:not(main) {
   outline: 3px solid var(--frotz-lamp-text);
   outline-offset: 2px;
 }

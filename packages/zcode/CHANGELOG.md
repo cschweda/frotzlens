@@ -10,4 +10,5 @@ All notable changes to `@frotzinc/zcode`. Versions follow [Semantic Versioning](
 - Inform grammar, versions 1, 2 and 3 (PunyInform), as `grammar`.
 - Cross-references, both ways, as `xrefs`.
 - `formatTxd` and `formatRoutine`: Ztools' `txd` and `txd -n` output, byte-identical on every Standard Library and library-free fixture; `formatGrammar` and `formatMap`: `infodump -g` and `-m`.
-- `routineView`: one routine's txd text in pieces, each routine, string, object, dictionary word and label it names marked, for showing it with links; joined, the pieces are exactly `formatRoutine`'s text. `formatStrings`: txd's string listing on its own.
+- `routineView`: one routine's txd text in pieces, each routine, string, object, dictionary word and label it names marked, for showing it with links; joined, the pieces are exactly `formatRoutine(story, address, { width: 0 })`'s text (the pieces are unwrapped). `formatStrings`: txd's string listing on its own. `txdRoutineName`, `txdStringName`: txd's R0001 and S001 names.
+- Cross-references: a property word that is exactly a dictionary entry's address (Inform's `name`) now refers to that word.

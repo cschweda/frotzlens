@@ -18,7 +18,13 @@ const rows = computed(() => {
   const s = props.story
   const q = filter.value.trim().toLowerCase()
   return s.code.routines
-    .map(r => ({ r, name: routineName(s, r.address), from: s.xrefs[r.id]?.from.length ?? 0, calls: (s.xrefs[r.id]?.to ?? []).filter(t => t.startsWith('routine:')).length }))
+    .map(r => ({
+      r,
+      name: routineName(s, r.address),
+      // Both counts are distinct routines: the routines it calls, the routines that call it.
+      from: new Set((s.xrefs[r.id]?.from ?? []).filter(f => f.id.startsWith('routine:')).map(f => f.id)).size,
+      calls: (s.xrefs[r.id]?.to ?? []).filter(t => t.startsWith('routine:')).length,
+    }))
     .filter(x => !q || x.name.toLowerCase().includes(q) || hex(x.r.address).includes(q.replace(/^0x/, '')))
 })
 const list = useLimit(() => rows.value)
@@ -64,7 +70,7 @@ function jump(target: number) {
         </tbody>
       </table>
     </div>
-    <p v-if="!rows.length" class="text-muted">No routine matches “{{ filter }}”.</p>
+    <p v-if="!rows.length" class="text-muted">{{ filter.trim() ? `No routine matches “${filter}”.` : 'This file has no routines.' }}</p>
     <UButton v-if="list.remaining.value" color="neutral" variant="outline" class="w-fit" @click="list.more">Show more ({{ list.remaining.value }} left)</UButton>
   </div>
 
@@ -89,11 +95,11 @@ function jump(target: number) {
           :id="`at-${hex(l.address)}`"
           :key="l.address"
           tabindex="-1"
-          class="whitespace-pre rounded focus:bg-elevated focus:outline-none"
+          class="whitespace-pre rounded focus:bg-elevated"
         ><span class="text-muted">{{ `${hex(l.address).padStart(5)}  ` }}</span><span class="text-lamp">{{ (l.label ? `${l.label}:` : '').padEnd(7) }}</span><template v-for="(p, j) in l.pieces" :key="j"><a v-if="p.id" :href="idRoute(p.id)" class="text-lamp underline decoration-dotted underline-offset-4 hover:decoration-solid">{{ p.text }}</a><a v-else-if="p.target !== undefined" :href="`#routine/${hex(routine.address)}`" class="text-lamp underline decoration-dotted underline-offset-4 hover:decoration-solid" :aria-label="`${p.text}, the instruction at ${hex(p.target)}`" @click.prevent="jump(p.target)">{{ p.text }}</a><span v-else>{{ p.text }}</span></template></div>
       </div>
     </div>
-    <Referrers :story="story" :id="routine.id" from-title="Called from" to-title="Calls and uses" />
+    <Referrers :story="story" :id="routine.id" from-title="Referred to from" to-title="Calls and uses" />
   </div>
 
   <NotFound v-else :what="`routine ${id}`" back="#routines" back-label="All routines" />

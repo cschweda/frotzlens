@@ -4,6 +4,7 @@
  * model Id. Worked out once per story and cached.
  */
 import type { StoryFile } from '@frotzinc/zcode'
+import { txdRoutineName, txdStringName } from '@frotzinc/zcode/format'
 
 export const hex = (n: number, width = 4) => n.toString(16).padStart(width, '0')
 
@@ -33,15 +34,9 @@ export function storyIndex(story: StoryFile): Index {
   return i
 }
 
-export const routineName = (story: StoryFile, address: number) => {
-  const n = storyIndex(story).routineNumber.get(address)
-  return n === undefined ? hex(address) : `R${String(n).padStart(4, '0')}`
-}
-
-export const stringName = (story: StoryFile, address: number) => {
-  const n = storyIndex(story).stringNumber.get(address)
-  return n === undefined ? hex(address) : `S${String(n).padStart(3, '0')}`
-}
+/** txd's names (R0001, S001), from zcode, so a link reads exactly as the disassembly does. */
+export const routineName = txdRoutineName
+export const stringName = txdStringName
 
 export const objectName = (story: StoryFile, n: number) =>
   story.objects.objects[n - 1]?.shortName.text || `object ${n}`
@@ -76,6 +71,6 @@ export function useLimit<T>(list: () => T[], step = 200) {
   const limit = ref(step)
   const shown = computed(() => list().slice(0, limit.value))
   const remaining = computed(() => Math.max(0, list().length - limit.value))
-  const more = () => (limit.value += step * 2)
+  const more = () => (limit.value += step)
   return { shown, remaining, more, reset: () => (limit.value = step) }
 }
