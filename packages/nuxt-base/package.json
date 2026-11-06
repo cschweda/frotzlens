@@ -6,9 +6,21 @@
   "author": "Christopher Schweda",
   "type": "module",
   "homepage": "https://github.com/cschweda/frotzlens/tree/main/packages/nuxt-base",
-  "repository": { "type": "git", "url": "git+https://github.com/cschweda/frotzlens.git", "directory": "packages/nuxt-base" },
-  "bugs": { "url": "https://github.com/cschweda/frotzlens/issues" },
-  "keywords": ["nuxt", "nuxt-layer", "nuxt-ui", "netlify", "frotzinc"],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/cschweda/frotzlens.git",
+    "directory": "packages/nuxt-base"
+  },
+  "bugs": {
+    "url": "https://github.com/cschweda/frotzlens/issues"
+  },
+  "keywords": [
+    "nuxt",
+    "nuxt-layer",
+    "nuxt-ui",
+    "netlify",
+    "frotzinc"
+  ],
   "main": "./nuxt.config.ts",
   "exports": {
     ".": "./nuxt.config.ts",
@@ -18,7 +30,16 @@
     "./netlify/*": "./netlify/*.mjs",
     "./package.json": "./package.json"
   },
-  "files": ["nuxt.config.ts", "app", "css", "netlify", "!**/*.test.ts", "README.md", "LICENSE"],
+  "files": [
+    "nuxt.config.ts",
+    "app",
+    "css",
+    "netlify",
+    "!**/*.test.ts",
+    "CHANGELOG.md",
+    "README.md",
+    "LICENSE"
+  ],
   "scripts": {
     "test": "vitest run",
     "typecheck": "tsc -p tsconfig.json --noEmit"
@@ -28,5 +49,8 @@
     "nuxt": "^4.6.0",
     "vue": "^3.5.0"
   },
-  "devDependencies": { "vitest": "^5.1.0", "typescript": "5.9.3" }
+  "devDependencies": {
+    "vitest": "^5.1.0",
+    "typescript": "5.9.3"
+  }
 }

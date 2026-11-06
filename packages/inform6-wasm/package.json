@@ -47,14 +47,14 @@
     "!dist/**/*.test.*",
     "wasm",
     "lib",
+    "CHANGELOG.md",
     "README.md",
     "LICENSE"
   ],
   "scripts": {
     "gen": "node scripts/gen-lib-texts.mjs",
     "build": "pnpm run gen && rm -rf dist && tsc -p tsconfig.build.json",
-    "pretest": "pnpm run gen",
-    "test": "vitest run",
+    "test": "pnpm run gen && vitest run",
     "typecheck": "pnpm run gen && tsc -p tsconfig.json --noEmit",
     "prepack": "pnpm run build"
   },

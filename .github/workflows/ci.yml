@@ -1,0 +1,28 @@
+# CI for the Frotzlens monorepo: every push and pull request, and every release
+# tag (@frotzinc/<name>@<version>). publish.sh refuses to publish a version
+# whose tag's run of this workflow didn't pass.
+name: ci
+
+on:
+  push:
+    branches: [main]
+    tags: ['**']
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  packages:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4 # the version comes from package.json's packageManager
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm typecheck
+      - run: pnpm test
+      - run: pnpm build
