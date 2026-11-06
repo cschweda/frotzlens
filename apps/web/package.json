@@ -9,7 +9,8 @@
     "generate": "pnpm run sample && nuxt generate",
     "preview": "nuxt preview",
     "typecheck": "nuxt typecheck",
-    "postinstall": "nuxt prepare"
+    "postinstall": "nuxt prepare",
+    "test:e2e": "playwright test"
   },
   "dependencies": {
     "@frotzinc/nuxt-base": "workspace:*",
@@ -20,7 +21,9 @@
     "vue": "^3.5.45"
   },
   "devDependencies": {
+    "@axe-core/playwright": "4.14.0",
     "@iconify-json/lucide": "^1.2.148",
+    "@playwright/test": "1.64.1",
     "typescript": "5.9.3",
     "vue-tsc": "^3.1.0"
   }

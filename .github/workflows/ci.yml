@@ -31,3 +31,6 @@ jobs:
       # The web app (apps/web): typecheck it and generate the static site, as Netlify does.
       - run: pnpm --filter frotzlens-web run typecheck
       - run: pnpm --filter frotzlens-web run generate
+      # The smoke test (Phase 4): every view of a real story, axe on each, against the built site.
+      - run: pnpm --filter frotzlens-web exec playwright install --with-deps chromium
+      - run: pnpm --filter frotzlens-web run test:e2e

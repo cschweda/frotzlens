@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import type { StoryFile } from '@frotzinc/zcode'
+import { formatHeader } from '@frotzinc/zcode/format'
 
 const props = defineProps<{ story: StoryFile; fileName: string }>()
 const kb = (n: number) => (n >= 10240 ? `${Math.round(n / 1024)} KB` : `${(n / 1024).toFixed(1)} KB`)
@@ -10,7 +11,10 @@ const errors = computed(() => props.story.errors)
   <div class="flex flex-col gap-10">
     <header class="flex flex-col gap-2">
       <p class="data text-sm text-lamp">{{ fileName }}</p>
-      <h1 class="font-display text-4xl font-bold tracking-tight text-highlighted sm:text-5xl">Overview</h1>
+      <div class="flex flex-wrap items-end justify-between gap-4">
+        <h1 class="font-display text-4xl font-bold tracking-tight text-highlighted sm:text-5xl">Overview</h1>
+        <CopyText :text="() => formatHeader(story, { fileName })" label="Copy the header (infodump)" />
+      </div>
     </header>
 
     <section v-if="errors.length" aria-labelledby="errors-title" class="flex flex-col gap-2 rounded-xl border border-[var(--ui-error)] p-5" role="alert">

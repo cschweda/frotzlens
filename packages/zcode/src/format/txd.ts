@@ -6,7 +6,7 @@ import { packedScale, unpack } from '../address.js'
 import type { Instruction, Operand } from '../decode.js'
 import type { Routine } from '../routines.js'
 import { readString, textContextFor, type TextContext } from '../text.js'
-import type { StoryFile, Version } from '../types.js'
+import type { Id, StoryFile, Version } from '../types.js'
 import { grammarLineText, grammarLines } from './grammar.js'
 import { Writer } from './writer.js'
 
@@ -137,70 +137,112 @@ function dictionaryText(c: Context, address: number): string | undefined {
   }
 }
 
-function operand(ins: Instruction, i: number, c: Context): string {
+/**
+ * A piece of a disassembly line: its text, and what it names, if anything —
+ * a routine, string, object or dictionary word (`id`), or a label in the same
+ * routine (`target`, an instruction's address). Joined, the pieces are exactly
+ * txd's text; the app turns the named ones into links.
+ */
+export interface DisassemblyPiece {
+  text: string
+  id?: Id
+  target?: number
+}
+
+const objectId = (n: number): Id => `object:${n}`
+const routineId = (a: number): Id => `routine:${hx(a, 4)}`
+const stringId = (a: number): Id => `string:${hx(a, 4)}`
+const dictId = (a: number): Id => `dict:${hx(a, 4)}`
+
+function operandPieces(ins: Instruction, i: number, c: Context): DisassemblyPiece[] {
   const o = ins.operands[i]!
-  if (o.kind === 'variable') return variable(o.value, false)
+  const plain = (text: string): DisassemblyPiece[] => [{ text }]
+  if (o.kind === 'variable') return plain(variable(o.value, false))
   const kind: Kind = operandKind(ins, i)
+  // A dictionary word, linked when it is one of the entries (not txd's one-past-the-end).
+  const word = (address: number, t: string): DisassemblyPiece => {
+    const { entries } = c.story.dictionary
+    const e = entries.length ? entries.find(x => x.address === address) : undefined
+    return e ? { text: `"${t}"`, id: dictId(address) } : { text: `"${t}"` }
+  }
   switch (kind) {
     case 'ref':
-      return variable(o.value, false)
+      return plain(variable(o.value, false))
     case 'obj': {
       const obj = o.value > 0 ? c.story.objects.objects[o.value - 1] : undefined
-      return obj ? `"${obj.shortName.text}"` : num(o)
+      return obj ? [{ text: `"${obj.shortName.text}"`, id: objectId(obj.number) }] : plain(num(o))
     }
     case 'style':
-      return (o.kind === 'small' && STYLES[o.value]) || num(o)
+      return plain((o.kind === 'small' && STYLES[o.value]) || num(o))
     case 'stream':
-      return (o.kind === 'small' && STREAMS[o.value]) || num(o)
+      return plain((o.kind === 'small' && STREAMS[o.value]) || num(o))
     case 'char':
-      return o.kind === 'small' && o.value >= 32 && o.value <= 126 ? `'${String.fromCharCode(o.value)}'` : num(o)
-    case 'routine':
-      return routineName(c, c.unpack(o.value))
+      return plain(o.kind === 'small' && o.value >= 32 && o.value <= 126 ? `'${String.fromCharCode(o.value)}'` : num(o))
+    case 'routine': {
+      const address = c.unpack(o.value)
+      return [c.routineNumber.has(address) ? { text: routineName(c, address), id: routineId(address) } : { text: routineName(c, address) }]
+    }
     case 'paddr': {
-      const s = c.stringNumber.get(c.unpack(o.value))
-      return s !== undefined ? stringName(s) : num(o)
+      const address = c.unpack(o.value)
+      const s = c.stringNumber.get(address)
+      return s !== undefined ? [{ text: stringName(s), id: stringId(address) }] : plain(num(o))
     }
     case 'low': {
       const t = o.kind === 'large' ? dictionaryText(c, o.value) : undefined
-      return t !== undefined ? `"${t}"` : num(o)
+      return t !== undefined ? [word(o.value, t)] : plain(num(o))
     }
     case 'any': {
-      if (o.kind !== 'large') return num(o)
-      const s = c.stringNumber.get(c.unpack(o.value))
+      if (o.kind !== 'large') return plain(num(o))
+      const address = c.unpack(o.value)
+      const s = c.stringNumber.get(address)
       const t = dictionaryText(c, o.value)
-      const str = s !== undefined ? stringName(s) : undefined
-      if (str && t !== undefined) return `${str} OR "${t}"`
-      if (str) return str
-      if (t !== undefined) return `"${t}"`
-      return num(o)
+      const str: DisassemblyPiece | undefined = s !== undefined ? { text: stringName(s), id: stringId(address) } : undefined
+      if (str && t !== undefined) return [str, { text: ' OR ' }, word(o.value, t)]
+      if (str) return [str]
+      if (t !== undefined) return [word(o.value, t)]
+      return plain(num(o))
     }
     default:
-      return num(o)
+      return plain(num(o))
   }
+}
+
+const joined = (parts: DisassemblyPiece[][], sep: string): DisassemblyPiece[] =>
+  parts.flatMap((p, i) => (i ? [{ text: sep }, ...p] : p))
+
+/** One instruction after the address column, as pieces: name, operands, store, branch. */
+function instructionPieces(ins: Instruction, c: Context): DisassemblyPiece[] {
+  const all = ins.operands.map((_, i) => operandPieces(ins, i, c))
+  let ops: DisassemblyPiece[]
+  if (ins.info.call && ins.operands[0]) {
+    const args = all.slice(1)
+    ops = args.length ? [...all[0]!, { text: ' (' }, ...joined(args, ','), { text: ')' }] : all[0]!
+  } else if (ins.jumpTarget !== undefined) {
+    ops = [{ text: labelName(c, ins.jumpTarget), target: ins.jumpTarget }]
+  } else {
+    ops = joined(all, ',')
+  }
+  if (ins.text) ops = [{ text: `"${ins.text.text}"` }]
+  // With no operands, the store or branch follows the padded name with no space of its own.
+  const out: DisassemblyPiece[] = [{ text: ins.name.padEnd(16) }, ...ops]
+  let length = out.reduce((n, p) => n + p.text.length, 0)
+  const push = (p: DisassemblyPiece) => {
+    out.push(p)
+    length += p.text.length
+  }
+  const sep = () => (length > 16 ? ' ' : '')
+  if (ins.store !== undefined) push({ text: `${sep()}-> ${variable(ins.store, true)}` })
+  if (ins.branch) {
+    push({ text: `${sep()}[${ins.branch.onTrue ? 'TRUE' : 'FALSE'}] ` })
+    if (ins.branch.returns !== undefined) push({ text: ins.branch.returns ? 'RTRUE' : 'RFALSE' })
+    else push({ text: labelName(c, ins.branch.target!), target: ins.branch.target! })
+  }
+  return out
 }
 
 /** One instruction's text after the address column: name, operands, store, branch. */
 export function instructionText(ins: Instruction, c: Context): string {
-  let ops: string
-  const all = ins.operands.map((_, i) => operand(ins, i, c))
-  if (ins.info.call && ins.operands[0]) {
-    const args = all.slice(1)
-    ops = args.length ? `${all[0]} (${args.join(',')})` : all[0]!
-  } else if (ins.jumpTarget !== undefined) {
-    ops = labelName(c, ins.jumpTarget)
-  } else {
-    ops = all.join(',')
-  }
-  if (ins.text) ops = `"${ins.text.text}"`
-  // With no operands, the store or branch follows the padded name with no space of its own.
-  let s = ins.name.padEnd(16) + ops
-  const sep = () => (s.length > 16 ? ' ' : '')
-  if (ins.store !== undefined) s += `${sep()}-> ${variable(ins.store, true)}`
-  if (ins.branch) {
-    const where = ins.branch.returns !== undefined ? (ins.branch.returns ? 'RTRUE' : 'RFALSE') : labelName(c, ins.branch.target!)
-    s += `${sep()}[${ins.branch.onTrue ? 'TRUE' : 'FALSE'}] ${where}`
-  }
-  return s
+  return instructionPieces(ins, c).map(p => p.text).join('')
 }
 
 /**
@@ -231,8 +273,8 @@ export function routineHeader(r: Routine, isMain: boolean, name: string, version
 }
 
 /** One routine: its header line, a blank line, its instructions (each wrapped). */
-function routineBlock(r: Routine, c: Context, width: number): string {
-  // Labels: every branch and jump target inside the routine, numbered in address order.
+/** Labels: every branch and jump target inside the routine, numbered in address order. */
+function setLabels(r: Routine, c: Context): void {
   const targets = new Set<number>()
   for (const ins of r.instructions) {
     if (ins.branch?.target !== undefined) targets.add(ins.branch.target)
@@ -240,6 +282,10 @@ function routineBlock(r: Routine, c: Context, width: number): string {
   }
   const starts = new Set(r.instructions.map(i => i.address))
   c.labels = new Map([...targets].filter(t => starts.has(t)).sort((a, b) => a - b).map((t, i) => [t, i + 1]))
+}
+
+function routineBlock(r: Routine, c: Context, width: number): string {
+  setLabels(r, c)
 
   const name = routineName(c, r.address)
   const lines = [routineHeader(r, r.address === c.story.code.main, name, c.story.header.version, width), ...(c.annotations.get(r.address) ?? []), '']
@@ -260,6 +306,56 @@ function routineBlock(r: Routine, c: Context, width: number): string {
 export function formatRoutine(story: StoryFile, address: number, opts: TxdOptions = {}): string | undefined {
   const r = story.code.routines.find(x => x.address === address)
   return r ? routineBlock(r, makeContext(story, opts), opts.width ?? 79) : undefined
+}
+
+/** One routine, for display: txd's text in pieces, unwrapped, with what each piece names. */
+export interface RoutineView {
+  address: number
+  /** txd's name for it: R0001, or the address with `addresses`. */
+  name: string
+  /** "Routine R0001, 2 locals" (v1–4: and the initial values), unwrapped. */
+  header: string
+  /** txd's grammar notes ("Action routine for:" and its lines), unwrapped. */
+  notes: string[]
+  lines: {
+    address: number
+    /** L0001, when something branches or jumps here. */
+    label?: string
+    pieces: DisassemblyPiece[]
+  }[]
+}
+
+/**
+ * One routine as pieces, for the app: the same text as formatRoutine (with no
+ * wrapping), and each routine, string, object, dictionary word and label it
+ * names marked, so it can be shown with links. Numbers (R…, S…) come from the
+ * whole story, as txd's do.
+ */
+export function routineView(story: StoryFile, address: number, opts: Omit<TxdOptions, 'width' | 'fileName'> = {}): RoutineView | undefined {
+  const r = story.code.routines.find(x => x.address === address)
+  if (!r) return undefined
+  const c = makeContext(story, { ...opts, width: 0 })
+  setLabels(r, c)
+  const name = routineName(c, r.address)
+  return {
+    address: r.address,
+    name,
+    header: routineHeader(r, r.address === story.code.main, name, story.header.version, 0),
+    notes: c.annotations.get(r.address) ?? [],
+    lines: r.instructions.map(ins => {
+      const n = c.labels.get(ins.address)
+      return { address: ins.address, ...(n !== undefined && { label: `L${String(n).padStart(4, '0')}` }), pieces: instructionPieces(ins, c) }
+    }),
+  }
+}
+
+/** The strings after the code, as txd lists them (S001: "…"), for copying. */
+export function formatStrings(story: StoryFile, opts: Pick<TxdOptions, 'addresses' | 'width'> = {}): string {
+  const t = new Writer(opts.width ?? 79)
+  story.strings.forEach((s, i) => {
+    t.write(opts.addresses ? `${hx(s.address).padStart(5)}: ${stringName(i + 1)} "${s.text}"\n` : `${stringName(i + 1)}: "${s.text}"\n`)
+  })
+  return t.toString()
 }
 
 /**
