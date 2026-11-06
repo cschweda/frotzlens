@@ -3,7 +3,7 @@
 **Status:** Draft 1, 6 November 2026
 **Author:** Christopher Schweda
 **Companion:** `frotzlens-kickoff-prompt.md` (the imperative version of this document, pasted into Claude Code)
-**Repo:** `github.com/cschweda/frotzlens` · **Site:** frotzlens.com · **Family:** [Frotz, Inc.](https://frotzinc.com)
+**Repo:** `github.com/cschweda/frotzlens` · **Site:** [frotzlens.frotzinc.com](https://frotzlens.frotzinc.com) · **Family:** [Frotz, Inc.](https://frotzinc.com)
 
 ---
 
@@ -185,7 +185,7 @@ I hold copyright on all of it and can relicense my own code at any time; the pol
 - Icon: the amber rounded badge with a loupe over a row of bytes. Same badge shape as Frotzsmith's hammer; the family rule is "same badge, different instrument."
 - Every page's footer: the Frotz, Inc. lantern mark + "From Frotz, Inc." → [frotzinc.com](https://frotzinc.com); GitHub and npm; "Frotz, Inc. is a fiction. The Frotz interpreter is the work of its own authors and is not affiliated."
 - Social card 1200×630 in the house style (already made). Full OpenGraph/Twitter meta.
-- Canonical URL `https://frotzlens.com/`, as one config value, because it may become `frotzlens.frotzinc.com` when the family moves to subdomains.
+- Canonical URL `https://frotzlens.frotzinc.com/` (the family's subdomain, decided 2026-11-06), as one config value (`apps/web/site.config.ts`).
 - Netlify, static, pnpm monorepo with base `apps/web`. I connect the repo in the Netlify UI; the kickoff prompt tells Claude it can't. **The site goes in Chris's personal Netlify account, not the ICJIA (work) team.**
 
 ## 10. Phases
@@ -197,7 +197,7 @@ I hold copyright on all of it and can relicense my own code at any time; the pol
 | **2** | Disassembler: all opcode forms, branches, routine discovery, strings, cross-refs; differential tests | `npx frotzlens --routine <addr> dark-cellar.z5` matches `txd` |
 | **3** | Web app shell: drop zone, Overview dashboard, hash routing, command palette, footer, `netlify.toml` | Dashboard renders on the Netlify preview |
 | **4** | Data views: Objects, Dictionary, Grammar, Routines, Strings, Memory/hex; linking everywhere; copy-as-text; Playwright smoke | Full navigation of `architect-legacy.z5` |
-| **5** | Symbols from `.dbg`, Inform fingerprinting, Blorb unwrap, `RoomGraph`, accessibility audit, light-mode pass, docs; publish `@frotzinc/zcode` and `frotzlens` 0.1.0 | Frotzlens 0.1.0 live at frotzlens.com |
+| **5** | Symbols from `.dbg`, Inform fingerprinting, Blorb unwrap, `RoomGraph`, accessibility audit, light-mode pass, docs; publish `@frotzinc/zcode` and `frotzlens` 0.1.0 | Frotzlens 0.1.0 live at frotzlens.frotzinc.com |
 
 Each phase ends with a working, deployable state and a review checkpoint.
 
@@ -209,7 +209,7 @@ Settled in the first session, recorded here as they close:
 2. **Sample authorship.** Each Frotzsmith sample is checked before it becomes a fixture.
 3. **`yarn link` vs `file:` paths** for validating the Phase 0 extraction against Frotzsmith.
 4. **Nuxt 5.** If stable at build time, flag it; don't switch silently.
-5. **Canonical domain.** `frotzlens.com` now; possibly `frotzlens.frotzinc.com` later. One config value either way.
+5. **Canonical domain.** Decided 2026-11-06: `frotzlens.frotzinc.com` (DNS at DNSimple). One config value either way.
 6. **String-scan heuristics.** How aggressive the unreferenced-string sweep should be before it produces garbage. Tune against the fixtures; document the threshold. *(Closed: no heuristic — see below.)*
 
 ### Decisions recorded, 6 November 2026

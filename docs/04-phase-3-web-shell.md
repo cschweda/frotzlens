@@ -1,7 +1,7 @@
 # Frotzlens — Phase 3: Web App Shell
 
 **Document 04 · Phase 3**
-**Deliverable:** drop a story file into frotzlens.com and see the Overview dashboard — on the Netlify preview once the repo is connected (Chris's personal Netlify account, not ICJIA's).
+**Deliverable:** drop a story file into frotzlens.frotzinc.com and see the Overview dashboard — on the Netlify preview once the repo is connected (Chris's personal Netlify account, not ICJIA's).
 
 > **Exit criteria:** `apps/web` builds statically (`nuxt generate`); dropping a file (or "Try a sample") parses it in a Web Worker and shows the Overview; every view is a hash route; the command palette (⌘K / Ctrl+K) jumps to any routine, object, string or dictionary word; the footer is on every page; axe finds nothing at AA; the page works at 400px.
 
@@ -12,7 +12,7 @@
 ```
 apps/web/                         frotzlens-web (private, GPL-3.0-or-later)
 ├── nuxt.config.ts                extends @frotzinc/nuxt-base; @nuxt/ui; head/OG from site.config.ts
-├── site.config.ts                one place for the canonical URL (https://frotzlens.com/) and identity
+├── site.config.ts                one place for the canonical URL (https://frotzlens.frotzinc.com/) and identity
 ├── app/
 │   ├── app.vue                   UApp + header + view + footer
 │   ├── assets/css/main.css       Tailwind, Nuxt UI, nuxt-base's base.css and palette.css, the type scale

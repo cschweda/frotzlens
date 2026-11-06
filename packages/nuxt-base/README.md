@@ -1,6 +1,6 @@
 # @frotzinc/nuxt-base
 
-The shared Nuxt layer for [Frotz, Inc.](https://frotzinc.com) apps ([Frotzsmith](https://frotzsmith.com), [Frotzlens](https://frotzlens.com)).
+The shared Nuxt layer for [Frotz, Inc.](https://frotzinc.com) apps ([Frotzsmith](https://frotzsmith.com), [Frotzlens](https://frotzlens.frotzinc.com)).
 
 ```ts
 // nuxt.config.ts

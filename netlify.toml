@@ -1,4 +1,4 @@
-# Netlify configuration for Frotzlens (frotzlens.com).
+# Netlify configuration for Frotzlens (frotzlens.frotzinc.com).
 # A static Nuxt 4 app (ssr: false) in a pnpm monorepo. The site is apps/web;
 # it depends on the workspace libraries (@frotzinc/zcode, …), which are built
 # first. On Netlify, Nitro's Netlify preset writes the static site to `dist`
