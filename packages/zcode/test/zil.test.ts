@@ -1,6 +1,6 @@
 /**
  * Stories compiled by ZILF, the ZIL compiler, checked against the real Ztools. Local only: set
- * ZIL_STORIES to a folder of ZILF-compiled .z3/.z5 files, with INFODUMP and TXD:
+ * ZIL_STORIES to a folder of ZILF-compiled story files (.z3, .z4, .z5, .z8), with INFODUMP and TXD:
  *
  *   ZIL_STORIES=… INFODUMP=… TXD=… pnpm --filter @frotzinc/zcode test zil
  *
@@ -16,7 +16,7 @@ import { formatAbbreviations, formatDictionary, formatHeader, formatObjects, for
 import { parseStory } from '../src/index.js'
 
 const DIR = process.env.ZIL_STORIES ? `${resolve(process.env.ZIL_STORIES)}/` : ''
-const files = DIR ? readdirSync(DIR).filter(f => /\.z[358]$/.test(f)).sort() : []
+const files = DIR ? readdirSync(DIR).filter(f => /\.z\d$/.test(f)).sort() : []
 
 describe.runIf(DIR && process.env.INFODUMP && process.env.TXD)('ZILF stories against the real Ztools (ZIL_STORIES is set)', () => {
   it('has stories', () => expect(files.length).toBeGreaterThan(0))

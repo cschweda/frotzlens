@@ -387,7 +387,7 @@ export function formatStrings(story: StoryFile, opts: Pick<TxdOptions, 'addresse
 }
 
 /**
- * The highest address a constant routine operand (a call's, read_char's) names, as txd's first pass
+ * The highest address a constant routine operand (a call's; read, read_char and sound_effect's) names, as txd's first pass
  * takes it: any address in the file whose byte could be a locals count.
  */
 function highestCalled(story: StoryFile): number {
