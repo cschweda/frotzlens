@@ -52,11 +52,14 @@ export const fixtureFiles = () => FIXTURES.map(f => `${f.name}.${f.version}`)
  * library texts (lib/). Part of each fixture's rebuild key, so any change to
  * the compiler rebuilds everything.
  */
+/** By name in code units, not the locale's order, so the key is the same on every machine. */
+const byName = (a, b) => (a.name < b.name ? -1 : a.name > b.name ? 1 : 0)
+
 function compilerIdentity() {
   const root = dirname(createRequire(import.meta.url).resolve('@frotzinc/inform6-wasm/package.json'))
   const hash = createHash('sha256')
   const walk = dir => {
-    for (const entry of readdirSync(join(root, dir), { withFileTypes: true }).sort((a, b) => (a.name < b.name ? -1 : a.name > b.name ? 1 : 0)) // code units, not locale: same key everywhere) {
+    for (const entry of readdirSync(join(root, dir), { withFileTypes: true }).sort(byName)) {
       const rel = join(dir, entry.name)
       if (entry.isDirectory()) walk(rel)
       else if (!rel.endsWith('.map')) hash.update(rel).update(readFileSync(join(root, rel)))
