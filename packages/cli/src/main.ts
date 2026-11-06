@@ -173,8 +173,12 @@ export function main(argv: string[], io: Io): number {
     }
     if (txd) {
       // A version this package doesn't disassemble (1, 2, 6, 7) has only its header to show.
-      if (story.errors.some(e => e.code === 'unsupported-version')) io.stdout(formatHeader(story, { fileName: file, width, continuation }))
-      else io.stdout(formatTxd(story, { addresses, width, noGrammar }))
+      if (story.errors.some(e => e.code === 'unsupported-version')) {
+        // Unless the header was asked for already (--txd -i).
+        if (!wanted.has('header')) io.stdout(formatHeader(story, { fileName: file, width, continuation }))
+      } else {
+        io.stdout(formatTxd(story, { addresses, width, noGrammar }))
+      }
     }
   }
   // One JSON document: the model for one file, an array of them (each with its `file`) for several.

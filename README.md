@@ -56,7 +56,7 @@ pnpm test
 
 **Test fixtures** are compiled at test time from Inform 6 sources in [`packages/zcode/test/fixtures/src`](packages/zcode/test/fixtures/src) by `@frotzinc/inform6-wasm`, with a fixed serial number so every build is byte-for-byte the same. No story files are checked in.
 
-**Golden files.** `packages/zcode/test/golden` holds `infodump`'s and `txd`'s output for each fixture, and the tests require ours to match it exactly. Ztools has no license, so none of it is in this repository. To regenerate the files, build `infodump` and `txd` yourself outside the repo, then run `cd packages/zcode && scripts/golden.sh <path-to-infodump> <path-to-txd>`. [`PROVENANCE.md`](packages/zcode/test/golden/PROVENANCE.md) has the exact build command and the archive's checksum.
+**Golden files.** `packages/zcode/test/golden` holds `infodump`'s and `txd`'s output for each fixture, and the tests require ours to match it exactly. Ztools has no license, so none of it is in this repository. To regenerate the files, build `infodump` and `txd` yourself outside the repo, then run `cd packages/zcode && scripts/golden.sh /abs/path/to/infodump /abs/path/to/txd` (absolute paths, or paths relative to `packages/zcode`). [`PROVENANCE.md`](packages/zcode/test/golden/PROVENANCE.md) has the exact build command and the archive's checksum.
 
 With `INFODUMP=/path/to/infodump TXD=/path/to/txd pnpm test`, the tests also compare every hand-observed header case, and every story in `samples/`, against the real tools.
 

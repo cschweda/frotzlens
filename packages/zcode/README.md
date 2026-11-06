@@ -43,8 +43,8 @@ process.stdout.write(formatObjects(story, { fileName: 'game.z5' }))
 
 `formatHeader`, `formatMap`, `formatAbbreviations`, `formatObjects`, `formatTree`, `formatGrammar` and `formatDictionary` produce the text of Ztools' `infodump -i`, `-m`, `-a`, `-o`, `-t`, `-g` and `-d`; `formatTxd` and `formatRoutine` produce `txd`'s disassembly (`addresses: true` for `txd -n`). Where Ztools reads a story correctly, the output is byte for byte the same on every test fixture and sample. The exceptions, and why, are listed in `test/golden.test.ts` and `test/txd.test.ts`:
 
-- **PunyInform** stories use Inform's version-3 grammar, which Ztools misreads as version 1. Their grammar sections and `txd`'s grammar notes have no reference. Everything else is compared, routine by routine.
+- **PunyInform** stories use Inform's version-3 grammar, which Ztools misreads as version 1. Their grammar sections and `txd`'s grammar notes have no reference. What is compared: every routine `txd` finished, without its notes, and the string section where `txd` reaches it. On two v3 stories `txd` stops partway, so their last routine and strings aren't compared.
 - **`minimal`'s `-m`:** `infodump` sizes an empty property-names table as 0x20000 bytes. We print the true size.
-- **Raw header bytes, and control characters from a story's Unicode table,** print as `?`, so a story can't put a terminal escape in our output. This changes no real story's output, and neither does printing v3 flags2's unknown bits with their own mask. The [`frotzlens`](https://www.npmjs.com/package/frotzlens) CLI is built on these.
+- **Raw header bytes, and control characters from a story's Unicode table,** print as `?`, so a story can't put a terminal escape in our output. v3 flags2's unknown bits print with their own mask. None of the checked fixtures or samples has either, but a story that did would print differently from `infodump`. The [`frotzlens`](https://www.npmjs.com/package/frotzlens) CLI is built on these.
 
 MIT. Part of [Frotzlens](https://frotzlens.com), from Frotz, Inc.

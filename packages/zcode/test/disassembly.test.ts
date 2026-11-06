@@ -113,6 +113,20 @@ describe('routines (§5)', () => {
     expect(swept.routines.length).toBeLessThan(405)
     expect(sweepRoutines(new Bytes(data), 5, s.code.analysisStart, text).exhausted).toBe(false)
   })
+
+  it('inline text counts toward the work budget, not just instructions', () => {
+    // A routine of one print whose text is 8,000 characters (an abbreviation of 8,000 'x's,
+    // named 100 times would be 800,000): that alone must use well over one unit.
+    const big = 'x'.repeat(8000)
+    const zchars = [1, 0]
+    const word = 0x8000 | (zchars[0]! << 10) | (zchars[1]! << 5) | 5
+    const data = new Uint8Array([0x00, 0xb2, word >> 8, word & 0xff, 0xb0])
+    const text: TextContext = { ...ctx(data), abbreviations: [0], abbreviationTexts: [big] }
+    const work = { used: 0 }
+    const r = parseRoutine(new Bytes(data), 5, 0, text, work)
+    expect(r.instructions[0]!.text!.text).toHaveLength(8000)
+    expect(work.used).toBeGreaterThan(1000)
+  })
 })
 
 describe('the code and strings of a story', () => {
@@ -212,5 +226,8 @@ describe('cross-references', () => {
     const put = s.dictionary.entries.find(e => e.word === 'put')!
     const into = s.dictionary.entries.find(e => e.word === 'in')!
     expect(s.xrefs[put.id]!.to).toContain(into.id)
+    // A synonym refers through the same lines as its verb ("die", synonyms "q", "quit").
+    const [die, quit] = ['die', 'quit'].map(w => s.dictionary.entries.find(e => e.word === w)!)
+    expect(s.xrefs[quit!.id]!.to).toEqual(s.xrefs[die!.id]!.to)
   })
 })

@@ -1,7 +1,7 @@
 # Golden files: provenance
 
 Every `<fixture>.<opt>.txt` here is the unedited standard output of Ztools' `infodump -<opt> <fixture>`, for `<opt>` in `i` (header), `a` (abbreviations), `o` (objects), `t` (object tree), `d` (dictionary), `m` (story file map) and `g` (grammar). Every `<fixture>.txd.txt.gz` and `<fixture>.txd-n.txt.gz` is the gzipped standard output of `txd <fixture>` and `txd -n <fixture>`. `test/golden.test.ts` and `test/txd.test.ts` require our formatters to reproduce each one byte for byte, with two exceptions:
-- **PunyInform's `txd` files** are compared by structure. Each routine `txd` finished, and the string section, is compared without `txd`'s grammar notes, which come from its misreading of version-3 grammar.
+- **PunyInform's `txd` files** are compared by structure. Each routine `txd` finished is compared without `txd`'s grammar notes, which come from its misreading of version-3 grammar. The string section is compared exactly, but only where `txd` reached it, which isn't the case for the two v3 stories where it stops partway.
 - **`minimal`'s map** isn't compared (see `golden.test.ts`).
 
 | | |

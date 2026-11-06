@@ -167,7 +167,7 @@ function parse(data: Uint8Array, opts: ParseOptions): StoryFile {
       errors.push({
         code: 'bad-address',
         severity: 'warning',
-        message: `Disassembly stopped after ${MAX_SWEEP_WORK.toLocaleString('en')} instructions; the routines after that point are missing.`,
+        message: `Disassembly stopped after ${MAX_SWEEP_WORK.toLocaleString('en')} units of work (instructions, and inline text); the routines after that point are missing.`,
       })
     }
     return swept.routines

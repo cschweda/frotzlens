@@ -54,10 +54,14 @@ rm -f test/golden/*.txt test/golden/*.txt.gz
         out="../golden/$name.txd${mode}.txt.gz"
         set +e
         "$TXD" $mode "$story" | gzip -9n > "$out"
-        status=${PIPESTATUS[0]}
+        statuses=("${PIPESTATUS[@]}")
         set -e
-        if [[ $status -ne 0 && "$name" != puny-* ]]; then
-          echo "txd $mode $story failed (exit $status)" >&2
+        if [[ ${statuses[1]} -ne 0 ]]; then
+          echo "gzip failed writing $out (exit ${statuses[1]})" >&2
+          exit 1
+        fi
+        if [[ ${statuses[0]} -ne 0 && "$name" != puny-* ]]; then
+          echo "txd $mode $story failed (exit ${statuses[0]})" >&2
           exit 1
         fi
       done

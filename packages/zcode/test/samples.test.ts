@@ -87,11 +87,18 @@ describe.runIf(process.env.TXD)('samples/ against the real txd (TXD is set)', ()
         expect(ours === r.stdout, `txd${addresses ? ' -n' : ''}`).toBe(true)
         continue
       }
-      // PunyInform: Ztools misreads its grammar, so compare every finished routine without the notes.
+      // PunyInform: Ztools misreads its grammar, so compare every finished routine without the notes,
+      // and the string section exactly when txd got that far.
       const want = blocks(r.stdout)
       const got = blocks(ours)
-      const keys = [...want.keys()].slice(0, r.stdout.includes('[End of code') ? undefined : -1)
+      const complete = r.stdout.includes('[End of code')
+      const keys = [...want.keys()].slice(0, complete ? undefined : -1)
+      expect(keys.length, 'routines txd finished').toBeGreaterThan(30)
       for (const k of keys) expect(got.get(k), `routine ${k}`).toBe(want.get(k))
+      if (complete) {
+        const strings = (t: string) => t.slice(t.indexOf('[End of code'))
+        expect(strings(ours) === strings(r.stdout), 'string section').toBe(true)
+      }
     }
   })
 })

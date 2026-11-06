@@ -110,23 +110,29 @@ export function buildXrefs(
   // the routines they name (the action's routine, and any parsing routine a token calls).
   if (grammar) {
     const wordByText = new Map(dictionary.entries.map(e => [e.word, e.id]))
+    const prepositionWord = (data: number) =>
+      grammar.version === 2 ? wordIds.get(data)
+      : grammar.version === 3 ? wordIds.get(grammar.prepositions[data]?.address ?? -1)
+      : wordIds.get(grammar.prepositions.find(p => p.number === data)?.address ?? -1)
+    const parsingRoutine = (data: number) =>
+      grammar.version === 1 ? grammar.parsingRoutines[data] : grammar.version === 2 ? unpack(data, version) : undefined
     for (const verb of grammar.verbs) {
-      const from = wordByText.get(verb.words[0] ?? '')
-      if (!from) continue
-      for (const line of verb.lines) {
-        const action = routineIds.get(grammar.actions[line.action] ?? -1)
-        if (action) link(from, line.address, action)
-        for (const t of line.tokens) {
-          if (t.kind === 'preposition') {
-            const word =
-              grammar.version === 2 ? wordIds.get(t.data)
-              : grammar.version === 3 ? wordIds.get(grammar.prepositions[t.data]?.address ?? -1)
-              : wordIds.get(grammar.prepositions.find(p => p.number === t.data)?.address ?? -1)
-            if (word) link(from, line.address, word)
-          } else if (t.kind === 'routine' || t.kind === 'noun-routine' || t.kind === 'scope-routine') {
-            const at = grammar.version === 1 ? grammar.parsingRoutines[t.data] : grammar.version === 2 ? unpack(t.data, version) : undefined
-            const routine = at !== undefined ? routineIds.get(at) : undefined
-            if (routine) link(from, line.address, routine)
+      // Every word of the verb — the verb and its synonyms — refers through the same lines.
+      for (const verbWord of verb.words) {
+        const from = wordByText.get(verbWord)
+        if (!from) continue
+        for (const line of verb.lines) {
+          const action = routineIds.get(grammar.actions[line.action] ?? -1)
+          if (action) link(from, line.address, action)
+          for (const t of line.tokens) {
+            if (t.kind === 'preposition') {
+              const prep = prepositionWord(t.data)
+              if (prep) link(from, line.address, prep)
+            } else if (t.kind === 'routine' || t.kind === 'noun-routine' || t.kind === 'scope-routine') {
+              const at = parsingRoutine(t.data)
+              const routine = at !== undefined ? routineIds.get(at) : undefined
+              if (routine) link(from, line.address, routine)
+            }
           }
         }
       }

@@ -22,10 +22,11 @@ export interface Routine {
 }
 
 /**
- * The most instructions the whole sweep may decode, failed probes included. A
- * real routine can be any length; what's bounded is the work a crafted file can
- * force (a long failed parse at every candidate address). Mingus I, 531
- * routines, decodes ~40,000.
+ * The most work the whole sweep may do, failed probes included: one unit per
+ * instruction decoded, plus one per 8 characters of inline text. A real routine
+ * can be any length; what's bounded is the work a crafted file can force — a
+ * long failed parse at every candidate address, or print instructions whose text
+ * expands to 64K characters each. Mingus I, 531 routines, takes ~60,000.
  */
 export const MAX_SWEEP_WORK = 2_000_000
 
@@ -63,8 +64,10 @@ export function parseRoutine(bytes: Bytes, version: Version, address: number, te
   }
 
   for (;;) {
-    if (++work.used > (work.max ?? MAX_SWEEP_WORK)) throw new SweepExhausted()
+    if (++work.used > (work.max ?? MAX_SWEEP_WORK)) throw new SweepExhausted(work.max ?? MAX_SWEEP_WORK)
     const ins = decodeInstruction(bytes, a, version, text)
+    // Inline text is work too: charged whether or not this probe turns out to be a routine.
+    if (ins.text) work.used += ins.text.text.length >> 3
     for (const o of ins.operands) if (o.kind === 'variable') checkVar(o.value)
     if (ins.store !== undefined) checkVar(ins.store)
     if (ins.branch?.target !== undefined) checkTarget(ins.branch.target)
@@ -80,14 +83,16 @@ export const alignUp = (n: number, scale: number) => Math.ceil(n / scale) * scal
 
 /** The sweep's work budget ran out. */
 export class SweepExhausted extends Error {
-  constructor() {
-    super(`decoding stopped after ${MAX_SWEEP_WORK} instructions`)
+  constructor(readonly limit: number) {
+    super(`decoding stopped after ${limit} units of work`)
   }
 }
 
 /**
- * parseRoutine, or null when the bytes aren't a routine. A rejected probe
- * gives back any text budget its inline strings used (only kept routines spend it).
+ * parseRoutine, or null when the bytes aren't a routine. A probe that doesn't
+ * end in a routine — rejected, or cut off by the work budget — gives back the
+ * story's text budget its inline strings used: only kept routines spend that.
+ * (The decoding work itself is never given back; see MAX_SWEEP_WORK.)
  */
 export function tryRoutine(bytes: Bytes, version: Version, address: number, text: TextContext, work?: Work): Routine | null {
   const budget = text.budget
@@ -95,11 +100,9 @@ export function tryRoutine(bytes: Bytes, version: Version, address: number, text
   try {
     return parseRoutine(bytes, version, address, text, work)
   } catch (e) {
-    if (e instanceof Malformed || e instanceof OutOfBounds) {
-      text.budget = budget
-      text.truncated = truncated
-      return null
-    }
+    text.budget = budget
+    text.truncated = truncated
+    if (e instanceof Malformed || e instanceof OutOfBounds) return null
     throw e
   }
 }

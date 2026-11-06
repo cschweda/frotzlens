@@ -161,6 +161,9 @@ describe('exit codes and messages', () => {
       expect(r.stdout).toContain('    **** Story file header ****')
       expect(r.stdout).not.toContain('[Start of code')
       expect(r.stderr).toContain('not supported')
+      // Asked for alongside the disassembly, the header still prints once.
+      const both = spawnSync(process.execPath, [BIN, '--txd', '-i', 'v6.z6'], { cwd: dir, encoding: 'utf8' })
+      expect(both.stdout.split('**** Story file header ****')).toHaveLength(2)
     } finally {
       rmSync(dir, { recursive: true, force: true })
     }
