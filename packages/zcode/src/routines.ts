@@ -5,6 +5,7 @@
 import { packedScale } from './address.js'
 import { Bytes, Malformed, OutOfBounds } from './bytes.js'
 import { decodeInstruction, type Instruction } from './decode.js'
+import { MAX_SWEEP_WORK, SweepExhausted, spend, type Work } from './work.js'
 import type { TextContext } from './text.js'
 import type { Version } from './types.js'
 
@@ -21,21 +22,7 @@ export interface Routine {
   end: number
 }
 
-/**
- * The most work the whole sweep may do, failed probes included: one unit per
- * instruction decoded, plus one per 8 characters of inline text. A real routine
- * can be any length; what's bounded is the work a crafted file can force — a
- * long failed parse at every candidate address, or print instructions whose text
- * expands to 64K characters each. Mingus I, 531 routines, takes ~60,000.
- */
-export const MAX_SWEEP_WORK = 2_000_000
-
-/** Instructions decoded so far by a sweep, shared across its probes. */
-export interface Work {
-  used: number
-  /** The budget (MAX_SWEEP_WORK unless a caller sets less). */
-  max?: number
-}
+export { MAX_SWEEP_WORK, SweepExhausted, type Work } from './work.js'
 
 /**
  * The routine at `address`, or Malformed if those bytes can't be one: a
@@ -64,10 +51,8 @@ export function parseRoutine(bytes: Bytes, version: Version, address: number, te
   }
 
   for (;;) {
-    if (++work.used > (work.max ?? MAX_SWEEP_WORK)) throw new SweepExhausted(work.max ?? MAX_SWEEP_WORK)
-    const ins = decodeInstruction(bytes, a, version, text)
-    // Inline text is work too: charged whether or not this probe turns out to be a routine.
-    if (ins.text) work.used += ins.text.text.length >> 3
+    spend(work, 1)
+    const ins = decodeInstruction(bytes, a, version, text, work)
     for (const o of ins.operands) if (o.kind === 'variable') checkVar(o.value)
     if (ins.store !== undefined) checkVar(ins.store)
     if (ins.branch?.target !== undefined) checkTarget(ins.branch.target)
@@ -81,18 +66,11 @@ export function parseRoutine(bytes: Bytes, version: Version, address: number, te
 
 export const alignUp = (n: number, scale: number) => Math.ceil(n / scale) * scale
 
-/** The sweep's work budget ran out. */
-export class SweepExhausted extends Error {
-  constructor(readonly limit: number) {
-    super(`decoding stopped after ${limit} units of work`)
-  }
-}
-
 /**
  * parseRoutine, or null when the bytes aren't a routine. A probe that doesn't
  * end in a routine — rejected, or cut off by the work budget — gives back the
  * story's text budget its inline strings used: only kept routines spend that.
- * (The decoding work itself is never given back; see MAX_SWEEP_WORK.)
+ * (The decoding work itself is never given back; see work.ts.)
  */
 export function tryRoutine(bytes: Bytes, version: Version, address: number, text: TextContext, work?: Work): Routine | null {
   const budget = text.budget

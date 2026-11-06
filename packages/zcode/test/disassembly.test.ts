@@ -114,6 +114,16 @@ describe('routines (§5)', () => {
     expect(sweepRoutines(new Bytes(data), 5, s.code.analysisStart, text).exhausted).toBe(false)
   })
 
+  it('an inline string with no end bit costs a unit for every word scanned, though the probe fails', () => {
+    // 0 locals, print, then 4,000 words with no end bit, then the end of the file.
+    const data = new Uint8Array(2 + 8000)
+    data[1] = 0xb2
+    for (let i = 2; i < data.length; i += 2) data[i] = 0x14 // a word without bit 15
+    const work = { used: 0 }
+    expect(tryRoutine(new Bytes(data), 5, 0, ctx(data), work)).toBeNull()
+    expect(work.used).toBeGreaterThanOrEqual(4000)
+  })
+
   it('inline text counts toward the work budget, not just instructions', () => {
     // A routine of one print whose text is 8,000 characters (an abbreviation of 8,000 'x's,
     // named 100 times would be 800,000): that alone must use well over one unit.

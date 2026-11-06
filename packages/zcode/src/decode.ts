@@ -5,6 +5,7 @@
 import { Bytes, Malformed } from './bytes.js'
 import { op0, op1, op2, opExt, opVar, type OpCount, type OpForm, type OpInfo } from './opcodes.js'
 import { decodeZchars, readZchars, type TextContext } from './text.js'
+import { spend, type Work } from './work.js'
 import type { Version } from './types.js'
 
 export type OperandKind = 'large' | 'small' | 'variable'
@@ -63,7 +64,7 @@ function readTypes(bytes: Bytes, at: number, count: number): (OperandKind | null
  * Decode the instruction at `address`. Throws Malformed for an opcode that
  * doesn't exist in this version, and OutOfBounds when it runs off the file.
  */
-export function decodeInstruction(bytes: Bytes, address: number, version: Version, text: TextContext): Instruction {
+export function decodeInstruction(bytes: Bytes, address: number, version: Version, text: TextContext, work?: Work): Instruction {
   let a = address
   const b = bytes.byte(a++)
   let form: OpForm
@@ -147,8 +148,10 @@ export function decodeInstruction(bytes: Bytes, address: number, version: Versio
     else ins.branch.target = a + offset - 2 // §4.7.2: relative to the address after the branch data
   }
   if (info.text) {
-    const { zchars, length } = readZchars(bytes, a)
+    const { zchars, length } = readZchars(bytes, a, Infinity, work)
     ins.text = { address: a, length, text: decodeZchars(text, zchars) }
+    // The text produced is work too (abbreviations make it longer than what was read).
+    spend(work, ins.text.text.length >> 3)
     a += length
   }
   if (info.name === 'JUMP' && operands[0]?.kind !== 'variable' && operands[0]) {
