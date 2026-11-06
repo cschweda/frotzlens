@@ -1,8 +1,16 @@
 # Frotzlens
 
+![Frotzlens — see inside a Z-machine story file](./apps/web/public/og-image.png)
+
+[![License: GPLv3 (apps), MIT (libraries)](https://img.shields.io/badge/License-GPLv3%20%2B%20MIT-blue.svg)](./LICENSING.md)
+[![CI](https://github.com/cschweda/frotzlens/actions/workflows/ci.yml/badge.svg)](https://github.com/cschweda/frotzlens/actions/workflows/ci.yml)
+[![TypeScript](https://img.shields.io/badge/TypeScript-strict-3178C6.svg)](https://www.typescriptlang.org)
+[![Z-machine](https://img.shields.io/badge/Z--machine-v3%20%C2%B7%20v4%20%C2%B7%20v5%20%C2%B7%20v8-f59e0b.svg)](https://inform-fiction.org/zmachine/standards/)
+[![Status](https://img.shields.io/badge/status-phase%203-orange.svg)](./docs/00-master-design.md)
+
 A browser-based disassembler and inspector for Z-machine story files. Drop a `.z3`, `.z4`, `.z5`, `.z8` or `.zblorb` into a tab and see what's inside: the header, the memory map, the object tree, the dictionary and grammar, every routine as cross-referenced disassembly, and every string. Everything runs in your browser; nothing is uploaded.
 
-It's the browser-native successor to Ztools' `txd` and `infodump`, with an Inform 6 focus, and the companion to [Frotzsmith](https://frotzsmith.com), the browser IDE for Inform 6 and ZIL.
+It's the browser-native successor to Ztools' `txd` and `infodump`, with an Inform 6 focus, and the companion to [Frotzsmith](https://frotzsmith.com), the browser IDE for Inform 6 and ZIL. Both are part of [Frotz, Inc.](https://frotzinc.com), home of the Frotz family of interactive-fiction tools.
 
 ## Status
 
@@ -11,7 +19,7 @@ It's the browser-native successor to Ztools' `txd` and `infodump`, with an Infor
 | 0 | Shared libraries extracted from Frotzsmith | **Done.** `@frotzinc/worker-rpc`, `nuxt-base` and `inform6-wasm` 0.1.0 on npm; Frotzsmith uses them. |
 | 1 | Core parser and CLI | **Done.** Header, memory map, text, dictionary, objects and globals for v3, v4, v5 and v8, matching `infodump` byte for byte. |
 | 2 | Disassembler: routines, strings, grammar, cross-references | **Done.** Every routine and string, Inform grammar (versions 1, 2 and 3), and cross-references. The disassembly matches `txd`, and `-f` matches `infodump -f`, byte for byte on every Standard Library and library-free story. The exceptions are PunyInform's grammar, which Ztools misreads, and `minimal`'s map ([details](docs/03-phase-2-disassembler.md#5-deliberate-differences-from-ztools)). |
-| 3 | Web app shell and Overview dashboard | Next |
+| 3 | Web app shell and Overview dashboard | **Built.** Drop a story file (or try the sample) and see the Overview: stats, a to-scale memory map, the story facts. Parsing runs in a Web Worker; every view is a hash route; ⌘K jumps to any routine, object, string or dictionary word. First deploy to frotzlens.com next ([details](docs/04-phase-3-web-shell.md)). |
 | 4 | Data views | |
 | 5 | Debug symbols, Inform fingerprinting, Blorb, polish; frotzlens.com 0.1.0 | |
 
@@ -72,4 +80,4 @@ Each `@frotzinc/*` package is released on its own, from your machine, with [`pub
 
 The script never commits, tags or pushes.
 
-From Frotz, Inc. — Frotz, Inc. is a fiction. The Frotz interpreter is the work of its own authors and is not affiliated.
+From [Frotz, Inc.](https://frotzinc.com) — Frotz, Inc. is a fiction. The Frotz interpreter is the work of its own authors and is not affiliated.

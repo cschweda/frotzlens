@@ -1,6 +1,6 @@
 # Changelog
 
-All notable changes to `@frotzinc/nuxt-base`. Versions follow [Semantic Versioning](https://semver.org/).
+All notable changes to `@frotzinc/nuxt-base`. Versions follow [Semantic Versioning](https://semver.org/). Part of [Frotz, Inc.](https://frotzinc.com).
 
 ## [0.1.0] - 2026-11-06
 

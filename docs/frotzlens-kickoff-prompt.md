@@ -25,7 +25,7 @@ You are the lead engineer on **Frotzlens**, a browser-based disassembler and ins
 
 Drop a `.z3`/`.z4`/`.z5`/`.z8` or `.zblorb` file into a browser tab and get a navigable, visual model of everything inside it: header, memory map, abbreviations, dictionary, object tree with attributes and properties, globals, grammar table, every routine as cross-referenced disassembly, and the string table. When given Inform 6's `gameinfo.dbg` debug file alongside the story, every address becomes symbolic (routine names, object names, property names, source line references).
 
-It is the browser-native successor to `txd` and `infodump` from the Ztools suite, with an Inform 6 focus. Everything runs client-side. Nothing is uploaded. It is the companion product to **Frotzsmith** (frotzsmith.com, repo `cschweda/frotzsmith`), a browser IDE for Inform 6 and ZIL, and part of the **Frotz, Inc.** family (frotzinc.com).
+It is the browser-native successor to `txd` and `infodump` from the Ztools suite, with an Inform 6 focus. Everything runs client-side. Nothing is uploaded. It is the companion product to **Frotzsmith** (frotzsmith.com, repo `cschweda/frotzsmith`), a browser IDE for Inform 6 and ZIL, and part of the **Frotz, Inc.** family ([frotzinc.com](https://frotzinc.com)).
 
 **Audience:** Inform 6 authors inspecting their own builds; IF archivists and reviewers poking at 1980s story files; people who lost their source. They are technical but not necessarily compiler people. The UI must make a binary file *legible*, not just dump it.
 
@@ -100,7 +100,7 @@ Dark mode by default, light mode via Nuxt UI color mode. Modern and sleek; the r
 ## Branding
 
 - Favicon and app icon: the amber rounded badge with a loupe over a row of bytes (I'll supply the SVG).
-- Footer on every page: the Frotz, Inc. lantern mark + "From Frotz, Inc." linking to frotzinc.com, GitHub and npm links, and: "Frotz, Inc. is a fiction. The Frotz interpreter is the work of its own authors and is not affiliated."
+- Footer on every page: the Frotz, Inc. lantern mark + "From Frotz, Inc." linking to [frotzinc.com](https://frotzinc.com), GitHub and npm links, and: "Frotz, Inc. is a fiction. The Frotz interpreter is the work of its own authors and is not affiliated."
 - `og:image` 1200×630 (I'll supply), full OpenGraph/Twitter meta, canonical URL `https://frotzlens.com/` (may later become `frotzlens.frotzinc.com`; keep it one config value).
 
 ## Phases

@@ -1,6 +1,6 @@
 # @frotzinc/nuxt-base
 
-The shared Nuxt layer for Frotz, Inc. apps ([Frotzsmith](https://frotzsmith.com), [Frotzlens](https://frotzlens.com)).
+The shared Nuxt layer for [Frotz, Inc.](https://frotzinc.com) apps ([Frotzsmith](https://frotzsmith.com), [Frotzlens](https://frotzlens.com)).
 
 ```ts
 // nuxt.config.ts
@@ -44,4 +44,4 @@ Plain Node ES modules, run from your own `postgenerate` scripts:
 | `netlify/version` | `packageVersion(pkgJson)` and `buildCommit(cwd)` give the version and the commit's short hash and date, for an About panel. |
 | `netlify/redirects` | `parseRedirects`, `readRedirects`, `scriptProxies` and `externalRules`, for writing tests against a `_redirects` file. |
 
-`nuxt`, `@nuxt/ui` and `vue` are peer dependencies. MIT. From Frotz, Inc.
+`nuxt`, `@nuxt/ui` and `vue` are peer dependencies. MIT. From [Frotz, Inc.](https://frotzinc.com).

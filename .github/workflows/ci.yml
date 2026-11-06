@@ -28,3 +28,6 @@ jobs:
       - run: pnpm build
       - run: pnpm typecheck
       - run: pnpm test
+      # The web app (apps/web): typecheck it and generate the static site, as Netlify does.
+      - run: pnpm --filter frotzlens-web run typecheck
+      - run: pnpm --filter frotzlens-web run generate

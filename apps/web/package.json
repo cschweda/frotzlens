@@ -1,0 +1,27 @@
+{
+  "name": "frotzlens-web",
+  "private": true,
+  "license": "GPL-3.0-or-later",
+  "type": "module",
+  "scripts": {
+    "sample": "node scripts/copy-sample.mjs",
+    "dev": "pnpm run sample && nuxt dev",
+    "generate": "pnpm run sample && nuxt generate",
+    "preview": "nuxt preview",
+    "typecheck": "nuxt typecheck",
+    "postinstall": "nuxt prepare"
+  },
+  "dependencies": {
+    "@frotzinc/nuxt-base": "workspace:*",
+    "@frotzinc/worker-rpc": "workspace:*",
+    "@frotzinc/zcode": "workspace:*",
+    "@nuxt/ui": "4.12.0",
+    "nuxt": "4.6.4",
+    "vue": "^3.5.45"
+  },
+  "devDependencies": {
+    "@iconify-json/lucide": "^1.2.148",
+    "typescript": "5.9.3",
+    "vue-tsc": "^3.1.0"
+  }
+}

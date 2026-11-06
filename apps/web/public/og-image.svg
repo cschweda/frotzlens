@@ -1,0 +1,56 @@
+<svg width="1200" height="630" viewBox="0 0 1200 630" xmlns="http://www.w3.org/2000/svg" font-family="Helvetica, Arial, sans-serif">
+  <defs>
+    <radialGradient id="glow" cx="18%" cy="12%" r="70%">
+      <stop offset="0%" stop-color="#f59e0b" stop-opacity="0.20"/>
+      <stop offset="100%" stop-color="#f59e0b" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="amber" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#fcd34d"/>
+      <stop offset="100%" stop-color="#f59e0b"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Backdrop -->
+  <rect width="1200" height="630" fill="#0b0b0e"/>
+  <rect width="1200" height="630" fill="url(#glow)"/>
+
+  <!-- The subject's own material: faint txd disassembly of The Dark Cellar as texture -->
+  <g font-family="'Courier New', Courier, monospace" font-size="23" fill="#23232b" xml:space="preserve">
+    <text x="640" y="118">Routine R0108, 4 locals</text>
+    <text x="640" y="152">    Action routine for:</text>
+    <text x="640" y="186">        "nouns"</text>
+    <text x="640" y="254">       CALL_VN    R0344 (#32,#01)</text>
+    <text x="640" y="288">       JL         #00,#00 [TRUE] L0001</text>
+    <text x="640" y="322">L0001: CALL_VN2   R0384 (#1d,#00)</text>
+    <text x="640" y="356">       PRINT_PADDR S194</text>
+    <text x="640" y="390">       JIN        L01,"Class" [FALSE] L0002</text>
+    <text x="640" y="424">       PRINT      "north"</text>
+    <text x="640" y="458">L0002: RET_POPPED</text>
+    <text x="640" y="526" fill="#2c2c34">[End of code]</text>
+  </g>
+
+  <!-- Lens mark: a loupe over a row of bytes, in an amber tile -->
+  <rect x="90" y="212" width="158" height="158" rx="34" fill="url(#amber)"/>
+  <g transform="translate(110,238) scale(4.9)">
+    <g fill="#0b0b0e">
+      <rect x="0.4" y="8" width="2" height="2" rx="0.4" opacity="0.55"/>
+      <rect x="3.2" y="8" width="2" height="2" rx="0.4" opacity="0.55"/>
+      <rect x="8.2" y="7.2" width="3.5" height="3.6" rx="0.7"/>
+      <rect x="12.3" y="7.2" width="3.5" height="3.6" rx="0.7"/>
+      <rect x="20.6" y="8" width="2" height="2" rx="0.4" opacity="0.55"/>
+    </g>
+    <g fill="none" stroke="#0b0b0e" stroke-linecap="round">
+      <circle cx="12" cy="9" r="6.5" stroke-width="2"/>
+      <path d="M16.7 13.7 21.6 18.6" stroke-width="2.8"/>
+    </g>
+  </g>
+
+  <!-- Wordmark + tagline -->
+  <text x="286" y="300" font-family="Georgia, 'Times New Roman', serif" font-size="98" font-weight="700" fill="#f5f3ee">Frotzlens</text>
+  <text x="290" y="352" font-size="33" fill="#a8a29e">See inside a Z-machine story file</text>
+  <text x="290" y="406" font-family="'Courier New', Courier, monospace" font-size="26" fill="#fbbf24">&gt; disassemble &#183; explore &#183; entirely client-side</text>
+
+  <!-- Footer rule + tags -->
+  <rect x="92" y="556" width="1016" height="2" fill="#1c1c22"/>
+  <text x="92" y="596" font-family="'Courier New', Courier, monospace" font-size="22" fill="#6b6b72">Z-machine v3 &#183; v4 &#183; v5 &#183; v8 &#183; Inform 6 &#183; txd + infodump &#183; in the browser</text>
+</svg>

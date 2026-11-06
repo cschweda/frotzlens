@@ -1,6 +1,6 @@
 # Changelog
 
-All notable changes to `@frotzinc/zcode`. Versions follow [Semantic Versioning](https://semver.org/).
+All notable changes to `@frotzinc/zcode`. Versions follow [Semantic Versioning](https://semver.org/). Part of [Frotz, Inc.](https://frotzinc.com).
 
 ## [Unreleased]
 
