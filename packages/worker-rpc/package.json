@@ -1,0 +1,27 @@
+{
+  "name": "@frotzinc/worker-rpc",
+  "version": "0.1.0",
+  "description": "Request/response client for a long-lived Web Worker: request IDs, timeouts, dead-worker recovery, explicit ok | error | unavailable | timeout outcomes.",
+  "license": "MIT",
+  "author": "Christopher Schweda",
+  "type": "module",
+  "homepage": "https://github.com/cschweda/frotzlens/tree/main/packages/worker-rpc",
+  "repository": { "type": "git", "url": "git+https://github.com/cschweda/frotzlens.git", "directory": "packages/worker-rpc" },
+  "bugs": { "url": "https://github.com/cschweda/frotzlens/issues" },
+  "keywords": ["web-worker", "rpc", "worker", "timeout", "frotzinc"],
+  "sideEffects": false,
+  "exports": {
+    ".": { "types": "./dist/index.d.ts", "default": "./dist/index.js" },
+    "./testing": { "types": "./dist/testing.d.ts", "default": "./dist/testing.js" }
+  },
+  "files": ["dist", "!dist/**/*.test.*", "README.md", "LICENSE"],
+  "scripts": {
+    "build": "rm -rf dist && tsc -p tsconfig.build.json",
+    "test": "vitest run",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "prepack": "pnpm run build"
+  },
+  "peerDependencies": { "vitest": ">=2" },
+  "peerDependenciesMeta": { "vitest": { "optional": true } },
+  "devDependencies": { "vitest": "^5.1.0", "typescript": "5.9.3" }
+}

@@ -1,0 +1,34 @@
+{
+  "name": "frotzlens",
+  "version": "0.0.1",
+  "description": "Browser-based Z-machine story file disassembler and inspector \u2014 CLI. In development.",
+  "license": "GPL-3.0-or-later",
+  "author": "Christopher Schweda",
+  "homepage": "https://frotzlens.com",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/cschweda/frotzlens.git",
+    "directory": "packages/cli"
+  },
+  "bugs": {
+    "url": "https://github.com/cschweda/frotzlens/issues"
+  },
+  "files": [
+    "README.md",
+    "LICENSE"
+  ],
+  "keywords": [
+    "z-machine",
+    "z-code",
+    "zcode",
+    "inform",
+    "inform6",
+    "interactive-fiction",
+    "disassembler",
+    "decompiler",
+    "txd",
+    "infodump",
+    "frotz",
+    "frotzsmith"
+  ]
+}

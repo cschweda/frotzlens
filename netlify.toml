@@ -1,0 +1,58 @@
+# Netlify configuration for Frotzlens (frotzlens.com).
+# A static Nuxt 4 app (ssr: false) in a pnpm monorepo. The site is apps/web;
+# it depends on the workspace libraries (@frotzinc/zcode, …), which are built
+# first. On Netlify, Nitro's Netlify preset writes the static site to `dist`
+# (there is no .output/public there — Frotzsmith's builds broke on that
+# assumption on 2026-11-04), so `dist` is what's published. Paths below are
+# relative to `base`.
+#
+# The web app arrives in Phase 3; until then a build here has nothing to build.
+# Connect the repo in the Netlify UI with base directory `apps/web` — the
+# rest is read from this file.
+
+[build]
+  base = "apps/web"
+  # Netlify runs its own `pnpm install` first; the frozen install keeps a
+  # drifted lockfile from being rewritten (and passing). Then build the
+  # libraries the app depends on (`^...` = its workspace dependencies, not
+  # the app itself), then generate the static site.
+  command = "pnpm install --frozen-lockfile && pnpm --filter \"frotzlens-web^...\" run build && pnpm run generate"
+  publish = "dist"
+
+[build.environment]
+  NODE_VERSION = "22"
+  PNPM_FLAGS = "--frozen-lockfile"
+
+# Custom redirects belong in apps/web/public/_redirects: Nitro's netlify preset
+# emits its own `_redirects` catch-all that shadows [[redirects]] blocks here.
+
+# Security headers. Frotzlens loads nothing from another origin: no analytics,
+# no CDN, fonts self-hosted, and a dropped story file is read locally and
+# never uploaded — so everything is 'self'.
+#  - 'unsafe-inline' (scripts): Nuxt's inline SPA bootstrap and the color-mode
+#    script; (styles): Nuxt UI's inline styles.
+#  - img-src blob: a Blorb cover image is shown from a blob URL.
+#  - No 'wasm-unsafe-eval': the parser is TypeScript, no WebAssembly on the site.
+# Revisit when the app exists (Phase 3) and verify with a CSP report.
+[[headers]]
+  for = "/*"
+  [headers.values]
+    X-Frame-Options = "DENY"
+    X-Content-Type-Options = "nosniff"
+    Permissions-Policy = "camera=(), microphone=(), geolocation=(), payment=()"
+    Referrer-Policy = "strict-origin-when-cross-origin"
+    Content-Security-Policy = "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self'; connect-src 'self'; worker-src 'self'; frame-src 'none'; frame-ancestors 'none'; base-uri 'self'; form-action 'self'; object-src 'none'"
+
+# Long-cache content-hashed build assets.
+[[headers]]
+  for = "/_nuxt/*"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
+
+# EXCEPT Nuxt's app manifest (builds/latest.json, builds/meta/<id>.json): it
+# is unfingerprinted and must never be immutable-cached. (Later rules override
+# earlier ones on Netlify.)
+[[headers]]
+  for = "/_nuxt/builds/*"
+  [headers.values]
+    Cache-Control = "no-cache"

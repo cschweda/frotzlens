@@ -1,0 +1,54 @@
+/*
+ * @frotzinc/nuxt-base — the Frotz, Inc. palette (opt-in). Import after base.css.
+ * Dark is the default; Nuxt color mode puts `.light` on <html> for light.
+ *
+ * Two amber tokens on purpose: `lamp` is for borders, glow and selection;
+ * `lamp-text` is amber used as text. In light mode the bright amber fails AA as
+ * text on paper, so `lamp-text` darkens. Contrast (WCAG 2.x):
+ *   dark  lamp-text #f0a830 on ground 9.32:1, on panel 8.61:1
+ *   light lamp-text #8a5208 on ground 5.65:1, on panel 5.06:1
+ */
+
+:root {
+  --frotz-ground: #0e1116;
+  --frotz-ink: #e6dfcf;
+  --frotz-ink-2: #9a9688;
+  --frotz-panel: #151a21;
+  --frotz-rule: #2a2f38;
+  --frotz-lamp: #f0a830;
+  --frotz-lamp-text: #f0a830;
+  --frotz-amber: var(--frotz-lamp);
+
+  /* Nuxt UI's neutral surface and text tokens, mapped onto the palette. */
+  --ui-bg: var(--frotz-ground);
+  --ui-bg-muted: var(--frotz-panel);
+  --ui-bg-elevated: var(--frotz-panel);
+  --ui-bg-accented: var(--frotz-rule);
+  --ui-text: var(--frotz-ink);
+  --ui-text-highlighted: var(--frotz-ink);
+  --ui-text-toned: var(--frotz-ink);
+  --ui-text-muted: var(--frotz-ink-2);
+  --ui-text-dimmed: var(--frotz-ink-2);
+  --ui-border: var(--frotz-rule);
+  --ui-border-muted: var(--frotz-rule);
+  --ui-border-accented: var(--frotz-rule);
+}
+
+.light {
+  --frotz-ground: #f3f1ea;
+  --frotz-ink: #17202a;
+  --frotz-ink-2: #4b5563;
+  --frotz-panel: #e8e5da;
+  --frotz-rule: #c9c6bb;
+  --frotz-lamp: #d98b1e;
+  --frotz-lamp-text: #8a5208;
+}
+
+body {
+  background: var(--frotz-ground);
+  color: var(--frotz-ink);
+}
+
+::selection {
+  background: color-mix(in oklab, var(--frotz-lamp) 35%, transparent);
+}

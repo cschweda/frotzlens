@@ -1,0 +1,10 @@
+node_modules/
+dist/
+*.tgz
+.nuxt/
+.output/
+coverage/
+.DS_Store
+*.log
+packages/inform6-wasm/src/lib-texts.generated.ts
+.packs/

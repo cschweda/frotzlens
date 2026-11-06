@@ -1,0 +1,65 @@
+{
+  "name": "@frotzinc/inform6-wasm",
+  "version": "0.1.0",
+  "description": "The Inform 6.44 compiler in WebAssembly, with the Inform Standard Library and PunyInform. compile(source) \u2192 story file, diagnostics, and gameinfo.dbg. Runs in a browser, a Web Worker, or Node.",
+  "license": "MIT",
+  "author": "Christopher Schweda",
+  "type": "module",
+  "homepage": "https://github.com/cschweda/frotzlens/tree/main/packages/inform6-wasm",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/cschweda/frotzlens.git",
+    "directory": "packages/inform6-wasm"
+  },
+  "bugs": {
+    "url": "https://github.com/cschweda/frotzlens/issues"
+  },
+  "keywords": [
+    "inform",
+    "inform6",
+    "interactive-fiction",
+    "z-machine",
+    "compiler",
+    "wasm",
+    "punyinform",
+    "frotzinc"
+  ],
+  "sideEffects": false,
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    },
+    "./library": {
+      "types": "./dist/library.d.ts",
+      "default": "./dist/library.js"
+    },
+    "./inform6.mjs": {
+      "types": "./wasm/inform6.d.mts",
+      "default": "./wasm/inform6.mjs"
+    },
+    "./inform6.wasm": "./wasm/inform6.wasm",
+    "./lib/*": "./lib/*",
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "dist",
+    "!dist/**/*.test.*",
+    "wasm",
+    "lib",
+    "README.md",
+    "LICENSE"
+  ],
+  "scripts": {
+    "gen": "node scripts/gen-lib-texts.mjs",
+    "build": "pnpm run gen && rm -rf dist && tsc -p tsconfig.build.json",
+    "pretest": "pnpm run gen",
+    "test": "vitest run",
+    "typecheck": "pnpm run gen && tsc -p tsconfig.json --noEmit",
+    "prepack": "pnpm run build"
+  },
+  "devDependencies": {
+    "vitest": "^5.1.0",
+    "typescript": "5.9.3"
+  }
+}

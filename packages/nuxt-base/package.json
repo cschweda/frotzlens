@@ -1,0 +1,32 @@
+{
+  "name": "@frotzinc/nuxt-base",
+  "version": "0.1.0",
+  "description": "The shared Frotz, Inc. Nuxt layer: static client-side config, dark-default color mode, Nuxt UI color roles, house CSS and palette, small utils, and Netlify post-build tools.",
+  "license": "MIT",
+  "author": "Christopher Schweda",
+  "type": "module",
+  "homepage": "https://github.com/cschweda/frotzlens/tree/main/packages/nuxt-base",
+  "repository": { "type": "git", "url": "git+https://github.com/cschweda/frotzlens.git", "directory": "packages/nuxt-base" },
+  "bugs": { "url": "https://github.com/cschweda/frotzlens/issues" },
+  "keywords": ["nuxt", "nuxt-layer", "nuxt-ui", "netlify", "frotzinc"],
+  "main": "./nuxt.config.ts",
+  "exports": {
+    ".": "./nuxt.config.ts",
+    "./nuxt.config.ts": "./nuxt.config.ts",
+    "./css/*": "./css/*",
+    "./utils/*": "./app/utils/*.ts",
+    "./netlify/*": "./netlify/*.mjs",
+    "./package.json": "./package.json"
+  },
+  "files": ["nuxt.config.ts", "app", "css", "netlify", "!**/*.test.ts", "README.md", "LICENSE"],
+  "scripts": {
+    "test": "vitest run",
+    "typecheck": "tsc -p tsconfig.json --noEmit"
+  },
+  "peerDependencies": {
+    "@nuxt/ui": "^4.12.0",
+    "nuxt": "^4.6.0",
+    "vue": "^3.5.0"
+  },
+  "devDependencies": { "vitest": "^5.1.0", "typescript": "5.9.3" }
+}
