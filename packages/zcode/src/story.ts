@@ -1,3 +1,5 @@
+import { blorbStory, isBlorb, readBlorb } from './blorb.js'
+import { fingerprint } from './fingerprint.js'
 import { Bytes, guarded, hex } from './bytes.js'
 import { parseDictionary } from './dictionary.js'
 import { parseGlobals } from './globals.js'
@@ -14,11 +16,7 @@ import type { Code, Dictionary, Header, ParseError, ParseOptions, StoryFile, Ver
 /** Versions this package parses beyond the header. */
 const SUPPORTED: readonly Version[] = [3, 4, 5, 8]
 
-/** A Blorb file is an IFF FORM of type IFRS (Blorb spec §2). */
-export function isBlorb(data: Uint8Array): boolean {
-  const tag = (o: number) => String.fromCharCode(...data.subarray(o, o + 4))
-  return data.length >= 12 && tag(0) === 'FORM' && tag(8) === 'IFRS'
-}
+export { isBlorb } from './blorb.js'
 
 const emptyDictionary = (address = 0): Dictionary => ({ address, separators: [], entryLength: 0, entries: [] })
 const emptyCode = (): Code => ({ analysisStart: 0, routines: [], end: 0 })
@@ -79,8 +77,22 @@ function parse(data: Uint8Array, opts: ParseOptions): StoryFile {
     errors,
   })
   if (isBlorb(data)) {
-    errors.push({ code: 'blorb-unsupported', severity: 'error', message: 'This is a Blorb file; unwrapping it is not supported yet.' })
-    return empty('blorb', blankHeader(0)) // a Blorb's first byte is 'F', not a version
+    // Unwrapped: the story inside is parsed as if it had been dropped on its own.
+    const problems: string[] = []
+    const blorb = readBlorb(data, problems)
+    const warnings = problems.map((message): ParseError => ({ code: 'bad-blorb', severity: 'warning', message }))
+    const story = blorbStory(data, blorb)
+    if (!story) {
+      const glulx = blorb.chunks.some(c => c.type === 'GLUL')
+      errors.push(...warnings, {
+        code: 'blorb-unsupported',
+        severity: 'error',
+        message: glulx ? 'This Blorb holds a Glulx game, not a Z-machine story.' : 'This Blorb holds no Z-machine story (no ZCOD chunk).',
+      })
+      return { ...empty('blorb', blankHeader(0)), blorb } // a Blorb's first byte is 'F', not a version
+    }
+    const inner = parse(story, opts)
+    return { ...inner, container: 'blorb', blorb, errors: [...warnings, ...inner.errors] }
   }
   if (data.length < HEADER_SIZE) {
     errors.push({ code: 'truncated', severity: 'error', message: `The file is ${data.length} bytes, shorter than a 64-byte header.` })
@@ -216,5 +228,8 @@ function parse(data: Uint8Array, opts: ParseOptions): StoryFile {
   )
   progress('memory', 1)
 
-  return { bytes: data, container: 'bare', header, memory, abbreviations, dictionary, objects: objects.table, globals, code, strings, ...(grammar ? { grammar } : {}), xrefs, errors }
+  const model: StoryFile = { bytes: data, container: 'bare', header, memory, abbreviations, dictionary, objects: objects.table, globals, code, strings, ...(grammar ? { grammar } : {}), xrefs, errors }
+  model.fingerprint = fingerprint(model)
+  progress('fingerprint', 1)
+  return model
 }
