@@ -6,6 +6,9 @@
 frotzlens game.z5                     # the whole disassembly, as Ztools' txd prints it
 frotzlens --routine 4f4 game.z5       # one routine
 frotzlens -f game.z5                  # everything infodump prints: header, map, abbreviations, objects, tree, grammar, dictionary
+frotzlens --info game.z5              # what made it: compiler, library, Inform's veneer
+frotzlens --symbols gameinfo.dbg game.z5          # the disassembly with the source's names
+frotzlens --rooms --symbols gameinfo.dbg game.z5  # the map: rooms and exits
 ```
 
 (Once it's released: `npx frotzlens` today installs a 0.0.1 placeholder. From this repository: `pnpm install && pnpm build`, then `node packages/cli/dist/bin.js`.)
@@ -20,6 +23,14 @@ Disassembly (txd):
   -n, --addresses       addresses instead of labels (txd -n)
       --routine <addr>  just the routine at this address (hex, e.g. 4f4 or 0x4f4)
       --no-grammar      leave out the grammar notes on routines (txd -g)
+      --symbols <file>  names from Inform's debug file (gameinfo.dbg, written
+                        with -k): routines, globals, locals, attributes and
+                        properties by name. No longer txd's text.
+
+About the file:
+      --info            what made it (compiler, library, Inform's veneer)
+                        and, for a Blorb, what else is in it
+      --rooms           the map: rooms and exits (needs --symbols)
 
 Sections (infodump):
   -i, --header          the story file header

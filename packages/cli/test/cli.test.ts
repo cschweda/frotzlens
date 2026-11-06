@@ -191,3 +191,48 @@ describe('exit codes and messages', () => {
     expect(r.err).toContain("can't read no-such-file.z5")
   })
 })
+
+describe('--symbols, --info, --rooms', () => {
+  it('--symbols names routines, globals and locals in the disassembly', () => {
+    const r = run(['--symbols', 'dark-cellar.dbg', 'dark-cellar.z5'])
+    expect(r.code).toBe(0)
+    expect(r.err).toBe('')
+    expect(r.out).toContain('Routine Initialise, 0 locals\n\n       STORE           location,#001a\n')
+    expect(run(['--symbols', 'dark-cellar.dbg', '--routine', run(['-n', 'dark-cellar.z5']).out.match(/Routine ([0-9a-f]+), 0 locals\n\n *\S+: +STORE +G[0-9a-f]+,#001a/)![1]!, 'dark-cellar.z5']).out).toMatch(/^Routine Initialise/)
+  })
+
+  it("--symbols from another story: a warning, and txd's own text", () => {
+    const r = run(['--symbols', 'demo.dbg', 'dark-cellar.z5'])
+    expect(r.code).toBe(0)
+    expect(r.err).toContain('demo.dbg was written for another story')
+    expect(r.out).toBe(run(['dark-cellar.z5']).out)
+  })
+
+  it('--info: the compiler, library and veneer', () => {
+    const r = run(['--info', 'dark-cellar.z5'])
+    expect(r.code).toBe(0)
+    expect(r.out).toContain('Compiler:  Inform 6.44\nLibrary:   Standard Library 6.12.8\nVeneer:    30 routines recognised\n')
+    expect(r.out).toMatch(/ RT__Err\n/)
+    expect(run(['--info', 'puny-dark-cellar.z5']).out).toMatch(/Library: +PunyInform \d+\.\d+\n/)
+  })
+
+  it('--rooms: the map, from the debug file', () => {
+    const r = run(['--rooms', '--symbols', 'dark-cellar.dbg', 'dark-cellar.z5'])
+    expect(r.code).toBe(0)
+    expect(r.out).toMatch(/^2 rooms; the game starts in Hall \(\d+\)\n\nHall \(\d+\)\n    down      Cellar \(\d+\)\nCellar \(\d+\)\n    up        Hall \(\d+\)\n$/)
+    expect(run(['--rooms', 'dark-cellar.z5']).code).toBe(2)
+  })
+
+  it('--json with --symbols and --rooms carries them', () => {
+    const m = JSON.parse(run(['--json', '--rooms', '--symbols', 'dark-cellar.dbg', 'dark-cellar.z5']).out)
+    expect(m.fingerprint.compiler).toBe('inform6')
+    expect(Object.values(m.symbols.routines).some((r: any) => r.name === 'Initialise')).toBe(true)
+    expect(m.rooms.rooms.map((r: any) => r.name)).toEqual(['Hall', 'Cellar'])
+  })
+
+  it('an unreadable debug file stops before any story is read', () => {
+    const r = run(['--symbols', 'no-such.dbg', 'demo.z5'])
+    expect(r.code).toBe(1)
+    expect(r.err).toContain("can't read no-such.dbg")
+  })
+})

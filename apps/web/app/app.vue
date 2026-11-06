@@ -1,5 +1,6 @@
 <script setup lang="ts">
 const { story, fileName, status, close, openFile } = useStory()
+const { loadSymbols, clearSymbols } = useSymbols()
 const { route, replace } = useHashRoute()
 const searching = ref(false)
 
@@ -17,6 +18,7 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKey))
 // visit opened from a link to a view (#routine/27f8): that view is kept.
 let keepIncomingHash = !!location.hash && location.hash !== '#overview'
 watch(story, s => {
+  clearSymbols() // a debug file belongs to the story it was loaded over
   if (!s) return replace('overview') // closing a file leaves no stale view behind
   if (keepIncomingHash) keepIncomingHash = false
   else replace('overview')
@@ -31,7 +33,12 @@ function onWindowDrop(e: DragEvent) {
   if (!e.dataTransfer?.types.includes('Files')) return
   e.preventDefault()
   const file = e.dataTransfer.files[0]
-  if (file && status.value !== 'loading') openFile(file)
+  if (!file || status.value === 'loading') return
+  // A debug file dropped over an open story is its names; anything else is a story to open.
+  if (isDebugFile(file) && story.value) {
+    loadSymbols(file, story.value)
+    replace('symbols')
+  } else openFile(file)
 }
 onMounted(() => {
   window.addEventListener('dragover', onWindowDragOver)
@@ -77,6 +84,10 @@ function skipToMain(e: MouseEvent) {
           <GrammarView v-else-if="route.view === 'grammar'" :story="story" :file-name="fileName" :id="route.id" />
           <RoutinesView v-else-if="route.view === 'routines' || route.view === 'routine'" :story="story" :file-name="fileName" :id="route.view === 'routine' ? (route.id ?? '') : undefined" />
           <StringsView v-else-if="route.view === 'strings' || route.view === 'string'" :story="story" :file-name="fileName" :id="route.view === 'string' ? (route.id ?? '') : undefined" />
+          <GlobalsView v-else-if="route.view === 'globals' || route.view === 'global'" :story="story" :file-name="fileName" :id="route.view === 'global' ? (route.id ?? '') : undefined" />
+          <AbbreviationsView v-else-if="route.view === 'abbreviations'" :story="story" :file-name="fileName" />
+          <SymbolsView v-else-if="route.view === 'symbols'" :story="story" :file-name="fileName" />
+          <MapView v-else-if="route.view === 'map'" :story="story" :file-name="fileName" />
           <NotFound v-else :what="route.id ? `${route.view} “${route.id}”` : route.view" />
         </main>
       </div>

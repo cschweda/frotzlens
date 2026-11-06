@@ -6,6 +6,7 @@ import { packedScale, unpack } from '../address.js'
 import type { Instruction, Operand } from '../decode.js'
 import type { Routine } from '../routines.js'
 import { readString, textContextFor, type TextContext } from '../text.js'
+import type { Symbols } from '../debug.js'
 import type { Id, StoryFile, Version } from '../types.js'
 import { grammarLineText, grammarLines } from './grammar.js'
 import { Writer } from './writer.js'
@@ -21,6 +22,11 @@ export interface TxdOptions {
   width?: number
   /** txd -g: leave out the grammar annotations ("Action routine for: …"). */
   noGrammar?: boolean
+  /**
+   * Names from the debug file (readSymbols): routines, globals, locals, attributes and properties
+   * by name instead of number. Not txd's text any more, so the parity tests leave it out.
+   */
+  symbols?: Symbols
 }
 
 /** What formatting needs, worked out once per story and mode. */
@@ -35,6 +41,9 @@ interface Context {
   labels: Map<number, number>
   /** Routine address → its grammar annotation lines ("    Action routine for:", …). */
   annotations: Map<number, string[]>
+  symbols?: Symbols
+  /** The local names of the routine being formatted, with symbols. */
+  locals: string[]
 }
 
 function makeContext(story: StoryFile, opts: TxdOptions): Context {
@@ -48,6 +57,8 @@ function makeContext(story: StoryFile, opts: TxdOptions): Context {
     text: textContextFor(story),
     labels: new Map(),
     annotations: opts.noGrammar ? new Map() : grammarAnnotations(story, opts.width ?? 79),
+    ...(opts.symbols ? { symbols: opts.symbols } : {}),
+    locals: [],
   }
 }
 
@@ -93,6 +104,8 @@ function grammarAnnotations(story: StoryFile, width: number): Map<number, string
 }
 
 const routineName = (c: Context, address: number) => {
+  const named = c.symbols?.routines[address]?.name
+  if (named) return named
   const n = c.routineNumber.get(address)
   return c.addresses || n === undefined ? hx(address) : `R${String(n).padStart(4, '0')}`
 }
@@ -112,6 +125,15 @@ export function variable(v: number, written: boolean): string {
   if (v === 0) return written ? '-(SP)' : '(SP)+'
   if (v < 16) return `L${hx(v - 1, 2)}`
   return `G${hx(v - 16, 2)}`
+}
+
+/** A variable by name, with symbols (a local's or a global's), else as txd writes it. */
+function varName(c: Context, v: number, written: boolean): string {
+  if (c.symbols && v >= 1) {
+    const name = v < 16 ? c.locals[v - 1] : c.symbols.globals[v - 16]
+    if (name) return name
+  }
+  return variable(v, written)
 }
 
 const num = (o: Operand) => (o.kind === 'large' ? `#${hx(o.value, 4)}` : `#${hx(o.value, 2)}`)
@@ -164,7 +186,7 @@ function operandPieces(ins: Instruction, i: number, c: Context): DisassemblyPiec
   const plain = (text: string): DisassemblyPiece[] => [{ text }]
   const kind: Kind = operandKind(ins, i)
   // A variable-number operand that is itself a variable: txd brackets it (INC [L05], LOAD [(SP)+]).
-  if (o.kind === 'variable') return plain(kind === 'ref' ? `[${variable(o.value, false)}]` : variable(o.value, false))
+  if (o.kind === 'variable') return plain(kind === 'ref' ? `[${varName(c, o.value, false)}]` : varName(c, o.value, false))
   // A dictionary word, linked when it is one of the entries (not txd's one-past-the-end).
   const word = (address: number): DisassemblyPiece | undefined => {
     const d = dictionaryAt(c, address)
@@ -172,7 +194,11 @@ function operandPieces(ins: Instruction, i: number, c: Context): DisassemblyPiec
   }
   switch (kind) {
     case 'ref':
-      return plain(variable(o.value, false))
+      return plain(varName(c, o.value, false))
+    case 'attr':
+      return plain((o.kind === 'small' && c.symbols?.attributes[o.value]) || num(o))
+    case 'prop':
+      return plain((o.kind === 'small' && c.symbols?.properties[o.value]) || num(o))
     case 'obj': {
       const obj = o.value > 0 ? c.story.objects.objects[o.value - 1] : undefined
       return obj ? [{ text: `"${obj.shortName.text}"`, id: objectId(obj.number) }] : plain(num(o))
@@ -240,7 +266,7 @@ function instructionPieces(ins: Instruction, c: Context): DisassemblyPiece[] {
     length += p.text.length
   }
   const sep = () => (length > 16 ? ' ' : '')
-  if (ins.store !== undefined) push({ text: `${sep()}-> ${variable(ins.store, true)}` })
+  if (ins.store !== undefined) push({ text: `${sep()}-> ${varName(c, ins.store, true)}` })
   if (ins.branch) {
     push({ text: `${sep()}[${ins.branch.onTrue ? 'TRUE' : 'FALSE'}] ` })
     if (ins.branch.returns !== undefined) push({ text: ins.branch.returns ? 'RTRUE' : 'RFALSE' })
@@ -284,6 +310,7 @@ export function routineHeader(r: Routine, isMain: boolean, name: string, version
 /** One routine: its header line, a blank line, its instructions (each wrapped). */
 /** Labels: every branch and jump target inside the routine, numbered in address order. */
 function setLabels(r: Routine, c: Context): void {
+  c.locals = c.symbols?.routines[r.address]?.locals ?? []
   const targets = new Set<number>()
   for (const ins of r.instructions) {
     if (ins.branch?.target !== undefined) targets.add(ins.branch.target)

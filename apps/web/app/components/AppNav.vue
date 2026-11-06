@@ -5,15 +5,17 @@ import type { StoryFile } from '@frotzinc/zcode'
 const props = defineProps<{ story: StoryFile; view: string }>()
 
 /** A detail route belongs to its list's entry. */
-const SECTION: Record<string, string> = { object: 'objects', dict: 'dictionary', routine: 'routines', string: 'strings' }
+const SECTION: Record<string, string> = { object: 'objects', dict: 'dictionary', routine: 'routines', string: 'strings', global: 'globals' }
 const active = computed(() => SECTION[props.view] ?? props.view)
 
 // On a narrow screen the nav is a scrolling row: keep the current view in sight.
 const nav = useTemplateRef<HTMLElement>('nav')
 watch(active, () => nextTick(() => nav.value?.querySelector('[aria-current="page"]')?.scrollIntoView({ block: 'nearest', inline: 'nearest' })), { immediate: true })
 
+const { symbols } = useSymbols()
 const views = computed(() => {
   const s = props.story
+  const inform = s.fingerprint?.compiler === 'inform6'
   return [
     { key: 'overview', label: 'Overview', icon: 'i-lucide-layout-dashboard' },
     { key: 'memory', label: 'Memory', icon: 'i-lucide-binary' },
@@ -22,6 +24,11 @@ const views = computed(() => {
     ...(s.grammar ? [{ key: 'grammar', label: 'Grammar', icon: 'i-lucide-git-fork', count: s.grammar.verbs.length }] : []),
     { key: 'routines', label: 'Routines', icon: 'i-lucide-code', count: s.code.routines.length },
     { key: 'strings', label: 'Strings', icon: 'i-lucide-quote', count: s.strings.length },
+    { key: 'globals', label: 'Globals', icon: 'i-lucide-variable', count: s.globals.length },
+    ...(s.abbreviations.length ? [{ key: 'abbreviations', label: 'Abbreviations', icon: 'i-lucide-text-cursor-input', count: s.abbreviations.length }] : []),
+    // Symbols: for an Inform story, or once loaded; the map needs them.
+    ...(inform || symbols.value ? [{ key: 'symbols', label: 'Symbols', icon: 'i-lucide-tag' }] : []),
+    ...(symbols.value ? [{ key: 'map', label: 'Map', icon: 'i-lucide-map' }] : []),
   ]
 })
 </script>

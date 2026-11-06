@@ -8,7 +8,10 @@ const props = defineProps<{ story: StoryFile; fileName: string; id?: string }>()
 const address = computed(() => (props.id && /^[0-9a-f]+$/i.test(props.id) ? parseInt(props.id, 16) : undefined))
 const index = computed(() => (address.value === undefined ? -1 : props.story.code.routines.findIndex(r => r.address === address.value)))
 const routine = computed(() => (index.value >= 0 ? props.story.code.routines[index.value] : undefined))
-const view = computed(() => (routine.value ? routineView(props.story, routine.value.address) : undefined))
+// With a debug file loaded and names on, the disassembly names routines, globals, locals,
+// attributes and properties; copying gives the same text.
+const symbolsOpt = computed(() => (activeSymbols.value ? { symbols: activeSymbols.value } : {}))
+const view = computed(() => (routine.value ? routineView(props.story, routine.value.address, symbolsOpt.value) : undefined))
 const prev = computed(() => (index.value > 0 ? props.story.code.routines[index.value - 1] : undefined))
 const next = computed(() => (index.value >= 0 ? props.story.code.routines[index.value + 1] : undefined))
 
@@ -40,7 +43,7 @@ function jump(target: number) {
 
 <template>
   <div v-if="id === undefined" class="flex flex-col gap-6">
-    <ViewHeader title="Routines" :eyebrow="fileName" :copy="() => formatTxd(story)" copy-label="Copy the disassembly (txd)">
+    <ViewHeader title="Routines" :eyebrow="fileName" :copy="() => formatTxd(story, symbolsOpt)" :copy-label="activeSymbols ? 'Copy the disassembly (with names)' : 'Copy the disassembly (txd)'">
       Every routine, found by reading the code area from the end of the dictionary, as txd does. Each one's
       disassembly links every routine, string, object and dictionary word it uses.
     </ViewHeader>
@@ -79,7 +82,7 @@ function jump(target: number) {
       :title="`Routine ${view.name}`"
       :eyebrow="`${hex(routine.address)}–${hex(routine.end - 1)} · ${routine.locals} ${routine.locals === 1 ? 'local' : 'locals'} · ${routine.instructions.length} instructions`"
       :back="{ to: '#routines', label: 'All routines' }"
-      :copy="() => formatRoutine(story, routine!.address) ?? ''"
+      :copy="() => formatRoutine(story, routine!.address, symbolsOpt) ?? ''"
     />
     <nav aria-label="Neighbouring routines" class="flex gap-4 text-sm">
       <a v-if="prev" :href="`#routine/${hex(prev.address)}`" class="text-muted hover:underline">← {{ routineName(story, prev.address) }}</a>

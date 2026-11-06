@@ -72,7 +72,7 @@ function meanings(data: number[]): string[] {
 
         <section aria-labelledby="attr-title" class="flex flex-col gap-3">
           <h2 id="attr-title" class="font-display text-xl font-semibold text-highlighted">Attributes</h2>
-          <p>{{ object.attributes.length ? `Set: ${object.attributes.join(', ')}` : 'None set.' }}</p>
+          <p>{{ object.attributes.length ? `Set: ${object.attributes.map(a => (attributeName(a) ? `${attributeName(a)} (${a})` : a)).join(', ')}` : 'None set.' }}</p>
           <!-- The flag row: a picture of the same list (every attribute, the set ones lit). -->
           <div class="flex flex-wrap gap-1" aria-hidden="true">
             <span
@@ -100,7 +100,7 @@ function meanings(data: number[]): string[] {
               </thead>
               <tbody>
                 <tr v-for="p in object.properties" :key="p.number" class="border-t border-default align-top">
-                  <td class="data px-4 py-1.5 text-right">{{ p.number }}</td>
+                  <td class="data px-4 py-1.5 text-right"><template v-if="propertyName(p.number)">{{ propertyName(p.number) }} <span class="text-muted">{{ p.number }}</span></template><template v-else>{{ p.number }}</template></td>
                   <td class="data px-4 py-1.5 text-right text-muted">{{ p.size }}</td>
                   <td class="data px-4 py-1.5">{{ p.data.map(b => hex(b, 2)).join(' ') }}</td>
                   <td class="px-4 py-1.5">
