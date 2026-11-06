@@ -47,7 +47,7 @@ for (const file of readdirSync(SRC).filter(f => f.endsWith('.inf')).sort()) {
 for (const f of readdirSync(DIR)) if (/\.z\d$/.test(f)) rmSync(new URL(f, DIR))
 for (const [file, story] of built) writeFileSync(new URL(file, DIR), story)
 
-rows.sort((a, b) => a.bytes - b.bytes || a.file.localeCompare(b.file))
+rows.sort((a, b) => a.bytes - b.bytes || (a.file < b.file ? -1 : a.file > b.file ? 1 : 0)) // not locale: same README everywhere
 const kb = n => `${(n / 1024).toFixed(n < 10240 ? 1 : 0)} KB`
 const table = rows.map(r => `| \`${r.file}\` | ${kb(r.bytes)} | ${r.library} | ${r.what} |`).join('\n')
 writeFileSync(

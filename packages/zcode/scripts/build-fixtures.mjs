@@ -56,7 +56,7 @@ function compilerIdentity() {
   const root = dirname(createRequire(import.meta.url).resolve('@frotzinc/inform6-wasm/package.json'))
   const hash = createHash('sha256')
   const walk = dir => {
-    for (const entry of readdirSync(join(root, dir), { withFileTypes: true }).sort((a, b) => a.name.localeCompare(b.name))) {
+    for (const entry of readdirSync(join(root, dir), { withFileTypes: true }).sort((a, b) => (a.name < b.name ? -1 : a.name > b.name ? 1 : 0)) // code units, not locale: same key everywhere) {
       const rel = join(dir, entry.name)
       if (entry.isDirectory()) walk(rel)
       else if (!rel.endsWith('.map')) hash.update(rel).update(readFileSync(join(root, rel)))
