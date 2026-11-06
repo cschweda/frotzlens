@@ -30,17 +30,19 @@ describe('roomGraph', () => {
 
   it('mingus-1: every exit leads to a room, and routine exits name the rooms they can return', () => {
     const g = graph('mingus-1')!
-    expect(g.rooms.length).toBe(18)
+    // 19: the ending's room, The River's Edge, is reached only by a routine exit (`return river_edge;`).
+    expect(g.rooms.length).toBe(19)
+    expect(g.rooms.map(r => r.name)).toContain("The River's Edge")
     expect(g.rooms.find(r => r.number === g.start)?.name).toBe('Wind-Scoured Mesa')
     const rooms = new Set(g.rooms.map(r => r.number))
     for (const e of g.exits) {
       expect(rooms.has(e.from)).toBe(true)
       if (e.kind === 'room') expect(rooms.has(e.to!)).toBe(true)
-      if (e.kind === 'routine') expect(e.candidates?.length).toBe(1)
+      if (e.kind === 'routine') expect(e.candidates?.length).toBeGreaterThanOrEqual(1)
     }
     const m = toMapGraph(g)
     expect(m.rooms[0]).toBe('Wind-Scoured Mesa')
-    expect(m.edges.length).toBe(g.exits.length)
+    expect(m.edges.length).toBe(g.exits.reduce((n, e) => n + (e.candidates?.length ?? 1), 0))
     // Connected: every room can be reached from the start.
     const seen = new Set([m.start!])
     for (let grew = true; grew; ) {
@@ -48,6 +50,12 @@ describe('roomGraph', () => {
       for (const e of m.edges) if (seen.has(e.from) && !seen.has(e.to)) grew = seen.add(e.to) !== undefined
     }
     expect([...seen].sort()).toEqual([...m.rooms].sort())
+  })
+
+  it("puny-dark-cellar: PunyInform's start is its INITIAL_LOCATION_VALUE", () => {
+    const g = roomGraph(parseStory(readStory('puny-dark-cellar.z5')), readSymbols(readFileSync(`${FIXTURES_DIR}puny-dark-cellar.dbg`, 'utf8')))!
+    expect(g.start).toBe(8)
+    expect(g.rooms.find(r => r.number === g.start)?.name).toBe('Hall')
   })
 
   it('no direction properties named, no graph', () => {
@@ -72,15 +80,23 @@ describe('doors, messages and shared names (a model built by hand)', () => {
       obj(3, 'Hallway', [[11, 1], [13, 5]]),
       obj(4, 'trapdoor', [[12, 0x600 / 4]]),
       obj(5, 'Hallway', [[10, 3]]),
+      obj(6, '', [[11, 0x700 / 4]]),
+      obj(7, '', [[10, 0x700 / 4]]),
+      obj(8, 'Vault', []),
+      obj(9, 'Treasure', []), // a class: in nothing, like a room, but not one
     ] },
-    code: { routines: [{ address: 0x600, instructions: [] }] },
+    code: { routines: [
+      { address: 0x600, instructions: [] },
+      // return Vault (a room no plain exit reaches); return Treasure (a class, not a room).
+      { address: 0x700, instructions: [{ name: 'RET', operands: [{ kind: 'small', value: 8 }] }, { name: 'RET', operands: [{ kind: 'small', value: 9 }] }] },
+    ] },
     strings: [{ address: 0x500 }],
   } as unknown as StoryFile
-  const symbols = { properties: { 10: 'n_to', 11: 's_to', 12: 'door_to', 13: 'd_to' }, globals: {}, routines: {} } as unknown as Symbols
+  const symbols = { properties: { 10: 'n_to', 11: 's_to', 12: 'door_to', 13: 'd_to' }, globals: {}, routines: {}, classes: { 9: 'Treasure' }, constants: {} } as unknown as Symbols
 
   it('follows a door to its room; a door to a routine leads nowhere yet; a string is a refusal', () => {
     const g = roomGraph(story, symbols)!
-    expect(g.exits).toEqual([
+    expect(g.exits.filter(e => e.from <= 5)).toEqual([
       { from: 1, dir: 'n', kind: 'door', door: 2, to: 3 },
       { from: 1, dir: 's', kind: 'message', string: 0x500 },
       { from: 1, dir: 'd', kind: 'door', door: 4 },
@@ -88,14 +104,24 @@ describe('doors, messages and shared names (a model built by hand)', () => {
       { from: 3, dir: 'd', kind: 'room', to: 5 },
       { from: 5, dir: 'n', kind: 'room', to: 3 },
     ])
-    expect(g.rooms.map(r => r.number)).toEqual([1, 3, 5])
-    expect(toMapGraph(g)).toEqual({
-      rooms: ['Porch', 'Hallway (3)', 'Hallway (5)'],
+  })
+
+  it("a routine exit's room counts even when no plain exit reaches it; a class isn't one", () => {
+    const g = roomGraph(story, symbols)!
+    expect(g.exits.filter(e => e.kind === 'routine').map(e => e.candidates)).toEqual([[8], [8]])
+    expect(g.rooms.map(r => r.number)).toEqual([1, 3, 5, 6, 7, 8])
+  })
+
+  it('the map shape: names two rooms share, and unnamed rooms, are told apart', () => {
+    expect(toMapGraph(roomGraph(story, symbols)!)).toEqual({
+      rooms: ['Porch', 'Hallway (3)', 'Hallway (5)', '(object 6)', '(object 7)', 'Vault'],
       edges: [
         { from: 'Porch', to: 'Hallway (3)', dir: 'n' },
         { from: 'Hallway (3)', to: 'Porch', dir: 's' },
         { from: 'Hallway (3)', to: 'Hallway (5)', dir: 'd' },
         { from: 'Hallway (5)', to: 'Hallway (3)', dir: 'n' },
+        { from: '(object 6)', to: 'Vault', dir: 's' },
+        { from: '(object 7)', to: 'Vault', dir: 'n' },
       ],
       start: null,
     })

@@ -51,9 +51,10 @@ describe('Blorb', () => {
     const bare = parseStory(story)
     const s = parseStory(file)
     expect(s.container).toBe('blorb')
-    expect(s.errors).toEqual(bare.errors)
-    expect(s.bytes).toEqual(story)
-    expect(s.header).toEqual(bare.header)
+    // The whole model is the bare story's: only the container and its listing differ.
+    const { blorb: _blorb, container: _c, ...wrapped } = s
+    const { container: _c2, ...plain } = bare
+    expect(wrapped).toEqual(plain)
     expect(formatTxd(s)).toBe(formatTxd(bare))
     expect(s.blorb!.chunks.map(c => c.type)).toEqual(['RIdx', 'ZCOD', 'PNG ', 'Fspc', 'IFmd'])
     expect(s.blorb!.resources).toEqual([
@@ -109,5 +110,31 @@ describe('Blorb', () => {
     const s = parseStory(blorb([['ZCOD', blorb([['ZCOD', story]])]]))
     expect(s.header.version).toBe(5)
     expect(s.bytes).toEqual(story)
+  })
+
+  it('says when the last chunk has no pad byte, or bytes are left over', () => {
+    const odd = blorb([['ZCOD', story], ['PNG ', PICT]])
+    const unpadded = odd.subarray(0, odd.length - 1).slice()
+    unpadded.set(be32(unpadded.length - 8), 4) // a FORM length that leaves out the pad byte
+    expect(parseStory(unpadded).errors.map(e => e.message)).toEqual(['The last chunk has an odd length and no pad byte after it.'])
+    const extra = new Uint8Array([...blorb([['ZCOD', story]]), 1, 2, 3])
+    extra.set(be32(extra.length - 8), 4)
+    expect(parseStory(extra).errors.map(e => e.message)).toEqual(['3 bytes at the end of the FORM are not a chunk.'])
+  })
+
+  it('says when the resource index claims more entries than it holds', () => {
+    const file = blorb([['ZCOD', story]], [['Exec', 0, 0]])
+    file.set(be32(5), 20) // RIdx's count: 5, with room for 1
+    const s = parseStory(file)
+    expect(s.header.version).toBe(5)
+    expect(s.errors.map(e => e.message)).toEqual(['The resource index says 5 entries; it has room for 1.'])
+  })
+
+  it('bad metadata never costs the story', () => {
+    const meta = '<ifindex><story><bibliographic><title>A &#x110000; &#0; &#xD800; B</title></bibliographic></story></ifindex>'
+    const s = parseStory(blorb([['ZCOD', story], ['IFmd', new TextEncoder().encode(meta)]]))
+    expect(s.errors).toEqual([])
+    expect(s.header.version).toBe(5)
+    expect(s.blorb!.title).toBe('A \ufffd \ufffd \ufffd B')
   })
 })

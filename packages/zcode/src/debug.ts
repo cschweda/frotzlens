@@ -78,7 +78,8 @@ function location(el: XmlElement): SourceLocation | undefined {
 
 function base64(s: string): Uint8Array | undefined {
   const clean = s.replace(/\s+/g, '')
-  if (!/^[A-Za-z0-9+/]*={0,2}$/.test(clean)) return undefined
+  // Canonical: whole groups of four, padding only at the end.
+  if (clean.length % 4 || !/^[A-Za-z0-9+/]*={0,2}$/.test(clean)) return undefined
   const A = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/'
   const out: number[] = []
   let bits = 0
@@ -119,7 +120,7 @@ export function readSymbols(xml: string): Symbols {
   const prefix = childText(root, 'story-file-prefix')
   if (prefix !== undefined) {
     const bytes = base64(prefix)
-    if (bytes && bytes.length >= 64) s.prefix = bytes.subarray(0, 64)
+    if (bytes && bytes.length === 64) s.prefix = bytes
     else s.problems.push('The story-file prefix is not 64 bytes of base64.')
   }
   // Globals are given by byte address; the header in the prefix says where the table starts.

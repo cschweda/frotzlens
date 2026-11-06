@@ -3,6 +3,7 @@
  * `IFRS` holding the story (a `ZCOD` chunk), pictures, sounds and metadata.
  * We unwrap the story and list the rest; nothing here throws.
  */
+import { decodeEntities } from './xml.js'
 
 /** One chunk of the FORM, in file order. */
 export interface BlorbChunk {
@@ -67,19 +68,11 @@ export function utf8(b: Uint8Array): string {
   return out
 }
 
-/** The XML entities iFiction text uses, decoded. */
-const unescape = (s: string) =>
-  s.replace(/&(lt|gt|amp|quot|apos|#(\d+)|#x([0-9a-f]+));/gi, (m, name: string, dec?: string, hexa?: string) => {
-    if (dec) return String.fromCodePoint(Number(dec))
-    if (hexa) return String.fromCodePoint(parseInt(hexa, 16))
-    return { lt: '<', gt: '>', amp: '&', quot: '"', apos: "'" }[name.toLowerCase()] ?? m
-  })
-
 /** A text element's content inside `<bibliographic>`, decoded; the first one only. */
 function bibliographic(xml: string, element: string): string | undefined {
   const bib = /<bibliographic>([\s\S]*?)<\/bibliographic>/.exec(xml)?.[1]
   const m = bib && new RegExp(`<${element}>([\\s\\S]*?)</${element}>`).exec(bib)
-  return m ? unescape(m[1]!.trim()) : undefined
+  return m ? decodeEntities(m[1]!.trim()) : undefined
 }
 
 /**
@@ -92,22 +85,31 @@ export function readBlorb(data: Uint8Array, problems: string[] = []): Blorb {
   // The FORM's own length bounds the chunks; a file cut short is bounded by its size.
   const formEnd = Math.min(data.length, 8 + u32(data, 4))
   if (formEnd < 8 + u32(data, 4)) problems.push(`The FORM says ${u32(data, 4) + 8} bytes; the file has ${data.length}.`)
-  for (let o = 12; o + 8 <= formEnd; ) {
+  let o = 12
+  for (; o + 8 <= formEnd; ) {
     const type = tag(data, o)
     const length = u32(data, o + 4)
     if (o + 8 + length > formEnd) {
       problems.push(`The ${type.trim()} chunk at ${o.toString(16)} runs past the end of the file.`)
+      o = formEnd
       break
     }
     blorb.chunks.push({ type, offset: o, length })
     o += 8 + length + (length & 1) // chunks are padded to an even length
   }
+  // What's left should be nothing: a partial chunk header, or an odd last chunk with no pad byte, isn't.
+  if (formEnd < 12) problems.push('The FORM is too short to hold its type.')
+  else if (o > formEnd) problems.push('The last chunk has an odd length and no pad byte after it.')
+  else if (o < formEnd) problems.push(`${formEnd - o} byte${formEnd - o === 1 ? '' : 's'} at the end of the FORM ${formEnd - o === 1 ? 'is' : 'are'} not a chunk.`)
   const byOffset = new Map(blorb.chunks.map(c => [c.offset, c]))
   const chunk = (type: string) => blorb.chunks.find(c => c.type === type)
 
   const index = chunk('RIdx')
   if (index && index.length >= 4) {
-    const count = Math.min(u32(data, index.offset + 8), Math.floor((index.length - 4) / 12))
+    const declared = u32(data, index.offset + 8)
+    const room = Math.floor((index.length - 4) / 12)
+    if (declared > room) problems.push(`The resource index says ${declared} entries; it has room for ${room}.`)
+    const count = Math.min(declared, room)
     for (let i = 0; i < count; i++) {
       const at = index.offset + 12 + i * 12
       const r: BlorbResource = { usage: tag(data, at), number: u32(data, at + 4), offset: u32(data, at + 8) }

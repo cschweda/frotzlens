@@ -16,12 +16,17 @@ export interface XmlElement {
 
 const ENTITIES: Record<string, string> = { lt: '<', gt: '>', amp: '&', quot: '"', apos: "'" }
 
+/** XML 1.0's Char production: tab, newline, return, and the rest of Unicode but controls, surrogates, FFFE/FFFF. */
+export const isXmlChar = (n: number) =>
+  n === 0x9 || n === 0xa || n === 0xd || (n >= 0x20 && n <= 0xd7ff) || (n >= 0xe000 && n <= 0xfffd) || (n >= 0x10000 && n <= 0x10ffff)
+
+/** The five standard entities and numeric references decoded; a reference to a character XML forbids becomes U+FFFD. */
 export function decodeEntities(s: string): string {
   if (!s.includes('&')) return s
   return s.replace(/&(#x[0-9a-fA-F]+|#\d+|[a-zA-Z]+);/g, (m, e: string) => {
     if (e[0] === '#') {
       const n = e[1] === 'x' || e[1] === 'X' ? parseInt(e.slice(2), 16) : Number(e.slice(1))
-      return n >= 0 && n <= 0x10ffff ? String.fromCodePoint(n) : m
+      return isXmlChar(n) ? String.fromCodePoint(n) : '\ufffd'
     }
     return ENTITIES[e] ?? m
   })
@@ -82,7 +87,10 @@ export function parseXml(src: string): { root?: XmlElement; error?: string } {
     }
   }
   if (stack.length > 1) return fail(`<${stack.at(-1)!.name}> is never closed.`)
-  return top.children[0] ? { root: top.children[0] } : { error: 'No root element.' }
+  if (!top.children[0]) return { error: 'No root element.' }
+  if (top.children.length > 1) return fail(`More than one root element (<${top.children[1]!.name}> after the first).`)
+  if (top.text.trim()) return fail('Text outside the root element.')
+  return { root: top.children[0] }
 }
 
 /** The first child element called `name`. */

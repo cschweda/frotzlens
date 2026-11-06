@@ -10,7 +10,7 @@ Phase 5 finishes v1 (see the master design, §10). It lands in three pull reques
 
 `parseStory` unwraps a Blorb (Blorb spec 2.0): it walks the IFF `FORM`'s chunks (each padded to an even length), reads the resource index (`RIdx`), and parses the story inside as if it had been dropped on its own. The story is the index's `Exec 0` when that names a `ZCOD` chunk, else the first `ZCOD` chunk. `story.blorb` lists the chunks and resources, the cover picture's number (`Fspc`) and the iFiction metadata (`IFmd`), with its title and author.
 
-A Blorb that breaks the spec somewhere (a chunk running past the end, an index entry pointing at no chunk) gives a `bad-blorb` warning, and the story is still read. A Blorb with no Z-machine story, such as a Glulx game's, is `blorb-unsupported` and says which it is. A Blorb inside a Blorb is unwrapped too; each level is strictly smaller, so this ends.
+Each structural problem it can see gives a `bad-blorb` warning: a chunk running past the end, an odd last chunk with no pad byte, bytes left over, or an index entry pointing at no chunk or claiming more entries than it has room for. The story is still read when its `ZCOD` chunk can be found. A problem that hides that chunk, such as a corrupt length before it, leaves `blorb-unsupported`. A Blorb with no Z-machine story, such as a Glulx game's, is `blorb-unsupported` and says which it is. A Blorb inside a Blorb is unwrapped too; each level is strictly smaller, so this ends.
 
 ## 2. Symbols from gameinfo.dbg
 
@@ -41,7 +41,7 @@ Two details:
 - **The library, from its banner.** The Standard Library prints " Library v" and then its `LibRelease` string (`6.12.8`). PunyInform prints " PunyInform v", then the major number, a `.`, and the minor.
 - **Inform's veneer.** These are the routines the compiler adds itself (`RT__Err`, `CA__Pr`, `Cl__Ms`…). Each is recognised by its shape: its locals count and its sequence of opcodes, with operands ignored. One compiler with the same options writes each veneer routine the same way in every game. `Main__` is the routine at the initial PC.
 
-The shapes are in `src/veneer-signatures.generated.ts`, built from the debug fixtures by `scripts/build-signatures.mjs`, and a test checks the table is current. A shape is left out if two veneer names share it, or if any game or library routine has it, so a veneer name is never put on game code. This leaves out `Unsigned__Compare` and `Symb__Tab`, which share their shapes with ordinary routines. It finds the other 29 veneer routines in every debug fixture, and every name it gives matches the `.dbg`. The shapes come from Inform 6.44. A story from another compiler version gets fewer names, never wrong ones.
+The shapes are in `src/veneer-signatures.generated.ts`, built from the debug fixtures by `scripts/build-signatures.mjs`, and a test checks the table is current. A shape is left out if two veneer names share it, or if any game or library routine has it, so a veneer name is never put on game code. This leaves out `Unsigned__Compare` and `Symb__Tab`, which share their shapes with ordinary routines. The table has shapes for 29 veneer routines in all; a story includes only the ones its code needs. On the debug fixtures, every veneer routine a story has is found (except those two), and every name given matches the `.dbg`. The shapes come from Inform 6.44, so a story from another version gets fewer names. Matching by shape is a fixture-tested heuristic, not a proof. A game routine whose opcodes happen to match a veneer routine's exactly could be misnamed, although no routine in the fixtures and samples does.
 
 ## 4. The room graph
 
@@ -54,7 +54,7 @@ The shapes are in `src/veneer-signatures.generated.ts`, built from the debug fix
 | A routine | records the rooms it can return (`return Pavilion;`) as candidates |
 | A string | records a message: a refusal such as "You can't go that way" |
 
-The start is the room `Initialise` sets as `location`.
+The start is found when it is a constant: the Standard Library's `location = Room;` in `Initialise`, PunyInform's `Constant INITIAL_LOCATION_VALUE`, or the `location` global's starting value. A start the game works out as it runs isn't found.
 
 `toMapGraph` gives the shape Frotzsmith's map draws: rooms by name, an edge for every exit that reaches a room (candidates included), and the start first. Rooms that share a name get their object number. On Mingus I, 18 rooms come out, all connected from the start, and every routine exit resolves to one room.
 

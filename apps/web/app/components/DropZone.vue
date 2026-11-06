@@ -37,7 +37,7 @@ const trySample = () => openUrl(site.sample.file, `/samples/${site.sample.file}`
       <p class="max-w-xl text-lg text-default">
         Drop a Z-machine story file to see what's inside.
       </p>
-      <p class="text-sm text-muted">.z3, .z4, .z5, .z8, or a Blorb (.zblorb) — read here, in your browser. Nothing is uploaded.</p>
+      <p class="text-sm text-muted">.z3, .z4, .z5, .z8, or a Blorb (.zblorb, .zlb) — read here, in your browser. Nothing is uploaded.</p>
       <div class="flex flex-wrap items-center justify-center gap-3">
         <UButton size="lg" icon="i-lucide-folder-open" :disabled="busy" @click="input?.click()">Choose a file</UButton>
         <UButton size="lg" color="neutral" variant="outline" icon="i-lucide-sparkles" :disabled="busy" @click="trySample">

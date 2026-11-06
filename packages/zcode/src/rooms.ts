@@ -87,35 +87,45 @@ export function roomGraph(story: StoryFile, symbols: Symbols): RoomGraph | undef
   }
   const start = startRoom(story, symbols)
   if (start) numbers.add(start)
-  // A routine exit's candidates: the rooms among the constants it returns (`return Pavilion;`).
+  // A routine exit's candidates: the rooms among the constants it returns (`return Pavilion;`), the
+  // rooms already known and any other object that could be one: in nothing (a room has no parent),
+  // and not one of Inform's classes (`return true` is a 1, which is the Class object).
+  const classes = new Set(Object.keys(symbols.classes).map(Number))
+  const roomLike = (n: number) => !!get(n) && get(n)!.parent === 0 && !classes.has(n)
   const byAddress = new Map(story.code.routines.map(r => [r.address, r]))
   for (const e of exits) {
     if (e.kind !== 'routine') continue
     const found = new Set<number>()
     for (const ins of byAddress.get(e.routine!)!.instructions) {
       const o = ins.operands[0]
-      if (ins.name === 'RET' && o && o.kind !== 'variable' && numbers.has(o.value)) found.add(o.value)
+      if (ins.name === 'RET' && o && o.kind !== 'variable' && (numbers.has(o.value) || roomLike(o.value))) found.add(o.value)
     }
+    for (const n of found) numbers.add(n)
     if (found.size) e.candidates = [...found].sort((a, b) => a - b)
   }
   const rooms = [...numbers].sort((a, b) => a - b).map(n => ({ number: n, name: get(n)!.shortName.text }))
   return { rooms, exits, ...(start ? { start } : {}) }
 }
 
-/** The room Initialise moves the player to: `location = Room;` (STORE to the `location` global). */
+/**
+ * Where the game starts, as far as it can be read without running it: the Standard Library's
+ * `location = Room;` in Initialise (a STORE of a constant to the `location` global), else
+ * PunyInform's `Constant INITIAL_LOCATION_VALUE`, else the `location` global's starting value.
+ * A start the game works out as it runs isn't found.
+ */
 function startRoom(story: StoryFile, symbols: Symbols): number | undefined {
+  const isObject = (n: number | undefined) => (n !== undefined && n >= 1 && n <= story.objects.objects.length ? n : undefined)
   const location = Object.entries(symbols.globals).find(([, n]) => n === 'location')?.[0]
   const init = Object.values(symbols.routines).find(r => r.name === 'Initialise')
   const routine = init && story.code.routines.find(r => r.address === init.address)
-  if (location === undefined || !routine) return undefined
-  const variable = 16 + Number(location)
-  for (const ins of routine.instructions) {
-    const [v, value] = ins.operands
-    if (ins.name === 'STORE' && v?.kind !== 'variable' && v?.value === variable && value && value.kind !== 'variable') {
-      return value.value >= 1 && value.value <= story.objects.objects.length ? value.value : undefined
+  if (location !== undefined && routine) {
+    const variable = 16 + Number(location)
+    for (const ins of routine.instructions) {
+      const [v, value] = ins.operands
+      if (ins.name === 'STORE' && v?.kind !== 'variable' && v?.value === variable && value && value.kind !== 'variable') return isObject(value.value)
     }
   }
-  return undefined
+  return isObject(symbols.constants.INITIAL_LOCATION_VALUE) ?? (location !== undefined ? isObject(story.globals[Number(location)]?.value) : undefined)
 }
 
 /**
@@ -124,9 +134,11 @@ function startRoom(story: StoryFile, symbols: Symbols): number | undefined {
  * Names two rooms share get their number.
  */
 export function toMapGraph(g: RoomGraph): { rooms: string[]; edges: { from: string; to: string; dir: Direction }[]; start: string | null } {
+  // An unnamed room is "(object N)" (unique already); a name two rooms share gets each one's number.
+  const label = (r: { number: number; name: string }) => r.name || `(object ${r.number})`
   const count = new Map<string, number>()
-  for (const r of g.rooms) count.set(r.name, (count.get(r.name) ?? 0) + 1)
-  const name = new Map(g.rooms.map(r => [r.number, (count.get(r.name)! > 1 ? `${r.name} (${r.number})` : r.name) || `(object ${r.number})`]))
+  for (const r of g.rooms) count.set(label(r), (count.get(label(r)) ?? 0) + 1)
+  const name = new Map(g.rooms.map(r => [r.number, count.get(label(r))! > 1 ? `${label(r)} (${r.number})` : label(r)]))
   const edges = g.exits.flatMap(e =>
     (e.to !== undefined ? [e.to] : (e.candidates ?? [])).filter(t => name.has(t)).map(t => ({ from: name.get(e.from)!, to: name.get(t)!, dir: e.dir })),
   )

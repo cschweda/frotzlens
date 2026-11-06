@@ -71,10 +71,25 @@ describe('readSymbols', () => {
     const s = readSymbols('<inform-story-file><routine><identifier>R</identifier></routine><story-file-prefix>!!</story-file-prefix></inform-story-file>')
     expect(s.problems.join(' ')).toMatch(/prefix/)
     expect(s.problems.join(' ')).toMatch(/1 entry/)
+    // A prefix that isn't exactly 64 bytes of canonical base64 isn't one.
+    const b64 = (n: number) => btoa(String.fromCharCode(...new Uint8Array(n)))
+    for (const bad of [b64(63), b64(65), `${b64(64)}A`, b64(64).replace(/==$/, '')]) {
+      const r = readSymbols(`<inform-story-file><story-file-prefix>${bad}</story-file-prefix></inform-story-file>`)
+      expect(r.prefix, bad).toBeUndefined()
+      expect(r.problems.join(' ')).toMatch(/prefix/)
+    }
+    expect(readSymbols(`<inform-story-file><story-file-prefix>${b64(64)}</story-file-prefix></inform-story-file>`).prefix?.length).toBe(64)
   })
 })
 
 describe('parseXml', () => {
+  it('one root, nothing but space outside it, and no characters XML forbids', () => {
+    expect(parseXml('<a/><b/>').error).toMatch(/More than one root/)
+    expect(parseXml('<a/>junk').error).toMatch(/Text outside/)
+    expect(parseXml('  <a/>\n').error).toBeUndefined()
+    expect(parseXml('<a>&#0;&#xD800;&#x110000;&#xFFFE;&#9;</a>').root!.text).toBe('\ufffd\ufffd\ufffd\ufffd\t')
+  })
+
   it('reads elements, attributes, text, entities, comments and CDATA', () => {
     const { root, error } = parseXml(`<?xml version="1.0"?><!-- c --><a x="1 &amp; 2" y='q'>t&lt;&#65;&#x42;<b/><![CDATA[<raw>]]></a>`)
     expect(error).toBeUndefined()

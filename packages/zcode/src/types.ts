@@ -25,7 +25,7 @@ export type Id =
 // ── The whole file ────────────────────────────────────────────────
 
 export interface StoryFile {
-  /** The story itself: for a Blorb, the story unwrapped from it. */
+  /** The story itself: for a Blorb with a story in it, that story; for one without, the Blorb's own bytes. */
   bytes: Uint8Array
   container: 'bare' | 'blorb'
   /** The Blorb's chunks, resources and metadata, when the file was one. */
@@ -244,7 +244,7 @@ export interface ParseError {
     | 'bad-header'
     | 'unsupported-version'
     | 'blorb-unsupported'
-    /** A Blorb that doesn't follow the spec somewhere; its story is still read. */
+    /** A Blorb that doesn't follow the spec somewhere; its story is still read when it can be found. */
     | 'bad-blorb'
     | 'bad-address'
     | 'bad-object'
