@@ -1,0 +1,26 @@
+
+Story file is demo.z5
+Inform Version: 644
+
+    **** Story file map ****
+
+ Base    End   Size
+    0     3f     40  Story file header
+   40     41      2  Abbreviation data
+   42    101     c0  Abbreviation pointer table
+  102    109      8  Header extension table
+  10a    30f    206  Object table
+  310    692    383  Property data
+  693    6a0      e  Class Prototype Object Numbers
+  6a1    784     e4  Property Names Table
+  785    7e4     60  Attribute Names Table
+  7e5    a59    275
+  a5a    c39    1e0  Global variables
+  c3a   140a    7d1
+ 140b   14ca     c0  Grammar pointer table
+ 14cb   1b93    6c9  Grammar data
+ 1b94   1c6f     dc  Action routine table
+ 1c70   1c71      2
+ 1c72   27a6    b35  Dictionary
+ 27a7   27a7      1
+ 27a8  1526f  12ac8  Paged memory

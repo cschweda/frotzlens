@@ -226,6 +226,8 @@ Settled in the first session, recorded here as they close:
 - **Q2 closed — sample authorship.** Chris confirms every Frotzsmith sample is his own. `haunted-house` is still excluded from fixtures: its header says it is reverse-engineered from a 1979 commercial game.
 - **`@frotzinc/inform6-wasm` replaces Frotzsmith's compile path.** Frotzsmith imports `compile()` instead of its own `compile-main.ts`. The API carries what Frotzsmith needs: `extensions` (with `overridesLibrary`), stats, raw output, and a `locateFile` option for the bundler-emitted `.wasm` URL.
 - **Relicensed to MIT on extraction** (Chris's own GPL code): `parse-diagnostics.ts` and the `Exits.h` helper.
+- **Q6 closed — no string-scan heuristic.** Like txd, the string area is read whole, in order, from the end of the code to the end of the file; every string Inform writes is found, referenced or not, with no threshold to tune. See `03-phase-2-disassembler.md`.
+- **The CLI's default is the txd disassembly** (as §5.4 always said); Phase 1 printed the header while there was no disassembler.
 - **Phase 1 fixtures (2026-11-06):** the Standard Library targets v5+ only, so the v3 and v4 fixtures are `puny-dark-cellar`; `dark-cellar` is built as v5 and v8. Every fixture gets `Serial "000000";` so builds are byte-for-byte reproducible. See `02-phase-1-core-parser.md` §8.
 
 ## 12. Later

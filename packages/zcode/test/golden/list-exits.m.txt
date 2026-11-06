@@ -1,0 +1,26 @@
+
+Story file is list-exits.z5
+Inform Version: 644
+
+    **** Story file map ****
+
+ Base    End   Size
+    0     3f     40  Story file header
+   40     41      2  Abbreviation data
+   42    101     c0  Abbreviation pointer table
+  102    109      8  Header extension table
+  10a    31d    214  Object table
+  31e    6b5    398  Property data
+  6b6    6c3      e  Class Prototype Object Numbers
+  6c4    7a7     e4  Property Names Table
+  7a8    807     60  Attribute Names Table
+  808    a7e    277
+  a7f    c5e    1e0  Global variables
+  c5f   142f    7d1
+ 1430   14f1     c2  Grammar pointer table
+ 14f2   1bbe    6cd  Grammar data
+ 1bbf   1c9c     de  Action routine table
+ 1c9d   1c9e      2
+ 1c9f   27dc    b3e  Dictionary
+ 27dd   27df      3
+ 27e0  15317  12b38  Paged memory

@@ -1,0 +1,21 @@
+
+Story file is abbrev.z5
+Inform Version: 644
+
+    **** Story file map ****
+
+ Base    End   Size
+    0     3f     40  Story file header
+   40     53     14  Abbreviation data
+   54    113     c0  Abbreviation pointer table
+  114    11b      8  Header extension table
+  11c    1fb     e0  Object table
+  1fc    280     85  Property data
+  281    28a      a  Class Prototype Object Numbers
+  28b    31c     92  Property Names Table
+  31d    37c     60  Attribute Names Table
+  37d    383      7
+  384    563    1e0  Global variables
+  564    566      3
+  567    57f     19  Dictionary
+  580    63f     c0  Paged memory

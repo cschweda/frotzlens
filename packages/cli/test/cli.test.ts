@@ -1,6 +1,7 @@
 import { spawnSync } from 'node:child_process'
 import { mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs'
 import { tmpdir } from 'node:os'
+import { gunzipSync } from 'node:zlib'
 import { join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { describe, expect, it } from 'vitest'
@@ -41,8 +42,26 @@ describe('options', () => {
     expect(run([flag, 'hermit.z5']).out).toBe(golden('hermit', opt))
   })
 
-  it('the header by default', () => {
-    expect(run(['demo.z5']).out).toBe(golden('demo', 'i'))
+  it('the disassembly by default, as txd prints it; -n as txd -n', () => {
+    const txd = (mode: string) => gunzipSync(readFileSync(`${GOLDEN}demo.${mode}.txt.gz`)).toString('latin1')
+    expect(run(['demo.z5']).out).toBe(txd('txd'))
+    expect(run(['-n', 'demo.z5']).out).toBe(txd('txd-n'))
+    expect(run(['--txd', '--addresses', 'demo.z5']).out).toBe(txd('txd-n'))
+  })
+
+  it('--routine prints one routine, as it appears in txd', () => {
+    const r = run(['--routine', '0x27f8', 'dark-cellar.z5'])
+    expect(r.code).toBe(0)
+    expect(r.out.startsWith('Routine R0002, 0 locals\n')).toBe(true)
+    expect(run(['--routine', '27f9', 'dark-cellar.z5'])).toMatchObject({ code: 1, err: expect.stringContaining('no routine starts at 27f9') })
+    expect(run(['--routine', 'xyz', 'dark-cellar.z5']).code).toBe(2)
+  })
+
+  it('-m and -g, and -f as infodump -f (header, map, abbreviations, objects, tree, grammar, dictionary)', () => {
+    expect(run(['-m', 'hermit.z5']).out).toBe(golden('hermit', 'm'))
+    expect(run(['-g', 'hermit.z5']).out).toBe(golden('hermit', 'g'))
+    const parts = ['i', 'm', 'a', 'o', 't', 'g', 'd'].map((o, n) => (n ? golden('hermit', o).replace('\nStory file is hermit.z5\n', '') : golden('hermit', o)))
+    expect(run(['-f', 'hermit.z5']).out).toBe(parts.join(''))
   })
 
   it('several sections: one "Story file is" line, then each section in infodump\'s order', () => {
@@ -58,8 +77,8 @@ describe('options', () => {
     expect(unwrapped.split('\n').length).toBe(wrapped.split('\n').length - 1)
   })
 
-  it('-f and --all are -iaotd', () => {
-    const all = run(['-iaotd', 'hermit.z5']).out
+  it('-f and --all are -imaotgd', () => {
+    const all = run(['-imaotgd', 'hermit.z5']).out
     expect(run(['-f', 'hermit.z5']).out).toBe(all)
     expect(run(['--all', 'hermit.z5']).out).toBe(all)
   })

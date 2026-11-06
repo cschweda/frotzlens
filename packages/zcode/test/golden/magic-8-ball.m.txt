@@ -1,0 +1,26 @@
+
+Story file is magic-8-ball.z5
+Inform Version: 644
+
+    **** Story file map ****
+
+ Base    End   Size
+    0     3f     40  Story file header
+   40     41      2  Abbreviation data
+   42    101     c0  Abbreviation pointer table
+  102    109      8  Header extension table
+  10a    301    1f8  Object table
+  302    686    385  Property data
+  687    694      e  Class Prototype Object Numbers
+  695    778     e4  Property Names Table
+  779    7d8     60  Attribute Names Table
+  7d9    a4f    277
+  a50    c2f    1e0  Global variables
+  c30   1400    7d1
+ 1401   14c2     c2  Grammar pointer table
+ 14c3   1b92    6d0  Grammar data
+ 1b93   1c70     de  Action routine table
+ 1c71   1c72      2
+ 1c73   27d4    b62  Dictionary
+ 27d5   27d7      3
+ 27d8  15327  12b50  Paged memory

@@ -1,0 +1,26 @@
+
+Story file is mingus-1.z5
+Inform Version: 644
+
+    **** Story file map ****
+
+ Base    End   Size
+    0     3f     40  Story file header
+   40     41      2  Abbreviation data
+   42    101     c0  Abbreviation pointer table
+  102    109      8  Header extension table
+  10a    8cd    7c4  Object table
+  8ce   1988   10bb  Property data
+ 1989   199e     16  Class Prototype Object Numbers
+ 199f   1a8e     f0  Property Names Table
+ 1a8f   1aee     60  Attribute Names Table
+ 1aef   1e97    3a9
+ 1e98   2077    1e0  Global variables
+ 2078   2869    7f2
+ 286a   293f     d6  Grammar pointer table
+ 2940   319f    860  Grammar data
+ 31a0   328f     f0  Action routine table
+ 3290   3291      2
+ 3292   4bfa   1969  Dictionary
+ 4bfb   4bfb      1
+ 4bfc  20c1f  1c024  Paged memory

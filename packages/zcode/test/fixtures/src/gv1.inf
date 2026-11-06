@@ -1,38 +1,38 @@
 ! ============================================================================
 !  GRAMMAR VERSION 1  —  Frotzlens test fixture
 ! ----------------------------------------------------------------------------
-!  A two-room Standard Library game compiled with Inform's older grammar
-!  table format (Grammar__Version 1), so the grammar decoder sees both
-!  encodings. Copyright Christopher Schweda; MIT, as part of @frotzinc/zcode's
-!  tests.
+!  Inform's older grammar table format (Grammar__Version 1: 8-byte lines, a
+!  preposition table, a parsing-routine table), with no library: the Standard
+!  Library 6.12 always uses version 2, whatever this constant says. Three
+!  verbs, prepositions, synonyms, and a general parsing routine. Copyright
+!  Christopher Schweda; MIT, as part of @frotzinc/zcode's tests.
 ! ============================================================================
 
 Constant Grammar__Version 1;
-Constant Story "GRAMMAR ONE";
-Constant Headline "^A Frotzlens fixture.^";
 
-Include "Parser";
-Include "VerbLib";
+Attribute light;
 
-Object Porch "Porch"
-  with description "A wooden porch. A door leads north.",
-       n_to Parlour,
-  has light;
+Object Hall "Hall" with name 'hall', has light;
+Object -> Lamp "brass lamp" with name 'brass' 'lamp';
 
-Object Parlour "Parlour"
-  with description "A dusty parlour. The porch is south.",
-       s_to Porch,
-  has light;
+[ Main; @quit; ];
 
-Object -> bell "brass bell"
-  with name 'brass' 'bell',
-       description "A small brass bell.";
+[ TakeSub; rtrue; ];
+[ DropSub; rtrue; ];
+[ PutSub; rtrue; ];
+[ LookSub; rtrue; ];
+[ ParseNoun; return -1; ];
 
-[ Initialise; location = Porch; ];
+Verb 'take' 'get'
+  * noun        -> Take
+  * 'off' noun  -> Drop;
 
-[ RingSub; "Ding."; ];
+Verb 'drop'
+  * noun            -> Drop
+  * noun 'in' noun  -> Put
+  * noun 'on' noun  -> Put;
 
-Include "Grammar";
-
-Verb 'ring' 'chime'
-  * noun -> Ring;
+Verb 'look' 'l'
+  *              -> Look
+  * 'at' noun    -> Look
+  * ParseNoun    -> Look;

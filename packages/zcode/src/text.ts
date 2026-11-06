@@ -211,3 +211,31 @@ export function readString(ctx: TextContext, address: number, id = `string:${hex
   const { zchars, length } = readZchars(ctx.bytes, address)
   return { id, address, length, text: decodeZchars(ctx, zchars) }
 }
+
+/**
+ * The decoding context for a parsed story: its alphabets, Unicode table and
+ * abbreviations, as parseStory read them. (A fresh text budget.)
+ */
+export function textContextFor(story: import('./types.js').StoryFile): TextContext {
+  const bytes = new Bytes(story.bytes)
+  const h = story.header
+  const ctx: TextContext = {
+    bytes,
+    version: h.version as Version,
+    abbreviations: [],
+    alphabets: null,
+    extra: defaultExtra(),
+    budget: MAX_TOTAL_TEXT,
+  }
+  try {
+    if (h.alphabetTable) ctx.alphabets = readAlphabetTable(bytes, h.alphabetTable)
+    if (h.headerExtension?.unicodeTable) ctx.extra = readUnicodeTable(bytes, h.headerExtension.unicodeTable)
+  } catch {
+    // parseStory has reported it; decode with the defaults
+  }
+  if (story.abbreviations.length === 96) {
+    ctx.abbreviations = story.abbreviations.map(a => a.address)
+    ctx.abbreviationTexts = story.abbreviations.map(a => a.text)
+  }
+  return ctx
+}

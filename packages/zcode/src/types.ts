@@ -36,9 +36,33 @@ export interface StoryFile {
   objects: ObjectTable
   /** 240 (§6.2). */
   globals: Global[]
-  // Phase 2:  routines, strings, grammar, xrefs
+  /** The routines, found by sweeping the code area (Phase 2). */
+  code: Code
+  /** The packed strings after the code, in address order (Phase 2). */
+  strings: ZString[]
+  /** Inform's grammar table, when the story is Inform's and has one (Phase 2). */
+  grammar?: import('./grammar.js').Grammar
+  /** Cross-references, both ways, by Id (Phase 2). */
+  xrefs: import('./xrefs.js').Xrefs
   // Phase 5:  symbols, fingerprint, rooms
   errors: ParseError[]
+}
+
+// ── Code (§4, §5) ─────────────────────────────────────────────────
+
+export type { Instruction, Operand, OperandKind, Branch } from './decode.js'
+export type { Routine } from './routines.js'
+export type { Grammar, GrammarVerb, GrammarLine, GrammarToken, TokenKind } from './grammar.js'
+export type { Xrefs, XrefEntry, XrefSite } from './xrefs.js'
+
+export interface Code {
+  /** Where the sweep began: the end of the dictionary, where code can first start. */
+  analysisStart: number
+  /** The routine execution starts in (v1–5, 8: the initial PC's routine). */
+  main?: number
+  routines: import('./routines.js').Routine[]
+  /** One past the last routine's last byte (0 with no routines). */
+  end: number
 }
 
 // ── Header (§11) ───────────────────────────────────────────────────

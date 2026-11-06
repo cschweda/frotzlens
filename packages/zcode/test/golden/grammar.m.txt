@@ -1,0 +1,26 @@
+
+Story file is grammar.z5
+Inform Version: 644
+
+    **** Story file map ****
+
+ Base    End   Size
+    0     3f     40  Story file header
+   40     41      2  Abbreviation data
+   42    101     c0  Abbreviation pointer table
+  102    109      8  Header extension table
+  10a    301    1f8  Object table
+  302    677    376  Property data
+  678    685      e  Class Prototype Object Numbers
+  686    769     e4  Property Names Table
+  76a    7c9     60  Attribute Names Table
+  7ca    a42    279
+  a43    c22    1e0  Global variables
+  c23   13f3    7d1
+ 13f4   14b7     c4  Grammar pointer table
+ 14b8   1b8b    6d4  Grammar data
+ 1b8c   1c6b     e0  Action routine table
+ 1c6c   1c6d      2
+ 1c6e   27c6    b59  Dictionary
+ 27c7   27c7      1
+ 27c8  15287  12ac0  Paged memory

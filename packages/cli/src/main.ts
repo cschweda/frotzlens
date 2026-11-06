@@ -2,9 +2,13 @@ import { parseStory, type StoryFile } from '@frotzinc/zcode'
 import {
   formatAbbreviations,
   formatDictionary,
+  formatGrammar,
   formatHeader,
+  formatMap,
   formatObjects,
+  formatRoutine,
   formatTree,
+  formatTxd,
   type FormatOptions,
 } from '@frotzinc/zcode/format'
 
@@ -15,25 +19,36 @@ export interface Io {
   version: string
 }
 
-type Section = 'header' | 'abbreviations' | 'objects' | 'tree' | 'dict'
+type Section = 'header' | 'map' | 'abbreviations' | 'objects' | 'tree' | 'grammar' | 'dict'
 
 /** In infodump's order, which is also the order --all prints them in. */
 const SECTIONS: { name: Section; short: string; long: string; format: (s: StoryFile, o: FormatOptions) => string; help: string }[] = [
-  { name: 'header', short: 'i', long: 'header', format: formatHeader, help: 'the story file header (the default)' },
+  { name: 'header', short: 'i', long: 'header', format: formatHeader, help: 'the story file header' },
+  { name: 'map', short: 'm', long: 'map', format: formatMap, help: 'the story file map' },
   { name: 'abbreviations', short: 'a', long: 'abbreviations', format: formatAbbreviations, help: 'the abbreviations' },
   { name: 'objects', short: 'o', long: 'objects', format: formatObjects, help: 'the objects' },
   { name: 'tree', short: 't', long: 'tree', format: formatTree, help: 'the object tree' },
+  { name: 'grammar', short: 'g', long: 'grammar', format: formatGrammar, help: "Inform's verb grammar" },
   { name: 'dict', short: 'd', long: 'dict', format: formatDictionary, help: 'the dictionary' },
 ]
 
 export const USAGE = `Usage: frotzlens [options] story-file [story-file...]
 
-Shows what's inside a Z-machine story file (versions 3, 4, 5 and 8), in the
-format of Ztools' infodump, so scripts written for infodump keep working.
+Shows what's inside a Z-machine story file (versions 3, 4, 5 and 8). With no
+options, the whole disassembly, as Ztools' txd prints it; with infodump's
+options, those sections, as infodump prints them. Scripts written for either
+keep working.
 
+Disassembly (txd):
+      --txd             the disassembly (the default when no section is asked for)
+  -n, --addresses       addresses instead of labels (txd -n)
+      --routine <addr>  just the routine at this address (hex, e.g. 4f4 or 0x4f4)
+      --no-grammar      leave out the grammar notes on routines (txd -g)
+
+Sections (infodump):
 ${SECTIONS.map(s => `  -${s.short}, --${s.long.padEnd(15)} ${s.help}`).join('\n')}
-  -f, --all             all of the above (infodump's -f also prints the memory
-                        map and grammar; those arrive in a later release)
+  -f, --all             all of the above
+
   -w, --width <n>       wrap lines at n columns (default 79; 0 = never)
       --json            the parsed model as JSON instead (an array, with
                         each one's "file", for several files)
@@ -55,6 +70,10 @@ export function main(argv: string[], io: Io): number {
   const files: string[] = []
   let width = 79
   let json = false
+  let txd = false
+  let addresses = false
+  let noGrammar = false
+  let routine: number | undefined
 
   for (let i = 0; i < argv.length; i++) {
     const arg = argv[i]!
@@ -72,6 +91,16 @@ export function main(argv: string[], io: Io): number {
         return 0
       } else if (arg === '--json') {
         json = true
+      } else if (arg === '--txd') {
+        txd = true
+      } else if (arg === '-n' || arg === '--addresses') {
+        addresses = true
+      } else if (arg === '--no-grammar') {
+        noGrammar = true
+      } else if (arg === '--routine') {
+        const raw = value().trim().replace(/^0x/i, '')
+        if (!/^[0-9a-f]+$/i.test(raw)) throw new UsageError('--routine takes a hex address, e.g. 4f4')
+        routine = parseInt(raw, 16)
       } else if (arg === '-f' || arg === '--all') {
         for (const s of SECTIONS) wanted.add(s.name)
       } else if (arg === '-w' || arg === '--width') {
@@ -87,6 +116,7 @@ export function main(argv: string[], io: Io): number {
         for (const ch of arg.slice(1)) {
           const s = SECTIONS.find(x => x.short === ch)
           if (ch === 'f') for (const x of SECTIONS) wanted.add(x.name)
+          else if (ch === 'n') addresses = true
           else if (s) wanted.add(s.name)
           else throw new UsageError(`unknown option -${ch}`)
         }
@@ -103,7 +133,8 @@ export function main(argv: string[], io: Io): number {
     io.stderr(USAGE)
     return 2
   }
-  if (!wanted.size) wanted.add('header')
+  // No section asked for: the disassembly.
+  if (!wanted.size && routine === undefined) txd = true
 
   let status = 0
   const models: (Omit<StoryFile, 'bytes'> & { file: string })[] = []
@@ -133,6 +164,14 @@ export function main(argv: string[], io: Io): number {
       io.stdout(s.format(story, { fileName: file, width, continuation }))
       continuation = true
     }
+    if (routine !== undefined) {
+      const text = formatRoutine(story, routine, { addresses, width, noGrammar })
+      if (text === undefined) {
+        io.stderr(`frotzlens: ${file}: no routine starts at ${routine.toString(16)}\n`)
+        status = 1
+      } else io.stdout(text)
+    }
+    if (txd) io.stdout(formatTxd(story, { addresses, width, noGrammar }))
   }
   // One JSON document: the model for one file, an array of them (each with its `file`) for several.
   // The shape follows what was asked for: one file named → its model; several → an array, even
