@@ -83,9 +83,9 @@ Pure TypeScript. No DOM, no Vue, no `window`. `Uint8Array` in, typed model out. 
 5. **Dictionary** — word separators, entry length, entry count; 4-byte (v1–3) or 6-byte (v4+) encoded words; the data bytes decoded as Inform's verb/adjective/noun flags where the file fingerprints as Inform.
 6. **Objects** — property defaults table; per-object attributes (32 or 48 flags), parent/sibling/child, short name, property list with the v1–3 vs v4+ size-byte encodings. Rendered as a tree.
 7. **Globals** — 240 words, each with its referrers once disassembly has run.
-8. **Routines** — discovery by walking from the initial PC and following every `call*` operand, seeding with `print_paddr` targets for strings; then a conservative linear sweep of high memory for routines reachable only through computed calls (Inform's `.call` property values, grammar action routines). Each routine decodes to instructions with typed operands (large constant, small constant, variable), stores, and branches (with the branch-on-true/false bit and the two offset encodings), in all four opcode forms (short, long, variable, extended).
+8. **Routines** — discovery by a linear sweep of the code area from the end of the dictionary, as txd does (*as built: on every story checked, a complete sweep finds exactly txd's routines, reachable or not, so no separate call-graph walk is needed. A crafted file that exhausts the sweep's work budget gets a partial list and a warning. See `03-phase-2-disassembler.md`*). Each routine decodes to instructions with typed operands (large constant, small constant, variable), stores, and branches (with the branch-on-true/false bit and the two offset encodings), in all four opcode forms (short, long, variable, extended).
 9. **Grammar** — Inform's verb table: for each dictionary verb, its grammar lines → action numbers → action routines. Grammar version 1 and 2 encodings.
-10. **Strings** — every string reachable from `print`/`print_ret`/`print_paddr`/property values, plus a heuristic scan of high memory for plausible terminated strings nothing references (Inform's `print_ret`-heavy code leaves these).
+10. **Strings** — the string area after the code, read in order to the end of the file, as txd does: every string Inform writes, referenced or not (*as built: no heuristic scan or threshold — open question 6 is closed*).
 11. **Cross-references** — for every routine, object, string, dictionary word, and global: who refers to it, and what it refers to. Bidirectional.
 12. **Symbols** — optional overlay from `gameinfo.dbg`: routine names, object names, property and attribute names, action names, global names, array names, and source-line mappings. Applied as a layer over the model so the UI can toggle symbolic/raw without re-parsing.
 
@@ -210,7 +210,7 @@ Settled in the first session, recorded here as they close:
 3. **`yarn link` vs `file:` paths** for validating the Phase 0 extraction against Frotzsmith.
 4. **Nuxt 5.** If stable at build time, flag it; don't switch silently.
 5. **Canonical domain.** `frotzlens.com` now; possibly `frotzlens.frotzinc.com` later. One config value either way.
-6. **String-scan heuristics.** How aggressive the unreferenced-string sweep should be before it produces garbage. Tune against the fixtures; document the threshold.
+6. **String-scan heuristics.** How aggressive the unreferenced-string sweep should be before it produces garbage. Tune against the fixtures; document the threshold. *(Closed: no heuristic — see below.)*
 
 ### Decisions recorded, 6 November 2026
 

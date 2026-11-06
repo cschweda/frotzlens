@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import { Bytes } from '../src/bytes.js'
 import { decodeInstruction } from '../src/decode.js'
-import { parseRoutine, tryRoutine } from '../src/routines.js'
+import { parseRoutine, sweepRoutines, tryRoutine } from '../src/routines.js'
 import { defaultExtra, type TextContext } from '../src/text.js'
 import { parseStory } from '../src/index.js'
 import { readStory } from './fixtures.js'
@@ -94,6 +94,49 @@ describe('routines (§5)', () => {
     const r = s.code.routines.find(x => x.locals > 0)!
     expect(r.initialValues).toHaveLength(r.locals)
   })
+
+  it('the main routine is the one whose first instruction is the initial PC (in every version)', () => {
+    for (const f of ['puny-dark-cellar-v3.z3', 'puny-dark-cellar-v4.z4', 'dark-cellar.z5', 'dark-cellar-v8.z8']) {
+      const s = parseStory(readStory(f))
+      const main = s.code.routines.find(r => r.address === s.code.main)
+      expect(main?.instructions[0]?.address, f).toBe(s.header.initialPc)
+    }
+  })
+
+  it('the sweep stops at its work budget, with what it found so far', () => {
+    const data = readStory('dark-cellar.z5')
+    const s = parseStory(data)
+    const text = { bytes: new Bytes(data), version: 5 as const, abbreviations: [], alphabets: null, extra: defaultExtra() }
+    const swept = sweepRoutines(new Bytes(data), 5, s.code.analysisStart, text, 500)
+    expect(swept.exhausted).toBe(true)
+    expect(swept.routines.length).toBeGreaterThan(0)
+    expect(swept.routines.length).toBeLessThan(405)
+    expect(sweepRoutines(new Bytes(data), 5, s.code.analysisStart, text).exhausted).toBe(false)
+  })
+
+  it('an inline string with no end bit costs a unit for every word scanned, though the probe fails', () => {
+    // 0 locals, print, then 4,000 words with no end bit, then the end of the file.
+    const data = new Uint8Array(2 + 8000)
+    data[1] = 0xb2
+    for (let i = 2; i < data.length; i += 2) data[i] = 0x14 // a word without bit 15
+    const work = { used: 0 }
+    expect(tryRoutine(new Bytes(data), 5, 0, ctx(data), work)).toBeNull()
+    expect(work.used).toBeGreaterThanOrEqual(4000)
+  })
+
+  it('inline text counts toward the work budget, not just instructions', () => {
+    // A routine of one print whose text is 8,000 characters (an abbreviation of 8,000 'x's,
+    // named 100 times would be 800,000): that alone must use well over one unit.
+    const big = 'x'.repeat(8000)
+    const zchars = [1, 0]
+    const word = 0x8000 | (zchars[0]! << 10) | (zchars[1]! << 5) | 5
+    const data = new Uint8Array([0x00, 0xb2, word >> 8, word & 0xff, 0xb0])
+    const text: TextContext = { ...ctx(data), abbreviations: [0], abbreviationTexts: [big] }
+    const work = { used: 0 }
+    const r = parseRoutine(new Bytes(data), 5, 0, text, work)
+    expect(r.instructions[0]!.text!.text).toHaveLength(8000)
+    expect(work.used).toBeGreaterThan(1000)
+  })
 })
 
 describe('the code and strings of a story', () => {
@@ -125,13 +168,16 @@ describe('grammar', () => {
     expect(die.words).toEqual(['die', 'q', 'quit'])
   })
 
-  it('GV1 (library-free fixture): 8-byte lines, prepositions and a parsing routine', () => {
+  it('GV1 (library-free fixture): 8-byte lines, prepositions, and noun=, general and scope= routines in one table', () => {
     const g = parseStory(readStory('gv1.z5')).grammar!
     expect(g.version).toBe(1)
     expect(g.prepositions.map(p => [p.number, p.word])).toEqual([[252, 'at'], [253, 'on'], [254, 'in'], [255, 'off']])
-    expect(g.parsingRoutines).toHaveLength(1)
+    // infodump: 3 parsing routines, "l TEXT [parse 0]", "rub NOUN [parse 1]", "rub SCOPE [parse 2]".
+    expect(g.parsingRoutines).toHaveLength(3)
     const get = g.verbs.find(v => v.words.includes('get'))!
     expect(get.lines[1]!.tokens.map(t => t.kind)).toEqual(['preposition', 'elementary']) // get off NOUN
+    const rub = g.verbs.find(v => v.words.includes('rub'))!
+    expect(rub.lines.map(l => [l.tokens[0]!.kind, l.tokens[0]!.data])).toEqual([['noun-routine', 1], ['scope-routine', 2]])
   })
 
   it('GV3 (PunyInform): compact lines, prepositions by index — which Ztools reads as GV1', () => {
@@ -179,6 +225,19 @@ describe('cross-references', () => {
     for (const [id, e] of Object.entries(s.xrefs)) {
       expect(ids.has(id), id).toBe(true)
       for (const t of e.to) expect(ids.has(t), t).toBe(true)
+      for (const f of e.from) expect(ids.has(f.id), f.id).toBe(true)
     }
+  })
+
+  it('the grammar: a verb word refers to its action routines and prepositions', () => {
+    const take = s.dictionary.entries.find(e => e.word === 'take')!
+    const to = s.xrefs[take.id]!.to
+    expect(to.some(id => id.startsWith('routine:'))).toBe(true)
+    const put = s.dictionary.entries.find(e => e.word === 'put')!
+    const into = s.dictionary.entries.find(e => e.word === 'in')!
+    expect(s.xrefs[put.id]!.to).toContain(into.id)
+    // A synonym refers through the same lines as its verb ("die", synonyms "q", "quit").
+    const [die, quit] = ['die', 'quit'].map(w => s.dictionary.entries.find(e => e.word === w)!)
+    expect(s.xrefs[quit!.id]!.to).toEqual(s.xrefs[die!.id]!.to)
   })
 })

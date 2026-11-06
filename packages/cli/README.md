@@ -5,7 +5,7 @@
 ```sh
 frotzlens game.z5                     # the whole disassembly, as Ztools' txd prints it
 frotzlens --routine 4f4 game.z5       # one routine
-frotzlens -f game.z5                  # everything infodump prints: header, map, objects, grammar, dictionary
+frotzlens -f game.z5                  # everything infodump prints: header, map, abbreviations, objects, tree, grammar, dictionary
 ```
 
 (Once it's released: `npx frotzlens` today installs a 0.0.1 placeholder. From this repository: `pnpm install && pnpm build`, then `node packages/cli/dist/bin.js`.)

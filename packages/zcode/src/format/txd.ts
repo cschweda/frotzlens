@@ -77,7 +77,10 @@ function grammarAnnotations(story: StoryFile, width: number): Map<number, string
   // Parsing routines: GV1's table by number; GV2's tokens name packed routines directly.
   const parsing = new Set<number>()
   const parsingRoutine = (t: { kind: string; data: number }) =>
-    g.version === 1 ? (t.kind === 'routine' ? g.parsingRoutines[t.data] : undefined)
+    g.version === 1
+      ? t.kind === 'routine' || t.kind === 'noun-routine' || t.kind === 'scope-routine'
+        ? g.parsingRoutines[t.data]
+        : undefined
     : g.version === 2 && (t.kind === 'routine' || t.kind === 'noun-routine' || t.kind === 'scope-routine') ? unpack(t.data, v) : undefined
   for (const x of lines) for (const t of x.line.tokens) {
     const r = parsingRoutine(t)
@@ -219,12 +222,12 @@ export function wrapIndented(text: string, indent: number, width = 79): string {
 }
 
 /** A routine's header line: "Routine 4f4, 2 locals", plus v1–4's initial values in parentheses. */
-export function routineHeader(r: Routine, isMain: boolean, name: string, version: number): string {
+export function routineHeader(r: Routine, isMain: boolean, name: string, version: number, width = 79): string {
   const head = `${isMain ? 'Main routine' : 'Routine'} ${name}, ${r.locals} ${r.locals === 1 ? 'local' : 'locals'}`
   if (version > 4) return head
   // v1–4: the initial values, even when there are none ("()").
   const open = `${head} (`
-  return wrapIndented(`${open}${r.initialValues.map(v => hx(v, 4)).join(', ')})`, open.length)
+  return wrapIndented(`${open}${r.initialValues.map(v => hx(v, 4)).join(', ')})`, open.length, width)
 }
 
 /** One routine: its header line, a blank line, its instructions (each wrapped). */
@@ -239,7 +242,7 @@ function routineBlock(r: Routine, c: Context, width: number): string {
   c.labels = new Map([...targets].filter(t => starts.has(t)).sort((a, b) => a - b).map((t, i) => [t, i + 1]))
 
   const name = routineName(c, r.address)
-  const lines = [routineHeader(r, r.address === c.story.code.main, name, c.story.header.version), ...(c.annotations.get(r.address) ?? []), '']
+  const lines = [routineHeader(r, r.address === c.story.code.main, name, c.story.header.version, width), ...(c.annotations.get(r.address) ?? []), '']
   const w = new Writer(width)
   for (const ins of r.instructions) {
     const label = c.labels.get(ins.address)

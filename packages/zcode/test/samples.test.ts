@@ -53,13 +53,52 @@ describe.runIf(process.env.INFODUMP)('samples/ against the real infodump (INFODU
   })
 })
 
+/**
+ * Each routine block's lines without its grammar notes or blank lines, by header (as txd.test.ts
+ * compares PunyInform: txd's garbage notes for it come with an extra blank line).
+ */
+function blocks(text: string): Map<string, string> {
+  const out = new Map<string, string>()
+  for (const block of text.split(/\n\[End of code/)[0]!.split(/\n(?=(?:Main r|R)outine [^,]+,)/)) {
+    const m = /^(?:Main r|R)outine ([^,]+),/.exec(block)
+    if (!m) continue
+    const lines: string[] = []
+    let notes = false
+    for (const l of block.split('\n')) {
+      if (/^ {4}(Action|Parsing|Pre-action) routine for:$/.test(l)) notes = true
+      else if (!(notes && l.startsWith('        '))) {
+        notes = false
+        if (l !== '') lines.push(l)
+      }
+    }
+    out.set(m[1]!, lines.join('\n'))
+  }
+  return out
+}
+
 describe.runIf(process.env.TXD)('samples/ against the real txd (TXD is set)', () => {
-  it.each(files.filter(f => !f.startsWith('puny-')))('%s: txd and txd -n', (f) => {
+  it.each(files)('%s: txd and txd -n', (f) => {
     const story = parseStory(new Uint8Array(readFileSync(SAMPLES + f)))
     for (const addresses of [false, true]) {
       const r = spawnSync(resolve(process.env.TXD!), addresses ? ['-n', f] : [f], { cwd: SAMPLES, encoding: 'latin1', maxBuffer: 1 << 28 })
-      expect(r.status).toBe(0)
-      expect(formatTxd(story, { addresses }) === r.stdout, `txd${addresses ? ' -n' : ''}`).toBe(true)
+      const ours = formatTxd(story, { addresses })
+      if (!f.startsWith('puny-')) {
+        expect(r.status).toBe(0)
+        expect(ours === r.stdout, `txd${addresses ? ' -n' : ''}`).toBe(true)
+        continue
+      }
+      // PunyInform: Ztools misreads its grammar, so compare every finished routine without the notes,
+      // and the string section exactly when txd got that far.
+      const want = blocks(r.stdout)
+      const got = blocks(ours)
+      const complete = r.stdout.includes('[End of code')
+      const keys = [...want.keys()].slice(0, complete ? undefined : -1)
+      expect(keys.length, 'routines txd finished').toBeGreaterThan(30)
+      for (const k of keys) expect(got.get(k), `routine ${k}`).toBe(want.get(k))
+      if (complete) {
+        const strings = (t: string) => t.slice(t.indexOf('[End of code'))
+        expect(strings(ours) === strings(r.stdout), 'string section').toBe(true)
+      }
     }
   })
 })

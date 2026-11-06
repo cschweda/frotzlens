@@ -5,6 +5,7 @@
 import { packedScale } from './address.js'
 import { Bytes, Malformed, OutOfBounds } from './bytes.js'
 import { decodeInstruction, type Instruction } from './decode.js'
+import { MAX_SWEEP_WORK, SweepExhausted, spend, type Work } from './work.js'
 import type { TextContext } from './text.js'
 import type { Version } from './types.js'
 
@@ -21,8 +22,7 @@ export interface Routine {
   end: number
 }
 
-/** A routine has at most this many instructions; past it, it's taken not to be one. */
-const MAX_INSTRUCTIONS = 20_000
+export { MAX_SWEEP_WORK, SweepExhausted, type Work } from './work.js'
 
 /**
  * The routine at `address`, or Malformed if those bytes can't be one: a
@@ -30,7 +30,7 @@ const MAX_INSTRUCTIONS = 20_000
  * declared ones, a branch out of the file or before the routine, or no
  * terminating instruction past every forward branch.
  */
-export function parseRoutine(bytes: Bytes, version: Version, address: number, text: TextContext): Routine {
+export function parseRoutine(bytes: Bytes, version: Version, address: number, text: TextContext, work: Work = { used: 0 }): Routine {
   const locals = bytes.byte(address)
   if (locals > 15) throw new Malformed(`${locals} locals`, address)
   let a = address + 1
@@ -51,8 +51,8 @@ export function parseRoutine(bytes: Bytes, version: Version, address: number, te
   }
 
   for (;;) {
-    if (instructions.length >= MAX_INSTRUCTIONS) throw new Malformed('no end', address)
-    const ins = decodeInstruction(bytes, a, version, text)
+    spend(work, 1)
+    const ins = decodeInstruction(bytes, a, version, text, work)
     for (const o of ins.operands) if (o.kind === 'variable') checkVar(o.value)
     if (ins.store !== undefined) checkVar(ins.store)
     if (ins.branch?.target !== undefined) checkTarget(ins.branch.target)
@@ -66,11 +66,20 @@ export function parseRoutine(bytes: Bytes, version: Version, address: number, te
 
 export const alignUp = (n: number, scale: number) => Math.ceil(n / scale) * scale
 
-/** parseRoutine, or null when the bytes aren't a routine. */
-export function tryRoutine(bytes: Bytes, version: Version, address: number, text: TextContext): Routine | null {
+/**
+ * parseRoutine, or null when the bytes aren't a routine. A probe that doesn't
+ * end in a routine — rejected, or cut off by the work budget — gives back the
+ * story's text budget its inline strings used: only kept routines spend that.
+ * (The decoding work itself is never given back; see work.ts.)
+ */
+export function tryRoutine(bytes: Bytes, version: Version, address: number, text: TextContext, work?: Work): Routine | null {
+  const budget = text.budget
+  const truncated = text.truncated
   try {
-    return parseRoutine(bytes, version, address, text)
+    return parseRoutine(bytes, version, address, text, work)
   } catch (e) {
+    text.budget = budget
+    text.truncated = truncated
     if (e instanceof Malformed || e instanceof OutOfBounds) return null
     throw e
   }
@@ -82,20 +91,29 @@ export function tryRoutine(bytes: Bytes, version: Version, address: number, text
  * routine that follows, at the next such address after the last one ends,
  * until one won't decode.
  */
-export function sweepRoutines(bytes: Bytes, version: Version, start: number, text: TextContext): Routine[] {
+export function sweepRoutines(
+  bytes: Bytes,
+  version: Version,
+  start: number,
+  text: TextContext,
+  maxWork = MAX_SWEEP_WORK,
+): { routines: Routine[]; exhausted: boolean } {
   const scale = packedScale(version)
   const routines: Routine[] = []
-  let a = alignUp(start, scale)
-  // The first routine: the first aligned address that decodes as one.
-  for (; a < bytes.size; a += scale) {
-    const r = tryRoutine(bytes, version, a, text)
-    if (r) break
+  const work: Work = { used: 0, max: maxWork }
+  try {
+    let a = alignUp(start, scale)
+    // The first routine: the first aligned address that decodes as one (kept, not parsed again).
+    let r: Routine | null = null
+    while (a < bytes.size && !(r = tryRoutine(bytes, version, a, text, work))) a += scale
+    while (r) {
+      routines.push(r)
+      a = alignUp(r.end, scale)
+      r = a < bytes.size ? tryRoutine(bytes, version, a, text, work) : null
+    }
+  } catch (e) {
+    if (!(e instanceof SweepExhausted)) throw e
+    return { routines, exhausted: true }
   }
-  while (a < bytes.size) {
-    const r = tryRoutine(bytes, version, a, text)
-    if (!r) break
-    routines.push(r)
-    a = alignUp(r.end, scale)
-  }
-  return routines
+  return { routines, exhausted: false }
 }

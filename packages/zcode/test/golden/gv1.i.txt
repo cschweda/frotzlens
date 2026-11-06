@@ -6,17 +6,17 @@ Story file is gv1.z5
 Z-code version:           5
 Interpreter flags:        None
 Release number:           1
-Size of resident memory:  05f8
-Start PC:                 05f9
-Dictionary address:       0583
+Size of resident memory:  0618
+Start PC:                 0619
+Dictionary address:       059a
 Object table address:     010a
 Global variables address: 033d
 Size of dynamic memory:   051e
 Game flags:               None
 Serial number:            000000
 Abbreviations address:    0042
-File size:                0067c
-Checksum:                 9c9e
+File size:                006a4
+Checksum:                 a52f
 Terminating keys address: 051d
     Keys used: 
 Header extension address: 0102

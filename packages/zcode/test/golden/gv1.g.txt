@@ -3,7 +3,7 @@ Story file is gv1.z5
 
     **** Parse tables ****
 
-  Verb entries = 3
+  Verb entries = 4
 
 255. 2 entries, verb = "get", synonyms = "take"
     [01 00 00 00 00 00 00 00] "get NOUN"
@@ -19,28 +19,36 @@ Story file is gv1.z5
     [01 fc 00 00 00 00 00 03] "l at NOUN"
     [01 30 00 00 00 00 00 03] "l TEXT [parse 0]"
 
+252. 2 entries, verb = "rub"
+    [01 11 00 00 00 00 00 00] "rub NOUN [parse 1]"
+    [01 52 00 00 00 00 00 03] "rub SCOPE [parse 2]"
+
     **** Verb action routines ****
 
   Action table entries = 4
 
 action# action-routine "verb..."
 
-  0.   604  "get NOUN"
-  1.   608  "get off NOUN"
+  0.   624  "get NOUN"
+            "rub NOUN [parse 1]"
+  1.   628  "get off NOUN"
             "drop NOUN"
-  2.   60c  "drop NOUN in NOUN"
+  2.   62c  "drop NOUN in NOUN"
             "drop NOUN on NOUN"
-  3.   610  "l"
+  3.   630  "l"
             "l at NOUN"
             "l TEXT [parse 0]"
+            "rub SCOPE [parse 2]"
 
     **** Parsing routines ****
 
-  Number of parsing routines = 1
+  Number of parsing routines = 3
 
 parse# parsing-routine "verb..."
 
-  0.   614  "l TEXT [parse 0]"
+  0.   634  "l TEXT [parse 0]"
+  1.   638  "rub NOUN [parse 1]"
+  2.   63c  "rub SCOPE [parse 2]"
 
     **** Prepositions ****
 

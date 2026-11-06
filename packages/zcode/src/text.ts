@@ -1,4 +1,5 @@
 import { Bytes, OutOfBounds, hex } from './bytes.js'
+import { spend, type Work } from './work.js'
 import type { Version, ZString } from './types.js'
 
 /**
@@ -114,10 +115,11 @@ export function zsciiToText(code: number, ctx: Pick<TextContext, 'extra'>): stri
 }
 
 /** The Z-characters of the string at `address`: three per word until the end bit (§3.2). */
-export function readZchars(bytes: Bytes, address: number, maxWords = Infinity): { zchars: number[]; length: number } {
+export function readZchars(bytes: Bytes, address: number, maxWords = Infinity, work?: Work): { zchars: number[]; length: number } {
   const zchars: number[] = []
   let a = address
   for (let words = 0; words < maxWords; words++) {
+    spend(work, 1) // a word read is work, even if the string turns out to have no end
     const w = bytes.word(a)
     a += 2
     zchars.push((w >> 10) & 31, (w >> 5) & 31, w & 31)
@@ -227,11 +229,17 @@ export function textContextFor(story: import('./types.js').StoryFile): TextConte
     extra: defaultExtra(),
     budget: MAX_TOTAL_TEXT,
   }
+  // Each on its own: a bad alphabet table mustn't keep a good Unicode table out (parseStory has
+  // reported whichever is bad; that one decodes with the defaults).
   try {
     if (h.alphabetTable) ctx.alphabets = readAlphabetTable(bytes, h.alphabetTable)
+  } catch {
+    ctx.alphabets = null
+  }
+  try {
     if (h.headerExtension?.unicodeTable) ctx.extra = readUnicodeTable(bytes, h.headerExtension.unicodeTable)
   } catch {
-    // parseStory has reported it; decode with the defaults
+    ctx.extra = defaultExtra()
   }
   if (story.abbreviations.length === 96) {
     ctx.abbreviations = story.abbreviations.map(a => a.address)

@@ -4,8 +4,9 @@ Story file is gv1.z5
     **** Dictionary ****
 
   Word separators = ".,""
-  Word count = 12, word size = 9
+  Word count = 13, word size = 9
 
 [   1] at        [   2] brass     [   3] drop      [   4] get       
 [   5] hall      [   6] in        [   7] l         [   8] lamp      
-[   9] look      [  10] off       [  11] on        [  12] take      
+[   9] look      [  10] off       [  11] on        [  12] rub       
+[  13] take      

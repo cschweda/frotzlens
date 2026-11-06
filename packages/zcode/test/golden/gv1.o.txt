@@ -34,11 +34,11 @@ Story file is gv1.z5
      Property address: 0222
          Description: "Hall"
           Properties:
-              [ 1] 05 ae 
+              [ 1] 05 c5 
 
   6. Attributes: None
      Parent object:   5  Sibling object:   0  Child object:   0
      Property address: 022b
          Description: "brass lamp"
           Properties:
-              [ 1] 05 93 05 c9 
+              [ 1] 05 aa 05 e0 

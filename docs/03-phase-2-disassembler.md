@@ -37,7 +37,7 @@ Byte-for-byte against Ztools, as in Phase 1, and learned from their output, not 
 - **Operand kinds** (`operands.ts`): per opcode and position, whether txd prints a number, a string (`S###`), a dictionary word, an object's name, a variable named by number, a routine, a text style, a stream, or a character. Worked out by tallying how txd rendered every constant operand across the samples, then probing the rest black-box.
 - **Dictionary words** for a constant that is a whole number of entries from the first, up to *and including* the entry count — txd's off-by-one decodes whatever follows the dictionary, and so do we.
 - **Wrapping** at 79 columns; a routine header's initial values and grammar notes wrap with their lines indented (25 and 8).
-- **The header lines:** "high address" is where the second-to-last routine ends; "N bytes of data before code" appears when the gap between the dictionary and the first routine is more than alignment (PunyInform).
+- **The header lines:** "high address" is where the second-to-last routine ends; "N bytes of data before code" appears when the gap between the dictionary and the first routine is at least one alignment unit (PunyInform).
 - **Shifts:** a space leaves a pending shift in place (`4 0 17` is " L"), found by the live check.
 
 ## 4. Inform grammar

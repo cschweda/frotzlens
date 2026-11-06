@@ -48,10 +48,23 @@ rm -f test/golden/*.txt test/golden/*.txt.gz
         "$INFODUMP" "-$opt" "$story" > "../golden/$name.$opt.txt" ||
           { echo "infodump -$opt $story failed (exit $?)" >&2; exit 1; }
       done
-      # txd: a PunyInform v3 story can make it stop partway (exit 1, after its grammar notes);
-      # what it printed is kept, and the tests know which stories those are.
-      "$TXD" "$story" | gzip -9n > "../golden/$name.txd.txt.gz" || true
-      "$TXD" -n "$story" | gzip -9n > "../golden/$name.txd-n.txt.gz" || true
+      # txd: on a PunyInform v3 story it can stop partway (exit 1, after its grammar notes); what it
+      # printed is kept, and the tests know which those are. Any other failure stops the run.
+      for mode in "" "-n"; do
+        out="../golden/$name.txd${mode}.txt.gz"
+        set +e
+        "$TXD" $mode "$story" | gzip -9n > "$out"
+        statuses=("${PIPESTATUS[@]}")
+        set -e
+        if [[ ${statuses[1]} -ne 0 ]]; then
+          echo "gzip failed writing $out (exit ${statuses[1]})" >&2
+          exit 1
+        fi
+        if [[ ${statuses[0]} -ne 0 && "$name" != puny-* ]]; then
+          echo "txd $mode $story failed (exit ${statuses[0]})" >&2
+          exit 1
+        fi
+      done
       echo "golden: $name"
     done
 )

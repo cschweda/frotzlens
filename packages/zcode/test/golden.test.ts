@@ -1,7 +1,8 @@
 /**
  * Differential tests against Ztools' infodump: for every fixture and each of
- * -i -a -o -t -d, our formatter's text must equal infodump's, byte for byte.
- * The golden files come from scripts/golden.sh (see test/golden/PROVENANCE.md).
+ * -i -a -o -t -d -m -g, our formatter's text must equal infodump's, byte for
+ * byte — except the sections listed in NOT_COMPARABLE below. The golden files
+ * come from scripts/golden.sh (see test/golden/PROVENANCE.md).
  *
  * Deliberate differences (none of them occur in these fixtures; each is
  * pinned by its own test in format.test.ts):
