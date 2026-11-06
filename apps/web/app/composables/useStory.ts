@@ -54,6 +54,7 @@ export function useStory() {
       bytes = new Uint8Array(await read())
     } catch (e) {
       if (mine !== generation) return
+      story.value = null // back to the drop zone, where the failure is shown
       failure.value = `${what} couldn't be read: ${e instanceof Error ? e.message : String(e)}`
       status.value = 'failed'
       return

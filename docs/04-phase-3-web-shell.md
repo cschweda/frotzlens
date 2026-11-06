@@ -30,7 +30,7 @@ apps/web/                         frotzlens-web (private, GPL-3.0-or-later)
 - **Nothing leaves the machine.** No analytics, no third-party requests: fonts self-hosted by Nuxt UI's font module at build time (Open Sans, JetBrains Mono), Segoe UI and Cascadia Code used when installed. The CSP in `netlify.toml` allows the site's own origin and nothing else: plus `'unsafe-inline'` for Nuxt's inline bootstrap and color-mode script and Nuxt UI's inline styles, and `data:`/`blob:` images.
 - **The palette** (colours) comes from `@frotzinc/nuxt-base`'s `palette.css` (dark default, light available); no colour is hard-coded in a component.
 - **The sample** is `samples/dark-cellar.z5`, copied into `public/samples/` before dev and build (not committed twice). Its name is in `site.config.ts` only; the copy script reads it from there.
-- **Loading** is last-wins: each load takes a number and only the latest commits, so a slow earlier file never replaces a later one; the buttons are disabled while a file is read. A file dropped anywhere on the page opens it (and never navigates away to the raw file).
+- **Loading** is last-wins: each load takes a number and only the latest commits, so a slow earlier file never replaces a later one; the buttons are disabled while a file is read. A file dropped anywhere on the page opens it, unless a load is already in progress, when the drop is ignored; either way the browser never navigates away to the raw file.
 
 ## 3. Netlify
 
