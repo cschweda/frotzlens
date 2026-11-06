@@ -1,0 +1,16 @@
+
+Story file is puny-dark-cellar.z5
+
+    **** Object tree ****
+
+[  1] "Class"
+[  2] "Object"
+[  3] "Routine"
+[  4] "String"
+[  5] "(Directions)"
+[  6] "you"
+[  7] "Darkness"
+[  8] "Hall"
+ . [  9] "brass lantern"
+[ 10] "Cellar"
+ . [ 11] "rusty key"

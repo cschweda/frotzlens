@@ -1,0 +1,32 @@
+
+Story file is magic-8-ball.z5
+
+    **** Object tree ****
+
+[  1] "Class"
+ . [  5] "CompassDirection"
+ . [ 20] "SelfClass"
+[  2] "Object"
+[  3] "Routine"
+[  4] "String"
+[  6] "compass"
+ . [  7] "(n_obj)"
+ . [  8] "(s_obj)"
+ . [  9] "(e_obj)"
+ . [ 10] "(w_obj)"
+ . [ 11] "(ne_obj)"
+ . [ 12] "(nw_obj)"
+ . [ 13] "(se_obj)"
+ . [ 14] "(sw_obj)"
+ . [ 15] "(u_obj)"
+ . [ 16] "(d_obj)"
+ . [ 17] "(in_obj)"
+ . [ 18] "(out_obj)"
+[ 19] "(darkness object)"
+[ 21] "(self object)"
+[ 22] "(Inform Parser)"
+[ 23] "(Inform Library)"
+[ 24] "(Library Extensions)"
+[ 25] "(LibraryMessages)"
+[ 26] "Fortune Booth"
+ . [ 27] "Magic 8-Ball"

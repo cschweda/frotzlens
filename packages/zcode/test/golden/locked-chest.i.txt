@@ -1,0 +1,25 @@
+
+Story file is locked-chest.z5
+
+    **** Story file header ****
+
+Z-code version:           5
+Interpreter flags:        None
+Release number:           1
+Size of resident memory:  27f4
+Start PC:                 27f5
+Dictionary address:       1c98
+Object table address:     010a
+Global variables address: 0a80
+Size of dynamic memory:   1431
+Game flags:               Supports undo
+Serial number:            000000
+Abbreviations address:    0042
+File size:                15284
+Checksum:                 07d5
+Terminating keys address: 1430
+    Keys used: 
+Header extension address: 0102
+Inform Version:           6.44
+Header extension length:  0003
+Unicode table address:    0000

@@ -8,3 +8,4 @@ coverage/
 *.log
 packages/inform6-wasm/src/lib-texts.generated.ts
 .packs/
+packages/zcode/test/.fixtures/

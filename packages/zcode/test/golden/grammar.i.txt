@@ -1,0 +1,25 @@
+
+Story file is grammar.z5
+
+    **** Story file header ****
+
+Z-code version:           5
+Interpreter flags:        None
+Release number:           1
+Size of resident memory:  27c8
+Start PC:                 27c9
+Dictionary address:       1c6e
+Object table address:     010a
+Global variables address: 0a43
+Size of dynamic memory:   13f4
+Game flags:               Supports undo
+Serial number:            000000
+Abbreviations address:    0042
+File size:                15288
+Checksum:                 f727
+Terminating keys address: 13f3
+    Keys used: 
+Header extension address: 0102
+Inform Version:           6.44
+Header extension length:  0003
+Unicode table address:    0000

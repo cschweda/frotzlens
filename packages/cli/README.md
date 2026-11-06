@@ -1,32 +1,34 @@
-# Frotzlens
+# frotzlens
 
-**A browser-based disassembler and inspector for Z-code story files.**
+**Inspect Z-machine story files from the terminal.**
 
-> This is a placeholder release to reserve the package name. There is no code here yet. Development is underway at [github.com/cschweda/frotzlens](https://github.com/cschweda/frotzlens).
+```sh
+npx frotzlens --objects game.z5
+```
 
-## What it will be
+`frotzlens` reads a `.z3`, `.z4`, `.z5` or `.z8` story file and prints what's inside: the header, the abbreviations, every object with its attributes and properties, the object tree, and the dictionary. The output is in the format of Ztools' `infodump`, byte for byte on every test fixture, and it takes `infodump`'s short options, so scripts written for `infodump` keep working. With `--json` it prints the parsed model instead.
 
-Drop a `.z3`, `.z4`, `.z5`, `.z8`, or `.zblorb` file into a browser tab and get a navigable model of what's inside:
+```
+Usage: frotzlens [options] story-file [story-file...]
 
-- Header, memory map, and abbreviation table
-- Dictionary, with word separators and entry data decoded
-- Object tree with attributes and properties
-- Global variables
-- Routines as disassembly, with cross-references in both directions
-- String table, including strings reachable only by scanning
-- Inform 6 awareness: compiler fingerprinting, veneer and library routine labeling, grammar table decoding, and full symbolic labeling when a `gameinfo.dbg` debug file is supplied
+  -i, --header          the story file header (the default)
+  -a, --abbreviations   the abbreviations
+  -o, --objects         the objects
+  -t, --tree            the object tree
+  -d, --dict            the dictionary
+  -f, --all             all of the above (infodump's -f also prints the memory
+                        map and grammar; those arrive in a later release)
+  -w, --width <n>       wrap lines at n columns (default 79; 0 = never)
+      --json            the parsed model as JSON instead
+  -h, --help            print this
+  -v, --version         print the version
+```
 
-Everything runs client-side. No upload, no server.
+Options combine and bundle as `infodump`'s do (`-oti`). The exit status is 0 on success, 1 if a file couldn't be read or had errors (reported on stderr; whatever could be read is still printed), and 2 for a usage error.
 
-Frotzlens is the companion to [Frotzsmith](https://frotzsmith.com), a browser-based Inform 6 IDE, and will be available both as a standalone app at [frotzlens.com](https://frotzlens.com) and as an inspector panel inside Frotzsmith. The parser will be published separately as `@frotzinc/zcode` (MIT) so other tools can use it.
+**Not yet:** a disassembly of routines (`txd`), strings, and grammar arrive in the next release, along with `infodump`'s memory map (`-m`) and grammar (`-g`). Until then, `-f` prints the five sections above. Blorb (`.zblorb`) files and versions 1, 2, 6 and 7 aren't read yet beyond their headers.
 
-## Why
-
-The existing Z-code tooling — `txd`, `infodump`, Reform, UnZ — is decades-old desktop software, some of it no longer buildable. Nothing runs in a browser. Frotzlens is a clean-room reimplementation of that feature set as a web tool, with a decompile-to-Inform-6 target as the longer-term goal.
-
-## Status
-
-Reserved. Follow the repository for progress.
+Everything runs locally. Nothing is uploaded. `frotzlens` is the command-line side of [Frotzlens](https://frotzlens.com), the browser-based story file inspector, and is built on [`@frotzinc/zcode`](https://www.npmjs.com/package/@frotzinc/zcode) (MIT).
 
 ## License
 

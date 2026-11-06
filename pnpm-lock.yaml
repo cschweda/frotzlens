@@ -18,7 +18,21 @@ importers:
         specifier: ^5.1.0
         version: 5.1.0(@types/node@22.20.5)(vite@8.3.6(@types/node@22.20.5)(esbuild@0.28.2)(jiti@2.7.0)(terser@5.51.2))
 
-  packages/cli: {}
+  packages/cli:
+    dependencies:
+      '@frotzinc/zcode':
+        specifier: workspace:*
+        version: link:../zcode
+    devDependencies:
+      '@types/node':
+        specifier: ^22.20.5
+        version: 22.20.5
+      typescript:
+        specifier: 5.9.3
+        version: 5.9.3
+      vitest:
+        specifier: ^5.1.0
+        version: 5.1.0(@types/node@22.20.5)(vite@8.3.6(@types/node@22.20.5)(esbuild@0.28.2)(jiti@2.7.0)(terser@5.51.2))
 
   packages/inform6-wasm:
     devDependencies:
@@ -50,6 +64,18 @@ importers:
 
   packages/worker-rpc:
     devDependencies:
+      typescript:
+        specifier: 5.9.3
+        version: 5.9.3
+      vitest:
+        specifier: ^5.1.0
+        version: 5.1.0(@types/node@22.20.5)(vite@8.3.6(@types/node@22.20.5)(esbuild@0.28.2)(jiti@2.7.0)(terser@5.51.2))
+
+  packages/zcode:
+    devDependencies:
+      '@frotzinc/inform6-wasm':
+        specifier: workspace:*
+        version: link:../inform6-wasm
       typescript:
         specifier: 5.9.3
         version: 5.9.3

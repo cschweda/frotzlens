@@ -1,0 +1,303 @@
+
+Story file is magic-8-ball.z5
+
+    **** Objects ****
+
+  Object count = 27
+
+  1. Attributes: None
+     Parent object:   0  Sibling object:   0  Child object:   5
+     Property address: 0302
+         Description: "Class"
+          Properties:
+
+  2. Attributes: None
+     Parent object:   0  Sibling object:   0  Child object:   0
+     Property address: 0312
+         Description: "Object"
+          Properties:
+
+  3. Attributes: None
+     Parent object:   0  Sibling object:   0  Child object:   0
+     Property address: 0324
+         Description: "Routine"
+          Properties:
+
+  4. Attributes: None
+     Parent object:   0  Sibling object:   0  Child object:   0
+     Property address: 0336
+         Description: "String"
+          Properties:
+
+  5. Attributes: None
+     Parent object:   1  Sibling object:  20  Child object:   0
+     Property address: 0348
+         Description: "CompassDirection"
+          Properties:
+              [ 3] 09 05 
+
+  6. Attributes: 3
+     Parent object:   0  Sibling object:   0  Child object:   7
+     Property address: 0372
+         Description: "compass"
+          Properties:
+
+  7. Attributes: 17
+     Parent object:   6  Sibling object:   8  Child object:   0
+     Property address: 037a
+         Description: "(n_obj)"
+          Properties:
+              [48] 0a 06 
+              [46] 4d 7c 
+              [41] 00 00 
+              [37] 4d 7b 
+              [35] 09 fb 
+              [21] 00 07 
+              [ 3] 09 0c 
+              [ 2] 00 05 
+              [ 1] 21 d2 22 11 
+
+  8. Attributes: 17
+     Parent object:   6  Sibling object:   9  Child object:   0
+     Property address: 03a2
+         Description: "(s_obj)"
+          Properties:
+              [48] 0a 06 
+              [46] 4d 7d 
+              [41] 00 00 
+              [37] 4d 7b 
+              [35] 09 fb 
+              [21] 00 08 
+              [ 3] 09 13 
+              [ 2] 00 05 
+              [ 1] 23 dc 25 32 
+
+  9. Attributes: 17
+     Parent object:   6  Sibling object:  10  Child object:   0
+     Property address: 03ca
+         Description: "(e_obj)"
+          Properties:
+              [48] 0a 06 
+              [46] 4d 7e 
+              [41] 00 00 
+              [37] 4d 7b 
+              [35] 09 fb 
+              [21] 00 09 
+              [ 3] 09 1a 
+              [ 2] 00 05 
+              [ 1] 1f 0b 1f 1d 
+
+ 10. Attributes: 17
+     Parent object:   6  Sibling object:  11  Child object:   0
+     Property address: 03f2
+         Description: "(w_obj)"
+          Properties:
+              [48] 0a 06 
+              [46] 4d 7f 
+              [41] 00 00 
+              [37] 4d 7b 
+              [35] 09 fb 
+              [21] 00 0a 
+              [ 3] 09 21 
+              [ 2] 00 05 
+              [ 1] 27 45 27 84 
+
+ 11. Attributes: 17
+     Parent object:   6  Sibling object:  12  Child object:   0
+     Property address: 041a
+         Description: "(ne_obj)"
+          Properties:
+              [48] 0a 06 
+              [46] 4d 80 
+              [41] 00 00 
+              [37] 4d 7b 
+              [35] 09 fb 
+              [21] 00 0b 
+              [ 3] 09 28 
+              [ 2] 00 05 
+              [ 1] 21 e4 22 1a 
+
+ 12. Attributes: 17
+     Parent object:   6  Sibling object:  13  Child object:   0
+     Property address: 0442
+         Description: "(nw_obj)"
+          Properties:
+              [48] 0a 06 
+              [46] 4d 82 
+              [41] 00 00 
+              [37] 4d 7b 
+              [35] 09 fb 
+              [21] 00 0c 
+              [ 3] 09 2f 
+              [ 2] 00 05 
+              [ 1] 22 47 22 23 
+
+ 13. Attributes: 17
+     Parent object:   6  Sibling object:  14  Child object:   0
+     Property address: 046a
+         Description: "(se_obj)"
+          Properties:
+              [48] 0a 06 
+              [46] 4d 84 
+              [41] 00 00 
+              [37] 4d 7b 
+              [35] 09 fb 
+              [21] 00 0d 
+              [ 3] 09 36 
+              [ 2] 00 05 
+              [ 1] 24 24 25 3b 
+
+ 14. Attributes: 17
+     Parent object:   6  Sibling object:  15  Child object:   0
+     Property address: 0492
+         Description: "(sw_obj)"
+          Properties:
+              [48] 0a 06 
+              [46] 4d 86 
+              [41] 00 00 
+              [37] 4d 7b 
+              [35] 09 fb 
+              [21] 00 0e 
+              [ 3] 09 3d 
+              [ 2] 00 05 
+              [ 1] 25 7a 25 44 
+
+ 15. Attributes: 17
+     Parent object:   6  Sibling object:  16  Child object:   0
+     Property address: 04ba
+         Description: "(u_obj)"
+          Properties:
+              [48] 0a 06 
+              [46] 4d 88 
+              [41] 00 00 
+              [37] 4d 7b 
+              [35] 09 fb 
+              [21] 00 0f 
+              [ 3] 09 44 
+              [ 2] 00 05 
+              [ 1] 26 c7 27 18 1d d9 1c dd 24 e1 
+
+ 16. Attributes: 17
+     Parent object:   6  Sibling object:  17  Child object:   0
+     Property address: 04e8
+         Description: "(d_obj)"
+          Properties:
+              [48] 0a 06 
+              [46] 4d 8a 
+              [41] 00 00 
+              [37] 4d 7b 
+              [35] 09 fb 
+              [21] 00 10 
+              [ 3] 09 4b 
+              [ 2] 00 05 
+              [ 1] 1e 60 1e d5 1f e3 1d 7f 20 73 
+
+ 17. Attributes: 17
+     Parent object:   6  Sibling object:  18  Child object:   0
+     Property address: 0516
+         Description: "(in_obj)"
+          Properties:
+              [48] 0a 06 
+              [46] 4d 8b 
+              [41] 00 00 
+              [37] 4d 7b 
+              [35] 09 fb 
+              [21] 00 11 
+              [ 3] 09 52 
+              [ 2] 00 05 
+
+ 18. Attributes: 17
+     Parent object:   6  Sibling object:   0  Child object:   0
+     Property address: 0538
+         Description: "(out_obj)"
+          Properties:
+              [48] 0a 06 
+              [46] 4d 8c 
+              [41] 00 00 
+              [37] 4d 7b 
+              [35] 09 fb 
+              [21] 00 12 
+              [ 3] 09 59 
+              [ 2] 00 05 
+
+ 19. Attributes: None
+     Parent object:   0  Sibling object:   0  Child object:   0
+     Property address: 055a
+         Description: "(darkness object)"
+          Properties:
+              [46] 4d c6 
+              [35] 18 5c 
+              [30] 00 00 
+
+ 20. Attributes: None
+     Parent object:   1  Sibling object:   0  Child object:   0
+     Property address: 0573
+         Description: "SelfClass"
+          Properties:
+              [ 3] 09 60 
+
+ 21. Attributes: 0, 3, 16, 23
+     Parent object:   0  Sibling object:   0  Child object:   0
+     Property address: 05c3
+         Description: "(self object)"
+          Properties:
+              [48] 00 00 
+              [46] 4d c2 
+              [45] 00 64 
+              [44] ff ff 
+              [42] ff ff 
+              [41] 00 00 
+              [37] 4d cb 
+              [36] ff ff 
+              [35] 18 5f 
+              [29] 00 00 
+              [24] 00 00 
+              [ 6] ff ff 
+              [ 5] ff ff 
+              [ 4] ff ff 
+              [ 3] 09 7b 
+              [ 2] 00 14 
+              [ 1] 1c 9e 1c a7 1c b0 1c b9 1c c2 
+
+ 22. Attributes: 16
+     Parent object:   0  Sibling object:   0  Child object:   0
+     Property address: 060b
+         Description: "(Inform Parser)"
+          Properties:
+              [ 3] 09 96 
+
+ 23. Attributes: 16
+     Parent object:   0  Sibling object:   0  Child object:   0
+     Property address: 061e
+         Description: "(Inform Library)"
+          Properties:
+              [ 3] 09 9d 
+
+ 24. Attributes: 16
+     Parent object:   0  Sibling object:   0  Child object:   0
+     Property address: 0631
+         Description: "(Library Extensions)"
+          Properties:
+              [ 3] 09 b3 
+
+ 25. Attributes: None
+     Parent object:   0  Sibling object:   0  Child object:   0
+     Property address: 0646
+         Description: "(LibraryMessages)"
+          Properties:
+
+ 26. Attributes: 9
+     Parent object:   0  Sibling object:   0  Child object:  27
+     Property address: 0656
+         Description: "Fortune Booth"
+          Properties:
+              [35] 52 25 
+
+ 27. Attributes: None
+     Parent object:  26  Sibling object:   0  Child object:   0
+     Property address: 0665
+         Description: "Magic 8-Ball"
+          Properties:
+              [35] 52 31 
+              [ 4] 48 7c 
+              [ 1] 21 9c 1c 83 1f 2f 1d 76 1c 7a 1f 38 

@@ -1,0 +1,89 @@
+
+Story file is magic-8-ball.z5
+
+    **** Dictionary ****
+
+  Word separators = ".,""
+  Word count = 323, word size = 9
+
+[   1] 8         [   2] 8-ball    [   3] .         [   4] ,         
+[   5] ,a        [   6] ,b        [   7] ,c        [   8] ,d        
+[   9] ,e        [  10] a         [  11] about     [  12] above     
+[  13] adjust    [  14] again     [  15] against   [  16] all       
+[  17] amusing   [  18] an        [  19] and       [  20] another   
+[  21] answer    [  22] apart     [  23] ask       [  24] at        
+[  25] attach    [  26] attack    [  27] awake     [  28] awaken    
+[  29] ball      [  30] below     [  31] blow      [  32] both      
+[  33] bother    [  34] break     [  35] brief     [  36] burn      
+[  37] but       [  38] buy       [  39] carry     [  40] ceiling   
+[  41] check     [  42] chop      [  43] clean     [  44] clear     
+[  45] climb     [  46] close     [  47] comma,    [  48] connect   
+[  49] consult   [  50] cover     [  51] crack     [  52] cross     
+[  53] curses    [  54] cut       [  55] d         [  56] damn      
+[  57] darn      [  58] describe  [  59] destroy   [  60] die       
+[  61] dig       [  62] discard   [  63] display   [  64] disrobe   
+[  65] dive      [  66] doff      [  67] don       [  68] down      
+[  69] drag      [  70] drat      [  71] drink     [  72] drop      
+[  73] dust      [  74] e         [  75] each      [  76] east      
+[  77] eat       [  78] eight     [  79] eightball [  80] eighteen  
+[  81] eleven    [  82] embrace   [  83] empty     [  84] enter     
+[  85] every     [  86] everythin [  87] examine   [  88] except    
+[  89] exit      [  90] fasten    [  91] feed      [  92] feel      
+[  93] fifteen   [  94] fight     [  95] fill      [  96] five      
+[  97] fix       [  98] floor     [  99] fondle    [ 100] for       
+[ 101] force     [ 102] former    [ 103] four      [ 104] fourteen  
+[ 105] from      [ 106] fuck      [ 107] full      [ 108] fullscore 
+[ 109] g         [ 110] get       [ 111] give      [ 112] go        
+[ 113] grope     [ 114] ground    [ 115] hear      [ 116] her       
+[ 117] him       [ 118] his       [ 119] hit       [ 120] hold      
+[ 121] hop       [ 122] hug       [ 123] i         [ 124] in        
+[ 125] insert    [ 126] inside    [ 127] into      [ 128] inv       
+[ 129] inventory [ 130] it        [ 131] its       [ 132] jemmy     
+[ 133] jump      [ 134] kill      [ 135] kiss      [ 136] l         
+[ 137] leave     [ 138] lever     [ 139] lie       [ 140] light     
+[ 141] lighted   [ 142] listen    [ 143] lit       [ 144] lock      
+[ 145] long      [ 146] look      [ 147] magic     [ 148] me        
+[ 149] move      [ 150] murder    [ 151] my        [ 152] myself    
+[ 153] n         [ 154] nap       [ 155] ne        [ 156] nine      
+[ 157] nineteen  [ 158] no        [ 159] normal    [ 160] north     
+[ 161] northeast [ 162] northwest [ 163] noscript  [ 164] notify    
+[ 165] nouns     [ 166] nw        [ 167] o         [ 168] objects   
+[ 169] of        [ 170] off       [ 171] offer     [ 172] on        
+[ 173] one       [ 174] onto      [ 175] oops      [ 176] open      
+[ 177] other     [ 178] out       [ 179] outside   [ 180] over      
+[ 181] pay       [ 182] peel      [ 183] pick      [ 184] places    
+[ 185] polish    [ 186] pray      [ 187] present   [ 188] press     
+[ 189] prise     [ 190] prize     [ 191] pronouns  [ 192] prune     
+[ 193] pry       [ 194] pull      [ 195] punch     [ 196] purchase  
+[ 197] push      [ 198] put       [ 199] q         [ 200] quit      
+[ 201] read      [ 202] recording [ 203] remove    [ 204] replay    
+[ 205] restart   [ 206] restore   [ 207] roll      [ 208] rotate    
+[ 209] rub       [ 210] run       [ 211] s         [ 212] save      
+[ 213] say       [ 214] scale     [ 215] score     [ 216] screw     
+[ 217] script    [ 218] scrub     [ 219] se        [ 220] search    
+[ 221] self      [ 222] set       [ 223] seven     [ 224] seventeen 
+[ 225] shake     [ 226] shed      [ 227] shift     [ 228] shine     
+[ 229] shit      [ 230] short     [ 231] shout     [ 232] show      
+[ 233] shut      [ 234] sing      [ 235] sip       [ 236] sit       
+[ 237] six       [ 238] sixteen   [ 239] skip      [ 240] sky       
+[ 241] sleep     [ 242] slice     [ 243] smash     [ 244] smell     
+[ 245] sniff     [ 246] sod       [ 247] some      [ 248] sorry     
+[ 249] south     [ 250] southeast [ 251] southwest [ 252] speak     
+[ 253] squash    [ 254] squeeze   [ 255] stand     [ 256] superbrie 
+[ 257] sw        [ 258] swallow   [ 259] sweep     [ 260] swim      
+[ 261] swing     [ 262] switch    [ 263] take      [ 264] tall      
+[ 265] taste     [ 266] tell      [ 267] ten       [ 268] that      
+[ 269] the       [ 270] their     [ 271] them      [ 272] then      
+[ 273] these     [ 274] think     [ 275] thirteen  [ 276] this      
+[ 277] those     [ 278] three     [ 279] through   [ 280] throw     
+[ 281] thump     [ 282] tie       [ 283] to        [ 284] top       
+[ 285] torture   [ 286] touch     [ 287] transcrip [ 288] transfer  
+[ 289] turn      [ 290] twelve    [ 291] twenty    [ 292] twist     
+[ 293] two       [ 294] u         [ 295] uncover   [ 296] under     
+[ 297] undo      [ 298] unlit     [ 299] unlock    [ 300] unscrew   
+[ 301] unscript  [ 302] unwrap    [ 303] up        [ 304] upon      
+[ 305] verbose   [ 306] verify    [ 307] version   [ 308] w         
+[ 309] wait      [ 310] wake      [ 311] walk      [ 312] watch     
+[ 313] wave      [ 314] wear      [ 315] west      [ 316] wide      
+[ 317] wipe      [ 318] with      [ 319] wreck     [ 320] x         
+[ 321] y         [ 322] yes       [ 323] z         

@@ -1,0 +1,9 @@
+! ============================================================================
+!  MINIMAL  —  Frotzlens test fixture
+! ----------------------------------------------------------------------------
+!  The smallest valid story: an empty Main and no library, so no veneer
+!  routines beyond what the compiler always emits. Copyright Christopher
+!  Schweda; MIT, as part of @frotzinc/zcode's tests.
+! ============================================================================
+
+[ Main; @quit; ];

@@ -224,3 +224,18 @@ Ztools has no license, so nothing of it enters the repo (decision recorded in `0
 7. Corrupt-file tests; a property-based fuzz pass (random truncations and byte flips of `dark-cellar.z5`: `parseStory` never throws).
 
 **Checkpoint:** the exit criterion above, then review.
+
+---
+
+## 8. As built (2026-11-06)
+
+**Exit criterion met.** `frotzlens --objects dark-cellar.z5` is byte-identical to `infodump -o dark-cellar.z5` (pinned in `packages/cli/test/cli.test.ts`, running the real binary). The same holds for `-i -a -o -t -d` on all 15 fixtures (75 golden files), for combined options (`-io`, `-oti`, `-iaotd`), and for several files in one run. 186 tests in `@frotzinc/zcode`, 18 in the CLI.
+
+**Changes from the plan above:**
+
+- **v3 and v4 fixtures are the PunyInform port.** The Standard Library 6.12 targets v5+ only: v3 runs out of properties and call arguments, v4 lacks `tokenise`, `save_undo` and `check_arg_count`. So the set is `puny-dark-cellar` as v3, v4 and v5, and `dark-cellar` as v5 and v8.
+- **`-m` (memory map), `-g` (grammar) and infodump's full `-f` move to Phase 2.** infodump's map labels Inform's grammar, action and identifier tables, which need the grammar decoder. Until then `frotzlens -f` is `-iaotd`, and its help says so.
+- **The formatters were written from infodump's output, not its source** (clean-room). What the fixtures never show was observed black-box: one header byte or table patched at a time in a copy of a fixture, and infodump's output recorded. `packages/zcode/test/format.test.ts` pins each case: every flag bit's name, every terminating key's, the custom alphabet layout, header extension lengths 0–6, and when the "Inform Version" line appears.
+- **One deliberate difference:** for v3 flags2 bits 5–8, infodump's `Unknown (0x…)` shows the next-lower bit's mask (bit 6 as `0x0020`). We print the bit's own.
+- **infodump behaviours worth knowing** (all reproduced): output wraps at 79 columns by breaking at the last space and dropping it, so a property longer than 20 bytes continues at column 0; the dictionary prints as many `[nnnn] word` cells per row as fit in 80 columns, padded to the entry length (which infodump calls "word size"); with flags1 bit 0 set, infodump refuses the file ("wrong game or version"), so that case has no reference output.
+- **CI builds before it typechecks**, since the CLI typechecks against `@frotzinc/zcode`'s `dist/`.

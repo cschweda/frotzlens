@@ -1,0 +1,56 @@
+
+Story file is puny-dark-cellar.z5
+
+    **** Dictionary ****
+
+  Word separators = ".,""
+  Word count = 192, word size = 9
+
+[   1] .         [   2] ,         [   3] a         [   4] about     
+[   5] again     [   6] against   [   7] all       [   8] an        
+[   9] and       [  10] answer    [  11] ask       [  12] at        
+[  13] attach    [  14] attack    [  15] brass     [  16] break     
+[  17] brief     [  18] but       [  19] carry     [  20] chop      
+[  21] clean     [  22] clear     [  23] climb     [  24] close     
+[  25] comma,    [  26] cover     [  27] crack     [  28] cut       
+[  29] d         [  30] destroy   [  31] dig       [  32] discard   
+[  33] display   [  34] disrobe   [  35] doff      [  36] down      
+[  37] drag      [  38] drink     [  39] drop      [  40] dust      
+[  41] e         [  42] east      [  43] eat       [  44] enter     
+[  45] examine   [  46] except    [  47] exit      [  48] fasten    
+[  49] feed      [  50] feel      [  51] fight     [  52] fill      
+[  53] fix       [  54] floor     [  55] fondle    [  56] for       
+[  57] from      [  58] g         [  59] get       [  60] give      
+[  61] go        [  62] grope     [  63] ground    [  64] her       
+[  65] him       [  66] hit       [  67] hold      [  68] i         
+[  69] in        [  70] insert    [  71] inside    [  72] into      
+[  73] inventory [  74] it        [  75] jump      [  76] key       
+[  77] kill      [  78] l         [  79] lamp      [  80] lantern   
+[  81] leave     [  82] lie       [  83] light     [  84] listen    
+[  85] lock      [  86] long      [  87] look      [  88] me        
+[  89] move      [  90] murder    [  91] myself    [  92] n         
+[  93] no        [  94] normal    [  95] north     [  96] notify    
+[  97] of        [  98] off       [  99] offer     [ 100] old       
+[ 101] on        [ 102] one       [ 103] onto      [ 104] oops      
+[ 105] open      [ 106] out       [ 107] over      [ 108] pay       
+[ 109] pick      [ 110] place     [ 111] polish    [ 112] present   
+[ 113] press     [ 114] prune     [ 115] pull      [ 116] punch     
+[ 117] push      [ 118] put       [ 119] q         [ 120] quit      
+[ 121] read      [ 122] remove    [ 123] restart   [ 124] restore   
+[ 125] rotate    [ 126] rub       [ 127] rusty     [ 128] s         
+[ 129] save      [ 130] say       [ 131] scale     [ 132] score     
+[ 133] scream    [ 134] screw     [ 135] scrub     [ 136] search    
+[ 137] self      [ 138] shed      [ 139] shift     [ 140] shine     
+[ 141] short     [ 142] shout     [ 143] show      [ 144] shut      
+[ 145] sip       [ 146] sit       [ 147] slice     [ 148] smash     
+[ 149] smell     [ 150] sniff     [ 151] south     [ 152] speak     
+[ 153] stand     [ 154] superbrie [ 155] swallow   [ 156] sweep     
+[ 157] switch    [ 158] take      [ 159] tell      [ 160] that      
+[ 161] the       [ 162] them      [ 163] then      [ 164] throw     
+[ 165] thump     [ 166] tie       [ 167] to        [ 168] top       
+[ 169] torture   [ 170] touch     [ 171] turn      [ 172] twist     
+[ 173] u         [ 174] uncover   [ 175] unlock    [ 176] unscrew   
+[ 177] unwrap    [ 178] up        [ 179] verbose   [ 180] version   
+[ 181] w         [ 182] wait      [ 183] wear      [ 184] west      
+[ 185] wipe      [ 186] with      [ 187] wreck     [ 188] x         
+[ 189] y         [ 190] yell      [ 191] yes       [ 192] z         

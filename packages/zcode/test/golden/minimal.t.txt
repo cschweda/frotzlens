@@ -1,0 +1,9 @@
+
+Story file is minimal.z5
+
+    **** Object tree ****
+
+[  1] "Class"
+[  2] "Object"
+[  3] "Routine"
+[  4] "String"

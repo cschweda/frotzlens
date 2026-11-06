@@ -1,19 +1,60 @@
 # Frotzlens
 
-A browser-based disassembler and inspector for Z-machine story files. Drop a `.z3`, `.z4`, `.z5`, `.z8`, or `.zblorb` into a tab and see what's inside: header, memory map, object tree, dictionary and grammar, every routine as cross-referenced disassembly, and every string. Everything runs client-side; nothing is uploaded.
+A browser-based disassembler and inspector for Z-machine story files. Drop a `.z3`, `.z4`, `.z5`, `.z8` or `.zblorb` into a tab and see what's inside: the header, the memory map, the object tree, the dictionary and grammar, every routine as cross-referenced disassembly, and every string. Everything runs in your browser; nothing is uploaded.
 
-**Status:** Phase 0 — extracting the shared Frotz, Inc. libraries. See [`docs/`](docs/).
+It's the browser-native successor to Ztools' `txd` and `infodump`, with an Inform 6 focus, and the companion to [Frotzsmith](https://frotzsmith.com), the browser IDE for Inform 6 and ZIL.
 
-| Package | License | |
+## Status
+
+| Phase | | |
 |---|---|---|
-| `@frotzinc/zcode` | MIT | Parser, disassembler, symbol loader |
-| `@frotzinc/worker-rpc` | MIT | Long-lived Web Worker request/response client |
-| `@frotzinc/nuxt-base` | MIT | Shared Frotz, Inc. Nuxt layer and Netlify tools |
-| `@frotzinc/inform6-wasm` | MIT (wrapper) | Inform 6.44 in WebAssembly, with the Standard Library and PunyInform |
-| `frotzlens` | GPL-3.0-or-later | CLI: `npx frotzlens game.z5` |
-| `apps/web` | GPL-3.0-or-later | frotzlens.com |
+| 0 | Shared libraries extracted from Frotzsmith | **Done.** `@frotzinc/worker-rpc`, `nuxt-base` and `inform6-wasm` 0.1.0 on npm; Frotzsmith uses them. |
+| 1 | Core parser and CLI | **Done.** Header, memory map, text, dictionary, objects and globals for v3, v4, v5 and v8. The CLI's output matches `infodump` byte for byte on every fixture. |
+| 2 | Disassembler: routines, strings, grammar, cross-references | Next |
+| 3 | Web app shell and Overview dashboard | |
+| 4 | Data views | |
+| 5 | Debug symbols, Inform fingerprinting, Blorb, polish; frotzlens.com 0.1.0 | |
 
-See [`LICENSING.md`](LICENSING.md).
+The plan and its decisions are in [`docs/`](docs/), starting with [`00-master-design.md`](docs/00-master-design.md).
+
+## Packages
+
+| Package | License | | npm |
+|---|---|---|---|
+| [`@frotzinc/zcode`](packages/zcode) | MIT | The parser: `Uint8Array` in, typed model out, plus infodump-format text | not yet (Phase 5) |
+| [`frotzlens`](packages/cli) | GPL-3.0-or-later | The CLI: `frotzlens --objects game.z5` | 0.0.1 placeholder; the CLI ships in Phase 5 |
+| [`@frotzinc/worker-rpc`](packages/worker-rpc) | MIT | Long-lived Web Worker request/response client | 0.1.0 |
+| [`@frotzinc/nuxt-base`](packages/nuxt-base) | MIT | Shared Frotz, Inc. Nuxt layer and Netlify tools | 0.1.0 |
+| [`@frotzinc/inform6-wasm`](packages/inform6-wasm) | MIT (wrapper) | Inform 6.44 in WebAssembly, with the Standard Library and PunyInform | 0.1.0 |
+| `apps/web` | GPL-3.0-or-later | frotzlens.com (Phase 3) | |
+
+Apps are GPL; libraries are MIT. See [`LICENSING.md`](LICENSING.md).
+
+## Try the CLI
+
+```sh
+pnpm install && pnpm build
+node packages/cli/dist/bin.js --objects path/to/game.z5
+```
+
+It takes `infodump`'s options (`-i -a -o -t -d -f -w`), so scripts written for `infodump` keep working, and `--json` prints the parsed model instead. See [`packages/cli`](packages/cli).
+
+## Development
+
+Node 22 (`.nvmrc`) and pnpm 10 (via corepack: `corepack enable`).
+
+```sh
+pnpm install
+pnpm build        # build first: packages test against their dependencies' dist/
+pnpm typecheck
+pnpm test
+```
+
+**Test fixtures** are compiled at test time from Inform 6 sources in [`packages/zcode/test/fixtures/src`](packages/zcode/test/fixtures/src) by `@frotzinc/inform6-wasm`, with a fixed serial number so every build is byte-for-byte the same. No story files are checked in.
+
+**Golden files.** `packages/zcode/test/golden` holds `infodump`'s output for each fixture, and the tests require ours to match it exactly. Ztools has no license, so none of it is in this repository. To regenerate the files, build `infodump` yourself outside the repo and run `packages/zcode/scripts/golden.sh <path-to-infodump>`. [`PROVENANCE.md`](packages/zcode/test/golden/PROVENANCE.md) has the exact build command and the archive's checksum.
+
+CI (`.github/workflows/ci.yml`) runs install, build, typecheck and test on every push to `main`, every pull request and every release tag.
 
 ## Releasing a library
 
