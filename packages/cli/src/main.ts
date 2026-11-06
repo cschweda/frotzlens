@@ -35,21 +35,18 @@ ${SECTIONS.map(s => `  -${s.short}, --${s.long.padEnd(15)} ${s.help}`).join('\n'
   -f, --all             all of the above (infodump's -f also prints the memory
                         map and grammar; those arrive in a later release)
   -w, --width <n>       wrap lines at n columns (default 79; 0 = never)
-      --json            the parsed model as JSON instead
+      --json            the parsed model as JSON instead (an array, with
+                        each one's "file", for several files)
   -h, --help            print this
   -v, --version         print the version
 
 Everything runs locally; nothing is uploaded. https://frotzlens.com
 `
 
-/** JSON for the model: bytes as hex, the story's own bytes left out. */
-function toJson(story: StoryFile): string {
+/** The model for JSON: everything but the story's own bytes. */
+function forJson(story: StoryFile): Omit<StoryFile, 'bytes'> {
   const { bytes: _bytes, ...rest } = story
-  return `${JSON.stringify(
-    rest,
-    (_k, v: unknown) => (v instanceof Uint8Array ? Buffer.from(v).toString('hex') : v),
-    2,
-  )}\n`
+  return rest
 }
 
 /** Runs the CLI; returns the exit code (0 ok, 1 a file couldn't be read or parsed, 2 usage). */
@@ -78,8 +75,9 @@ export function main(argv: string[], io: Io): number {
       } else if (arg === '-f' || arg === '--all') {
         for (const s of SECTIONS) wanted.add(s.name)
       } else if (arg === '-w' || arg === '--width') {
-        width = Number(value())
-        if (!Number.isInteger(width) || width < 0) throw new UsageError(`--width must be a whole number, 0 or more`)
+        const raw = value()
+        width = Number(raw)
+        if (!/^\d+$/.test(raw.trim()) || !Number.isInteger(width)) throw new UsageError(`--width must be a whole number, 0 or more`)
       } else if (arg.startsWith('--')) {
         const s = SECTIONS.find(x => `--${x.long}` === arg)
         if (!s) throw new UsageError(`unknown option ${arg}`)
@@ -108,6 +106,7 @@ export function main(argv: string[], io: Io): number {
   if (!wanted.size) wanted.add('header')
 
   let status = 0
+  const models: (Omit<StoryFile, 'bytes'> & { file: string })[] = []
   for (const file of files) {
     let bytes: Uint8Array
     try {
@@ -121,15 +120,26 @@ export function main(argv: string[], io: Io): number {
     for (const err of story.errors) io.stderr(`frotzlens: ${file}: ${err.severity}: ${err.message}\n`)
     if (story.errors.some(e => e.severity === 'error')) status = 1
     if (json) {
-      io.stdout(toJson(story))
+      models.push({ file, ...forJson(story) })
       continue
     }
+    // Nothing to show for a file that isn't a story (a Blorb, a bad or missing header); the
+    // errors above say why. A version 1, 2, 6 or 7 file still has a real header to show.
+    const notAStory = story.container === 'blorb' || story.bytes.length < 64 || story.errors.some(e => e.code === 'bad-header')
+    if (notAStory) continue
     let continuation = false
     for (const s of SECTIONS) {
       if (!wanted.has(s.name)) continue
       io.stdout(s.format(story, { fileName: file, width, continuation }))
       continuation = true
     }
+  }
+  // One JSON document: the model for one file, an array of them (each with its `file`) for several.
+  // The shape follows what was asked for: one file named → its model; several → an array, even
+  // if some couldn't be read (those are reported on stderr and left out).
+  if (json && (files.length > 1 || models.length)) {
+    const out = files.length === 1 ? (({ file: _file, ...m }) => m)(models[0]!) : models
+    io.stdout(`${JSON.stringify(out, null, 2)}\n`)
   }
   return status
 }

@@ -21,11 +21,10 @@ describe('the model, on dark-cellar.z5', () => {
     expect(e.id).toBe(`dict:${e.address.toString(16).padStart(4, '0')}`)
   })
 
-  it('finds the rooms and the lantern by name, with the tree linked', () => {
-    const byName = (n: string) => s.objects.objects.find(o => o.shortName.text === n)
-    const lantern = byName('brass lantern') ?? byName('lantern')
-    expect(lantern, s.objects.objects.map(o => o.shortName.text).join(', ')).toBeDefined()
-    expect(lantern!.parent).toBeGreaterThan(0)
+  it('finds the lantern by name, inside the room it starts in', () => {
+    const lantern = s.objects.objects.find(o => o.shortName.text === 'brass lantern')!
+    expect(lantern.number).toBe(27)
+    expect(s.objects.objects[lantern.parent - 1]!.shortName.text).toBe('Hall')
   })
 
   it('decodes Inform dictionary flags', () => {
@@ -53,7 +52,12 @@ describe('the model, on dark-cellar.z5', () => {
   })
 
   it('survives structured clone (the worker boundary) unchanged', () => {
-    expect(structuredClone(s)).toEqual(s)
+    expect(structuredClone(s)).toStrictEqual(s)
+  })
+
+  it('is plain JSON apart from the story bytes', () => {
+    const { bytes: _bytes, ...rest } = s
+    expect(JSON.parse(JSON.stringify(rest))).toStrictEqual(rest)
   })
 })
 
@@ -149,7 +153,8 @@ describe('bad input never throws (error policy)', () => {
 
   it('fuzz: 400 random truncations and byte flips of every fixture never throw', () => {
     let seed = 12345
-    const rand = () => ((seed = (seed * 1103515245 + 12345) & 0x7fffffff) / 0x7fffffff)
+    // A 32-bit LCG, exact with Math.imul (a plain multiply loses the low bits past 2^53).
+    const rand = () => ((seed = (Math.imul(seed, 1103515245) + 12345) & 0x7fffffff) / 0x7fffffff)
     for (const file of storyFiles()) {
       const story = readStory(file)
       for (let i = 0; i < 400 / storyFiles().length; i++) {

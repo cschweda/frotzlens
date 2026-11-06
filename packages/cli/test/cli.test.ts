@@ -1,5 +1,7 @@
 import { spawnSync } from 'node:child_process'
-import { readFileSync } from 'node:fs'
+import { mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs'
+import { tmpdir } from 'node:os'
+import { join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { describe, expect, it } from 'vitest'
 import { main, USAGE, type Io } from '../src/main.js'
@@ -19,11 +21,12 @@ function run(argv: string[]) {
   }
   return { code: main(argv, io), out, err }
 }
-const golden = (name: string, opt: string) => readFileSync(`${GOLDEN}${name}.${opt}.txt`, 'latin1')
+// The golden files are ASCII; the CLI writes UTF-8 (a deliberate difference only for non-ASCII text).
+const golden = (name: string, opt: string) => readFileSync(`${GOLDEN}${name}.${opt}.txt`, 'utf8')
 
 describe('frotzlens (the Phase 1 exit criterion)', () => {
   it('`npx frotzlens --objects dark-cellar.z5` prints exactly what `infodump -o` does', () => {
-    const r = spawnSync(process.execPath, [BIN, '--objects', 'dark-cellar.z5'], { cwd: FIXTURES, encoding: 'latin1' })
+    const r = spawnSync(process.execPath, [BIN, '--objects', 'dark-cellar.z5'], { cwd: FIXTURES, encoding: 'utf8' })
     expect(r.status).toBe(0)
     expect(r.stderr).toBe('')
     expect(r.stdout).toBe(golden('dark-cellar', 'o'))
@@ -55,13 +58,34 @@ describe('options', () => {
     expect(unwrapped.split('\n').length).toBe(wrapped.split('\n').length - 1)
   })
 
-  it('--json prints the model, bytes as hex and without the story itself', () => {
-    const r = run(['--json', 'minimal.z5'])
+  it('-f and --all are -iaotd', () => {
+    const all = run(['-iaotd', 'hermit.z5']).out
+    expect(run(['-f', 'hermit.z5']).out).toBe(all)
+    expect(run(['--all', 'hermit.z5']).out).toBe(all)
+  })
+
+  it('--json prints the model as plain JSON, without the story\'s own bytes', () => {
+    const r = run(['--json', 'dark-cellar.z5'])
     const model = JSON.parse(r.out)
     expect(model.bytes).toBeUndefined()
+    expect(model.file).toBeUndefined()
     expect(model.header.version).toBe(5)
-    expect(model.objects.objects).toHaveLength(4)
+    expect(model.objects.objects).toHaveLength(29)
     expect(model.errors).toEqual([])
+    // Property data is a plain array of byte values.
+    const data = model.objects.objects[6].properties[0].data
+    expect(Array.isArray(data) && data.every((b: unknown) => Number.isInteger(b))).toBe(true)
+  })
+
+  it('--json with several files is one JSON array, each with its file', () => {
+    const models = JSON.parse(run(['--json', 'minimal.z5', 'demo.z5']).out)
+    expect(models.map((m: { file: string }) => m.file)).toEqual(['minimal.z5', 'demo.z5'])
+  })
+
+  it('--json with several files is an array even when only one could be read', () => {
+    const r = run(['--json', 'minimal.z5', 'missing.z5'])
+    expect(r.code).toBe(1)
+    expect(JSON.parse(r.out).map((m: { file: string }) => m.file)).toEqual(['minimal.z5'])
   })
 })
 
@@ -76,6 +100,30 @@ describe('exit codes and messages', () => {
     expect(run(['--nope', 'x.z5']).code).toBe(2)
     expect(run(['-q', 'x.z5']).err).toContain('unknown option -q')
     expect(run(['-w', 'wide', 'x.z5']).code).toBe(2)
+  })
+
+  it('a blank --width is a usage error, not "never wrap"', () => {
+    expect(run(['-w', '', 'demo.z5']).code).toBe(2)
+    expect(run(['-w', ' ', 'demo.z5']).code).toBe(2)
+  })
+
+  it('a Blorb file: the error, and no made-up header', () => {
+    const dir = mkdtempSync(join(tmpdir(), 'frotzlens-cli-'))
+    try {
+      writeFileSync(join(dir, 'game.zblorb'), Buffer.concat([Buffer.from('FORM\0\0\0\x38IFRS'), Buffer.alloc(56)]))
+      const r = spawnSync(process.execPath, [BIN, 'game.zblorb'], { cwd: dir, encoding: 'utf8' })
+      expect(r.status).toBe(1)
+      expect(r.stdout).toBe('')
+      expect(r.stderr).toContain('Blorb')
+    } finally {
+      rmSync(dir, { recursive: true, force: true })
+    }
+  })
+
+  it('piped into a reader that stops early, it exits quietly', () => {
+    const r = spawnSync('sh', ['-c', `"${process.execPath}" "${BIN}" -f architect-legacy.z5 | head -1`], { cwd: FIXTURES, encoding: 'utf8' })
+    expect(r.stderr).toBe('')
+    expect(r.stdout).toBe('\n')
   })
 
   it('an unreadable file exits 1 and says so', () => {

@@ -6,22 +6,23 @@
  */
 export class Writer {
   private out: string[] = []
-  private line = ''
+  /** The current line, one entry per character (code point), so a cut never splits a surrogate pair. */
+  private line: string[] = []
 
   constructor(private readonly width = 79) {}
 
   write(text: string): this {
     for (const ch of text) {
       if (ch === '\n') {
-        this.out.push(this.line, '\n')
-        this.line = ''
+        this.out.push(this.line.join(''), '\n')
+        this.line = []
         continue
       }
-      this.line += ch
+      this.line.push(ch)
       if (this.width && this.line.length > this.width) {
         const space = this.line.lastIndexOf(' ')
         const cut = space >= 0 ? space : this.width
-        this.out.push(this.line.slice(0, cut), '\n')
+        this.out.push(this.line.slice(0, cut).join(''), '\n')
         this.line = this.line.slice(space >= 0 ? cut + 1 : cut)
       }
     }
@@ -29,7 +30,7 @@ export class Writer {
   }
 
   toString(): string {
-    return this.out.join('') + this.line
+    return this.out.join('') + this.line.join('')
   }
 }
 
@@ -44,7 +45,8 @@ export const dec = (n: number, width: number): string => String(n).padStart(widt
  * the "Story file is" line.
  */
 export function banner(w: Writer, opts: FormatOptions, title: string): void {
-  if (!opts.continuation) w.write(`\nStory file is ${opts.fileName}\n`)
+  // The name comes from the caller (a path, or a dropped file's name): no control characters.
+  if (!opts.continuation) w.write(`\nStory file is ${opts.fileName.replace(/[\p{Cc}\p{Cf}\p{Zl}\p{Zp}]/gu, '?')}\n`)
   w.write(`\n    **** ${title} ****\n\n`)
 }
 

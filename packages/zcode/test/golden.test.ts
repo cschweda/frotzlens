@@ -11,6 +11,8 @@
  *     infodump prints them as they are; outside printable ASCII we print '?',
  *     and Unicode-table mappings to control or bidi characters become '?', so
  *     a story can't put a terminal escape in our output (security.test.ts).
+ *   - A dictionary word whose last word lacks the end bit: infodump reads on
+ *     past the entry until it finds one; we read the entry's 4 or 6 bytes (§13.3).
  */
 import { existsSync, readFileSync } from 'node:fs'
 import { describe, expect, it } from 'vitest'

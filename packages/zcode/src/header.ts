@@ -5,20 +5,22 @@ import type { Header, ParseError, Version } from './types.js'
 /** The header is the first 64 bytes (§11). */
 export const HEADER_SIZE = 0x40
 
+/** Bytes as text, with anything outside printable ASCII (0x20–0x7E) as '?'. */
+export function printableAscii(b: ArrayLike<number>): string {
+  let s = ''
+  for (let i = 0; i < b.length; i++) s += b[i]! >= 0x20 && b[i]! <= 0x7e ? String.fromCharCode(b[i]!) : '?'
+  return s
+}
+
 /**
  * Parse the header (§11). Assumes at least 64 bytes; the caller checks that.
  * Validation problems are recorded, never thrown.
  */
 export function parseHeader(bytes: Bytes, errors: ParseError[]): Header {
-  const version = bytes.byte(0x00) as Version
-  const scale = version >= 1 && version <= 8 ? fileLengthScale(version) : 2
-  const fileLength = bytes.word(0x1a) * scale
-
-  // §11.1.6: the checksum is the unsigned sum of bytes 0x40 up to the file
-  // length, mod 0x10000. A length of 0 (very old files) means "not given".
-  let sum = 0
-  const end = Math.min(fileLength || bytes.size, bytes.size)
-  for (let a = HEADER_SIZE; a < end; a++) sum = (sum + bytes.data[a]!) & 0xffff
+  const version = bytes.byte(0x00)
+  const scale = version >= 1 && version <= 8 ? fileLengthScale(version as Version) : 2
+  const stored = bytes.word(0x1a)
+  const fileLength = stored * scale
   const checksum = bytes.word(0x1c)
 
   const h: Header = {
@@ -36,7 +38,32 @@ export function parseHeader(bytes: Bytes, errors: ParseError[]): Header {
     abbreviations: bytes.word(0x18),
     fileLength,
     checksum,
-    checksumOk: sum === checksum,
+    checksumOk: false,
+  }
+
+  // §11.1.6: the checksum is the unsigned sum of bytes 0x40 up to the file
+  // length, mod 0x10000. A length of 0 (some very old files) means "not given":
+  // the whole file is summed. A truncated file can't be checked at all.
+  if (fileLength && fileLength < HEADER_SIZE) {
+    errors.push({
+      code: 'bad-header',
+      severity: 'error',
+      message: `The header says the file is ${fileLength} bytes, shorter than the 64-byte header itself.`,
+    })
+  } else if (fileLength > bytes.size) {
+    errors.push({ code: 'truncated', severity: 'error', message: `The header says the file is ${fileLength} bytes; it is ${bytes.size}.` })
+  } else {
+    let sum = 0
+    const end = fileLength || bytes.size
+    for (let a = HEADER_SIZE; a < end; a++) sum = (sum + bytes.data[a]!) & 0xffff
+    h.checksumOk = sum === checksum
+    if (!h.checksumOk) {
+      errors.push({
+        code: 'checksum',
+        severity: 'warning',
+        message: `The header checksum is ${checksum.toString(16)}, but the file sums to ${sum.toString(16)}.`,
+      })
+    }
   }
 
   if (version === 6 || version === 7) {
@@ -46,7 +73,7 @@ export function parseHeader(bytes: Bytes, errors: ParseError[]): Header {
   if (version >= 5) {
     h.terminatingChars = bytes.word(0x2e)
     h.alphabetTable = bytes.word(0x34)
-    if (h.terminatingChars) h.terminatingKeys = readTerminatingKeys(bytes, h.terminatingChars)
+    if (h.terminatingChars) h.terminatingKeys = readTerminatingKeys(bytes, h.terminatingChars, errors)
   }
 
   // The header extension table (§11.1.7): a length word, then that many words.
@@ -54,10 +81,18 @@ export function parseHeader(bytes: Bytes, errors: ParseError[]): Header {
   const ext = bytes.word(0x36)
   if (ext) {
     if (bytes.has(ext, 2)) {
-      const n = bytes.word(ext)
+      const declaredLength = bytes.word(ext)
       const words: number[] = []
-      for (let i = 1; i <= n && bytes.has(ext + 2 * i, 2); i++) words.push(bytes.word(ext + 2 * i))
-      h.headerExtension = { address: ext, words }
+      for (let i = 1; i <= declaredLength && bytes.has(ext + 2 * i, 2); i++) words.push(bytes.word(ext + 2 * i))
+      if (words.length < declaredLength) {
+        errors.push({
+          code: 'bad-address',
+          severity: 'error',
+          address: ext,
+          message: `The header extension table says it has ${declaredLength} words; only ${words.length} are in the file.`,
+        })
+      }
+      h.headerExtension = { address: ext, declaredLength, words }
       if (words[2]) h.headerExtension.unicodeTable = words[2]
     } else {
       errors.push({ code: 'bad-address', severity: 'error', address: ext, message: 'The header extension table is outside the file.' })
@@ -69,33 +104,26 @@ export function parseHeader(bytes: Bytes, errors: ParseError[]): Header {
   const v = String.fromCharCode(...bytes.slice(0x3c, 4))
   if (/^\d\.\d\d$/.test(v)) h.inform = { compilerVersion: v }
 
-  if (!h.checksumOk) {
-    errors.push({
-      code: 'checksum',
-      severity: 'warning',
-      message: `The header checksum is ${checksum.toString(16)}, but the file sums to ${sum.toString(16)}.`,
-    })
-  }
-  if (fileLength > bytes.size) {
-    errors.push({
-      code: 'truncated',
-      severity: 'error',
-      message: `The header says the file is ${fileLength} bytes; it is ${bytes.size}.`,
-    })
-  }
   return h
 }
 
-/** Bytes as text, with anything outside printable ASCII (0x20–0x7E) as '?'. */
-export function printableAscii(b: ArrayLike<number>): string {
-  let s = ''
-  for (let i = 0; i < b.length; i++) s += b[i]! >= 0x20 && b[i]! <= 0x7e ? String.fromCharCode(b[i]!) : '?'
-  return s
-}
-
-/** The terminating characters table (v5+, header 0x2E; §10.5.2.1): ZSCII codes up to a 0. */
-function readTerminatingKeys(bytes: Bytes, address: number): number[] {
+/**
+ * The terminating characters table (v5+, header 0x2E; §10.5.2.1): ZSCII
+ * codes, ended by a 0. At most 256 are read.
+ */
+function readTerminatingKeys(bytes: Bytes, address: number, errors: ParseError[]): number[] {
   const keys: number[] = []
-  for (let a = address; bytes.has(a) && bytes.byte(a) !== 0 && keys.length < 256; a++) keys.push(bytes.byte(a))
+  let a = address
+  for (; bytes.has(a) && bytes.byte(a) !== 0 && keys.length < 256; a++) keys.push(bytes.byte(a))
+  if (!bytes.has(a) || (keys.length === 256 && bytes.byte(a) !== 0)) {
+    errors.push({
+      code: 'bad-address',
+      severity: 'error',
+      address,
+      message: bytes.has(address)
+        ? 'The terminating characters table has no 0 at its end.'
+        : 'The terminating characters table is outside the file.',
+    })
+  }
   return keys
 }

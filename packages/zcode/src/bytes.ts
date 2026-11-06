@@ -43,19 +43,26 @@ export function hex(n: number, width = 4): string {
   return n.toString(16).padStart(width, '0')
 }
 
+/** A table that is readable but makes no sense (a property list with no end, a bad entry length). */
+export class Malformed extends Error {
+  constructor(message: string, readonly address?: number) {
+    super(message)
+  }
+}
+
 /**
- * Run one table's parse; an out-of-range read becomes a ParseError (with the
- * table's error code) and the fallback, never a throw past the caller.
+ * Run one table's parse. A bad file — a read outside it (OutOfBounds) or a
+ * table that makes no sense (Malformed) — becomes a ParseError with the
+ * table's code, and the fallback comes back. Anything else is a bug in this
+ * package: it is rethrown, so it can't hide as a bad-file error, and
+ * parseStory reports it as an `internal` error.
  */
 export function guarded<T>(errors: ParseError[], code: ParseError['code'], what: string, fallback: T, run: () => T): T {
   try {
     return run()
   } catch (e) {
-    if (e instanceof OutOfBounds) {
-      errors.push({ code, severity: 'error', address: e.address, message: `${what}: ${e.message}` })
-      return fallback
-    }
-    errors.push({ code, severity: 'error', message: `${what}: ${String(e)}` })
+    if (!(e instanceof OutOfBounds || e instanceof Malformed)) throw e
+    errors.push({ code, severity: 'error', ...(e.address !== undefined ? { address: e.address } : {}), message: `${what}: ${e.message}` })
     return fallback
   }
 }

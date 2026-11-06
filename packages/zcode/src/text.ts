@@ -83,23 +83,19 @@ export function readUnicodeTable(bytes: Bytes, address: number): number[] {
 }
 
 /**
- * True for a code point that must never reach a terminal or a page as-is: C0
- * and C1 controls (ESC starts a terminal escape sequence) and the Unicode
- * bidirectional and invisible formatting characters (which can reorder or hide
- * text). A story's Unicode translation table may map to any code point.
+ * Characters that must never reach a terminal or a page as-is (Unicode general
+ * categories): Cc, controls (ESC starts a terminal escape sequence); Cf,
+ * invisible formatting (bidi overrides and isolates, zero-width characters, the
+ * soft hyphen, the BOM, tag characters); Zl and Zp, the line and paragraph
+ * separators; Cs, lone surrogates. A story's Unicode table may map to any of them.
  */
+const UNSAFE = /[\p{Cc}\p{Cf}\p{Zl}\p{Zp}\p{Cs}]/u
+
+/** True for a code point that is out of range, or one of the UNSAFE characters. */
 export function isUnsafeCodePoint(cp: number): boolean {
-  return (
-    cp < 0x20 ||
-    (cp >= 0x7f && cp <= 0x9f) ||
-    cp === 0x061c ||
-    (cp >= 0x200b && cp <= 0x200f) ||
-    (cp >= 0x202a && cp <= 0x202e) ||
-    (cp >= 0x2060 && cp <= 0x2069) ||
-    cp === 0xfeff ||
-    (cp >= 0xd800 && cp <= 0xdfff) ||
-    cp > 0x10ffff
-  )
+  if (!Number.isInteger(cp) || cp < 0 || cp > 0x10ffff) return true
+  if (cp >= 0xd800 && cp <= 0xdfff) return true // String.fromCodePoint makes a lone surrogate of these
+  return UNSAFE.test(String.fromCodePoint(cp))
 }
 
 /**
@@ -137,11 +133,20 @@ function charFor(ctx: TextContext, alphabet: number, z: number): string {
   return DEFAULT_ALPHABETS[alphabet]![z - 6]!
 }
 
+/** The first `n` UTF-16 units of `text`, backing off rather than splitting a surrogate pair. */
+function cutAt(text: string, n: number): string {
+  if (n <= 0) return ''
+  const code = text.charCodeAt(n - 1)
+  return text.slice(0, code >= 0xd800 && code <= 0xdbff ? n - 1 : n)
+}
+
 /**
  * Decode Z-characters to text (§3.2–§3.5, v3+ rules): 0 is a space; 1–3 begin
- * an abbreviation; 4 and 5 shift the NEXT character into A1 or A2 (§3.2.3, v3+
- * shifts are single, never locks); A2's 6 begins a 10-bit ZSCII escape; A2's 7
- * is a newline. An incomplete construct at the end is dropped (§3.6.1).
+ * an abbreviation; 4 and 5 shift the next letter into A1 or A2 (§3.2.3, v3+
+ * shifts are single, never locks; of two in a row the later wins; a space
+ * leaves a shift pending, an abbreviation uses it up); A2's 6 begins a 10-bit
+ * ZSCII escape; A2's 7 is a newline. An incomplete construct at the end is
+ * dropped (§3.6.1).
  */
 export function decodeZchars(ctx: TextContext, zchars: number[], inAbbreviation = false): string {
   // The limit for this string: its own cap, or what's left of the story's budget.
@@ -149,20 +154,21 @@ export function decodeZchars(ctx: TextContext, zchars: number[], inAbbreviation 
   let out = ''
   let alphabet = 0
   const append = (text: string) => {
+    if (!text) return
     if (out.length + text.length > limit) {
-      out += text.slice(0, Math.max(0, limit - out.length))
+      out += cutAt(text, limit - out.length)
       ctx.truncated = true
     } else out += text
   }
+  // No early exit at the limit: only text that is actually dropped marks the
+  // string truncated (a string of exactly `limit` characters plus padding isn't).
   for (let i = 0; i < zchars.length; i++) {
-    if (out.length >= limit) {
-      ctx.truncated = true
-      break
-    }
     const z = zchars[i]!
     if (z === 0) {
+      // A space does not use up a pending shift: 4 0 17 is " L". The Standard says only that a
+      // v3+ shift applies to "the next character"; this follows infodump (observed: 4 0 17 → " L",
+      // 5 0 17 → " 9", 4 0 0 17 → "  L"; an abbreviation does use it up: 4 2 0 17 → "the l").
       append(' ')
-      alphabet = 0
     } else if (z >= 1 && z <= 3) {
       // Abbreviation 32(z−1) + next (§3.3). An abbreviation may not use one itself (§3.3.1).
       const next = zchars[++i]

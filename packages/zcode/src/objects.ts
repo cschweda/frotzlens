@@ -1,4 +1,4 @@
-import { Bytes, hex } from './bytes.js'
+import { Bytes, Malformed, OutOfBounds, hex } from './bytes.js'
 import { decodeZchars, readZchars, type TextContext } from './text.js'
 import type { ObjectTable, ParseError, Property, Version, ZObject } from './types.js'
 
@@ -39,7 +39,7 @@ export function parseObjects(bytes: Bytes, version: Version, address: number, te
     const entry = first + (n - 1) * size
     if (entry >= lowestProperties) break
     if (!bytes.has(entry, size)) {
-      if (n === 1) throw new RangeError('the first object entry is outside the file')
+      if (n === 1) throw new Malformed('the first object entry is outside the file', entry)
       errors.push({ code: 'bad-object', severity: 'error', address: entry, message: `Object ${n}'s entry runs off the end of the file.` })
       break
     }
@@ -55,9 +55,25 @@ export function parseObjects(bytes: Bytes, version: Version, address: number, te
         ? [bytes.byte(entry + 4), bytes.byte(entry + 5), bytes.byte(entry + 6)]
         : [bytes.word(entry + 6), bytes.word(entry + 8), bytes.word(entry + 10)]
     const propertyTable = bytes.word(entry + attrs + (version <= 3 ? 3 : 6))
-    lowestProperties = Math.min(lowestProperties, propertyTable)
 
-    const props = parsePropertyTable(bytes, version, propertyTable, text, n, errors)
+    // One object's unreadable property table ends the table there; the objects before it stay.
+    let props: ReturnType<typeof parsePropertyTable>
+    try {
+      props = parsePropertyTable(bytes, version, propertyTable, text, n, errors)
+    } catch (e) {
+      if (!(e instanceof OutOfBounds || e instanceof Malformed)) throw e
+      errors.push({
+        code: 'bad-object',
+        severity: 'error',
+        address: propertyTable,
+        message:
+          n === 1
+            ? `Object 1's property table can't be read (${e.message}); no objects could be read.`
+            : `Object ${n}'s property table can't be read (${e.message}); the object table stops at object ${n - 1}.`,
+      })
+      break
+    }
+    lowestProperties = Math.min(lowestProperties, propertyTable)
     propertiesEnd = Math.max(propertiesEnd, props.end)
     objects.push({
       id: `object:${n}`,
@@ -127,9 +143,9 @@ function parsePropertyTable(bytes: Bytes, version: Version, address: number, tex
         message: `Object ${object}'s properties are out of order (${number} after ${properties.at(-1)!.number}).`,
       })
     }
-    properties.push({ number, address: a, dataAddress: a + header, size, data: bytes.slice(a + header, size) })
+    properties.push({ number, address: a, dataAddress: a + header, size, data: [...bytes.slice(a + header, size)] })
     a += header + size
-    if (properties.length > 64) throw new RangeError(`object ${object}'s property table has no end`)
+    if (properties.length > 64) throw new Malformed(`object ${object}'s property table has no end`, address)
   }
   return { shortName, properties, end: a + 1 }
 }

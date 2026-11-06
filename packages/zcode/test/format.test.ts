@@ -3,7 +3,20 @@
  * Each expectation below is what infodump 7/3.1a printed for the same patch
  * of minimal.z5 (or puny-dark-cellar-v3/-v4) — observed black-box, one header
  * byte or table at a time, on 2026-11-06.
+ *
+ * To re-verify them against the real binary, run with INFODUMP set:
+ *
+ *   INFODUMP=/path/to/infodump pnpm --filter @frotzinc/zcode test
+ *
+ * Then every story a test formats here is also written to a temp folder and
+ * given to infodump (from that folder, with a short name), and our whole
+ * output must equal infodump's, except where a test marks it deliberate. Each
+ * test checks itself, so any one of them can run alone.
  */
+import { spawnSync } from 'node:child_process'
+import { mkdtempSync, rmSync, writeFileSync } from 'node:fs'
+import { tmpdir } from 'node:os'
+import { join, resolve } from 'node:path'
 import { describe, expect, it } from 'vitest'
 import { formatDictionary, formatHeader, Writer } from '../src/format/index.js'
 import { parseStory } from '../src/index.js'
@@ -11,7 +24,33 @@ import { readStory } from './fixtures.js'
 
 type Patch = [address: number, value: number, kind?: 'word']
 
-function patched(file: string, patches: Patch[]): Uint8Array {
+/** Patched stories whose output differs from infodump's on purpose: not live-checked. */
+const deliberate = new WeakSet<Uint8Array>()
+const INFODUMP = process.env.INFODUMP ? resolve(process.env.INFODUMP) : undefined
+
+/**
+ * Our infodump-format text for a story (`-i` by default). With INFODUMP set,
+ * it must also equal what the real infodump prints for the same bytes.
+ */
+function format(bytes: Uint8Array, opt: 'i' | 'd' = 'i'): string {
+  const name = `p.z${bytes[0]}`
+  const ours = (opt === 'i' ? formatHeader : formatDictionary)(parseStory(bytes), { fileName: name })
+  if (INFODUMP && !deliberate.has(bytes)) {
+    const dir = mkdtempSync(join(tmpdir(), 'zcode-probe-'))
+    try {
+      // A short, bare name, run from the story's folder: infodump overflows an 80-byte buffer on a long path.
+      writeFileSync(join(dir, name), bytes)
+      const r = spawnSync(INFODUMP, [`-${opt}`, name], { cwd: dir, encoding: 'latin1' })
+      expect(r.status, `infodump -${opt}`).toBe(0)
+      expect(ours, `against infodump -${opt}`).toBe(r.stdout)
+    } finally {
+      rmSync(dir, { recursive: true, force: true })
+    }
+  }
+  return ours
+}
+
+function patched(file: string, patches: Patch[], opts: { deliberate?: boolean } = {}): Uint8Array {
   const b = readStory(file).slice()
   for (const [a, v, kind] of patches) {
     if (kind === 'word') {
@@ -19,11 +58,12 @@ function patched(file: string, patches: Patch[]): Uint8Array {
       b[a + 1] = v & 0xff
     } else b[a] = v
   }
+  if (opts.deliberate) deliberate.add(b)
   return b
 }
 
 const headerLine = (bytes: Uint8Array, label: string) =>
-  formatHeader(parseStory(bytes), { fileName: 'x' })
+  format(bytes)
     .split('\n')
     .find(l => l.startsWith(label))
     ?.slice(26)
@@ -85,9 +125,13 @@ describe('header flags, as infodump names them', () => {
     expect(headerLine(patched(v3, [[0x10, 1 << bit, 'word']]), 'Game flags')).toBe(text)
   })
 
-  it('v3 flags2 bits 5–8 name their own mask (deliberate: infodump prints the next-lower bit\'s)', () => {
-    // infodump: bit 6 → "Unknown (0x0020)". Ours:
-    expect(headerLine(patched(v3, [[0x10, 1 << 6, 'word']]), 'Game flags')).toBe('Unknown (0x0040)')
+  it.each([
+    [5, 'Unknown (0x0020)', '0x0010'],
+    [6, 'Unknown (0x0040)', '0x0020'],
+    [7, 'Unknown (0x0080)', '0x0040'],
+    [8, 'Unknown (0x0100)', '0x0080'],
+  ])('v3 flags2 bit %i names its own mask: %s (deliberate: infodump prints %s)', (bit, text) => {
+    expect(headerLine(patched(v3, [[0x10, 1 << bit, 'word']], { deliberate: true }), 'Game flags')).toBe(text)
   })
 
   it('several flags are joined with ", "', () => {
@@ -97,12 +141,12 @@ describe('header flags, as infodump names them', () => {
 
 describe('header: optional fields', () => {
   const v5 = 'minimal.z5'
-  const tail = (bytes: Uint8Array) => formatHeader(parseStory(bytes), { fileName: 'x' }).split('\n').slice(20).join('\n')
+  const tail = (bytes: Uint8Array) => format(bytes).split('\n').slice(20).join('\n')
 
   it('terminating keys, by name, joined with ", "', () => {
     // minimal.z5's terminating-characters table is at 0x04e0.
     const b = patched(v5, [[0x4e0, 129], [0x4e1, 133], [0x4e2, 13], [0x4e3, 255], [0x4e4, 0]])
-    expect(formatHeader(parseStory(b), { fileName: 'x' })).toContain(
+    expect(format(b)).toContain(
       '    Keys used: Up arrow, F1, Unknown key (0x0d), Any function key\n',
     )
   })
@@ -111,11 +155,11 @@ describe('header: optional fields', () => {
     [130, 'Down arrow'], [132, 'Right arrow'], [144, 'F12'], [145, 'KP0'], [154, 'KP9'],
     [252, 'Menu click'], [253, 'Single mouse click'], [254, 'Double mouse click'], [65, 'Unknown key (0x41)'],
   ])('key %i is %s', (k, name) => {
-    expect(formatHeader(parseStory(patched(v5, [[0x4e0, k], [0x4e1, 0]])), { fileName: 'x' })).toContain(`Keys used: ${name}\n`)
+    expect(format(patched(v5, [[0x4e0, k], [0x4e1, 0]]))).toContain(`Keys used: ${name}\n`)
   })
 
   it('no terminating-keys lines when the address is 0', () => {
-    const text = formatHeader(parseStory(patched(v5, [[0x2e, 0, 'word']])), { fileName: 'x' })
+    const text = format(patched(v5, [[0x2e, 0, 'word']]))
     expect(text).not.toContain('Terminating keys')
     expect(text).not.toContain('Keys used')
   })
@@ -126,7 +170,7 @@ describe('header: optional fields', () => {
     for (let i = 0; i < 78; i++) b[0x200 + i] = table.charCodeAt(i)
     b[0x34] = 0x02
     b[0x35] = 0x00
-    expect(formatHeader(parseStory(b), { fileName: 'x' })).toContain(
+    expect(format(b)).toContain(
       'Alphabet address:         0200\n' +
         '    "abcdefghijklmnopqrstuvwxyz"\n' +
         '    "ABCDEFGHIJKLMNOPQRSTUVWXYZ"\n' +
@@ -184,5 +228,24 @@ describe('dictionary layout', () => {
     expect(formatDictionary(parseStory(readStory('minimal.z5')), { fileName: 'x' })).toBe(
       '\nStory file is x\n\n    **** Dictionary ****\n\n  Word separators = ".,""\n  Word count = 0, word size = 9\n\n',
     )
+  })
+})
+
+describe('dictionary rows for other entry lengths', () => {
+  it('8-byte entries: five 16-column cells fill 80 columns, so the 79-column wrap adds a blank line (as infodump does)', () => {
+    // Observed: infodump -d on puny-dark-cellar-v3.z3 with its entry length patched from 7 to 8
+    // prints "[   1] …  [   5] …  " then an empty line, then the next row.
+    const b = readStory('puny-dark-cellar-v3.z3').slice()
+    const d = (b[8]! << 8) | b[9]!
+    b[d + 1 + b[d]!] = 8
+    // Deliberate for the INFODUMP check: with the entry length changed, some words no longer end
+    // where their 4 bytes do, and infodump reads them on past it until an end bit; we read the 4
+    // bytes a v3 entry has (§13.3). Only the layout is asserted here.
+    deliberate.add(b)
+    const lines = format(b, 'd').split('\n')
+    // Lines 0–7: banner, separators, word count, blank. Then the rows.
+    expect(lines[8]!.match(/\[/g)).toHaveLength(5)
+    expect(lines[9]).toBe('')
+    expect(lines[10]!.startsWith('[   6]')).toBe(true)
   })
 })

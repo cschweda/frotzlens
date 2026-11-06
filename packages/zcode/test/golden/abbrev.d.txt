@@ -1,0 +1,9 @@
+
+Story file is abbrev.z5
+
+    **** Dictionary ****
+
+  Word separators = ".,""
+  Word count = 2, word size = 9
+
+[   1] brass     [   2] lantern   

@@ -34,10 +34,12 @@ Apps are GPL; libraries are MIT. See [`LICENSING.md`](LICENSING.md).
 
 ```sh
 pnpm install && pnpm build
-node packages/cli/dist/bin.js --objects path/to/game.z5
+node packages/cli/dist/bin.js --objects samples/dark-cellar.z5
 ```
 
-It takes `infodump`'s options (`-i -a -o -t -d -f -w`), so scripts written for `infodump` keep working, and `--json` prints the parsed model instead. See [`packages/cli`](packages/cli).
+[`samples/`](samples/) holds 34 story files to try it on, from a 1.5 KB library-free story to the 135 KB *Mingus I*, as v3, v5 and v8: Frotzsmith's Inform 6 samples plus a minimal Frotzlens fixture, rebuilt with `pnpm samples`.
+
+It takes `infodump`'s options for the sections it prints (`-i -a -o -t -d`, plus `-w`), with the same output, so scripts that use those keep working. `infodump`'s memory map (`-m`) and grammar (`-g`) aren't there yet, and `-f` prints only the five sections. `--json` prints the parsed model instead. See [`packages/cli`](packages/cli).
 
 ## Development
 
@@ -53,6 +55,8 @@ pnpm test
 **Test fixtures** are compiled at test time from Inform 6 sources in [`packages/zcode/test/fixtures/src`](packages/zcode/test/fixtures/src) by `@frotzinc/inform6-wasm`, with a fixed serial number so every build is byte-for-byte the same. No story files are checked in.
 
 **Golden files.** `packages/zcode/test/golden` holds `infodump`'s output for each fixture, and the tests require ours to match it exactly. Ztools has no license, so none of it is in this repository. To regenerate the files, build `infodump` yourself outside the repo and run `packages/zcode/scripts/golden.sh <path-to-infodump>`. [`PROVENANCE.md`](packages/zcode/test/golden/PROVENANCE.md) has the exact build command and the archive's checksum.
+
+With `INFODUMP=/path/to/infodump pnpm test`, the tests also compare every hand-observed header case, and every story in `samples/`, against the real `infodump`.
 
 CI (`.github/workflows/ci.yml`) runs install, build, typecheck and test on every push to `main`, every pull request and every release tag.
 

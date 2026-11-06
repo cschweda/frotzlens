@@ -1,0 +1,50 @@
+
+Story file is abbrev.z5
+
+    **** Objects ****
+
+  Object count = 7
+
+  1. Attributes: None
+     Parent object:   0  Sibling object:   0  Child object:   0
+     Property address: 01fc
+         Description: "Class"
+          Properties:
+
+  2. Attributes: None
+     Parent object:   0  Sibling object:   0  Child object:   0
+     Property address: 020c
+         Description: "Object"
+          Properties:
+
+  3. Attributes: None
+     Parent object:   0  Sibling object:   0  Child object:   0
+     Property address: 021e
+         Description: "Routine"
+          Properties:
+
+  4. Attributes: None
+     Parent object:   0  Sibling object:   0  Child object:   0
+     Property address: 0230
+         Description: "String"
+          Properties:
+
+  5. Attributes: None
+     Parent object:   0  Sibling object:   0  Child object:   6
+     Property address: 0242
+         Description: "the cellar under the old house"
+          Properties:
+
+  6. Attributes: None
+     Parent object:   5  Sibling object:   7  Child object:   0
+     Property address: 0256
+         Description: "the brass lantern"
+          Properties:
+              [ 3] 03 7d 
+              [ 1] 05 77 05 6e 
+
+  7. Attributes: None
+     Parent object:   5  Sibling object:   0  Child object:   0
+     Property address: 0269
+         Description: "a note reading "the lantern is the thing""
+          Properties:

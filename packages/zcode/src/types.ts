@@ -1,6 +1,7 @@
 /**
  * The @frotzinc/zcode model: plain data, no classes or methods, so it crosses
- * a postMessage boundary by structured clone and serializes to JSON.
+ * a postMessage boundary by structured clone, and everything but `bytes` (the
+ * story itself) serializes to JSON as it is.
  *
  * Section references (§) are to the Z-Machine Standards Document 1.1.
  */
@@ -8,8 +9,9 @@
 export type Version = 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8
 
 /**
- * Stable IDs: the app routes on these (`#object/47`, `#dict/1ca3`). Byte
- * addresses in IDs are lowercase hex with no prefix.
+ * Stable IDs, one per addressable thing: `object:47`, `dict:1ca3`. Byte
+ * addresses in IDs are lowercase hex with no prefix. The app's hash route is
+ * the ID with its first ':' as '/' (`#object/47`), one to one.
  */
 export type Id =
   | `object:${number}`
@@ -42,7 +44,11 @@ export interface StoryFile {
 // ── Header (§11) ───────────────────────────────────────────────────
 
 export interface Header {
-  version: Version
+  /**
+   * Byte 0 as stored, or 0 for a Blorb file. A story with something other than
+   * 1–8 here comes with a `bad-header` error (or `truncated`, under 64 bytes).
+   */
+  version: number
   /** Byte 0x01. */
   flags1: number
   release: number
@@ -78,7 +84,9 @@ export interface Header {
   /** 0x36, when non-zero. The Standard defines it for v5+; Inform writes it in every version. */
   headerExtension?: {
     address: number
-    /** Every word after the length word, in order (§11.1.7). */
+    /** The length word, as stored: how many words the table says follow it. */
+    declaredLength: number
+    /** The words after the length word that are in the file, in order (§11.1.7). */
     words: number[]
     /** Word 3: the Unicode translation table, when non-zero. */
     unicodeTable?: number
@@ -93,7 +101,11 @@ export interface Segment {
   id: Id
   kind:
     | 'header'
+    | 'header-extension'
     | 'abbreviations'
+    | 'alphabet'
+    | 'unicode'
+    | 'terminating-chars'
     | 'objects'
     | 'properties'
     | 'globals'
@@ -148,7 +160,7 @@ export interface DictEntry {
   /** The bytes after the encoded word. */
   data: number[]
   /** Inform's #dict_par1 flags, when the file is Inform's. */
-  inform?: { verb: boolean; meta: boolean; plural: boolean; preposition: boolean; noun: boolean }
+  inform?: { verb: boolean; meta: boolean; plural: boolean; preposition: boolean; singular: boolean; noun: boolean }
 }
 
 // ── Objects (§12) ──────────────────────────────────────────────────
@@ -160,7 +172,8 @@ export interface Property {
   dataAddress: number
   /** Data length in bytes (§12.4.1, §12.4.2). */
   size: number
-  data: Uint8Array
+  /** The data bytes. */
+  data: number[]
 }
 
 export interface ZObject {
@@ -210,6 +223,8 @@ export interface ParseError {
     | 'bad-dictionary'
     | 'bad-text'
     | 'checksum'
+    /** A bug in this package, not a problem with the file: please report it. */
+    | 'internal'
   message: string
   /** A checksum mismatch is a warning; the rest stop the table they're in. */
   severity: 'error' | 'warning'

@@ -87,8 +87,10 @@ export function formatHeader(story: StoryFile, opts: FormatOptions): string {
     line('Inform Version', v)
   }
   if (h.headerExtension) {
-    line('Header extension length', hx(h.headerExtension.words.length, 4))
-    if (h.headerExtension.words.length >= 3) line('Unicode table address', hx(h.headerExtension.words[2]!, 4))
+    // The length as the table states it, even when the file ends before all of it.
+    line('Header extension length', hx(h.headerExtension.declaredLength, 4))
+    const unicode = h.headerExtension.words[2]
+    if (h.headerExtension.declaredLength >= 3 && unicode !== undefined) line('Unicode table address', hx(unicode, 4))
   }
   return w.toString()
 }
