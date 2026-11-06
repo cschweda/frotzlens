@@ -24,6 +24,34 @@ const emptyDictionary = (address = 0): Dictionary => ({ address, separators: [],
  * be read comes back empty with an error; the others still come back.
  */
 export function parseStory(data: Uint8Array, opts: ParseOptions = {}): StoryFile {
+  try {
+    return parse(data, opts)
+  } catch (e) {
+    // guarded() lets bugs through rather than dress them up as bad-file errors; here, at the
+    // boundary, one still never escapes: it comes back as an `internal` error.
+    return {
+      bytes: data,
+      container: isBlorb(data) ? 'blorb' : 'bare',
+      header: blankHeader(isBlorb(data) ? 0 : (data[0] ?? 0)),
+      memory: { size: data.length, regions: [], segments: [] },
+      abbreviations: [],
+      dictionary: emptyDictionary(),
+      objects: { address: 0, propertyDefaults: [], objects: [] },
+      globals: [],
+      errors: [{ code: 'internal', severity: 'error', message: `Internal error in @frotzinc/zcode (please report it): ${String(e)}` }],
+    }
+  }
+}
+
+function blankHeader(version: number): Header {
+  return {
+    version,
+    flags1: 0, release: 0, highMemory: 0, initialPc: 0, dictionary: 0, objects: 0, globals: 0,
+    staticMemory: 0, flags2: 0, serial: '', abbreviations: 0, fileLength: 0, checksum: 0, checksumOk: false,
+  }
+}
+
+function parse(data: Uint8Array, opts: ParseOptions): StoryFile {
   const progress = opts.onProgress ?? (() => {})
   const errors: ParseError[] = []
   const bytes = new Bytes(data)
@@ -39,12 +67,6 @@ export function parseStory(data: Uint8Array, opts: ParseOptions = {}): StoryFile
     globals: [],
     errors,
   })
-  const blankHeader = (version: number): Header => ({
-    version,
-    flags1: 0, release: 0, highMemory: 0, initialPc: 0, dictionary: 0, objects: 0, globals: 0,
-    staticMemory: 0, flags2: 0, serial: '', abbreviations: 0, fileLength: 0, checksum: 0, checksumOk: false,
-  })
-
   if (isBlorb(data)) {
     errors.push({ code: 'blorb-unsupported', severity: 'error', message: 'This is a Blorb file; unwrapping it is not supported yet.' })
     return empty('blorb', blankHeader(0)) // a Blorb's first byte is 'F', not a version

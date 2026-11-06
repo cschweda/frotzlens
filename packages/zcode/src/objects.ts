@@ -66,7 +66,10 @@ export function parseObjects(bytes: Bytes, version: Version, address: number, te
         code: 'bad-object',
         severity: 'error',
         address: propertyTable,
-        message: `Object ${n}'s property table can't be read (${e.message}); the object table stops at object ${n - 1}.`,
+        message:
+          n === 1
+            ? `Object 1's property table can't be read (${e.message}); no objects could be read.`
+            : `Object ${n}'s property table can't be read (${e.message}); the object table stops at object ${n - 1}.`,
       })
       break
     }

@@ -10,7 +10,7 @@
     "build": "pnpm -r --filter \"./packages/*\" run build",
     "test": "pnpm -r --filter \"./packages/*\" run test",
     "typecheck": "pnpm -r --filter \"./packages/*\" run typecheck",
-    "samples": "node scripts/build-samples.mjs"
+    "samples": "pnpm --filter @frotzinc/inform6-wasm build && node scripts/build-samples.mjs"
   },
   "devDependencies": {
     "@frotzinc/inform6-wasm": "workspace:*",

@@ -39,6 +39,17 @@ describe('Z-character decoding (§3)', () => {
     expect(decodeZchars(ctx(), [5, 8, 5, 9, ...zc('x')])).toBe('01x')
   })
 
+  it.each([
+    ['4 0 17', [4, 0, 17], ' L'],
+    ['5 0 17', [5, 0, 17], ' 9'],
+    ['4 0 0 17', [4, 0, 0, 17], '  L'],
+    ['4 4 17', [4, 4, 17], 'L'],
+    ['4 5 17', [4, 5, 17], '9'],
+    ['5 4 17', [5, 4, 17], 'L'],
+  ])('shifts as infodump reads them: %s → %j', (_name, zchars, text) => {
+    expect(decodeZchars(ctx(), zchars)).toBe(text)
+  })
+
   it('A2 7 is a newline, and A2 6 begins a 10-bit ZSCII code (§3.4)', () => {
     expect(decodeZchars(ctx(), [5, 7])).toBe('\n')
     // ZSCII 64 '@' = 0b00010_00000 → Z-chars 2, 0.

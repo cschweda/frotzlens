@@ -44,7 +44,10 @@ export interface StoryFile {
 // ── Header (§11) ───────────────────────────────────────────────────
 
 export interface Header {
-  /** Byte 0 as stored. A valid story has 1–8 here; anything else comes with a `bad-header` error. */
+  /**
+   * Byte 0 as stored, or 0 for a Blorb file. A story with something other than
+   * 1–8 here comes with a `bad-header` error (or `truncated`, under 64 bytes).
+   */
   version: number
   /** Byte 0x01. */
   flags1: number
@@ -220,6 +223,8 @@ export interface ParseError {
     | 'bad-dictionary'
     | 'bad-text'
     | 'checksum'
+    /** A bug in this package, not a problem with the file: please report it. */
+    | 'internal'
   message: string
   /** A checksum mismatch is a warning; the rest stop the table they're in. */
   severity: 'error' | 'warning'

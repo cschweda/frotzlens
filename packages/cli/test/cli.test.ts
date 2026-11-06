@@ -1,5 +1,7 @@
 import { spawnSync } from 'node:child_process'
-import { readFileSync } from 'node:fs'
+import { mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs'
+import { tmpdir } from 'node:os'
+import { join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { describe, expect, it } from 'vitest'
 import { main, USAGE, type Io } from '../src/main.js'
@@ -79,6 +81,12 @@ describe('options', () => {
     const models = JSON.parse(run(['--json', 'minimal.z5', 'demo.z5']).out)
     expect(models.map((m: { file: string }) => m.file)).toEqual(['minimal.z5', 'demo.z5'])
   })
+
+  it('--json with several files is an array even when only one could be read', () => {
+    const r = run(['--json', 'minimal.z5', 'missing.z5'])
+    expect(r.code).toBe(1)
+    expect(JSON.parse(r.out).map((m: { file: string }) => m.file)).toEqual(['minimal.z5'])
+  })
 })
 
 describe('exit codes and messages', () => {
@@ -100,13 +108,16 @@ describe('exit codes and messages', () => {
   })
 
   it('a Blorb file: the error, and no made-up header', () => {
-    const r = spawnSync(process.execPath, [BIN, '/dev/stdin'], {
-      input: Buffer.concat([Buffer.from('FORM\0\0\0\x38IFRS'), Buffer.alloc(56)]),
-      encoding: 'utf8',
-    })
-    expect(r.status).toBe(1)
-    expect(r.stdout).toBe('')
-    expect(r.stderr).toContain('Blorb')
+    const dir = mkdtempSync(join(tmpdir(), 'frotzlens-cli-'))
+    try {
+      writeFileSync(join(dir, 'game.zblorb'), Buffer.concat([Buffer.from('FORM\0\0\0\x38IFRS'), Buffer.alloc(56)]))
+      const r = spawnSync(process.execPath, [BIN, 'game.zblorb'], { cwd: dir, encoding: 'utf8' })
+      expect(r.status).toBe(1)
+      expect(r.stdout).toBe('')
+      expect(r.stderr).toContain('Blorb')
+    } finally {
+      rmSync(dir, { recursive: true, force: true })
+    }
   })
 
   it('piped into a reader that stops early, it exits quietly', () => {

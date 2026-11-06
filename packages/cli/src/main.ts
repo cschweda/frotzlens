@@ -135,9 +135,11 @@ export function main(argv: string[], io: Io): number {
     }
   }
   // One JSON document: the model for one file, an array of them (each with its `file`) for several.
-  if (json && models.length) {
-    const only = models.length === 1 ? (({ file: _file, ...m }) => m)(models[0]!) : models
-    io.stdout(`${JSON.stringify(only, null, 2)}\n`)
+  // The shape follows what was asked for: one file named → its model; several → an array, even
+  // if some couldn't be read (those are reported on stderr and left out).
+  if (json && (files.length > 1 || models.length)) {
+    const out = files.length === 1 ? (({ file: _file, ...m }) => m)(models[0]!) : models
+    io.stdout(`${JSON.stringify(out, null, 2)}\n`)
   }
   return status
 }

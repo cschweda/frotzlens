@@ -142,9 +142,11 @@ function cutAt(text: string, n: number): string {
 
 /**
  * Decode Z-characters to text (§3.2–§3.5, v3+ rules): 0 is a space; 1–3 begin
- * an abbreviation; 4 and 5 shift the NEXT character into A1 or A2 (§3.2.3, v3+
- * shifts are single, never locks); A2's 6 begins a 10-bit ZSCII escape; A2's 7
- * is a newline. An incomplete construct at the end is dropped (§3.6.1).
+ * an abbreviation; 4 and 5 shift the next letter into A1 or A2 (§3.2.3, v3+
+ * shifts are single, never locks; of two in a row the later wins; a space
+ * leaves a shift pending, an abbreviation uses it up); A2's 6 begins a 10-bit
+ * ZSCII escape; A2's 7 is a newline. An incomplete construct at the end is
+ * dropped (§3.6.1).
  */
 export function decodeZchars(ctx: TextContext, zchars: number[], inAbbreviation = false): string {
   // The limit for this string: its own cap, or what's left of the story's budget.
@@ -163,8 +165,10 @@ export function decodeZchars(ctx: TextContext, zchars: number[], inAbbreviation 
   for (let i = 0; i < zchars.length; i++) {
     const z = zchars[i]!
     if (z === 0) {
+      // A space does not use up a pending shift: 4 0 17 is " L". The Standard says only that a
+      // v3+ shift applies to "the next character"; this follows infodump (observed: 4 0 17 → " L",
+      // 5 0 17 → " 9", 4 0 0 17 → "  L"; an abbreviation does use it up: 4 2 0 17 → "the l").
       append(' ')
-      alphabet = 0
     } else if (z >= 1 && z <= 3) {
       // Abbreviation 32(z−1) + next (§3.3). An abbreviation may not use one itself (§3.3.1).
       const next = zchars[++i]

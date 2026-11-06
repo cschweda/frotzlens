@@ -54,7 +54,8 @@ export class Malformed extends Error {
  * Run one table's parse. A bad file — a read outside it (OutOfBounds) or a
  * table that makes no sense (Malformed) — becomes a ParseError with the
  * table's code, and the fallback comes back. Anything else is a bug in this
- * package and is rethrown, so it can't hide as a parse error.
+ * package: it is rethrown, so it can't hide as a bad-file error, and
+ * parseStory reports it as an `internal` error.
  */
 export function guarded<T>(errors: ParseError[], code: ParseError['code'], what: string, fallback: T, run: () => T): T {
   try {

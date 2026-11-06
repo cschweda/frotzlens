@@ -37,7 +37,7 @@ pnpm install && pnpm build
 node packages/cli/dist/bin.js --objects samples/dark-cellar.z5
 ```
 
-[`samples/`](samples/) holds 34 story files to try it on, from a 1.5 KB library-free story to the 135 KB *Mingus I*, as v3, v5 and v8: Frotzsmith's Inform 6 samples, rebuilt with `pnpm samples`.
+[`samples/`](samples/) holds 34 story files to try it on, from a 1.5 KB library-free story to the 135 KB *Mingus I*, as v3, v5 and v8: Frotzsmith's Inform 6 samples plus a minimal Frotzlens fixture, rebuilt with `pnpm samples`.
 
 It takes `infodump`'s options for the sections it prints (`-i -a -o -t -d`, plus `-w`), with the same output, so scripts that use those keep working. `infodump`'s memory map (`-m`) and grammar (`-g`) aren't there yet, and `-f` prints only the five sections. `--json` prints the parsed model instead. See [`packages/cli`](packages/cli).
 

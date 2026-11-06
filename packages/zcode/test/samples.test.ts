@@ -6,6 +6,7 @@
  */
 import { spawnSync } from 'node:child_process'
 import { readFileSync, readdirSync } from 'node:fs'
+import { resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { describe, expect, it } from 'vitest'
 import { formatAbbreviations, formatDictionary, formatHeader, formatObjects, formatTree } from '../src/format/index.js'
@@ -31,7 +32,8 @@ describe.runIf(process.env.INFODUMP)('samples/ against the real infodump (INFODU
   it.each(files)('%s: -i -a -o -t -d', (f) => {
     const story = parseStory(new Uint8Array(readFileSync(SAMPLES + f)))
     for (const [opt, format] of Object.entries(formats)) {
-      const r = spawnSync(process.env.INFODUMP!, [`-${opt}`, f], { cwd: SAMPLES, encoding: 'latin1' })
+      // Resolved first: it runs from samples/, so a relative INFODUMP would otherwise not be found.
+      const r = spawnSync(resolve(process.env.INFODUMP!), [`-${opt}`, f], { cwd: SAMPLES, encoding: 'latin1' })
       expect(r.status).toBe(0)
       expect(format(story, { fileName: f }), `-${opt}`).toBe(r.stdout)
     }

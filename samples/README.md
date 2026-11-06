@@ -1,12 +1,13 @@
 # Sample story files
 
-Story files to try Frotzlens on, from tiny to large: drop one into the web app, or run the CLI on it
-(`node packages/cli/dist/bin.js --objects samples/dark-cellar.z5`). They are Christopher Schweda's
-own games and examples from [Frotzsmith](https://frotzsmith.com), compiled with Inform 6.44 by
-`@frotzinc/inform6-wasm`; the sources are in [`src/`](src/).
+Story files to try Frotzlens on, from tiny to large. Run the CLI on one (after `pnpm install && pnpm build`
+at the repository root): `node packages/cli/dist/bin.js --objects samples/dark-cellar.z5`. The web app,
+when it arrives in Phase 3, will take them by drag and drop. They are Christopher Schweda's own games and
+examples from [Frotzsmith](https://frotzsmith.com), plus `minimal`, a Frotzlens test fixture; all compiled
+with Inform 6.44 by `@frotzinc/inform6-wasm`. The sources are in [`src/`](src/).
 
-To rebuild them (the bytes come out the same): `node scripts/build-samples.mjs`. Each is compiled with
-`Serial "000000";`, so the serial number reads 000000.
+To rebuild them (the bytes come out the same): `pnpm samples`. Each is compiled with `Serial "000000";`,
+so the serial number reads 000000.
 
 Not here: the two *Haunted House* samples (derived from a 1979 commercial game) and Frotzsmith's ZIL
 samples (from the GPL ZILF repository, and compiled by ZILF). These are for trying the tools; the test

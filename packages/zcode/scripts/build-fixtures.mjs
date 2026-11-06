@@ -43,18 +43,27 @@ export const FIXTURES = [
   { name: 'abbrev', src: 'abbrev', version: 'z5' },
 ]
 
-/** Every output file name of the fixtures above (the story, and the .dbg for debug builds). */
+/** Every fixture's story file name (e.g. `dark-cellar.z5`). */
 export const fixtureFiles = () => FIXTURES.map(f => `${f.name}.${f.version}`)
 
 /**
- * What the compiler is: its package version and the wasm's hash. Part of each
- * fixture's rebuild key, so a compiler upgrade rebuilds everything.
+ * What the compiler is: a hash of everything in @frotzinc/inform6-wasm that
+ * shapes a story — the wasm and its JS glue, the wrapper (dist/) and the
+ * library texts (lib/). Part of each fixture's rebuild key, so any change to
+ * the compiler rebuilds everything.
  */
 function compilerIdentity() {
-  const pkg = createRequire(import.meta.url).resolve('@frotzinc/inform6-wasm/package.json')
-  const { version } = JSON.parse(readFileSync(pkg, 'utf8'))
-  const wasm = createHash('sha256').update(readFileSync(join(dirname(pkg), 'wasm/inform6.wasm'))).digest('hex')
-  return `${version}:${wasm}`
+  const root = dirname(createRequire(import.meta.url).resolve('@frotzinc/inform6-wasm/package.json'))
+  const hash = createHash('sha256')
+  const walk = dir => {
+    for (const entry of readdirSync(join(root, dir), { withFileTypes: true }).sort((a, b) => a.name.localeCompare(b.name))) {
+      const rel = join(dir, entry.name)
+      if (entry.isDirectory()) walk(rel)
+      else if (!rel.endsWith('.map')) hash.update(rel).update(readFileSync(join(root, rel)))
+    }
+  }
+  for (const dir of ['wasm', 'dist', 'lib']) walk(dir)
+  return hash.digest('hex')
 }
 
 /** The source with `Serial "000000";` after any leading `!%` lines. */

@@ -25,9 +25,10 @@ function describe(source) {
   return line.replace(/^!\s+/, '').replace(/\s+/g, ' ').trim()
 }
 
-for (const f of readdirSync(DIR)) if (/\.z\d$/.test(f)) rmSync(new URL(f, DIR))
-
+// Compile everything first, and only then replace the files: a source that fails leaves the
+// folder as it was.
 const rows = []
+const built = []
 for (const file of readdirSync(SRC).filter(f => f.endsWith('.inf')).sort()) {
   const name = file.replace(/\.inf$/, '')
   const source = withFixedSerial(readFileSync(new URL(file, SRC), 'utf8'))
@@ -36,12 +37,15 @@ for (const file of readdirSync(SRC).filter(f => f.endsWith('.inf')).sort()) {
   const versions = puny ? (NOT_V3.has(name) ? ['z5'] : ['z3', 'z5']) : ALSO_V8.has(name) ? ['z5', 'z8'] : ['z5']
   for (const version of versions) {
     const r = await compile(source, { version, library })
-    if (!r.ok) throw new Error(`${name}.${version} failed to compile:\n${r.rawOutput}`)
-    writeFileSync(new URL(`${name}.${version}`, DIR), r.story)
+    if (!r.ok) throw new Error(`${name}.${version} failed to compile (samples/ unchanged):\n${r.rawOutput}`)
+    built.push([`${name}.${version}`, r.story])
     rows.push({ file: `${name}.${version}`, bytes: r.story.length, library: name === 'minimal' ? 'none' : puny ? 'PunyInform' : 'Standard Library', what: describe(source) })
     console.log(`built ${name}.${version} (${r.story.length} bytes)`)
   }
 }
+
+for (const f of readdirSync(DIR)) if (/\.z\d$/.test(f)) rmSync(new URL(f, DIR))
+for (const [file, story] of built) writeFileSync(new URL(file, DIR), story)
 
 rows.sort((a, b) => a.bytes - b.bytes || a.file.localeCompare(b.file))
 const kb = n => `${(n / 1024).toFixed(n < 10240 ? 1 : 0)} KB`
@@ -50,13 +54,14 @@ writeFileSync(
   new URL('README.md', DIR),
   `# Sample story files
 
-Story files to try Frotzlens on, from tiny to large: drop one into the web app, or run the CLI on it
-(\`node packages/cli/dist/bin.js --objects samples/dark-cellar.z5\`). They are Christopher Schweda's
-own games and examples from [Frotzsmith](https://frotzsmith.com), compiled with Inform 6.44 by
-\`@frotzinc/inform6-wasm\`; the sources are in [\`src/\`](src/).
+Story files to try Frotzlens on, from tiny to large. Run the CLI on one (after \`pnpm install && pnpm build\`
+at the repository root): \`node packages/cli/dist/bin.js --objects samples/dark-cellar.z5\`. The web app,
+when it arrives in Phase 3, will take them by drag and drop. They are Christopher Schweda's own games and
+examples from [Frotzsmith](https://frotzsmith.com), plus \`minimal\`, a Frotzlens test fixture; all compiled
+with Inform 6.44 by \`@frotzinc/inform6-wasm\`. The sources are in [\`src/\`](src/).
 
-To rebuild them (the bytes come out the same): \`node scripts/build-samples.mjs\`. Each is compiled with
-\`Serial "000000";\`, so the serial number reads 000000.
+To rebuild them (the bytes come out the same): \`pnpm samples\`. Each is compiled with \`Serial "000000";\`,
+so the serial number reads 000000.
 
 Not here: the two *Haunted House* samples (derived from a 1979 commercial game) and Frotzsmith's ZIL
 samples (from the GPL ZILF repository, and compiled by ZILF). These are for trying the tools; the test

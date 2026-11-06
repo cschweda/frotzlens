@@ -6,6 +6,7 @@
 import { describe, expect, it } from 'vitest'
 import { unpack } from '../src/address.js'
 import { formatHeader, formatTree } from '../src/format/index.js'
+import { MAX_TREE_TEXT } from '../src/format/tree.js'
 import { isUnsafeCodePoint, zsciiToText } from '../src/text.js'
 import { parseStory } from '../src/index.js'
 import { readStory } from './fixtures.js'
@@ -127,10 +128,9 @@ describe('the memory map never points past the file', () => {
 })
 
 describe('the object tree', () => {
-  it('a 3,000-deep chain of objects prints without overflowing the stack', () => {
-    // Build a v5 story whose object table is one long parent → child chain.
+  /** A v5 story whose object table is one long parent → child chain of n objects. */
+  function chain(N: number): Uint8Array {
     const base = readStory('minimal.z5')
-    const N = 3000
     const objects = 0x40
     const first = objects + 63 * 2
     const props = first + N * 14
@@ -150,21 +150,34 @@ describe('the object tree', () => {
       setWord(b, e + 10, n < N ? n + 1 : 0) // child
       setWord(b, e + 12, props) // every object shares one empty property table
     }
-    const s = parseStory(b)
-    expect(s.objects.objects).toHaveLength(N)
+    return b
+  }
+
+  it('a 1,500-deep chain prints in full, without overflowing the stack', () => {
+    const s = parseStory(chain(1500))
+    expect(s.objects.objects).toHaveLength(1500)
     const tree = formatTree(s, { fileName: 'x', width: 0 }).trimEnd().split('\n')
-    expect(tree.at(-1)).toBe(`${' . '.repeat(N - 1)}[3000] ""`)
+    expect(tree.at(-1)).toBe(`${' . '.repeat(1499)}[1500] ""`)
+  })
+
+  it(`a 4,000-deep chain (~24 MB of indentation) stops at ${MAX_TREE_TEXT.toLocaleString('en')} characters and says so`, () => {
+    // 4,000 objects keep the shared property table below 0xFFFF (it's a 16-bit pointer).
+    const s = parseStory(chain(4000))
+    expect(s.objects.objects).toHaveLength(4000)
+    const text = formatTree(s, { fileName: 'x', width: 0 })
+    expect(text.length).toBeLessThan(MAX_TREE_TEXT + 1000)
+    expect(text.trimEnd().split('\n').at(-1)).toMatch(/^\*\*\* The tree is cut short here/)
   })
 })
 
 describe('more characters that never come out of a Unicode table', () => {
   it.each([
-    [0x00ad, 'SOFT HYPHEN'],
-    [0x2028, 'LINE SEPARATOR'],
-    [0x2029, 'PARAGRAPH SEPARATOR'],
-    [0xe0041, 'TAG LATIN CAPITAL LETTER A'],
-    [0x110000, 'past Unicode'],
-  ])('U+%s (%s)', (cp) => {
+    ['U+00AD SOFT HYPHEN', 0x00ad],
+    ['U+2028 LINE SEPARATOR', 0x2028],
+    ['U+2029 PARAGRAPH SEPARATOR', 0x2029],
+    ['U+E0041 TAG LATIN CAPITAL LETTER A', 0xe0041],
+    ['U+110000, past Unicode', 0x110000],
+  ])('%s', (_name, cp) => {
     expect(isUnsafeCodePoint(cp)).toBe(true)
     expect(zsciiToText(155, { extra: [cp] })).toBe('?')
   })
