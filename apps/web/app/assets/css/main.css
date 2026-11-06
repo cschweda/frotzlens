@@ -1,0 +1,43 @@
+@import "tailwindcss";
+@import "@nuxt/ui";
+/* The Frotz, Inc. look: --frotz-amber, .frotz-glow, .frotz-grid, reduced motion. */
+@import "@frotzinc/nuxt-base/css/base.css";
+/* The palette: ground, ink, panel, rule, lamp (dark and light), mapped onto Nuxt UI. */
+@import "@frotzinc/nuxt-base/css/palette.css";
+
+/* Type: Segoe UI where it's installed, Open Sans (self-hosted) elsewhere; data in a monospace face
+   with tabular numerals. */
+@theme {
+  --font-sans: "Segoe UI Variable Text", "Segoe UI", "Open Sans", system-ui, sans-serif;
+  --font-display: "Segoe UI Variable Display", "Segoe UI", "Open Sans", system-ui, sans-serif;
+  --font-mono: "Cascadia Code", "JetBrains Mono", "Courier Prime", ui-monospace, monospace;
+}
+
+html {
+  font-size: 17px; /* body text is 17px; the rest of the scale is in rem */
+}
+
+body {
+  font-family: var(--font-sans);
+  line-height: 1.55;
+}
+
+.font-display {
+  font-family: var(--font-display);
+}
+
+.data {
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+}
+
+/* Amber as text: the AA-safe token (darker in light mode). */
+.text-lamp {
+  color: var(--frotz-lamp-text);
+}
+
+/* Focus is always visible (WCAG 2.4.7 / 2.4.11). */
+:focus-visible {
+  outline: 3px solid var(--frotz-lamp);
+  outline-offset: 2px;
+}

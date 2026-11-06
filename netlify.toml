@@ -6,7 +6,6 @@
 # assumption on 2026-11-04), so `dist` is what's published. Paths below are
 # relative to `base`.
 #
-# The web app arrives in Phase 3; until then a build here has nothing to build.
 # Connect the repo in the Netlify UI with base directory `apps/web` — the
 # rest is read from this file.
 
@@ -33,7 +32,8 @@
 #    script; (styles): Nuxt UI's inline styles.
 #  - img-src blob: a Blorb cover image is shown from a blob URL.
 #  - No 'wasm-unsafe-eval': the parser is TypeScript, no WebAssembly on the site.
-# Revisit when the app exists (Phase 3) and verify with a CSP report.
+# Checked in Phase 3: the built site, served with exactly this header, loads,
+# parses a story in its Web Worker and opens the palette with no violations.
 [[headers]]
   for = "/*"
   [headers.values]

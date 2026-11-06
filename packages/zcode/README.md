@@ -47,4 +47,4 @@ process.stdout.write(formatObjects(story, { fileName: 'game.z5' }))
 - **`minimal`'s `-m`:** `infodump` sizes an empty property-names table as 0x20000 bytes. We print the true size.
 - **Raw header bytes, and control characters from a story's Unicode table,** print as `?`, so a story can't put a terminal escape in our output. v3 flags2's unknown bits print with their own mask. None of the checked fixtures or samples has either, but a story that did would print differently from `infodump`. The [`frotzlens`](https://www.npmjs.com/package/frotzlens) CLI is built on these.
 
-MIT. Part of [Frotzlens](https://frotzlens.com), from Frotz, Inc.
+MIT. Part of [Frotzlens](https://frotzlens.com), from [Frotz, Inc.](https://frotzinc.com).
