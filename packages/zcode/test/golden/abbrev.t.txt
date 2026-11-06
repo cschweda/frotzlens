@@ -1,0 +1,12 @@
+
+Story file is abbrev.z5
+
+    **** Object tree ****
+
+[  1] "Class"
+[  2] "Object"
+[  3] "Routine"
+[  4] "String"
+[  5] "the cellar under the old house"
+ . [  6] "the brass lantern"
+ . [  7] "a note reading "the lantern is the thing""

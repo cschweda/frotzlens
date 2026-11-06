@@ -10,7 +10,9 @@
 //   node scripts/build-fixtures.mjs        build any that are missing or stale
 //   node scripts/build-fixtures.mjs --force
 import { createHash } from 'node:crypto'
-import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs'
+import { existsSync, mkdirSync, readFileSync, readdirSync, rmSync, writeFileSync } from 'node:fs'
+import { createRequire } from 'node:module'
+import { dirname, join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { compile } from '@frotzinc/inform6-wasm'
 
@@ -37,7 +39,23 @@ export const FIXTURES = [
   { name: 'magic-8-ball', src: 'magic-8-ball', version: 'z5', debug: true },
   { name: 'gv1', src: 'gv1', version: 'z5', debug: true },
   { name: 'minimal', src: 'minimal', version: 'z5', debug: true },
+  // Economy mode (-e): the only fixture with a real abbreviation table.
+  { name: 'abbrev', src: 'abbrev', version: 'z5' },
 ]
+
+/** Every output file name of the fixtures above (the story, and the .dbg for debug builds). */
+export const fixtureFiles = () => FIXTURES.map(f => `${f.name}.${f.version}`)
+
+/**
+ * What the compiler is: its package version and the wasm's hash. Part of each
+ * fixture's rebuild key, so a compiler upgrade rebuilds everything.
+ */
+function compilerIdentity() {
+  const pkg = createRequire(import.meta.url).resolve('@frotzinc/inform6-wasm/package.json')
+  const { version } = JSON.parse(readFileSync(pkg, 'utf8'))
+  const wasm = createHash('sha256').update(readFileSync(join(dirname(pkg), 'wasm/inform6.wasm'))).digest('hex')
+  return `${version}:${wasm}`
+}
 
 /** The source with `Serial "000000";` after any leading `!%` lines. */
 export function withFixedSerial(source) {
@@ -53,17 +71,32 @@ const storyPath = f => `${OUT}${f.name}.${f.version}`
 /** Build the fixtures (only those whose source or recipe changed, unless force). */
 export async function buildFixtures({ force = false, log = () => {} } = {}) {
   mkdirSync(OUT, { recursive: true })
+  const compiler = compilerIdentity()
+  const keep = new Set()
   for (const f of FIXTURES) {
     const source = withFixedSerial(readFileSync(new URL(`${f.src}.inf`, SRC), 'utf8'))
-    const key = createHash('sha256').update(JSON.stringify(f)).update(source).digest('hex')
+    const key = createHash('sha256').update(compiler).update(JSON.stringify(f)).update(source).digest('hex')
     const stamp = `${OUT}${f.name}.key`
-    if (!force && existsSync(stamp) && existsSync(storyPath(f)) && readFileSync(stamp, 'utf8') === key) continue
+    const dbg = `${OUT}${f.name}.dbg`
+    keep.add(`${f.name}.${f.version}`).add(`${f.name}.key`)
+    if (f.debug) keep.add(`${f.name}.dbg`)
+    const current =
+      existsSync(stamp) && readFileSync(stamp, 'utf8') === key && existsSync(storyPath(f)) && (!f.debug || existsSync(dbg))
+    if (!force && current) continue
     const r = await compile(source, { version: f.version, library: f.library ?? 'std', debug: !!f.debug })
     if (!r.ok) throw new Error(`fixture ${f.name} failed to compile:\n${r.rawOutput}`)
     writeFileSync(storyPath(f), r.story)
-    if (r.dbg) writeFileSync(`${OUT}${f.name}.dbg`, r.dbg)
+    if (r.dbg) writeFileSync(dbg, r.dbg)
+    else rmSync(dbg, { force: true })
     writeFileSync(stamp, key)
     log(`built ${f.name}.${f.version} (${r.story.length} bytes)`)
+  }
+  // Outputs of fixtures that were renamed or removed would otherwise linger and be tested.
+  for (const file of readdirSync(OUT)) {
+    if (!keep.has(file)) {
+      rmSync(`${OUT}${file}`, { force: true })
+      log(`removed stale ${file}`)
+    }
   }
 }
 

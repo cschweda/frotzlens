@@ -13,7 +13,7 @@ Every `<fixture>.<opt>.txt` here is the unedited standard output of Ztools' `inf
 
 **Licensing.** Ztools carries no license, so it is not in this repository in any form: no source, no binary, no WebAssembly build. These files are its output for our own story files (built from Christopher Schweda's sources in `test/fixtures/src`), which is ours to commit. See `docs/00-master-design.md` §11.
 
-**Fixtures.** The stories are compiled by `scripts/build-fixtures.mjs` with `@frotzinc/inform6-wasm` (Inform 6.44, Standard Library 6.12.8, PunyInform), each with `Serial "000000";` injected, so they are byte-for-byte reproducible and these files stay valid. If a fixture's source or the compiler changes, run `scripts/golden.sh` again and commit the result.
+**Fixtures.** The stories are compiled by `scripts/build-fixtures.mjs` with `@frotzinc/inform6-wasm` (Inform 6.44, Standard Library 6.12.8, PunyInform), each with `Serial "000000";` injected, so they are byte-for-byte reproducible and these files stay valid. If a fixture's source or the compiler changes, run `scripts/golden.sh` again (it rebuilds every fixture and clears the old golden files first) and commit the result.
 
 **Two infodump quirks** the script works around:
 - The Unix makefile leaves out Ztools' own `getopt.c`; build with the command above.

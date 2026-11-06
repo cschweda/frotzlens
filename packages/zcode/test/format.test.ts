@@ -3,7 +3,20 @@
  * Each expectation below is what infodump 7/3.1a printed for the same patch
  * of minimal.z5 (or puny-dark-cellar-v3/-v4) — observed black-box, one header
  * byte or table at a time, on 2026-11-06.
+ *
+ * To re-verify them against the real binary, run with INFODUMP set:
+ *
+ *   INFODUMP=/path/to/infodump pnpm --filter @frotzinc/zcode test
+ *
+ * The last test then writes every patched story used above to a temp folder,
+ * runs `infodump -i` on each (from that folder, with a short name), and
+ * requires our header output to equal it, except where a test says it differs
+ * on purpose.
  */
+import { spawnSync } from 'node:child_process'
+import { mkdtempSync, rmSync, writeFileSync } from 'node:fs'
+import { tmpdir } from 'node:os'
+import { join } from 'node:path'
 import { describe, expect, it } from 'vitest'
 import { formatDictionary, formatHeader, Writer } from '../src/format/index.js'
 import { parseStory } from '../src/index.js'
@@ -11,7 +24,10 @@ import { readStory } from './fixtures.js'
 
 type Patch = [address: number, value: number, kind?: 'word']
 
-function patched(file: string, patches: Patch[]): Uint8Array {
+/** Every patched story the tests built, for the INFODUMP re-check at the end. */
+const probes: { bytes: Uint8Array; deliberate: boolean }[] = []
+
+function patched(file: string, patches: Patch[], { deliberate = false } = {}): Uint8Array {
   const b = readStory(file).slice()
   for (const [a, v, kind] of patches) {
     if (kind === 'word') {
@@ -19,8 +35,12 @@ function patched(file: string, patches: Patch[]): Uint8Array {
       b[a + 1] = v & 0xff
     } else b[a] = v
   }
+  probes.push({ bytes: b, deliberate })
   return b
 }
+
+/** A story patched by hand in a test (not via `patched`), registered for the re-check too. */
+const probe = (b: Uint8Array) => (probes.push({ bytes: b, deliberate: false }), b)
 
 const headerLine = (bytes: Uint8Array, label: string) =>
   formatHeader(parseStory(bytes), { fileName: 'x' })
@@ -85,9 +105,13 @@ describe('header flags, as infodump names them', () => {
     expect(headerLine(patched(v3, [[0x10, 1 << bit, 'word']]), 'Game flags')).toBe(text)
   })
 
-  it('v3 flags2 bits 5–8 name their own mask (deliberate: infodump prints the next-lower bit\'s)', () => {
-    // infodump: bit 6 → "Unknown (0x0020)". Ours:
-    expect(headerLine(patched(v3, [[0x10, 1 << 6, 'word']]), 'Game flags')).toBe('Unknown (0x0040)')
+  it.each([
+    [5, 'Unknown (0x0020)', '0x0010'],
+    [6, 'Unknown (0x0040)', '0x0020'],
+    [7, 'Unknown (0x0080)', '0x0040'],
+    [8, 'Unknown (0x0100)', '0x0080'],
+  ])('v3 flags2 bit %i names its own mask: %s (deliberate: infodump prints %s)', (bit, text) => {
+    expect(headerLine(patched(v3, [[0x10, 1 << bit, 'word']], { deliberate: true }), 'Game flags')).toBe(text)
   })
 
   it('several flags are joined with ", "', () => {
@@ -121,7 +145,7 @@ describe('header: optional fields', () => {
   })
 
   it('a custom alphabet table: its address and its three rows, each up to a 0', () => {
-    const b = readStory(v5).slice()
+    const b = probe(readStory(v5).slice())
     const table = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ@#0123456789.,!?_#\'"/\\-:()'
     for (let i = 0; i < 78; i++) b[0x200 + i] = table.charCodeAt(i)
     b[0x34] = 0x02
@@ -157,7 +181,7 @@ describe('header: optional fields', () => {
     ['  12', undefined],
     ['\0\0\0\0', undefined],
   ])('bytes 0x3C–0x3F %j → Inform Version %j', (bytes, shown) => {
-    const b = readStory(v5).slice()
+    const b = probe(readStory(v5).slice())
     for (let i = 0; i < 4; i++) b[0x3c + i] = bytes.charCodeAt(i)
     expect(headerLine(b, 'Inform Version')).toBe(shown)
     // The model's own field is stricter: only d.dd counts as Inform's version.
@@ -184,5 +208,40 @@ describe('dictionary layout', () => {
     expect(formatDictionary(parseStory(readStory('minimal.z5')), { fileName: 'x' })).toBe(
       '\nStory file is x\n\n    **** Dictionary ****\n\n  Word separators = ".,""\n  Word count = 0, word size = 9\n\n',
     )
+  })
+})
+
+describe('dictionary rows for other entry lengths', () => {
+  it('8-byte entries: five 16-column cells fill 80 columns, so the 79-column wrap adds a blank line (as infodump does)', () => {
+    // Observed: infodump -d on puny-dark-cellar-v3.z3 with its entry length patched from 7 to 8
+    // prints "[   1] …  [   5] …  " then an empty line, then the next row.
+    const b = readStory('puny-dark-cellar-v3.z3').slice()
+    const d = (b[8]! << 8) | b[9]!
+    b[d + 1 + b[d]!] = 8
+    const lines = formatDictionary(parseStory(b), { fileName: 'x' }).split('\n')
+    // Lines 0–7: banner, separators, word count, blank. Then the rows.
+    expect(lines[8]!.match(/\[/g)).toHaveLength(5)
+    expect(lines[9]).toBe('')
+    expect(lines[10]!.startsWith('[   6]')).toBe(true)
+  })
+})
+
+describe.runIf(process.env.INFODUMP)('against the real infodump (INFODUMP is set)', () => {
+  it('every patched story above: our -i equals infodump -i', () => {
+    const dir = mkdtempSync(join(tmpdir(), 'zcode-probe-'))
+    try {
+      const checked = probes.filter(p => !p.deliberate)
+      expect(checked.length).toBeGreaterThan(40)
+      checked.forEach(({ bytes }, i) => {
+        // A short, bare name: infodump overflows an 80-byte buffer on a long path.
+        const name = `p${i}.z${bytes[0]}`
+        writeFileSync(join(dir, name), bytes)
+        const r = spawnSync(process.env.INFODUMP!, ['-i', name], { cwd: dir, encoding: 'latin1' })
+        expect(r.status, `infodump -i ${name}`).toBe(0)
+        expect(formatHeader(parseStory(bytes), { fileName: name }), name).toBe(r.stdout)
+      })
+    } finally {
+      rmSync(dir, { recursive: true, force: true })
+    }
   })
 })

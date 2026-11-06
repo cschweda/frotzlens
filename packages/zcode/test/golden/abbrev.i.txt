@@ -1,0 +1,25 @@
+
+Story file is abbrev.z5
+
+    **** Story file header ****
+
+Z-code version:           5
+Interpreter flags:        None
+Release number:           1
+Size of resident memory:  0580
+Start PC:                 0581
+Dictionary address:       0567
+Object table address:     011c
+Global variables address: 0384
+Size of dynamic memory:   0565
+Game flags:               None
+Serial number:            000000
+Abbreviations address:    0054
+File size:                00640
+Checksum:                 9961
+Terminating keys address: 0564
+    Keys used: 
+Header extension address: 0114
+Inform Version:           6.44
+Header extension length:  0003
+Unicode table address:    0000

@@ -22,8 +22,11 @@ INFODUMP="$(cd "$(dirname "$INFODUMP")" && pwd)/$(basename "$INFODUMP")"
 [[ -f package.json && "$(node -p 'require("./package.json").name')" == "@frotzinc/zcode" ]] ||
   { echo "Run this from packages/zcode." >&2; exit 1; }
 
-node scripts/build-fixtures.mjs
+# --force: a compiler change must reach the stories before infodump reads them.
+node scripts/build-fixtures.mjs --force
 mkdir -p test/golden
+# Golden files of renamed or removed fixtures would otherwise linger, untested.
+rm -f test/golden/*.txt
 (
   # infodump formats each line, the story's name included, into an 80-byte stack buffer: a long
   # path overflows it and infodump dies silently (SIGTRAP on macOS). So: bare filenames, run from

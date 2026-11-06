@@ -39,28 +39,28 @@ export function parseStory(data: Uint8Array, opts: ParseOptions = {}): StoryFile
     globals: [],
     errors,
   })
-  const blankHeader = (): Header => ({
-    version: (data[0] ?? 0) as Version,
+  const blankHeader = (version: number): Header => ({
+    version,
     flags1: 0, release: 0, highMemory: 0, initialPc: 0, dictionary: 0, objects: 0, globals: 0,
     staticMemory: 0, flags2: 0, serial: '', abbreviations: 0, fileLength: 0, checksum: 0, checksumOk: false,
   })
 
   if (isBlorb(data)) {
     errors.push({ code: 'blorb-unsupported', severity: 'error', message: 'This is a Blorb file; unwrapping it is not supported yet.' })
-    return empty('blorb', blankHeader())
+    return empty('blorb', blankHeader(0)) // a Blorb's first byte is 'F', not a version
   }
   if (data.length < HEADER_SIZE) {
     errors.push({ code: 'truncated', severity: 'error', message: `The file is ${data.length} bytes, shorter than a 64-byte header.` })
-    return empty('bare', blankHeader())
+    return empty('bare', blankHeader(data[0] ?? 0))
   }
 
   const header = parseHeader(bytes, errors)
   progress('header', 1)
-  const version = header.version
-  if (!(version >= 1 && version <= 8)) {
-    errors.push({ code: 'bad-header', severity: 'error', message: `Byte 0 is ${version}: not a Z-machine version (1–8).` })
+  if (!(header.version >= 1 && header.version <= 8)) {
+    errors.push({ code: 'bad-header', severity: 'error', message: `Byte 0 is ${header.version}: not a Z-machine version (1–8).` })
     return empty('bare', header)
   }
+  const version = header.version as Version
   if (!SUPPORTED.includes(version)) {
     errors.push({
       code: 'unsupported-version',
@@ -75,10 +75,15 @@ export function parseStory(data: Uint8Array, opts: ParseOptions = {}): StoryFile
   if (header.alphabetTable) {
     text.alphabets = guarded(errors, 'bad-text', 'The alphabet table', null, () => readAlphabetTable(bytes, header.alphabetTable!))
   }
+  let unicodeTableLength: number | null = null
   if (header.headerExtension?.unicodeTable) {
-    text.extra = guarded(errors, 'bad-text', 'The Unicode translation table', text.extra, () =>
+    const table = guarded(errors, 'bad-text', 'The Unicode translation table', null, () =>
       readUnicodeTable(bytes, header.headerExtension!.unicodeTable!),
     )
+    if (table) {
+      text.extra = table
+      unicodeTableLength = table.length
+    }
   }
   let abbreviations: ZString[] = []
   if (header.abbreviations) {
@@ -86,10 +91,13 @@ export function parseStory(data: Uint8Array, opts: ParseOptions = {}): StoryFile
     const addresses = guarded(errors, 'bad-text', 'The abbreviation table', [] as number[], () =>
       Array.from({ length: 96 }, (_, i) => bytes.word(header.abbreviations + 2 * i) * 2),
     )
-    abbreviations = guarded(errors, 'bad-text', 'An abbreviation', [] as ZString[], () =>
-      addresses.map((a, i) => readString(text, a, `abbrev:${i}`)),
+    // Each on its own: an unreadable one is an error and an empty string, and the rest stay.
+    abbreviations = addresses.map((a, i) =>
+      guarded(errors, 'bad-text', `Abbreviation ${i} (at ${hex(a)})`, { id: `abbrev:${i}` as const, address: a, length: 0, text: '' }, () =>
+        readString(text, a, `abbrev:${i}`),
+      ),
     )
-    // Strings may use abbreviations only once they are all readable; each is decoded once, here.
+    // Strings use abbreviations from here on; each is decoded once, above.
     if (abbreviations.length === 96) {
       text.abbreviations = addresses
       text.abbreviationTexts = abbreviations.map(a => a.text)
@@ -107,11 +115,11 @@ export function parseStory(data: Uint8Array, opts: ParseOptions = {}): StoryFile
   )
   progress('objects', 1)
   const dictionary = guarded(errors, 'bad-dictionary', 'The dictionary', emptyDictionary(header.dictionary), () =>
-    parseDictionary(bytes, version, header.dictionary, text, !!header.inform),
+    parseDictionary(bytes, version, header.dictionary, text, !!header.inform, errors),
   )
   progress('dictionary', 1)
   const globals = guarded(errors, 'bad-address', `The global variables (at ${hex(header.globals)})`, [], () =>
-    parseGlobals(bytes, header.globals),
+    parseGlobals(bytes, header.globals, header.staticMemory, errors),
   )
   progress('globals', 1)
 
@@ -123,7 +131,15 @@ export function parseStory(data: Uint8Array, opts: ParseOptions = {}): StoryFile
     })
   }
 
-  const memory = buildMemoryMap(data.length, header, objects.table, dictionary, objects.entriesEnd, objects.propertiesRange)
+  const memory = buildMemoryMap(
+    data.length,
+    header,
+    objects.table,
+    dictionary,
+    objects.entriesEnd,
+    objects.propertiesRange,
+    unicodeTableLength,
+  )
   progress('memory', 1)
 
   return { bytes: data, container: 'bare', header, memory, abbreviations, dictionary, objects: objects.table, globals, errors }

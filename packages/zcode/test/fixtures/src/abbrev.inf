@@ -1,0 +1,28 @@
+!% -e
+! ============================================================================
+!  ABBREVIATIONS  —  Frotzlens test fixture
+! ----------------------------------------------------------------------------
+!  Compiled in economy mode (the -e switch, set by the line above), so the
+!  Abbreviate directives below fill the abbreviation table and every string,
+!  short name and dictionary word that contains one is stored using it. The
+!  other fixtures leave the table blank. No library. Copyright Christopher
+!  Schweda; MIT, as part of @frotzinc/zcode's tests.
+! ============================================================================
+
+Abbreviate "the ";
+Abbreviate "lantern";
+Abbreviate "You ";
+Abbreviate "ing";
+Abbreviate ". ";
+
+Object Cellar "the cellar under the old house";
+Object -> Lantern "the brass lantern"
+  with name 'lantern' 'brass',
+       description "You see the brass lantern, glowing.";
+Object -> Note "a note reading ~the lantern is the thing~";
+
+[ Main;
+  print "You are standing in the cellar. The lantern is lit.^";
+  print "Something is moving in the dark. You hear scratching.^";
+  @quit;
+];

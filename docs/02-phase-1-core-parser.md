@@ -27,7 +27,7 @@
 | 12 | Objects: property defaults, entries (9 bytes v1–3 / 14 bytes v4+), attributes (32/48), short name, property lists with the v1–3 vs v4+ size-byte encodings (§12.4) | `objects.ts` |
 | 13 | Dictionary: separators, entry length, count, 4-byte (v1–3) / 6-byte (v4+) encoded words | `dictionary.ts` |
 
-Inform's compiler version (header `0x3C–0x3F`, ASCII, e.g. `6.44`) is read too. The Standard treats `$38–$3F` as reserved; the comment says so. Every non-obvious rule above carries its section number in a comment.
+Inform's compiler version (header `0x3C–0x3F`, ASCII, e.g. `6.44`) is read too. The Standard leaves `$38–$3F` to the compiler or user (it calls it the "username" area), and the code comment says that. Every non-obvious rule above carries its section number in a comment.
 
 ## 3. The model (proposed — for review before code)
 
@@ -49,7 +49,7 @@ export interface StoryFile {
 
 export type Version = 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8
 
-// ── Stable IDs (the app routes on these: #object/47, #dict/1ca3) ─────
+// ── Stable IDs. The app's hash route is the ID with its first ':' as '/': object:47 ↔ #object/47 ─
 export type Id =
   | `object:${number}` | `dict:${string}` | `global:${number}`
   | `abbrev:${number}` | `string:${string}` | `routine:${string}` | `segment:${string}`
@@ -94,7 +94,6 @@ export interface ZString {
   address: number
   length: number               // bytes consumed, through the word with the end bit
   text: string                 // decoded, Unicode
-  zchars?: number[]            // kept only when asked (Memory view annotation)
 }
 
 // ── Dictionary (§13) ───────────────────────────────────────────────
@@ -194,11 +193,12 @@ Built at test time by `@frotzinc/inform6-wasm`, each with `Serial "000000";` inj
 
 | Fixture | Built as |
 |---|---|
-| `dark-cellar` | v5 (+ `.dbg`), and v3, v4, v8 |
-| `puny-dark-cellar` | v5 against PunyInform |
+| `dark-cellar` | v5 (+ `.dbg`) and v8 |
+| `puny-dark-cellar` | against PunyInform, as v3, v4 and v5 (the Standard Library needs v5+; see §8) |
 | `locked-chest`, `hermit`, `demo`, `mingus-1`, `architect-legacy` | v5 |
 | `grammar`, `list-exits`, `magic-8-ball` | v5 (they compile standalone) |
 | `minimal` | v5, `[ Main; @quit; ];`, no library |
+| `abbrev` | v5, economy mode (`!% -e`) with `Abbreviate` directives: the one real abbreviation table |
 | `gv1` | v5, a small game with `Constant Grammar__Version 1;` (used from Phase 2) |
 | `corrupt-truncated`, `corrupt-badheader` | generated in the test from `dark-cellar.z5` |
 
@@ -240,3 +240,19 @@ Ztools has no license, so nothing of it enters the repo (decision recorded in `0
 - **Hardening, from the post-commit security review:** abbreviations are decoded once and reused, a decoded string is capped at 65,536 characters, and a whole story at 16,777,216 (a v4+ object table can hold 65,535 short names, so the per-string cap alone doesn't bound it); the limits are checked before each append, and either one sets a `bad-text` warning. A file whose short names chain hundreds of 32K-word abbreviations can't exhaust memory (`test/security.test.ts`).
 - **infodump behaviours worth knowing** (all reproduced): output wraps at 79 columns by breaking at the last space and dropping it, so a property longer than 20 bytes continues at column 0; the dictionary prints as many `[nnnn] word` cells per row as fit in 80 columns, padded to the entry length (which infodump calls "word size"); with flags1 bit 0 set, infodump refuses the file ("wrong game or version"), so that case has no reference output.
 - **CI builds before it typechecks**, since the CLI typechecks against `@frotzinc/zcode`'s `dist/`.
+
+### After review (PR #1's cubic findings, fixed on `phase-1-review`)
+
+Changes to the model from §3, all small:
+
+- `Header.version` is `number` (byte 0 as stored), not `Version`: a corrupt file can hold any byte there, and the type shouldn't claim otherwise. A valid story has 1–8; anything else comes with `bad-header`.
+- `Property.data` is `number[]`, not `Uint8Array`, so the whole model except `bytes` is plain JSON.
+- `Header.headerExtension.declaredLength` keeps the table's own length word when the file ends before all of it.
+- `DictEntry.inform.singular` (Inform's `SING_DFLAG`, bit 4).
+- `Segment.kind` adds `header-extension`, `alphabet`, `unicode` and `terminating-chars`; every segment lies inside the file.
+- `ZString.zchars` is gone (nothing produced it).
+- `unpack()` takes the v6–7 offset and refuses to guess without it.
+
+Damage now costs one entry, not a table: a bad property table ends the object table at that object, a dictionary that runs off the file keeps its readable words, and one bad abbreviation leaves the other 95. `guarded()` turns only bad-file errors into `ParseError`s and rethrows anything else, so a bug can't hide as one.
+
+The `abbrev` fixture (economy mode) gives the golden tests a real abbreviation table. With `INFODUMP=/path/to/infodump` set, the tests also check every hand-observed header case, and all five sections of every story in `samples/`, against the real binary.
