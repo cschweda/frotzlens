@@ -53,7 +53,12 @@ const rows = computed<Row[]>(() => {
   // A level's objects are claimed when the level is reached, so its set size and positions count
   // only what is shown there (a broken file can list an object twice, or loop).
   const claimed = new Set<number>()
-  const claim = (list: number[]) => list.filter(n => !claimed.has(n) && (claimed.add(n), true))
+  const claim = (list: number[]) =>
+    list.filter((n) => {
+      if (claimed.has(n)) return false
+      claimed.add(n)
+      return true
+    })
   const stack: { list: number[]; i: number; level: number; parent: number }[] = [{ list: claim(roots.value), i: 0, level: 1, parent: 0 }]
   while (stack.length) {
     const top = stack.at(-1)!
