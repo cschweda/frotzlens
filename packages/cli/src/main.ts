@@ -55,7 +55,7 @@ ${SECTIONS.map(s => `  -${s.short}, --${s.long.padEnd(15)} ${s.help}`).join('\n'
   -h, --help            print this
   -v, --version         print the version
 
-Everything runs locally; nothing is uploaded. https://frotzlens.com
+Everything runs locally; nothing is uploaded. https://frotzlens.frotzinc.com
 `
 
 /** The model for JSON: everything but the story's own bytes. */

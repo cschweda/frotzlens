@@ -5,7 +5,7 @@
   "license": "GPL-3.0-or-later",
   "author": "Christopher Schweda",
   "type": "module",
-  "homepage": "https://frotzlens.com",
+  "homepage": "https://frotzlens.frotzinc.com",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/cschweda/frotzlens.git",
