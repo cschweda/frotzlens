@@ -4,7 +4,7 @@ import { parseGlobals } from './globals.js'
 import { HEADER_SIZE, parseHeader } from './header.js'
 import { buildMemoryMap } from './memory.js'
 import { parseObjects, type ObjectsResult } from './objects.js'
-import { MAX_TEXT, defaultExtra, readAlphabetTable, readString, readUnicodeTable, type TextContext } from './text.js'
+import { MAX_TEXT, MAX_TOTAL_TEXT, defaultExtra, readAlphabetTable, readString, readUnicodeTable, type TextContext } from './text.js'
 import type { Dictionary, Header, ParseError, ParseOptions, StoryFile, Version, ZString } from './types.js'
 
 /** Versions this package parses beyond the header. */
@@ -71,7 +71,7 @@ export function parseStory(data: Uint8Array, opts: ParseOptions = {}): StoryFile
   }
 
   // ── Text: alphabets, Unicode table, abbreviations ──
-  const text: TextContext = { bytes, version, abbreviations: [], alphabets: null, extra: defaultExtra() }
+  const text: TextContext = { bytes, version, abbreviations: [], alphabets: null, extra: defaultExtra(), budget: MAX_TOTAL_TEXT }
   if (header.alphabetTable) {
     text.alphabets = guarded(errors, 'bad-text', 'The alphabet table', null, () => readAlphabetTable(bytes, header.alphabetTable!))
   }
@@ -119,7 +119,7 @@ export function parseStory(data: Uint8Array, opts: ParseOptions = {}): StoryFile
     errors.push({
       code: 'bad-text',
       severity: 'warning',
-      message: `At least one string decodes to more than ${MAX_TEXT} characters; it was cut there.`,
+      message: `The story's text is cut short: a string decodes to more than ${MAX_TEXT} characters, or all of it to more than ${MAX_TOTAL_TEXT}.`,
     })
   }
 

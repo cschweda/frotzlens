@@ -26,6 +26,13 @@ const DEFAULT_EXTRA = 'äöüÄÖÜß»«ëïÿËÏáéíóúýÁÉÍÓÚÝàè�
  */
 export const MAX_TEXT = 65_536
 
+/**
+ * The most text one story may decode to, across every string. The per-string
+ * cap alone doesn't bound a story: a v4+ object table holds up to 65,535 short
+ * names. Real games decode to well under a million characters, strings and all.
+ */
+export const MAX_TOTAL_TEXT = 16_777_216
+
 /** What decoding needs from the header, gathered once. */
 export interface TextContext {
   bytes: Bytes
@@ -34,7 +41,9 @@ export interface TextContext {
   abbreviations: number[]
   /** Each abbreviation's text, decoded once (same order as `abbreviations`). */
   abbreviationTexts?: string[]
-  /** Set when a string was cut at MAX_TEXT. */
+  /** Characters left for the whole story (MAX_TOTAL_TEXT when the context is made). */
+  budget?: number
+  /** Set when a string was cut at MAX_TEXT, or the story's budget ran out. */
   truncated?: boolean
   /** 3 × 26 ZSCII codes (§3.5.5), or null for the defaults. */
   alphabets: number[][] | null
@@ -135,16 +144,24 @@ function charFor(ctx: TextContext, alphabet: number, z: number): string {
  * is a newline. An incomplete construct at the end is dropped (§3.6.1).
  */
 export function decodeZchars(ctx: TextContext, zchars: number[], inAbbreviation = false): string {
+  // The limit for this string: its own cap, or what's left of the story's budget.
+  const limit = Math.min(MAX_TEXT, ctx.budget ?? Infinity)
   let out = ''
   let alphabet = 0
-  for (let i = 0; i < zchars.length; i++) {
-    if (out.length >= MAX_TEXT) {
+  const append = (text: string) => {
+    if (out.length + text.length > limit) {
+      out += text.slice(0, Math.max(0, limit - out.length))
       ctx.truncated = true
-      return out.slice(0, MAX_TEXT)
+    } else out += text
+  }
+  for (let i = 0; i < zchars.length; i++) {
+    if (out.length >= limit) {
+      ctx.truncated = true
+      break
     }
     const z = zchars[i]!
     if (z === 0) {
-      out += ' '
+      append(' ')
       alphabet = 0
     } else if (z >= 1 && z <= 3) {
       // Abbreviation 32(z−1) + next (§3.3). An abbreviation may not use one itself (§3.3.1).
@@ -153,10 +170,10 @@ export function decodeZchars(ctx: TextContext, zchars: number[], inAbbreviation 
       if (!inAbbreviation) {
         const n = 32 * (z - 1) + next
         const cached = ctx.abbreviationTexts?.[n]
-        if (cached !== undefined) out += cached
+        if (cached !== undefined) append(cached)
         else {
           const address = ctx.abbreviations[n]
-          if (address !== undefined) out += decodeZchars(ctx, readZchars(ctx.bytes, address).zchars, true)
+          if (address !== undefined) append(decodeZchars(ctx, readZchars(ctx.bytes, address).zchars, true))
         }
       }
       alphabet = 0
@@ -168,20 +185,18 @@ export function decodeZchars(ctx: TextContext, zchars: number[], inAbbreviation 
       const lo = zchars[i + 2]
       i += 2
       if (hi === undefined || lo === undefined) break
-      out += zsciiToText((hi << 5) | lo, ctx)
+      append(zsciiToText((hi << 5) | lo, ctx))
       alphabet = 0
     } else if (alphabet === 2 && z === 7) {
-      out += '\n'
+      append('\n')
       alphabet = 0
     } else {
-      out += charFor(ctx, alphabet, z)
+      append(charFor(ctx, alphabet, z))
       alphabet = 0
     }
   }
-  if (out.length > MAX_TEXT) {
-    ctx.truncated = true
-    return out.slice(0, MAX_TEXT)
-  }
+  // A whole string spends the story's budget; an abbreviation's text is spent by the string using it.
+  if (!inAbbreviation && ctx.budget !== undefined) ctx.budget -= out.length
   return out
 }
 

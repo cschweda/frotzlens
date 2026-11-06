@@ -6,7 +6,7 @@ import { describe, expect, it } from 'vitest'
 import { Bytes } from '../src/bytes.js'
 import { formatHeader } from '../src/format/index.js'
 import { parseStory } from '../src/index.js'
-import { MAX_TEXT, decodeZchars, defaultExtra, isUnsafeCodePoint, zsciiToText, type TextContext } from '../src/text.js'
+import { MAX_TEXT, MAX_TOTAL_TEXT, decodeZchars, defaultExtra, isUnsafeCodePoint, zsciiToText, type TextContext } from '../src/text.js'
 import { readStory } from './fixtures.js'
 
 describe('no control or formatting characters out of a Unicode table', () => {
@@ -48,6 +48,45 @@ describe('abbreviation amplification is capped', () => {
     expect(out.length).toBe(MAX_TEXT)
     expect(ctx.truncated).toBe(true)
     expect(performance.now() - started).toBeLessThan(500)
+  })
+
+  it('appends are cut before they land, not after', () => {
+    const ctx: TextContext = {
+      bytes: new Bytes(new Uint8Array(0)),
+      version: 5,
+      abbreviations: [0],
+      abbreviationTexts: ['y'.repeat(MAX_TEXT + 10_000)],
+      alphabets: null,
+      extra: defaultExtra(),
+    }
+    expect(decodeZchars(ctx, [1, 0])).toHaveLength(MAX_TEXT)
+    expect(ctx.truncated).toBe(true)
+  })
+
+  it('the story-wide budget runs out across strings, not just within one', () => {
+    const ctx: TextContext = {
+      bytes: new Bytes(new Uint8Array(0)),
+      version: 5,
+      abbreviations: [],
+      alphabets: null,
+      extra: defaultExtra(),
+      budget: 100,
+    }
+    const sixty = Array.from({ length: 60 }, () => 6) // "aaaa…", 60 characters
+    expect(decodeZchars(ctx, sixty)).toHaveLength(60)
+    expect(ctx.truncated).toBeFalsy()
+    expect(decodeZchars(ctx, sixty)).toHaveLength(40)
+    expect(ctx.truncated).toBe(true)
+    expect(decodeZchars(ctx, sixty)).toBe('')
+    expect(ctx.budget).toBe(0)
+  })
+
+  it(`a story starts with a ${MAX_TOTAL_TEXT.toLocaleString('en')}-character budget, and real ones use a sliver of it`, () => {
+    // The fuzz and bad-input tests show the cut-off path is safe; this shows real games are far from it.
+    const s = parseStory(readStory('mingus-1.z5'))
+    const used = s.objects.objects.reduce((n, o) => n + o.shortName.text.length, 0) +
+      s.dictionary.entries.reduce((n, e) => n + e.word.length, 0)
+    expect(used).toBeLessThan(MAX_TOTAL_TEXT / 1000)
   })
 
   it('real stories are never cut', () => {
