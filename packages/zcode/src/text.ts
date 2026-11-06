@@ -18,12 +18,24 @@ const DEFAULT_ALPHABETS = [
  */
 const DEFAULT_EXTRA = 'äöüÄÖÜß»«ëïÿËÏáéíóúýÁÉÍÓÚÝàèìòùÀÈÌÒÙâêîôûÂÊÎÔÛåÅøØãñõÃÑÕæÆçÇþðÞÐ£œŒ¡¿'
 
+/**
+ * The most text one string may decode to. A string is at most 0x8000 words, but
+ * abbreviations multiply it: a 255-word short name can name ~380 abbreviations,
+ * each up to 0x8000 words. Real strings are a few KB at most; past this, the
+ * rest is dropped and `truncated` is set, so a hostile file can't exhaust memory.
+ */
+export const MAX_TEXT = 65_536
+
 /** What decoding needs from the header, gathered once. */
 export interface TextContext {
   bytes: Bytes
   version: Version
   /** Byte addresses of the 96 abbreviation strings, or [] for none. */
   abbreviations: number[]
+  /** Each abbreviation's text, decoded once (same order as `abbreviations`). */
+  abbreviationTexts?: string[]
+  /** Set when a string was cut at MAX_TEXT. */
+  truncated?: boolean
   /** 3 × 26 ZSCII codes (§3.5.5), or null for the defaults. */
   alphabets: number[][] | null
   /** ZSCII 155 + i → this Unicode code point. */
@@ -61,14 +73,37 @@ export function readUnicodeTable(bytes: Bytes, address: number): number[] {
   return out
 }
 
-/** One ZSCII output code as text (§3.8). Codes with no meaning on output become '?'. */
+/**
+ * True for a code point that must never reach a terminal or a page as-is: C0
+ * and C1 controls (ESC starts a terminal escape sequence) and the Unicode
+ * bidirectional and invisible formatting characters (which can reorder or hide
+ * text). A story's Unicode translation table may map to any code point.
+ */
+export function isUnsafeCodePoint(cp: number): boolean {
+  return (
+    cp < 0x20 ||
+    (cp >= 0x7f && cp <= 0x9f) ||
+    cp === 0x061c ||
+    (cp >= 0x200b && cp <= 0x200f) ||
+    (cp >= 0x202a && cp <= 0x202e) ||
+    (cp >= 0x2060 && cp <= 0x2069) ||
+    cp === 0xfeff ||
+    (cp >= 0xd800 && cp <= 0xdfff) ||
+    cp > 0x10ffff
+  )
+}
+
+/**
+ * One ZSCII output code as text (§3.8). Codes with no meaning on output, and
+ * Unicode-table mappings to control or formatting characters, become '?'.
+ */
 export function zsciiToText(code: number, ctx: Pick<TextContext, 'extra'>): string {
   if (code === 0) return ''
   if (code === 13) return '\n'
   if (code >= 32 && code <= 126) return String.fromCharCode(code)
   if (code >= 155 && code <= 251) {
     const cp = ctx.extra[code - 155]
-    return cp !== undefined ? String.fromCodePoint(cp) : '?'
+    return cp !== undefined && !isUnsafeCodePoint(cp) ? String.fromCodePoint(cp) : '?'
   }
   return '?'
 }
@@ -103,6 +138,10 @@ export function decodeZchars(ctx: TextContext, zchars: number[], inAbbreviation 
   let out = ''
   let alphabet = 0
   for (let i = 0; i < zchars.length; i++) {
+    if (out.length >= MAX_TEXT) {
+      ctx.truncated = true
+      return out.slice(0, MAX_TEXT)
+    }
     const z = zchars[i]!
     if (z === 0) {
       out += ' '
@@ -112,8 +151,13 @@ export function decodeZchars(ctx: TextContext, zchars: number[], inAbbreviation 
       const next = zchars[++i]
       if (next === undefined) break
       if (!inAbbreviation) {
-        const address = ctx.abbreviations[32 * (z - 1) + next]
-        if (address !== undefined) out += decodeZchars(ctx, readZchars(ctx.bytes, address).zchars, true)
+        const n = 32 * (z - 1) + next
+        const cached = ctx.abbreviationTexts?.[n]
+        if (cached !== undefined) out += cached
+        else {
+          const address = ctx.abbreviations[n]
+          if (address !== undefined) out += decodeZchars(ctx, readZchars(ctx.bytes, address).zchars, true)
+        }
       }
       alphabet = 0
     } else if (z === 4 || z === 5) {
@@ -133,6 +177,10 @@ export function decodeZchars(ctx: TextContext, zchars: number[], inAbbreviation 
       out += charFor(ctx, alphabet, z)
       alphabet = 0
     }
+  }
+  if (out.length > MAX_TEXT) {
+    ctx.truncated = true
+    return out.slice(0, MAX_TEXT)
   }
   return out
 }

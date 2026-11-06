@@ -32,7 +32,7 @@ export function parseHeader(bytes: Bytes, errors: ParseError[]): Header {
     globals: bytes.word(0x0c),
     staticMemory: bytes.word(0x0e),
     flags2: bytes.word(0x10),
-    serial: String.fromCharCode(...bytes.slice(0x12, 6)),
+    serial: printableAscii(bytes.slice(0x12, 6)),
     abbreviations: bytes.word(0x18),
     fileLength,
     checksum,
@@ -84,6 +84,13 @@ export function parseHeader(bytes: Bytes, errors: ParseError[]): Header {
     })
   }
   return h
+}
+
+/** Bytes as text, with anything outside printable ASCII (0x20–0x7E) as '?'. */
+export function printableAscii(b: ArrayLike<number>): string {
+  let s = ''
+  for (let i = 0; i < b.length; i++) s += b[i]! >= 0x20 && b[i]! <= 0x7e ? String.fromCharCode(b[i]!) : '?'
+  return s
 }
 
 /** The terminating characters table (v5+, header 0x2E; §10.5.2.1): ZSCII codes up to a 0. */

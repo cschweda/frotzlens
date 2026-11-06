@@ -7,6 +7,10 @@
  * pinned by its own test in format.test.ts):
  *   - v3 flags2 bits 5–8: infodump prints the next-lower bit's mask in its
  *     "Unknown (0x…)"; we print the bit's own.
+ *   - Raw header bytes (the alphabet rows, the Inform version, the serial):
+ *     infodump prints them as they are; outside printable ASCII we print '?',
+ *     and Unicode-table mappings to control or bidi characters become '?', so
+ *     a story can't put a terminal escape in our output (security.test.ts).
  */
 import { existsSync, readFileSync } from 'node:fs'
 import { describe, expect, it } from 'vitest'

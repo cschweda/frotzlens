@@ -4,7 +4,7 @@ import { parseGlobals } from './globals.js'
 import { HEADER_SIZE, parseHeader } from './header.js'
 import { buildMemoryMap } from './memory.js'
 import { parseObjects, type ObjectsResult } from './objects.js'
-import { defaultExtra, readAlphabetTable, readString, readUnicodeTable, type TextContext } from './text.js'
+import { MAX_TEXT, defaultExtra, readAlphabetTable, readString, readUnicodeTable, type TextContext } from './text.js'
 import type { Dictionary, Header, ParseError, ParseOptions, StoryFile, Version, ZString } from './types.js'
 
 /** Versions this package parses beyond the header. */
@@ -89,8 +89,11 @@ export function parseStory(data: Uint8Array, opts: ParseOptions = {}): StoryFile
     abbreviations = guarded(errors, 'bad-text', 'An abbreviation', [] as ZString[], () =>
       addresses.map((a, i) => readString(text, a, `abbrev:${i}`)),
     )
-    // Strings may use abbreviations only once they are all readable.
-    if (abbreviations.length === 96) text.abbreviations = addresses
+    // Strings may use abbreviations only once they are all readable; each is decoded once, here.
+    if (abbreviations.length === 96) {
+      text.abbreviations = addresses
+      text.abbreviationTexts = abbreviations.map(a => a.text)
+    }
   }
   progress('text', 1)
 
@@ -111,6 +114,14 @@ export function parseStory(data: Uint8Array, opts: ParseOptions = {}): StoryFile
     parseGlobals(bytes, header.globals),
   )
   progress('globals', 1)
+
+  if (text.truncated) {
+    errors.push({
+      code: 'bad-text',
+      severity: 'warning',
+      message: `At least one string decodes to more than ${MAX_TEXT} characters; it was cut there.`,
+    })
+  }
 
   const memory = buildMemoryMap(data.length, header, objects.table, dictionary, objects.entriesEnd, objects.propertiesRange)
   progress('memory', 1)

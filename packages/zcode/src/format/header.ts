@@ -71,7 +71,9 @@ export function formatHeader(story: StoryFile, opts: FormatOptions): string {
       for (let i = 0; i < 26; i++) {
         const c = story.bytes[h.alphabetTable + a * 26 + i] ?? 0
         if (!c) break
-        row += String.fromCharCode(c)
+        // Deliberate difference: infodump prints these bytes raw; anything outside printable ASCII
+        // is '?' here, so a story can't put a terminal escape in our output.
+        row += c >= 0x20 && c <= 0x7e ? String.fromCharCode(c) : '?'
       }
       w.write(`    "${row}"\n`)
     }
@@ -81,7 +83,7 @@ export function formatHeader(story: StoryFile, opts: FormatOptions): string {
   const b = story.bytes
   if (b[0x3c] && b[0x3c] !== 0x20 && !(b[0x3d]! >= 0x30 && b[0x3d]! <= 0x39)) {
     let v = ''
-    for (let i = 0x3c; i < 0x40 && b[i]; i++) v += String.fromCharCode(b[i]!)
+    for (let i = 0x3c; i < 0x40 && b[i]; i++) v += b[i]! >= 0x20 && b[i]! <= 0x7e ? String.fromCharCode(b[i]!) : '?'
     line('Inform Version', v)
   }
   if (h.headerExtension) {
