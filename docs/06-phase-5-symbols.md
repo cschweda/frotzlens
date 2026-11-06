@@ -10,7 +10,7 @@ Phase 5 finishes v1 (see the master design, §10). It lands in three pull reques
 
 `parseStory` unwraps a Blorb (Blorb spec 2.0): it walks the IFF `FORM`'s chunks (each padded to an even length), reads the resource index (`RIdx`), and parses the story inside as if it had been dropped on its own. The story is the index's `Exec 0` when that names a `ZCOD` chunk, else the first `ZCOD` chunk. `story.blorb` lists the chunks and resources, the cover picture's number (`Fspc`) and the iFiction metadata (`IFmd`), with its title and author.
 
-Each structural problem it can see gives a `bad-blorb` warning: a chunk running past the end, an odd last chunk with no pad byte, bytes left over, or an index entry pointing at no chunk or claiming more entries than it has room for. The story is still read when its `ZCOD` chunk can be found. A problem that hides that chunk, such as a corrupt length before it, leaves `blorb-unsupported`. A Blorb with no Z-machine story, such as a Glulx game's, is `blorb-unsupported` and says which it is. A Blorb inside a Blorb is unwrapped too; each level is strictly smaller, so this ends.
+Each structural problem it can see gives a `bad-blorb` warning: a FORM length that disagrees with the file's size (or is too short to hold its type), a chunk running past the end, an odd last chunk with no pad byte, bytes left over, or an index entry pointing at no chunk or claiming more entries than it has room for. The story is still read when its `ZCOD` chunk can be found. A problem that hides that chunk, such as a corrupt length before it, leaves `blorb-unsupported`. A Blorb with no Z-machine story, such as a Glulx game's, is `blorb-unsupported` and says which it is. A Blorb inside a Blorb is unwrapped too; each level is strictly smaller, so this ends.
 
 ## 2. Symbols from gameinfo.dbg
 
@@ -56,7 +56,7 @@ The shapes are in `src/veneer-signatures.generated.ts`, built from the debug fix
 
 The start is found when it is a constant: the Standard Library's `location = Room;` in `Initialise`, PunyInform's `Constant INITIAL_LOCATION_VALUE`, or the `location` global's starting value. A start the game works out as it runs isn't found.
 
-`toMapGraph` gives the shape Frotzsmith's map draws: rooms by name, an edge for every exit that reaches a room (candidates included), and the start first. Rooms that share a name get their object number. On Mingus I, 18 rooms come out, all connected from the start, and every routine exit resolves to one room.
+`toMapGraph` gives the shape Frotzsmith's map draws: rooms by name, an edge for every exit that reaches a room (candidates included), and the start first. Rooms that share a name get their object number. On Mingus I, 19 rooms come out, all connected from the start. Every routine exit resolves to at least one room. One of them, the ending's room (The River's Edge), is reached only by a routine exit.
 
 ## 5. ZIL
 
