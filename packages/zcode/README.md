@@ -28,7 +28,7 @@ It covers versions 3, 4, 5 and 8. For versions 1, 2, 6 and 7 it reads the header
 | `code` | Every routine, in address order: locals, and each instruction decoded (operands, store, branch, inline text) | §4, §5 |
 | `strings` | The packed strings after the code | §3 |
 | `grammar` | Inform's grammar table (versions 1, 2 and 3): verbs, lines, tokens, actions, prepositions | Inform |
-| `xrefs` | For each routine, string, object, global and dictionary word: what refers to it, and what it refers to | |
+| `xrefs` | What refers to each routine, string, object, global and dictionary word, and what each refers to. Sparse: only things with a reference either way have an entry. | |
 | `errors` | `{ code, severity, message, address? }`. A table that can't be read comes back empty and the others still come back. Nothing throws. | |
 
 The model is plain data: it survives `structuredClone` (so it crosses a worker boundary), and everything but `bytes`, the story itself, serialises to JSON as it is. Every addressable thing has a stable `id` (`object:47`, `dict:1ca3`, `global:3`, `abbrev:12`).
@@ -41,6 +41,10 @@ import { formatObjects } from '@frotzinc/zcode/format'
 process.stdout.write(formatObjects(story, { fileName: 'game.z5' }))
 ```
 
-`formatHeader`, `formatMap`, `formatAbbreviations`, `formatObjects`, `formatTree`, `formatGrammar` and `formatDictionary` produce the text of Ztools' `infodump -i`, `-m`, `-a`, `-o`, `-t`, `-g` and `-d`; `formatTxd` and `formatRoutine` produce `txd`'s disassembly (`addresses: true` for `txd -n`). On every test fixture the output is byte for byte the same. The deliberate differences, none of which any fixture shows, are listed in `test/golden.test.ts`: one `infodump` mislabelling of v3 flags, and non-printable header bytes (and control characters from a story's Unicode table) printed as `?`. The [`frotzlens`](https://www.npmjs.com/package/frotzlens) CLI is built on these.
+`formatHeader`, `formatMap`, `formatAbbreviations`, `formatObjects`, `formatTree`, `formatGrammar` and `formatDictionary` produce the text of Ztools' `infodump -i`, `-m`, `-a`, `-o`, `-t`, `-g` and `-d`; `formatTxd` and `formatRoutine` produce `txd`'s disassembly (`addresses: true` for `txd -n`). Where Ztools reads a story correctly, the output is byte for byte the same on every test fixture and sample. The exceptions, and why, are listed in `test/golden.test.ts` and `test/txd.test.ts`:
+
+- **PunyInform** stories use Inform's version-3 grammar, which Ztools misreads as version 1. Their grammar sections and `txd`'s grammar notes have no reference. Everything else is compared, routine by routine.
+- **`minimal`'s `-m`:** `infodump` sizes an empty property-names table as 0x20000 bytes. We print the true size.
+- **Raw header bytes, and control characters from a story's Unicode table,** print as `?`, so a story can't put a terminal escape in our output. This changes no real story's output, and neither does printing v3 flags2's unknown bits with their own mask. The [`frotzlens`](https://www.npmjs.com/package/frotzlens) CLI is built on these.
 
 MIT. Part of [Frotzlens](https://frotzlens.com), from Frotz, Inc.

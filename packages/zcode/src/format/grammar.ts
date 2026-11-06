@@ -52,12 +52,15 @@ function tokenText(t: GrammarToken, g: Grammar, story: StoryFile): string {
   }
 }
 
+/** Dictionary text in a one-line listing: no control characters (a word can hold a newline). */
+const oneLine = (s: string) => s.replace(/[\p{Cc}\p{Cf}\p{Zl}\p{Zp}]/gu, '?')
+
 /** A grammar line as text, its verb first: "put noun in noun", "climb up / over noun". */
 export function grammarLineText(story: StoryFile, verb: string, line: GrammarLine): string {
   const g = story.grammar!
   let s = verb
   for (const t of line.tokens) s += `${t.alternative ? ' / ' : ' '}${tokenText(t, g, story)}`
-  return s
+  return oneLine(s)
 }
 
 /** Every grammar line, with its verb's word, in table order. */
@@ -77,7 +80,7 @@ export function formatGrammar(story: StoryFile, opts: FormatOptions): string {
   banner(w, opts, 'Parse tables')
   w.write(`  Verb entries = ${g.verbs.length}\n`)
   for (const v of g.verbs) {
-    const [verb = '', ...synonyms] = v.words
+    const [verb = '', ...synonyms] = v.words.map(oneLine)
     const n = v.lines.length
     let head = `${dec(v.number, 3)}. ${n} entr${n === 1 ? 'y' : 'ies'}, verb = "${verb}"`
     // A long synonym list wraps with its lines lined up under the first synonym.
@@ -107,13 +110,15 @@ export function formatGrammar(story: StoryFile, opts: FormatOptions): string {
   if (g.version === 1) {
     w.write(`\n    **** Parsing routines ****\n\n  Number of parsing routines = ${g.parsingRoutines.length}\n\nparse# parsing-routine "verb..."\n\n`)
     g.parsingRoutines.forEach((routine, n) => {
-      const texts = listed(l => l.tokens.some(t => t.kind === 'routine' && t.data === n))
+      // noun=, general and scope= routine tokens all index the parsing-routine table.
+      const usesTable = (t: GrammarToken) => t.kind === 'routine' || t.kind === 'noun-routine' || t.kind === 'scope-routine'
+      const texts = listed(l => l.tokens.some(t => usesTable(t) && t.data === n))
       w.write(`${dec(n, 3)}. ${hx(routine, 1).padStart(5)}  ${texts.length ? `"${texts[0]}` : ''}\n`)
       for (const t of texts.slice(1)) w.write(`            "${t}\n`)
     })
   }
 
   w.write(`\n    **** Prepositions ****\n\n  Table entries = ${g.prepositions.length}\n\n`)
-  for (const p of [...g.prepositions].sort((a, b) => a.number - b.number)) w.write(`${dec(p.number, 3)}. "${p.word}"\n`)
+  for (const p of [...g.prepositions].sort((a, b) => a.number - b.number)) w.write(`${dec(p.number, 3)}. "${oneLine(p.word)}"\n`)
   return w.toString()
 }

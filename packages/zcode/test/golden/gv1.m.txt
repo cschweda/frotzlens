@@ -17,11 +17,11 @@ Inform Version: 644
   335    33c      8
   33d    51c    1e0  Global variables
   51d    51d      1
-  51e    523      6  Grammar pointer table
-  524    566     43  Grammar data
-  567    56e      8  Action routine table
-  56f    570      2  Parsing routine table
-  571    582     12  Preposition table
-  583    5f5     73  Dictionary
-  5f6    5f7      2
-  5f8    67b     84  Paged memory
+  51e    525      8  Grammar pointer table
+  526    579     54  Grammar data
+  57a    581      8  Action routine table
+  582    587      6  Parsing routine table
+  588    599     12  Preposition table
+  59a    615     7c  Dictionary
+  616    617      2
+  618    6a3     8c  Paged memory

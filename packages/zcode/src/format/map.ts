@@ -51,15 +51,22 @@ function rows(story: StoryFile): Row[] {
     out.push({ base: g.tables.pointers[0], end: g.tables.pointers[1], label: 'Grammar pointer table' })
     out.push({ base: g.tables.data[0], end: g.tables.data[1], label: 'Grammar data' })
     out.push({ base: g.tables.actions[0], end: g.tables.actions[1], label: 'Action routine table' })
-    if (g.version === 1) {
-      if (g.tables.parsingRoutines) out.push({ base: g.tables.parsingRoutines[0], end: g.tables.parsingRoutines[1], label: 'Parsing routine table' })
-      out.push({ base: g.tables.prepositions[0], end: g.tables.prepositions[1], label: 'Preposition table' })
+    if (g.version === 1 && g.tables.parsingRoutines) {
+      out.push({ base: g.tables.parsingRoutines[0], end: g.tables.parsingRoutines[1], label: 'Parsing routine table' })
     }
+    // GV2's preposition table is only an empty count, which infodump leaves unlabelled; GV1's and
+    // GV3's hold entries.
+    if (g.version !== 2) out.push({ base: g.tables.prepositions[0], end: g.tables.prepositions[1], label: 'Preposition table' })
   }
   const dictEnd = d.entries.length ? d.entries.at(-1)!.address + d.entryLength : d.address + 4 + d.separators.length
   out.push({ base: d.address, end: dictEnd, label: 'Dictionary' })
   out.push({ base: h.highMemory, end: h.fileLength || story.bytes.length, label: 'Paged memory' })
-  return out.filter(r => r.end > r.base).sort((a, b) => a.base - b.base)
+  // Nothing past the end of the file: a corrupt pointer gets its row cut there, or none.
+  const size = story.bytes.length
+  return out
+    .map(r => ({ ...r, end: Math.min(r.end, size) }))
+    .filter(r => r.base < size && r.end > r.base)
+    .sort((a, b) => a.base - b.base)
 }
 
 export function formatMap(story: StoryFile, opts: FormatOptions): string {

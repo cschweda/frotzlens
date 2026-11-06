@@ -227,11 +227,17 @@ export function textContextFor(story: import('./types.js').StoryFile): TextConte
     extra: defaultExtra(),
     budget: MAX_TOTAL_TEXT,
   }
+  // Each on its own: a bad alphabet table mustn't keep a good Unicode table out (parseStory has
+  // reported whichever is bad; that one decodes with the defaults).
   try {
     if (h.alphabetTable) ctx.alphabets = readAlphabetTable(bytes, h.alphabetTable)
+  } catch {
+    ctx.alphabets = null
+  }
+  try {
     if (h.headerExtension?.unicodeTable) ctx.extra = readUnicodeTable(bytes, h.headerExtension.unicodeTable)
   } catch {
-    // parseStory has reported it; decode with the defaults
+    ctx.extra = defaultExtra()
   }
   if (story.abbreviations.length === 96) {
     ctx.abbreviations = story.abbreviations.map(a => a.address)

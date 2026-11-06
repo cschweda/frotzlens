@@ -52,7 +52,12 @@ describe('options', () => {
   it('--routine prints one routine, as it appears in txd', () => {
     const r = run(['--routine', '0x27f8', 'dark-cellar.z5'])
     expect(r.code).toBe(0)
-    expect(r.out.startsWith('Routine R0002, 0 locals\n')).toBe(true)
+    expect(r.err).toBe('')
+    // The whole block: exactly as it appears inside txd's output.
+    const txd = gunzipSync(readFileSync(`${GOLDEN}dark-cellar.txd.txt.gz`)).toString('latin1')
+    const start = txd.indexOf('Routine R0002, 0 locals\n')
+    // Up to the blank line that separates it from the next routine.
+    expect(r.out).toBe(txd.slice(start, txd.indexOf('\nRoutine R0003', start)))
     expect(run(['--routine', '27f9', 'dark-cellar.z5'])).toMatchObject({ code: 1, err: expect.stringContaining('no routine starts at 27f9') })
     expect(run(['--routine', 'xyz', 'dark-cellar.z5']).code).toBe(2)
   })
@@ -143,6 +148,22 @@ describe('exit codes and messages', () => {
     const r = spawnSync('sh', ['-c', `"${process.execPath}" "${BIN}" -f architect-legacy.z5 | head -1`], { cwd: FIXTURES, encoding: 'utf8' })
     expect(r.stderr).toBe('')
     expect(r.stdout).toBe('\n')
+  })
+
+  it('a version this package does not disassemble shows its header', () => {
+    const dir = mkdtempSync(join(tmpdir(), 'frotzlens-cli-'))
+    try {
+      const b = readFileSync(`${FIXTURES}minimal.z5`)
+      b[0] = 6
+      writeFileSync(join(dir, 'v6.z6'), b)
+      const r = spawnSync(process.execPath, [BIN, 'v6.z6'], { cwd: dir, encoding: 'utf8' })
+      expect(r.status).toBe(1)
+      expect(r.stdout).toContain('    **** Story file header ****')
+      expect(r.stdout).not.toContain('[Start of code')
+      expect(r.stderr).toContain('not supported')
+    } finally {
+      rmSync(dir, { recursive: true, force: true })
+    }
   })
 
   it('an unreadable file exits 1 and says so', () => {

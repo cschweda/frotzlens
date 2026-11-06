@@ -3,8 +3,9 @@
 ! ----------------------------------------------------------------------------
 !  Inform's older grammar table format (Grammar__Version 1: 8-byte lines, a
 !  preposition table, a parsing-routine table), with no library: the Standard
-!  Library 6.12 always uses version 2, whatever this constant says. Three
-!  verbs, prepositions, synonyms, and a general parsing routine. Copyright
+!  Library 6.12 always uses version 2, whatever this constant says. Four
+!  verbs, prepositions, synonyms, a general parsing routine, and noun= and
+!  scope= routines (which share its table). Copyright
 !  Christopher Schweda; MIT, as part of @frotzinc/zcode's tests.
 ! ============================================================================
 
@@ -22,6 +23,8 @@ Object -> Lamp "brass lamp" with name 'brass' 'lamp';
 [ PutSub; rtrue; ];
 [ LookSub; rtrue; ];
 [ ParseNoun; return -1; ];
+[ IsLamp; rtrue; ];
+[ LampScope; rfalse; ];
 
 Verb 'take' 'get'
   * noun        -> Take
@@ -36,3 +39,8 @@ Verb 'look' 'l'
   *              -> Look
   * 'at' noun    -> Look
   * ParseNoun    -> Look;
+
+! noun=Routine and scope=Routine: GV1 indexes them in the same parsing-routine table.
+Verb 'rub'
+  * noun=IsLamp        -> Take
+  * scope=LampScope    -> Look;

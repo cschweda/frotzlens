@@ -15,6 +15,8 @@ export function sweepStrings(bytes: Bytes, version: Version, start: number, end:
   for (let a = alignUp(start, scale); a < end; ) {
     try {
       const s = readString(text, a)
+      // A string that runs past the header's file length isn't the story's (padding, or data appended).
+      if (a + s.length > end) break
       out.push(s)
       a = alignUp(a + s.length, scale)
     } catch (e) {

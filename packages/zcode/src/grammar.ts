@@ -90,7 +90,7 @@ export function gv1Token(b: number, prepositions: Map<number, unknown>): Grammar
   if (b <= 9) return { kind: 'elementary', type: b, data: b }
   if (b >= 0x10 && b <= 0x2f) return { kind: 'noun-routine', type: b, data: b - 0x10 }
   if (b >= 0x30 && b <= 0x4f) return { kind: 'routine', type: b, data: b - 0x30 }
-  if (b >= 0x50 && b <= 0x6f) return { kind: 'scope-routine', type: b, data: b - 0x50 }
+  if (b >= 0x50 && b <= 0x7f) return { kind: 'scope-routine', type: b, data: b - 0x50 }
   if (prepositions.has(b)) return { kind: 'preposition', type: b, data: b }
   if (b >= 0x80 && b <= 0xb3) return { kind: 'attribute', type: b, data: b - 0x80 }
   return { kind: 'unknown', type: b, data: b }
@@ -245,8 +245,12 @@ export function parseGrammar(
   let parsingRange: [number, number] | undefined
   let nActions = Math.max(0, Math.floor((prepAt - actionsAt) / 2))
   if (gv === 1) {
-    const routineTokens = all.flatMap(l => l.bytes.slice(1, 7)).filter(b => b >= 0x30 && b <= 0x4f)
-    const nParsing = routineTokens.length ? Math.max(...routineTokens) - 0x30 + 1 : 0
+    // noun=Routine (0x10+n), general parsing routines (0x30+n) and scope=Routine (0x50+n) all
+    // index this one table, so it is as long as the highest index any of them uses (+1).
+    const indexes = all.flatMap(l => l.bytes.slice(1, 7)).flatMap(b =>
+      b >= 0x10 && b <= 0x2f ? [b - 0x10] : b >= 0x30 && b <= 0x4f ? [b - 0x30] : b >= 0x50 && b <= 0x7f ? [b - 0x50] : [],
+    )
+    const nParsing = indexes.length ? Math.max(...indexes) + 1 : 0
     nActions = Math.max(0, nActions - nParsing)
     const parsingAt = actionsAt + 2 * nActions
     parsingRoutines = Array.from({ length: nParsing }, (_, i) => unpack(bytes.word(parsingAt + 2 * i), version))

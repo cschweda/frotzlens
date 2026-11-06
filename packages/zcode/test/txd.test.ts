@@ -5,8 +5,9 @@
  *
  * PunyInform stories are the exception: their grammar is version 3, which txd
  * reads as version 1, so its "Action routine for:" notes are garbage (and for
- * two v3 stories it stops partway). For those, each routine txd finished is
- * compared without its grammar notes.
+ * two v3 stories it stops partway). For those, every routine txd finished is
+ * compared without its grammar notes, and so is the string section when txd
+ * got that far.
  */
 import { spawnSync } from 'node:child_process'
 import { readFileSync } from 'node:fs'
@@ -70,10 +71,16 @@ describe.each(storyFiles())('%s matches txd', (file) => {
     }
     const want = routineBlocks(theirs)
     const got = routineBlocks(ours)
-    // txd stops partway on two v3 PunyInform stories; compare each routine it finished.
-    const finished = [...want.keys()].slice(0, -1)
+    // txd stops partway on two v3 PunyInform stories, mid-routine: leave out only that last block.
+    const complete = theirs.includes('[End of code')
+    const finished = complete ? [...want.keys()] : [...want.keys()].slice(0, -1)
     expect(finished.length).toBeGreaterThan(30)
     for (const key of finished) expect(got.get(key), `routine ${key}`).toEqual(want.get(key))
+    // The string section has no grammar in it: it must match exactly.
+    if (complete) {
+      const strings = (t: string) => t.slice(t.indexOf('[End of code'))
+      expect(firstDifference(strings(ours), strings(theirs))).toBeUndefined()
+    }
   })
 })
 

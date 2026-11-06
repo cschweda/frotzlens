@@ -5,7 +5,7 @@ import { HEADER_SIZE, parseHeader } from './header.js'
 import { buildMemoryMap } from './memory.js'
 import { parseObjects, type ObjectsResult } from './objects.js'
 import { parseGrammar } from './grammar.js'
-import { sweepRoutines } from './routines.js'
+import { MAX_SWEEP_WORK, sweepRoutines } from './routines.js'
 import { sweepStrings } from './strings.js'
 import { buildXrefs } from './xrefs.js'
 import { MAX_TEXT, MAX_TOTAL_TEXT, defaultExtra, readAlphabetTable, readString, readUnicodeTable, type TextContext } from './text.js'
@@ -161,12 +161,23 @@ function parse(data: Uint8Array, opts: ParseOptions): StoryFile {
   const analysisStart = d.entries.length
     ? d.entries.at(-1)!.address + d.entryLength
     : d.address + 4 + d.separators.length
-  const routines = guarded(errors, 'bad-address', 'The code', [] as Code['routines'], () =>
-    sweepRoutines(bytes, version, analysisStart, text),
-  )
+  const routines = guarded(errors, 'bad-address', 'The code', [] as Code['routines'], () => {
+    const swept = sweepRoutines(bytes, version, analysisStart, text)
+    if (swept.exhausted) {
+      errors.push({
+        code: 'bad-address',
+        severity: 'warning',
+        message: `Disassembly stopped after ${MAX_SWEEP_WORK.toLocaleString('en')} instructions; the routines after that point are missing.`,
+      })
+    }
+    return swept.routines
+  })
   const code: Code = { analysisStart, routines, end: routines.at(-1)?.end ?? 0 }
-  // v6–7 start at a packed routine; elsewhere the initial PC is just past a 0-locals header.
-  if (version !== 6 && version !== 7 && routines.some(r => r.address === header.initialPc - 1)) code.main = header.initialPc - 1
+  // v6–7 start at a packed routine; elsewhere the initial PC is the first instruction of the
+  // main routine.
+  // v1–4 headers carry initial values, so the routine starts more than a byte before it.
+  const main = version !== 6 && version !== 7 ? routines.find(r => r.instructions[0]?.address === header.initialPc) : undefined
+  if (main) code.main = main.address
   progress('code', 1)
   const strings = routines.length
     ? guarded(errors, 'bad-text', 'The strings', [] as ZString[], () =>
@@ -180,7 +191,7 @@ function parse(data: Uint8Array, opts: ParseOptions): StoryFile {
       )
     : undefined
   progress('grammar', 1)
-  const xrefs = buildXrefs(version, routines, strings, objects.table, dictionary)
+  const xrefs = buildXrefs(version, routines, strings, objects.table, dictionary, grammar)
   progress('xrefs', 1)
 
   if (text.truncated) {
