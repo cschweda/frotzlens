@@ -186,7 +186,7 @@ I hold copyright on all of it and can relicense my own code at any time; the pol
 - Every page's footer: the Frotz, Inc. lantern mark + "From Frotz, Inc." → frotzinc.com; GitHub and npm; "Frotz, Inc. is a fiction. The Frotz interpreter is the work of its own authors and is not affiliated."
 - Social card 1200×630 in the house style (already made). Full OpenGraph/Twitter meta.
 - Canonical URL `https://frotzlens.com/`, as one config value, because it may become `frotzlens.frotzinc.com` when the family moves to subdomains.
-- Netlify, static, pnpm monorepo with base `apps/web`. I connect the repo in the Netlify UI; the kickoff prompt tells Claude it can't.
+- Netlify, static, pnpm monorepo with base `apps/web`. I connect the repo in the Netlify UI; the kickoff prompt tells Claude it can't. **The site goes in Chris's personal Netlify account, not the ICJIA (work) team.**
 
 ## 10. Phases
 
