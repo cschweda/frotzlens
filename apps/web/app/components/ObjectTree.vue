@@ -43,15 +43,18 @@ watch(() => props.selected, (n) => {
   open.value = next
 }, { immediate: true })
 
-interface Row { key: string; n: number; level: number; setSize: number; posInSet: number; parent: number }
+interface Row { key: string; n: number; level: number; setSize: number; posInSet: number; parent: number; empty?: boolean }
 /**
  * The visible rows, depth first, without recursion (a deep tree can't overflow the stack). An object
  * shows at most once: in a broken file one could be reached twice, or in a loop.
  */
 const rows = computed<Row[]>(() => {
   const out: Row[] = []
-  const shown = new Set<number>()
-  const stack: { list: number[]; i: number; level: number; parent: number }[] = [{ list: roots.value, i: 0, level: 1, parent: 0 }]
+  // A level's objects are claimed when the level is reached, so its set size and positions count
+  // only what is shown there (a broken file can list an object twice, or loop).
+  const claimed = new Set<number>()
+  const claim = (list: number[]) => list.filter(n => !claimed.has(n) && (claimed.add(n), true))
+  const stack: { list: number[]; i: number; level: number; parent: number }[] = [{ list: claim(roots.value), i: 0, level: 1, parent: 0 }]
   while (stack.length) {
     const top = stack.at(-1)!
     if (top.i >= top.list.length) {
@@ -59,10 +62,13 @@ const rows = computed<Row[]>(() => {
       continue
     }
     const n = top.list[top.i++]!
-    if (shown.has(n)) continue
-    shown.add(n)
-    out.push({ key: `${top.parent}-${n}`, n, level: top.level, setSize: top.list.length, posInSet: top.i, parent: top.parent })
-    if (open.value.has(n)) stack.push({ list: children.value.get(n) ?? [], i: 0, level: top.level + 1, parent: n })
+    const row: Row = { key: `${top.parent}-${n}`, n, level: top.level, setSize: top.list.length, posInSet: top.i, parent: top.parent }
+    out.push(row)
+    if (open.value.has(n)) {
+      const kids = claim(children.value.get(n) ?? [])
+      if (kids.length) stack.push({ list: kids, i: 0, level: top.level + 1, parent: n })
+      else row.empty = true // open, but every child is shown elsewhere: not expandable here
+    }
   }
   return out
 })
@@ -142,7 +148,7 @@ function onKey(e: KeyboardEvent) {
       :aria-level="r.level"
       :aria-setsize="r.setSize"
       :aria-posinset="r.posInSet"
-      :aria-expanded="hasChildren(r.n) ? open.has(r.n) : undefined"
+      :aria-expanded="hasChildren(r.n) && !r.empty ? open.has(r.n) : undefined"
       :aria-selected="r.n === selected"
       :tabindex="i === focused ? 0 : -1"
       class="flex cursor-pointer items-center gap-1 rounded py-1 pr-2 outline-offset-[-2px] hover:bg-elevated"

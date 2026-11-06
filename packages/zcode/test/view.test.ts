@@ -69,10 +69,20 @@ describe('txd names', () => {
 })
 
 describe('property words in the cross-references', () => {
-  it("an object's name words refer to their dictionary entries", () => {
+  it("every property word that is a dictionary entry's address refers to that entry, from its object", () => {
     const s = load('dark-cellar.z5')
-    const fromObjects = Object.entries(s.xrefs).filter(([k, e]) => k.startsWith('dict:') && e.from.some(f => f.id.startsWith('object:')))
-    expect(fromObjects.length).toBeGreaterThan(10)
+    const words = new Map(s.dictionary.entries.map(e => [e.address, e.id]))
+    let checked = 0
+    for (const o of s.objects.objects) for (const p of o.properties) {
+      for (let i = 0; i + 1 < p.data.length; i += 2) {
+        const id = words.get((p.data[i]! << 8) | p.data[i + 1]!)
+        if (!id) continue
+        expect(s.xrefs[id]!.from).toContainEqual({ id: o.id, address: p.dataAddress + i })
+        expect(s.xrefs[o.id]!.to).toContain(id)
+        checked++
+      }
+    }
+    expect(checked).toBeGreaterThan(10) // the sample's objects do have name words
   })
 })
 

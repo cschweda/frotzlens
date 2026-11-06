@@ -53,7 +53,8 @@ const jumpError = ref('')
 function onJump() {
   const text = jump.value.trim().replace(/^(0x|\$)/i, '')
   const a = /^[0-9a-f]+$/i.test(text) ? parseInt(text, 16) : NaN
-  if (Number.isNaN(a)) jumpError.value = `“${jump.value}” isn't a hex address.`
+  if (!size.value) jumpError.value = 'The file is empty: there are no addresses.'
+  else if (Number.isNaN(a)) jumpError.value = `“${jump.value}” isn't a hex address.`
   else if (a >= size.value) jumpError.value = `${hex(a)} is past the end of the file (${hex(size.value - 1)}).`
   else {
     jumpError.value = ''

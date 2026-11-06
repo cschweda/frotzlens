@@ -128,9 +128,14 @@ test('light mode passes axe too', async ({ page }) => {
   const errors = watchConsole(page)
   await page.emulateMedia({ colorScheme: 'light' })
   await open(page)
+  await page.emulateMedia({ colorScheme: 'light', reducedMotion: 'reduce' })
   await page.evaluate(() => document.documentElement.classList.replace('dark', 'light'))
+  // Measure contrast only once the switch has finished: the page's ground is the light one.
+  await page.waitForFunction(() => getComputedStyle(document.body).backgroundColor === 'rgb(243, 241, 234)')
+  await page.evaluate(() => document.getAnimations().forEach(a => a.finish()))
   for (const hash of ['#overview', '#memory', '#objects', '#object/10', '#grammar', '#routines', '#strings']) {
     await visit(page, hash)
+    await page.evaluate(() => document.getAnimations().forEach(a => a.finish()))
     await axe(page, `${hash} (light)`)
   }
   expect(errors).toEqual([])
