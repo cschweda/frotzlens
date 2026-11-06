@@ -4,7 +4,7 @@ import { site } from '~~/site.config'
 
 <template>
   <footer class="border-t border-default">
-    <div class="mx-auto flex max-w-6xl flex-col gap-3 px-4 py-8 text-sm text-muted sm:flex-row sm:items-center sm:justify-between">
+    <div class="mx-auto flex max-w-7xl flex-col gap-3 px-4 py-8 text-sm text-muted sm:flex-row sm:items-center sm:justify-between">
       <a :href="site.familyUrl" class="flex items-center gap-2 hover:text-default">
         <img src="/frotzinc-mark.svg" alt="" width="24" height="24" class="size-6">
         <span>From Frotz, Inc.</span>

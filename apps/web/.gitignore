@@ -1,2 +1,4 @@
 public/samples/
 dist
+test-results/
+playwright-report/

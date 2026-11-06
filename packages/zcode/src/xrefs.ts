@@ -5,8 +5,9 @@
  * Instructions refer by their operands, read the way txd reads them (see
  * operands.ts): a call's routine, a string's packed address, an object in an
  * object position, a dictionary word, a global read or written. Objects refer
- * by property values: a property word that is exactly a known routine's or
- * string's packed address (Inform's `before`, `description`, …). A verb's
+ * by property values: a property word that is exactly a dictionary entry's
+ * address (Inform's `name`), or else a known routine's or string's packed
+ * address (Inform's `before`, `description`, …). A verb's
  * dictionary word refers by its grammar lines: to their prepositions and to
  * their action and parsing routines.
  *
@@ -122,13 +123,14 @@ export function buildXrefs(
   }
   for (const r of routines) for (const ins of r.instructions) instructionRefs(r, ins)
 
-  // Property values: every word that is exactly a routine's or string's packed address.
+  // Property values: every word that is exactly a dictionary entry's address, or else a routine's
+  // or string's packed address.
   for (const o of objects.objects) {
     for (const p of o.properties) {
       for (let i = 0; i + 1 < p.data.length; i += 2) {
-        const packed = (p.data[i]! << 8) | p.data[i + 1]!
-        const at = unpack(packed, version)
-        const target = routineIds.get(at) ?? stringIds.get(at)
+        const word = (p.data[i]! << 8) | p.data[i + 1]!
+        const at = unpack(word, version)
+        const target = wordIds.get(word) ?? routineIds.get(at) ?? stringIds.get(at)
         if (target) link(o.id, p.dataAddress + i, target)
       }
     }
