@@ -45,7 +45,7 @@ Everything starts from the model `@frotzinc/zcode` already builds: routines and 
 **b. Declarations.** Each comes from the model, with names from symbols or made up (§3f):
 - `Attribute`, `Property`, `Global` and `Array`, for the game's own.
   - Arrays are found from symbols. Without them, every block of static or dynamic memory that isn't an object, a property, a table or a string is kept, byte for byte, as an `Array` (a `->` byte array unless only word access is seen). Accesses with `loadw`, `storew`, `loadb` and `storeb`, and constants that point into the block, decide only where one array ends and the next begins and whether it's words or bytes. So memory nothing is known to read is never dropped, and the layout survives.
-- **Classes** are declared with `Class`, not `Object`: the class objects are found from the class-membership property (`2`, written by Inform for each object's classes) and the class list in the header extension, so `ofclass` and `C.create()` keep working.
+- **Classes** are declared with `Class`, not `Object`: the class objects are the children of the metaclass object `Class` (object 1), and each object's classes are in common property 2, so `ofclass` and `C.create()` keep working.
 - **Objects:** `Object` (or `C name` for an object of class `C`), with the tree as `->` nesting, attributes as `has`, and properties written as what they hold:
   - a routine becomes an embedded routine, or a named one if it's shared;
   - a string becomes `"…"`, a dictionary word `'…'`, an object its name;
