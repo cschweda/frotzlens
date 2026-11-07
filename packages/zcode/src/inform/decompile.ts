@@ -34,6 +34,12 @@ export interface DecompileOptions {
    * where they're in the shapes Inform compiles those to: for all, or those this says yes to.
    */
   structure?: boolean | ((address: number) => boolean)
+  /**
+   * Phase 6d: with statements, write calls to Inform's veneer as the syntax that makes them
+   * (`RV__Pr(o, p)` as `o.p`, strict mode's `RT__ChT(a, b)` as `move a to b`). When no line is left
+   * calling the veneer by name, it isn't written out: the compiler writes its own.
+   */
+  idioms?: boolean | ((address: number) => boolean)
 }
 
 export interface Decompiled {
@@ -223,6 +229,7 @@ export function decompileInform(story: StoryFile, opts: DecompileOptions): Decom
     const body = asStatements
       ? routineStatements(r, {
           ...names,
+          idioms: opts.idioms === true || (typeof opts.idioms === 'function' && opts.idioms(r.address)),
           property: p => sym.properties[p],
           attribute: a => sym.attributes[a],
           // By name once it's declared (the library's are, by its Include): a name the compiler
@@ -592,8 +599,9 @@ export function decompileInform(story: StoryFile, opts: DecompileOptions): Decom
   const banner = (title: string) => out.push('', '! ' + '-'.repeat(75), `!  ${title}`, '! ' + '-'.repeat(75))
   const h = story.header
   out.push('! ' + '='.repeat(75))
-  out.push('!  Decompiled by Frotzlens (Phase 6a). The library is left out as Includes;')
-  out.push('!  the game\'s routines are Inform assembly, as the story holds them.')
+  out.push('!  Decompiled by Frotzlens. The library is left out as Includes.')
+  if (opts.statements) out.push('!  A routine still in Inform assembly (@) is one whose statements didn\'t compile back the same.')
+  else out.push('!  The game\'s routines are Inform assembly, as the story holds them.')
   if (sym.inferred) {
     out.push('!  The story had no debug file: the library was found by compiling it alone,')
     out.push('!  and the game\'s names are made up from what the story says.')
@@ -657,7 +665,11 @@ export function decompileInform(story: StoryFile, opts: DecompileOptions): Decom
     const s = sym.routines[r.address]
     return s && !s.artificial && !s.location && !COMPILER_ROUTINES.has(s.name) && !gameRoutines.has(r.address)
   })
-  if (veneer.length) {
+  // Written out only if something above still calls one by name (an assembly line, a statement that
+  // couldn't be written as its syntax): otherwise the compiler writes its own, with its own addresses.
+  const above = out.join('\n').replace(/\u0001\d+\u0001/g, '')
+  const named = veneer.some(r => new RegExp(`\\b${sym.routines[r.address]!.name}\\b`).test(above))
+  if (veneer.length && named) {
     banner('Inform\'s veneer routines')
     for (const r of veneer) out.push('', ...routineText(r, sym.routines[r.address]!.name, '];', true))
   }

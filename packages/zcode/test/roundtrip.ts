@@ -16,7 +16,7 @@ export interface RoundTrip {
   /** Every byte after the header the same. */
   identical: boolean
   /** With `statements`: the routines (by address) written as statements, and how many could have been. */
-  statements?: { written: number[]; structured: number[]; of: number }
+  statements?: { written: number[]; structured: number[]; idiomatic: number[]; of: number }
   parts: Record<string, { result: PartResult; differences: string[] }>
 }
 
@@ -169,7 +169,7 @@ export async function roundTrip(bytes: Uint8Array, dbg: string, withoutSymbols =
   const out = await compile(source, { version: `z${story.header.version}` as 'z5', library, debug: true })
   const errors = out.diagnostics.filter(d => d.severity !== 'warning').map(d => `${d.line}: ${d.message}`)
   const result: RoundTrip = { source, problems, compiled: !!out.story && out.ok, errors, identical: false, parts: {} }
-  if (checked) result.statements = { written: checked.statements, structured: checked.structured, of: decompileInform(story, { symbols, statements: true }).statementRoutines.length }
+  if (checked) result.statements = { written: checked.statements, structured: checked.structured, idiomatic: checked.idiomatic, of: decompileInform(story, { symbols, statements: true }).statementRoutines.length }
   if (!out.story) return result
   if (!out.dbg) {
     result.errors.push('The compiler wrote no debug file, so the stories can\'t be compared.')

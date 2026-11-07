@@ -435,17 +435,30 @@ export function inferSymbols(story: StoryFile, ref: Reference): Symbols {
   const attrsSeen = new Set<number>()
   for (const o of objects) {
     for (const p of o.properties) propsSeen.add(p.number)
+    for (const p of individualProperties(story, o)) propsSeen.add(p.number)
     for (const a of o.attributes) attrsSeen.add(a)
+  }
+  // Individual properties only code uses: the property a veneer call reads, writes or sends to.
+  const PROPERTY_CALLS = new Set(['RV__Pr', 'WV__Pr', 'CA__Pr', 'RA__Pr', 'RL__Pr', 'OP__Pr', 'IA__Pr', 'IB__Pr', 'DA__Pr', 'DB__Pr'])
+  for (const r of S) for (const i of r.instructions) {
+    if (!i.info.call || i.operands[0]?.kind === 'variable') continue
+    const callee = storyRoutineByPacked.get(i.operands[0]!.value)
+    const name = callee && out.routines[callee.address]?.name
+    const p = i.operands[2]
+    if (name && PROPERTY_CALLS.has(name) && p && p.kind !== 'variable' && p.value >= 64 && p.value < 4096) propsSeen.add(p.value)
   }
   for (const n of [...propsSeen].sort((a, b) => a - b)) {
     if (out.properties[n] || n <= 3) continue
     out.properties[n] = `prop_${n}`
-    if (n > refCommonMax) gameDecl('property', `prop_${n}`, n, -1500 + n)
+    // A common property is declared after the globals and arrays (it's numbered after the library's);
+    // an individual one, by decompileInform, before the first object that has it (where code
+    // naming it earlier would have named it before it was known, as the original did).
+    if (n > refCommonMax && n < 64) gameDecl('property', `prop_${n}`, n, -300 + n / 10000)
   }
   for (const n of [...attrsSeen].sort((a, b) => a - b)) {
     if (out.attributes[n]) continue
     out.attributes[n] = `attr_${n}`
-    gameDecl('attribute', `attr_${n}`, n, -2000 + n)
+    gameDecl('attribute', `attr_${n}`, n, -400 + n / 1000)
   }
   void refIndividualMax
 

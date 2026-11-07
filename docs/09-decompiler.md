@@ -126,7 +126,7 @@ This is the part that makes the output trustworthy, and the main test:
 **Proof without a debug file** (`test/decompile.test.ts`, second half): every fixture is decompiled as if it had none, compiled again, and compared by position (the names can't match). All 16 are equivalent; 9 are the same bytes. The rest differ only in names Inform keeps as text (a property's, an action's), since the made-up names aren't the source's.
 
 **Known limits, for the next steps**
-- The veneer's own numbers are addresses of the story's tables (where the strings start, the class table), which Inform names only inside the veneer. They're right when the rebuilt story keeps the original layout, as every fixture's does. 6d removes the veneer from the output by writing its calls as the syntax that makes them.
+- The veneer's own numbers are addresses of the story's tables (where the strings start, the class table), which Inform names only inside the veneer. They're right when the rebuilt story keeps the original layout. With 6d the veneer is only written out when some routine is still assembly that calls it; on every fixture it isn't.
 - PunyInform's compact grammar (GV3) keeps routine tokens in a way not yet read; a game line with one is left out and reported.
 - Without a debug file, only the extensions and library settings listed in `infer.ts` are tried; a story built with others decompiles with their code as the game's (correct, longer), or, for a setting that changes the library's code, a library routine that doesn't line up.
 - A file the story included that isn't one of the library's (the game's own, or an extension `inform6-wasm` doesn't have) is written out as the game's, and reported.
@@ -157,6 +157,25 @@ With `structure: true` the routines' branches and jumps are written as Inform's 
 What's in none of those shapes stays a `jump L;` (one jump) or a branch in assembly. `decompileChecked` tries each routine structured first; one that doesn't come back the same drops to flat statements (6b), then to assembly; a routine whose instructions differ is dropped before one that only moved (when one routine changes size, others' unnamed numbers move with it).
 
 **Proof:** every game routine of every fixture is statements; in the 14 smaller fixtures every one is structured, in mingus-1 120 of 130 and architect-legacy 86 of 91. The rest are mostly where strict mode inlines its checks (`x in y` checks x is an object first), which 6d turns back into the syntax that made them. The stories are what they were.
+
+## 5d. Progress: 6d, idioms (2026-11-07)
+
+With `idioms: true` (on in `decompileChecked`), what Inform compiles to its veneer or to strict mode's checks is written as the syntax that makes it (calibrated by compiling each, with strict mode and without):
+
+| Syntax | Compiles to |
+|---|---|
+| `o.p`, `o.p = v`, `o.p(args)`, `o.p++` | `RV__Pr`, `WV__Pr`, `CA__Pr`, `IA__Pr`; strict mode's `RT__ChPR`, `RT__ChPS` for a common property |
+| `o.(expr)`, `o provides p`, `o ofclass C`, `metaclass(x)` | the same with the property computed, `OP__Pr`, `OC__Cl`, `Meta__class` |
+| `move`, `remove`, `give o a` / `~a` | strict mode's `RT__ChT`, `RT__ChR`, `RT__ChG`, `RT__ChGt` |
+| `print (char)`, `(string)`, `(address)`, `(object)`, `(name)`, `(property)` | strict mode's `RT__ChPrint…`, `PrintShortName`, `Print__PName` |
+| `a-->i`, `a->i`, `= v` | the access with strict mode's bounds check inlined around it (`jl i 0`, `jl i N`, `RT__Err`) |
+| `x in y`, `x has a` | the test with strict mode's object check inlined before it |
+| `objectloop (x in p)` | `get_child`, then `get_sibling` round to the top, with strict mode's checks of p and x |
+| `return (C)`, `x = (C)` | a condition as a value: branches that push 1 or 0 |
+
+The inlined checks are taken out before the statements are written (`desugar`), and come back when the source is compiled in strict mode. **When no line is left calling the veneer by name, it isn't written out**, and the compiler writes its own: so the veneer's table addresses (6a's limit) are its own again.
+
+**Proof:** with and without debug files, every game routine of every fixture is statements, structured and idiomatic; no fixture's game code has any assembly left, and none needs the veneer written out. The stories are what they were (with debug files, all 16 the same bytes).
 
 ## 6. Risks
 
