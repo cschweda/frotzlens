@@ -1,5 +1,6 @@
 // Vendored from Frotzsmith (app/modules/inform6/engine/replayCore.ts @ cf87b65), GPL-3.0-or-later.
-// Changed: options.seed (reproducible randomness, see BootOptions), and the header ZVM wrote is returned.
+// Changed: options.seed (reproducible randomness) and options.files (saves), see BootOptions; the
+// header ZVM wrote is returned.
 import type { BootOptions, EngineTarget, ReplayResult, TurnRecord } from './StoryEngine.js'
 import { mulberry32 } from './random.js'
 import { ZmachineEngine } from './ZmachineEngine.js'
@@ -34,7 +35,7 @@ export async function runReplay(
   let header: Uint8Array | undefined
 
   try {
-    const banner = await engine.boot(story)
+    const banner = await engine.boot(story, options.files)
     header = engine.header()
     turns.push({ command: '', output: banner })
 

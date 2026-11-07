@@ -1,5 +1,6 @@
 // Vendored from Frotzsmith (app/modules/inform6/engine/ZmachineEngine.ts @ cf87b65), GPL-3.0-or-later.
-// Changed: boot() keeps the VM so header() can read back what ZVM wrote into the header.
+// Changed: boot() keeps the VM so header() can read back what ZVM wrote into the header, and takes a
+// Map of save files for the dialog.
 import type { EngineTarget, TurnRecord } from './StoryEngine.js'
 import { createGlk } from './glk.js'
 import { HeadlessGlkOte } from './headless-glkote.js'
@@ -19,13 +20,13 @@ export class ZmachineEngine {
 
   get awaitingLine(): boolean { return this._awaitingLine }
 
-  async boot(story: Uint8Array): Promise<string> {
+  async boot(story: Uint8Array, files?: Map<string, Uint8Array>): Promise<string> {
     this.story = story
-    this.glkote = new HeadlessGlkOte()
+    this.glkote = new HeadlessGlkOte(!!files)
     // Fresh Glk per boot — glkapi is a singleton; see glk.ts.
     const Glk = await createGlk()
     const vm = new ZVM() as { prepare(data: Uint8Array, opts: unknown): void }
-    const options = { vm, Dialog: new HeadlessDialog(), Glk, GlkOte: this.glkote }
+    const options = { vm, Dialog: new HeadlessDialog(files), Glk, GlkOte: this.glkote }
     vm.prepare(story, options)
     this.vm = vm as unknown as typeof this.vm
     Glk.init(options)

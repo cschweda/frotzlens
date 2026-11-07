@@ -12,6 +12,14 @@ import { Machine } from './machine.js'
 import { normalizeTurn } from './normalize.js'
 import type { Fault, MachineOptions, StopReason } from './types.js'
 
+export interface PlayOptions extends MachineOptions {
+  /**
+   * Save files, by name. A save writes the story's file to 'save'; a restore reads it (and fails
+   * when there's none). Pass a Map to start with a file, or to take the one written.
+   */
+  files?: Map<string, Uint8Array>
+}
+
 export interface Turn {
   /** '' for the banner. */
   command: string
@@ -42,20 +50,28 @@ function turnText(command: string, text: string): string {
   return first === command.trim() ? out.slice(nl === -1 ? out.length : nl + 1).replace(/^\n+/, '') : out
 }
 
-export function play(story: Uint8Array, commands: string[], options: MachineOptions): PlayResult {
+export function play(story: Uint8Array, commands: string[], options: PlayOptions): PlayResult {
   const m = Machine.create(story, options)
   if (!(m instanceof Machine)) return { turns: [], stoppedBy: m.fault }
   const turns: Turn[] = []
 
+  const files = options.files ?? new Map<string, Uint8Array>()
   const runTurn = (): StopReason => {
     let stop: StopReason
     let ran = 0
-    do {
+    for (;;) {
       stop = m.run(1_000_000)
       ran += 1_000_000
-    } while (stop.kind === 'budget' && ran < TURN_LIMIT)
-    return stop
+      // Saves and restores happen inside a turn: answer them from `files` and go on.
+      if (stop.kind === 'save') {
+        files.set('save', stop.data)
+        m.resume({ saved: true })
+      } else if (stop.kind === 'restore') {
+        notices.push(m.resume({ restore: files.get('save') ?? null }))
+      } else if (stop.kind !== 'budget' || ran >= TURN_LIMIT) return stop
+    }
   }
+  const notices: (Fault | null)[] = []
 
   let stop = runTurn()
   turns.push({ command: '', output: normalizeTurn(m.flushText()) })

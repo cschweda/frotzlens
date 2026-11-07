@@ -4,8 +4,12 @@ import { describe, expect, it } from 'vitest'
 import { Machine } from '../src/index.js'
 import { readSample, sampleFiles } from './samples.js'
 
-/** The bytes an interpreter sets: Flags 1, Flags 2's low byte, interpreter number and version, screen and font sizes, the Standard revision. */
-const SET_BY_INTERPRETER = [0x01, 0x11, 0x1e, 0x1f, 0x20, 0x21, 0x22, 0x23, 0x24, 0x25, 0x26, 0x27, 0x32, 0x33]
+/**
+ * The bytes an interpreter sets: Flags 1, Flags 2's low byte, interpreter number and version, screen
+ * and font sizes. Not the Standard revision (0x32–0x33): ZVM claims 1.2, and this claims the 1.1 it
+ * implements, because a story may act on the claim (Praxix calls 1.2's @gestalt when it's made).
+ */
+const SET_BY_INTERPRETER = [0x01, 0x11, 0x1e, 0x1f, 0x20, 0x21, 0x22, 0x23, 0x24, 0x25, 0x26, 0x27]
 
 describe("the header, as ZVM writes it", () => {
   for (const file of sampleFiles()) {
