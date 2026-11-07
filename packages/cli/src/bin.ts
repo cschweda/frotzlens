@@ -10,9 +10,11 @@ process.stdout.on('error', (e: NodeJS.ErrnoException) => {
 })
 
 const pkg = JSON.parse(readFileSync(new URL('../package.json', import.meta.url), 'utf8')) as { version: string }
-process.exitCode = main(process.argv.slice(2), {
+void Promise.resolve(main(process.argv.slice(2), {
   stdout: s => process.stdout.write(s),
   stderr: s => process.stderr.write(s),
   readFile: p => new Uint8Array(readFileSync(p)),
   version: pkg.version,
+})).then(code => {
+  process.exitCode = code
 })

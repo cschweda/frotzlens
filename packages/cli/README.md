@@ -9,6 +9,7 @@ frotzlens -f game.z5                  # everything infodump prints: header, map,
 frotzlens --info game.z5              # what made it: compiler, library, Inform's veneer
 frotzlens --symbols gameinfo.dbg game.z5          # the disassembly with the source's names
 frotzlens --rooms --symbols gameinfo.dbg game.z5  # the map: rooms and exits
+frotzlens --inform game.z5 > game.inf            # the story as Inform 6 source, checked
 ```
 
 Install it with `npm install -g frotzlens`, or run it once with `npx frotzlens game.z5`. It needs Node 22.12 or later. From this repository: `pnpm install && pnpm build`, then `node packages/cli/dist/bin.js`.
@@ -26,6 +27,12 @@ Disassembly (txd):
       --symbols <file>  names from Inform's debug file (gameinfo.dbg, written
                         with -k): routines, globals, locals, attributes and
                         properties by name. No longer txd's text.
+
+Inform 6 source:
+      --inform          the story decompiled to Inform 6 (an Inform story): one
+                        .inf, the library as Includes, each routine checked by
+                        compiling it again (with Inform 6.44, built in). Names
+                        from --symbols if given, else made up from the story.
 
 About the file:
       --info            what made it (compiler, library, Inform's veneer)

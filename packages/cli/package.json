@@ -34,7 +34,8 @@
     "prepack": "pnpm run build"
   },
   "dependencies": {
-    "@frotzinc/zcode": "workspace:*"
+    "@frotzinc/zcode": "workspace:*",
+    "@frotzinc/inform6-wasm": "workspace:*"
   },
   "devDependencies": {
     "typescript": "5.9.3",

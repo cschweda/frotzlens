@@ -30,8 +30,8 @@ const views = computed(() => {
     // Symbols: for an Inform story, or once loaded; the map needs them.
     ...(inform || symbols.value ? [{ key: 'symbols', label: 'Symbols', icon: 'i-lucide-tag' }] : []),
     ...(symbols.value ? [{ key: 'map', label: 'Map', icon: 'i-lucide-map' }] : []),
-    // Source: Inform 6 from an Inform story; in progress (Phase 6), so it says so.
-    ...(inform ? [{ key: 'source', label: 'Source', icon: 'i-lucide-file-code', tag: 'in progress' }] : []),
+    // Source: an Inform story decompiled to Inform 6 (Phase 6).
+    ...(inform ? [{ key: 'source', label: 'Source', icon: 'i-lucide-file-code' }] : []),
   ]
   return list
 })

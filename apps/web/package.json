@@ -15,6 +15,7 @@
     "test:e2e": "playwright test"
   },
   "dependencies": {
+    "@frotzinc/inform6-wasm": "workspace:*",
     "@frotzinc/nuxt-base": "workspace:*",
     "@frotzinc/worker-rpc": "workspace:*",
     "@frotzinc/zcode": "workspace:*",
