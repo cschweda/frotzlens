@@ -3,6 +3,7 @@ import { site } from '~~/site.config'
 
 defineProps<{ loaded: boolean; fileName: string }>()
 const emit = defineEmits<{ search: []; close: [] }>()
+const { symbols, names } = useSymbols()
 const shortcut = ref('Ctrl+K')
 onMounted(() => (shortcut.value = modShortcutLabel('k')))
 </script>
@@ -19,6 +20,19 @@ onMounted(() => (shortcut.value = modShortcutLabel('k')))
         <UButton v-if="loaded" color="neutral" variant="outline" icon="i-lucide-search" :aria-label="`Go to… ${shortcut}`" @click="emit('search')">
           <span class="hidden sm:inline">Go to…</span>
           <UKbd class="hidden sm:inline-flex">{{ shortcut }}</UKbd>
+        </UButton>
+        <!-- With a debug file: names from the source, or the numbers txd shows. A toggle button. -->
+        <UButton
+          v-if="loaded && symbols"
+          color="neutral"
+          :variant="names ? 'soft' : 'outline'"
+          icon="i-lucide-tag"
+          aria-label="Names"
+          :aria-pressed="names"
+          :title="names ? 'Showing names from the debug file' : 'Showing numbers, as txd does'"
+          @click="names = !names"
+        >
+          <span class="hidden sm:inline">Names</span>
         </UButton>
         <UButton v-if="loaded" color="neutral" variant="ghost" icon="i-lucide-file-plus" aria-label="Open another file" @click="emit('close')" />
         <UColorModeButton />

@@ -9,6 +9,7 @@ import { fileURLToPath } from 'node:url'
 import { describe, expect, it } from 'vitest'
 import { fingerprint, parseStory, readSymbols, routineShape, shapeHash, symbolsMatch } from '../src/index.js'
 import { VENEER } from '../src/veneer-signatures.generated.js'
+import { formatTxd, routineView } from '../src/format/index.js'
 import { parseXml } from '../src/xml.js'
 import { FIXTURES_DIR, readStory, storyFiles } from './fixtures.js'
 
@@ -148,5 +149,35 @@ describe('fingerprint', () => {
     expect(fp).toEqual({ compiler: 'zilf', compilerVersion: '1.9.0', veneer: {} })
     story.set(new Uint8Array(8), 0x38)
     expect(parseStory(story).fingerprint).toMatchObject({ compiler: 'unknown' })
+  })
+})
+
+describe('the disassembly with symbols', () => {
+  const story = parseStory(readStory('dark-cellar.z5'))
+  const symbols = readSymbols(dbg('dark-cellar.z5'))
+  const text = formatTxd(story, { symbols })
+
+  it('names routines, globals, locals, attributes and properties', () => {
+    expect(text).toContain('Routine Initialise, 0 locals\n\n       STORE           location,#001a\n')
+    expect(text).toContain('Routine LookRoutine, 2 locals')
+    expect(text).toMatch(/PULL +i\n/)
+    expect(text).toMatch(/TEST_ATTR +obj,pluralname /)
+    expect(text).toMatch(/CALL_VS +RT__ChPR \(i,#15\) -> temp_global\n/)
+    expect(text).toMatch(/GET_PROP +obj,identifier -> /)
+    expect(text).toMatch(/GET_PROP +cla,#03 -> i/) // Inform's artificial property 3 has no source name
+  })
+
+  it("without them, is txd's text: nothing named", () => {
+    const plain = formatTxd(story)
+    expect(plain).not.toContain('Initialise')
+    expect(plain).toContain('Main routine R0001, 0 locals')
+  })
+
+  it('routineView names the same way, and its pieces still join to the text', () => {
+    const init = Object.values(symbols.routines).find(r => r.name === 'Initialise')!
+    const v = routineView(story, init.address, { symbols })!
+    expect(v.name).toBe('Initialise')
+    expect(v.header).toBe('Routine Initialise, 0 locals')
+    expect(v.lines[0]!.pieces.map(p => p.text).join('')).toBe('STORE           location,#001a')
   })
 })

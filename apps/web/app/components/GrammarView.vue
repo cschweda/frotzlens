@@ -17,6 +17,8 @@ const list = useLimit(() => verbs.value, 60)
 watch(filter, () => list.reset())
 
 const actionRoutine = (action: number) => g.value?.actions[action]
+/** "action 12", or with a debug file "##Take (12)". */
+const actionLabel = (action: number) => (actionName(action) ? `##${actionName(action)} (${action})` : `action ${action}`)
 const VERSIONS: Record<number, string> = { 1: 'version 1 (old Inform)', 2: 'version 2 (the Standard Library)', 3: 'version 3 (PunyInform)' }
 
 // #grammar/12: show (and focus) verb 12, even when it's past the first page.
@@ -60,9 +62,9 @@ watch(selected, async (i) => {
             <span class="sr-only">action</span>
             <template v-if="actionRoutine(line.action) !== undefined">
               <RefLink :story="story" :id="`routine:${hex(actionRoutine(line.action)!)}`" />
-              <span class="data text-xs text-muted">action {{ line.action }}</span>
+              <span class="data text-xs text-muted">{{ actionLabel(line.action) }}</span>
             </template>
-            <span v-else class="data text-muted">action {{ line.action }}</span>
+            <span v-else class="data text-muted">{{ actionLabel(line.action) }}</span>
           </li>
         </ul>
       </li>

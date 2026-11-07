@@ -191,3 +191,83 @@ describe('exit codes and messages', () => {
     expect(r.err).toContain("can't read no-such-file.z5")
   })
 })
+
+describe('--symbols, --info, --rooms', () => {
+  it('--symbols names routines, globals and locals in the disassembly', () => {
+    const r = run(['--symbols', 'dark-cellar.dbg', 'dark-cellar.z5'])
+    expect(r.code).toBe(0)
+    expect(r.err).toBe('')
+    expect(r.out).toContain('Routine Initialise, 0 locals\n\n       STORE           location,#001a\n')
+    expect(r.out).toMatch(/PULL +i\n/) // a local, by name
+    // -n's addresses win over routine names.
+    const n = run(['-n', '--symbols', 'dark-cellar.dbg', 'dark-cellar.z5']).out
+    expect(n).not.toContain('Routine Initialise')
+    expect(n).toMatch(/STORE +location,#001a/)
+    expect(run(['--symbols', 'dark-cellar.dbg', '--routine', run(['-n', 'dark-cellar.z5']).out.match(/Routine ([0-9a-f]+), 0 locals\n\n *\S+: +STORE +G[0-9a-f]+,#001a/)![1]!, 'dark-cellar.z5']).out).toMatch(/^Routine Initialise/)
+  })
+
+  it("--symbols from another story: a warning, and txd's own text", () => {
+    const r = run(['--symbols', 'demo.dbg', 'dark-cellar.z5'])
+    expect(r.code).toBe(0)
+    expect(r.err).toContain('demo.dbg was written for another story')
+    expect(r.out).toBe(run(['dark-cellar.z5']).out)
+  })
+
+  it('--info: the compiler, library and veneer', () => {
+    const r = run(['--info', 'dark-cellar.z5'])
+    expect(r.code).toBe(0)
+    expect(r.out).toContain('Compiler:  Inform 6.44\nLibrary:   Standard Library 6.12.8\nVeneer:    30 routines recognised\n')
+    expect(r.out).toMatch(/ RT__Err\n/)
+    expect(run(['--info', 'puny-dark-cellar.z5']).out).toMatch(/Library: +PunyInform \d+\.\d+\n/)
+  })
+
+  it('--rooms: the map, from the debug file', () => {
+    const r = run(['--rooms', '--symbols', 'dark-cellar.dbg', 'dark-cellar.z5'])
+    expect(r.code).toBe(0)
+    expect(r.out).toMatch(/^2 rooms; the game starts in Hall \(\d+\)\n\nHall \(\d+\)\n    down      Cellar \(\d+\)\nCellar \(\d+\)\n    up        Hall \(\d+\)\n$/)
+    expect(run(['--rooms', 'dark-cellar.z5']).code).toBe(2)
+  })
+
+  it('--json with --symbols and --rooms carries them', () => {
+    const m = JSON.parse(run(['--json', '--rooms', '--symbols', 'dark-cellar.dbg', 'dark-cellar.z5']).out)
+    expect(m.fingerprint.compiler).toBe('inform6')
+    expect(Object.values(m.symbols.routines).some((r: any) => r.name === 'Initialise')).toBe(true)
+    expect(m.symbols.prefix).toMatch(/^[0-9a-f]{128}$/)
+    expect(m.rooms.rooms.map((r: any) => r.name)).toEqual(['Hall', 'Cellar'])
+  })
+
+  it('--info and --rooms have nothing to say about a version they only read the header of', () => {
+    const dir = mkdtempSync(join(tmpdir(), 'frotzlens-cli-'))
+    try {
+      const v6 = readFileSync(FIXTURES + 'demo.z5')
+      v6[0] = 6
+      writeFileSync(join(dir, 'v6.z6'), v6)
+      const r = spawnSync(process.execPath, [BIN, '--info', '--rooms', '--symbols', join(FIXTURES, 'demo.dbg'), 'v6.z6'], { cwd: dir, encoding: 'utf8' })
+      expect(r.stdout).toBe('')
+      expect(r.stderr).toContain('not supported')
+    } finally {
+      rmSync(dir, { recursive: true, force: true })
+    }
+  })
+
+  it('--info lists a Blorb with no story in it', () => {
+    const be = (n: number) => Buffer.from([(n >>> 24) & 255, (n >>> 16) & 255, (n >>> 8) & 255, n & 255])
+    const glul = Buffer.concat([Buffer.from('GLUL'), be(4), Buffer.from([1, 2, 3, 4])])
+    const dir = mkdtempSync(join(tmpdir(), 'frotzlens-cli-'))
+    try {
+      writeFileSync(join(dir, 'g.zblorb'), Buffer.concat([Buffer.from('FORM'), be(4 + glul.length), Buffer.from('IFRS'), glul]))
+      const r = spawnSync(process.execPath, [BIN, '--info', 'g.zblorb'], { cwd: dir, encoding: 'utf8' })
+      expect(r.status).toBe(1)
+      expect(r.stdout).toBe('Story file is g.zblorb\n\nBlorb:\n       c  GLUL  4 bytes\n')
+      expect(r.stderr).toContain('Glulx')
+    } finally {
+      rmSync(dir, { recursive: true, force: true })
+    }
+  })
+
+  it('an unreadable debug file stops before any story is read', () => {
+    const r = run(['--symbols', 'no-such.dbg', 'demo.z5'])
+    expect(r.code).toBe(1)
+    expect(r.err).toContain("can't read no-such.dbg")
+  })
+})

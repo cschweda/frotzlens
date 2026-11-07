@@ -61,3 +61,19 @@ The start is found when it is a constant: the Standard Library's `location = Roo
 ## 5. ZIL
 
 ZILF-compiled stories were checked against Ztools before this phase (PR #8): everything Ztools can read in them matches. Decoding ZIL's own syntax tables, its grammar, is the remaining ZIL work. Ztools can't read them either: it reads them as Inform grammar and runs off the end of the file.
+
+## 6. The web app (the second PR)
+
+- **Symbols.** A `.dbg` dropped anywhere, or chosen on the Symbols view, is read on the main thread (about 20 ms for a 1.8 MB file) and checked against the story. One written for another story is refused with a message, and its names are never applied. A **Names** toggle in the header (a pressed/unpressed button) switches between source names and txd's numbers. The story is never re-parsed.
+- **Names everywhere.**
+  - The routines list, disassembly and copy-as-text show routines, globals, locals, attributes and properties by name (zcode's `symbols` option).
+  - Links, search and the object view show names too: attributes as `light (12)`, properties by name, grammar actions as `##Take (12)`.
+- **Overview.** "What is this file" adds the library, how many veneer routines were recognised, a Blorb's contents (pictures, sounds, cover, title, author), and whether symbols are loaded.
+- **Globals** (`#globals`, `#global/12`): each global's starting value and the routines that use it. Globals are now links everywhere.
+- **Abbreviations** (`#abbreviations`): the table, copied in infodump's format.
+- **Map** (`#map`, with symbols): the room graph laid out on a grid by Trizbort's rule, ported from Frotzsmith's map. Exits a routine decides are dashed.
+  - Each room links to its object. The SVG is a labelled group, because a `role="img"` can't contain links.
+  - Below the picture, the same map as a list: each room and its exits. That list is the map for anyone who can't see the picture.
+  - "Copy the map" gives Frotzsmith's shape.
+- **Smoke test.** A new Playwright test opens the `mingus-1` fixture, refuses `demo.dbg`, loads `mingus-1.dbg`, finds `Initialise` and `location`, checks the map (19 rooms, starting in Wind-Scoured Mesa), and runs axe on the Symbols view (before and after loading), a global, the Map and Abbreviations. Then it switches names off. The existing tests cover the other views.
+  - axe caught two problems along the way, both fixed: links in the exit sentences needed underlines (link-in-text-block), and the map's SVG had `role="img"` around links (nested-interactive).

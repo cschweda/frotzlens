@@ -8,6 +8,8 @@ import { expect, test, type Page } from '@playwright/test'
 import { fileURLToPath } from 'node:url'
 
 const STORY = fileURLToPath(new URL('../../../samples/architect-legacy.z5', import.meta.url))
+// A story with its debug file: zcode's test fixtures (built by its tests, which CI runs first).
+const FIXTURES = fileURLToPath(new URL('../../../packages/zcode/test/.fixtures/', import.meta.url))
 const WCAG = ['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa', 'wcag22aa']
 
 /** Console errors and uncaught exceptions, collected for the whole test. */
@@ -109,6 +111,46 @@ test('every view of architect-legacy.z5', async ({ page }) => {
   await expect(page.getByRole('heading', { level: 1, name: 'String S001' })).toBeVisible()
   await axe(page, 'a string')
 
+  expect(errors).toEqual([])
+})
+
+test('symbols: a debug file names things, and draws the map', async ({ page }) => {
+  const errors = watchConsole(page)
+  await page.goto('/')
+  await page.locator('input[type=file]').setInputFiles(`${FIXTURES}mingus-1.z5`)
+  await expect(page.getByRole('heading', { level: 1, name: 'Overview' })).toBeVisible()
+  await expect(page.getByText('Standard Library 6.12.8')).toBeVisible()
+
+  // One from another story is refused.
+  await visit(page, '#symbols')
+  await axe(page, 'symbols, none loaded')
+  await page.locator('input[accept=".dbg"]').setInputFiles(`${FIXTURES}demo.dbg`)
+  await expect(page.getByRole('alert')).toContainText('written for another story file')
+
+  // Its own is taken: routines, globals and the map have names.
+  await page.locator('input[accept=".dbg"]').setInputFiles(`${FIXTURES}mingus-1.dbg`)
+  await expect(page.getByText('written for this story file')).toBeVisible()
+  await axe(page, 'symbols, loaded')
+  await visit(page, '#routines')
+  await page.getByRole('textbox', { name: 'Filter routines' }).fill('Initialise')
+  await expect(page.getByRole('link', { name: 'Initialise', exact: true })).toBeVisible()
+  await visit(page, '#globals')
+  await page.getByRole('link', { name: 'location', exact: true }).click()
+  await expect(page.getByRole('heading', { level: 1, name: 'location' })).toBeVisible()
+  await axe(page, 'a global')
+  await visit(page, '#map')
+  await expect(page.getByText(/^19 rooms; the game starts in Wind-Scoured Mesa/)).toBeVisible()
+  await expect(page.getByRole('group', { name: /A map of 19 rooms/ })).toBeVisible()
+  await axe(page, 'the map')
+  await visit(page, '#abbreviations')
+  await axe(page, 'abbreviations')
+
+  // Names off: txd's numbers again.
+  await page.getByRole('button', { name: 'Names' }).click()
+  await expect(page.getByRole('button', { name: 'Names' })).toHaveAttribute('aria-pressed', 'false')
+  await visit(page, '#routines')
+  await page.getByRole('textbox', { name: 'Filter routines' }).fill('Initialise')
+  await expect(page.getByText('No routine')).toBeVisible()
   expect(errors).toEqual([])
 })
 

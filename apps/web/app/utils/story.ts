@@ -5,6 +5,7 @@
  */
 import type { StoryFile } from '@frotzinc/zcode'
 import { txdRoutineName, txdStringName } from '@frotzinc/zcode/format'
+import { activeSymbols } from '../composables/useSymbols'
 
 export const hex = (n: number, width = 4) => n.toString(16).padStart(width, '0')
 
@@ -34,9 +35,19 @@ export function storyIndex(story: StoryFile): Index {
   return i
 }
 
-/** txd's names (R0001, S001), from zcode, so a link reads exactly as the disassembly does. */
-export const routineName = txdRoutineName
+/**
+ * A routine's name: its source name when a debug file is loaded and names are on, else txd's
+ * (R0001), from zcode, so a link reads exactly as the disassembly does.
+ */
+export const routineName = (story: StoryFile, address: number) => activeSymbols.value?.routines[address]?.name ?? txdRoutineName(story, address)
 export const stringName = txdStringName
+
+/** A global: its source name with symbols, else txd's G00. */
+export const globalName = (n: number) => activeSymbols.value?.globals[n] ?? `G${hex(n, 2)}`
+/** An attribute, property or action number, with its source name when there is one. */
+export const attributeName = (n: number) => activeSymbols.value?.attributes[n]
+export const propertyName = (n: number) => activeSymbols.value?.properties[n]
+export const actionName = (n: number) => activeSymbols.value?.actions[n]
 
 export const objectName = (story: StoryFile, n: number) =>
   story.objects.objects[n - 1]?.shortName.text || `object ${n}`
@@ -61,7 +72,7 @@ export function idLabel(story: StoryFile, id: string): string {
       const e = storyIndex(story).dictByAddress.get(n)
       return e ? `“${e.word}”` : `word at ${hex(n)}`
     }
-    case 'global': return `G${hex(n, 2)}`
+    case 'global': return globalName(n)
     default: return id
   }
 }
