@@ -46,14 +46,14 @@ Then **play it**, in the same Parchment interpreter Frotzsmith uses, walled off 
 
   The ZIL grammar decoder is written for Infocom's original syntax-table format too. It has only been tested on ZILF's output, because Infocom's own story files can't be in this repository.
 - **Teachers and students** of compilers or virtual machines get a small, complete, real instruction set to study: a stack machine, a disassembly that names everything, and the bytes behind each line.
-- **Tool builders and researchers** get [`@frotzinc/zcode`](packages/zcode), a typed model of any story file in TypeScript, and a CLI whose output matches `txd` and `infodump`. Old scripts keep working, and `--json` gives the whole model to new ones.
+- **Tool builders and researchers** get [`@frotzinc/zcode`](packages/zcode), a typed model in TypeScript of any version 3, 4, 5 or 8 story file, and a CLI whose output matches `txd` and `infodump`. Old scripts keep working, and `--json` gives the whole model to new ones.
 - **Players who are stuck** can play in one tab and, in another, look up the grammar to find the verb the game wants, or the map to see what's beyond the next door.
 
 ## What it does that nothing else does
 
-Ztools (`txd`, `infodump`), the reference Z-machine tools since the 1990s, print a story file's insides as text in a terminal. Frotzlens matches their output byte for byte on every story they can read. As far as we know, no other tool does any of the following, let alone all of it in a browser tab with nothing installed and nothing uploaded:
+Ztools (`txd`, `infodump`), the reference Z-machine tools since the 1990s, print a story file's insides as text in a terminal. Frotzlens matches their output byte for byte on every Standard Library and library-free story they read correctly. The exceptions are PunyInform's grammar, which Ztools misreads, and one map ([details](docs/03-phase-2-disassembler.md#5-deliberate-differences-from-ztools)). As far as we know, no other tool does any of the following, let alone all of it in a browser tab with nothing installed and nothing uploaded:
 
-- **Everything is linked.** Every routine, string, object, dictionary word, global and grammar line is a link, with cross-references both ways: what refers to it, and what it refers to.
+- **Everything is linked.** Every routine, string, object, dictionary word and global is a link, with cross-references both ways: what refers to it, and what it refers to. Each grammar line links its action routines, and each verb its words.
 - **The source's names.** It reads Inform's `gameinfo.dbg` and shows routines, locals, globals, properties, attributes and actions by name, with a switch back to txd's numbers.
 - **What made the story, without symbols.** It identifies the compiler and version, the library and version, and Inform's own veneer routines, by their code.
 - **ZIL.** It reads ZILF's syntax tables, where Ztools reads past the end of the file, and checks them against the source (`SYNTAX` forms) in its tests.

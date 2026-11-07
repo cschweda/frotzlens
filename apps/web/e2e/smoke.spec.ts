@@ -239,6 +239,10 @@ test('works at 400px', async ({ page }) => {
     expect(await page.evaluate(() => document.documentElement.scrollWidth - innerWidth), hash).toBe(0)
     await axe(page, `${hash} at 400px`)
   }
+  // The narrowest common phone: the header's buttons still fit.
+  await page.setViewportSize({ width: 320, height: 700 })
+  await visit(page, '#overview')
+  expect(await page.evaluate(() => document.documentElement.scrollWidth - innerWidth), 'at 320px').toBe(0)
   expect(errors).toEqual([])
 })
 

@@ -13,7 +13,8 @@ onMounted(() => (shortcut.value = modShortcutLabel('k')))
     <div class="mx-auto flex h-16 max-w-7xl items-center gap-3 px-4">
       <a href="#overview" class="flex items-center gap-3" :aria-label="`${site.name} — home`">
         <img src="/favicon.svg" alt="" width="36" height="36" class="size-9">
-        <span class="font-display text-xl font-bold text-highlighted">{{ site.name }}</span>
+        <!-- On a phone the logo stands for the name (the link is labelled), leaving room for the buttons. -->
+        <span class="hidden font-display text-xl font-bold text-highlighted sm:inline">{{ site.name }}</span>
       </a>
       <span v-if="loaded" class="data hidden truncate text-sm text-muted sm:inline">/ {{ fileName }}</span>
       <div class="ml-auto flex items-center gap-2">

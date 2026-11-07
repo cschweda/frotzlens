@@ -83,14 +83,20 @@ export function issueLink(draft: IssueDraft, details: string): { url: string; tr
   const fields = issueFields(draft, details)
   let url = issueUrl(draft.kind, title, fields)
   let trimmed = false
+  // Cut the longest field (by its encoded length, so non-ASCII text counts as it really does) until
+  // the link fits; every field can go down to just the note.
   while (url.length > MAX_ISSUE_URL) {
-    const longest = fields.reduce((a, b) => (b.value.length > a.value.length ? b : a))
-    const chars = Array.from(longest.value)
-    const keep = Math.max(0, chars.length - Math.ceil((url.length - MAX_ISSUE_URL) / 3) - TRIMMED_NOTE.length - 1)
+    const cuttable = fields.filter(f => f.value !== TRIMMED_NOTE)
+    if (!cuttable.length) break
+    const longest = cuttable.reduce((a, b) => (enc(b.value).length > enc(a.value).length ? b : a))
+    const chars = Array.from(longest.value.endsWith(TRIMMED_NOTE) ? longest.value.slice(0, -TRIMMED_NOTE.length) : longest.value)
+    const over = url.length - MAX_ISSUE_URL
+    // Drop at least enough characters to cover the overshoot, judged by the field's average encoded size.
+    const perChar = Math.max(1, enc(chars.join('')).length / Math.max(1, chars.length))
+    const keep = Math.max(0, chars.length - Math.ceil((over + enc(TRIMMED_NOTE).length) / perChar) - 1)
     longest.value = chars.slice(0, keep).join('') + TRIMMED_NOTE
     trimmed = true
     url = issueUrl(draft.kind, title, fields)
-    if (keep === 0) break
   }
   return { url, trimmed }
 }

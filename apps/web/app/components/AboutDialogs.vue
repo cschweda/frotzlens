@@ -27,12 +27,15 @@ const LICENCES = [
 ]
 
 const copied = ref('')
-async function copy(text: string, what: string) {
+/** Copy to the clipboard and say so; true when it worked. */
+async function copy(text: string, what: string): Promise<boolean> {
   try {
     await navigator.clipboard.writeText(text)
     copied.value = `${what} copied.`
+    return true
   } catch {
     copied.value = 'Your browser didn’t allow copying. Select the text and copy it instead.'
+    return false
   }
 }
 
@@ -49,10 +52,15 @@ watch(dialog, (d) => {
 const required = computed(() => (kind.value === 'problem' ? draft.happened : draft.idea).trim().length > 0)
 async function openIssue() {
   const { url, trimmed } = issueLink(draft, details.value)
-  // The whole text goes on the clipboard too, so nothing is lost to a link cut short.
-  await copy(reportText(draft, details.value), 'The report')
-  if (trimmed) copied.value = 'The report was long, so the link carries a shortened copy. The whole report is on your clipboard to paste.'
+  // The tab first, while the click still counts as the person's (a browser blocks a window opened
+  // after an await). Then the whole text goes on the clipboard, so nothing is lost to a link cut short.
   window.open(url, '_blank', 'noopener,noreferrer')
+  const ok = await copy(reportText(draft, details.value), 'The report')
+  if (trimmed) {
+    copied.value = ok
+      ? 'The report was long, so the link carries a shortened copy. The whole report is on your clipboard to paste.'
+      : 'The report was long, so the link carries a shortened copy, and your browser didn’t allow copying the rest: use Copy the report, or select the text above.'
+  }
 }
 </script>
 

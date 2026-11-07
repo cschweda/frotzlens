@@ -10,7 +10,7 @@ All notable changes to Frotzlens: the web app at [frotzlens.frotzinc.com](https:
 
 ### Added
 - **An About menu** in the header, as in Drafter:
-  - **About Frotzlens:** every version (the site's, with its commit and date, and each package's) and every licence, with "Copy technical details".
+  - **About Frotzlens:** every version (the site's, with its commit and date, and each package the site is built from) and every licence, with "Copy technical details".
   - **What's new:** this changelog.
   - **Report a problem…** and **Suggest a feature…**: GitHub's issue form, filled in with what you write and the technical details, for you to review and submit there. Frotzlens sends nothing, and never the story file.
   - **Check for updates:** whether the site has been updated since the page opened.

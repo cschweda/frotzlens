@@ -55,8 +55,9 @@ const items: DropdownMenuItem[][] = [
 
 <template>
   <UDropdownMenu :items="items" :content="{ align: 'end' }">
-    <UButton color="neutral" variant="ghost" icon="i-lucide-circle-help" aria-label="About" trailing-icon="i-lucide-chevron-down">
+    <UButton color="neutral" variant="ghost" icon="i-lucide-circle-help" aria-label="About">
       <span class="hidden sm:inline">About</span>
+      <UIcon name="i-lucide-chevron-down" class="hidden size-4 sm:inline" aria-hidden="true" />
     </UButton>
   </UDropdownMenu>
 </template>
