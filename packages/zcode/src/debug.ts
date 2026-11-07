@@ -75,6 +75,8 @@ export interface Symbols {
   prefix?: Uint8Array
   /** Problems reading the file: a malformed document, entries with no usable value. */
   problems: string[]
+  /** Worked out without a debug file (inferSymbols): the game's names are made up. */
+  inferred?: true
 }
 
 const num = (s: string | undefined) => (s !== undefined && /^\s*-?\d+\s*$/.test(s) ? Number(s) : undefined)

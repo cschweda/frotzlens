@@ -4,7 +4,7 @@
  * only what they point to: a routine by its name, a string by its text, a word by its spelling.
  */
 import { compile } from '@frotzinc/inform6-wasm'
-import { decompileInform, parseStory, readSymbols, type StoryFile, type Symbols } from '../src/index.js'
+import { decompileInform, findReference, inferSymbols, parseStory, readSymbols, type StoryFile, type Symbols } from '../src/index.js'
 import { informLine } from '../src/inform/grammar.js'
 
 export type PartResult = 'identical' | 'equivalent' | 'different'
@@ -18,15 +18,21 @@ export interface RoundTrip {
   parts: Record<string, { result: PartResult; differences: string[] }>
 }
 
-/** A view of one story where every address is replaced by what's there. */
-function canon(story: StoryFile, sym: Symbols) {
+/**
+ * A view of one story where every address is replaced by what's there. `anonymous`: by position
+ * instead of by name (routines and arrays by their order, actions and attributes by number), for
+ * comparing with a story decompiled without its debug file, whose names were made up.
+ */
+function canon(story: StoryFile, sym: Symbols, anonymous = false) {
   const v = story.header.version
   const scale = v <= 3 ? 2 : v <= 5 ? 4 : 8
   const routines = new Map(story.code.routines.map(r => [r.address / scale, r]))
   const strings = new Map(story.strings.map(s => [s.address / scale, s.text]))
   const dict = new Map(story.dictionary.entries.map(e => [e.address, e.word]))
   const arrays = new Map(sym.arrays.map(a => [a.address, a.name]))
-  const routineName = (address: number) => sym.routines[address]?.name ?? `?routine@${address}`
+  const routineIndex = new Map(story.code.routines.map((r, i) => [r.address, i]))
+  const arrayIndex = new Map(sym.arrays.slice().sort((a, b) => a.address - b.address).map((a, i) => [a.address, i]))
+  const routineName = (address: number) => (anonymous ? `#${routineIndex.get(address)}` : sym.routines[address]?.name ?? `?routine@${address}`)
   // Every reading of a word: a routine, string, dictionary word or array at that address can all
   // coincide, so each is kept ("R:x|D:y"), and two words match when they share one (see same()).
   const value = (w: number): string => {
@@ -39,7 +45,7 @@ function canon(story: StoryFile, sym: Symbols) {
       const d = dict.get(w)
       if (d !== undefined) readings.push(`D:${d}`)
       const a = arrays.get(w)
-      if (a !== undefined) readings.push(`A:${a}`)
+      if (a !== undefined) readings.push(`A:${anonymous ? arrayIndex.get(w) : a}`)
     }
     return readings.length ? `\u0002${readings.join('\u0001')}\u0002` : String(w)
   }
@@ -52,7 +58,7 @@ function canon(story: StoryFile, sym: Symbols) {
     for (let g = 0; a + 3 <= b.length && ((b[a]! << 8) | b[a + 1]!) && g < 256; g++) {
       const id = ((b[a]! << 8) | b[a + 1]!) & 0x7fff
       const len = b[a + 2]!
-      out.push(`${sym.properties[id] ?? id}=${words(Array.from(b.subarray(a + 3, a + 3 + len)))}`)
+      out.push(`${anonymous ? id : sym.properties[id] ?? id}=${words(Array.from(b.subarray(a + 3, a + 3 + len)))}`)
       a += 3 + len
     }
     return out.sort().join('; ')
@@ -61,18 +67,26 @@ function canon(story: StoryFile, sym: Symbols) {
   const objects = new Map<string, string>()
   for (const o of story.objects.objects) {
     const props = o.properties
-      .map(p => (p.number === 3 ? `individual: ${individuals(p.data)}` : `${sym.properties[p.number] ?? p.number}=${words(p.data)}`))
+      .map(p => (p.number === 3 ? `individual: ${individuals(p.data)}` : `${anonymous ? p.number : sym.properties[p.number] ?? p.number}=${words(p.data)}`))
       .sort()
     objects.set(`${o.number}`, [`"${o.shortName.text}"`, `in ${o.parent} next ${o.sibling} first ${o.child}`, `has ${o.attributes.join(',')}`, ...props].join(' | '))
   }
   const defaults = new Map(story.objects.propertyDefaults.map((d, i) => [`${i + 1}`, value(d)]))
-  const globals = new Map(story.globals.map(g => [sym.globals[g.number] ?? `g${g.number}`, value(g.value)]))
-  const arrayContents = new Map(sym.arrays.map(a => {
+  const globals = new Map(story.globals.map(g => [anonymous ? `g${g.number}` : sym.globals[g.number] ?? `g${g.number}`, value(g.value)]))
+  // Without names, arrays are compared as the bytes of the array space (their bounds were guessed).
+  const arraySpace = (() => {
+    const start = story.header.globals + 480
+    const end = story.grammar?.address ?? story.header.staticMemory
+    const ws: string[] = []
+    for (let a = start; a + 1 < end; a += 2) ws.push(value((story.bytes[a]! << 8) | story.bytes[a + 1]!))
+    return ws.join(' ')
+  })()
+  const arrayContents = anonymous ? new Map([['array space', arraySpace]]) : new Map(sym.arrays.map(a => {
     const data = Array.from(story.bytes.subarray(a.address, a.address + a.byteCount))
     return [a.name, a.bytesPerElement === 2 ? words(data) : data.join(' ')]
   }))
   const dictionary = new Map(story.dictionary.entries.map(e => [e.word, JSON.stringify(e.inform ?? {})]))
-  const names = { routine: (a: number) => routineName(a), action: (n: number) => sym.actions[n] ?? `${n}`, attribute: (n: number) => sym.attributes[n] ?? `${n}` }
+  const names = { routine: (a: number) => routineName(a), action: (n: number) => (anonymous ? `${n}` : sym.actions[n] ?? `${n}`), attribute: (n: number) => (anonymous ? `${n}` : sym.attributes[n] ?? `${n}`) }
   const grammar = new Map((story.grammar?.verbs ?? []).map(verb => [verb.words.join(' '), verb.lines.map(l => informLine(story, l, names) ?? '?').join(' / ')]))
   const code = new Map<string, string>()
   for (const r of story.code.routines) {
@@ -86,9 +100,12 @@ function canon(story: StoryFile, sym: Symbols) {
     code.set(routineName(r.address), `${r.locals} | ${text.join('; ')}`)
   }
   // Each action's number: the code compares actions by number, so a renumbering is a difference.
-  const actions = new Map((story.grammar?.actions ?? []).map((a, n) => [sym.actions[n] ?? `${n}`, `${n} ${routineName(a)}`]))
+  const actions = new Map((story.grammar?.actions ?? []).map((a, n) => [anonymous ? `${n}` : sym.actions[n] ?? `${n}`, `${n} ${routineName(a)}`]))
+  // Without names, the strings that are only names (Inform keeps the properties', attributes' and
+  // actions' for printing) aren't compared.
+  const names_ = new Set([...Object.values(sym.properties), ...Object.values(sym.attributes), ...Object.values(sym.actions), ...Object.values(sym.classes), ...Object.values(sym.objects), ...Object.values(sym.globals), ...sym.arrays.map(a => a.name), ...Object.values(sym.routines).map(r => r.name)])
   const stringSet = new Map<string, string>()
-  for (const s of story.strings) stringSet.set(s.text, String(Number(stringSet.get(s.text) ?? 0) + 1))
+  for (const s of story.strings) if (!anonymous || !names_.has(s.text)) stringSet.set(s.text, String(Number(stringSet.get(s.text) ?? 0) + 1))
   return { objects, defaults, globals, arrays: arrayContents, dictionary, grammar, actions, routines: code, strings: stringSet }
 }
 
@@ -118,9 +135,25 @@ function comparePart(a: Map<string, string>, b: Map<string, string>, max = 5): {
   return { same: !differences.length, differences: differences.slice(0, max) }
 }
 
-export async function roundTrip(bytes: Uint8Array, dbg: string): Promise<RoundTrip> {
+/**
+ * `withoutSymbols`: decompile as if there were no debug file (the symbols worked out from the
+ * library compiled alone), and compare without names; the debug file is still what the original is
+ * read with.
+ */
+export async function roundTrip(bytes: Uint8Array, dbg: string, withoutSymbols = false): Promise<RoundTrip> {
   const story = parseStory(bytes)
-  const symbols = readSymbols(dbg)
+  const truth = readSymbols(dbg)
+  let symbols = truth
+  if (withoutSymbols) {
+    const ref = await findReference(story, async (source, library, version) => {
+      const out = await compile(source, { version, library, debug: true })
+      // An extension that won't compile alone is a reference not to use.
+      if (!out.ok || !out.story || !out.dbg) return undefined
+      return { story: parseStory(out.story), symbols: readSymbols(out.dbg) }
+    })
+    if (!ref) throw new Error('No library to compile a reference with.')
+    symbols = inferSymbols(story, ref)
+  }
   const { source, problems } = decompileInform(story, { symbols })
   const library = story.fingerprint?.library?.name === 'PunyInform' ? 'puny' : 'std'
   const out = await compile(source, { version: `z${story.header.version}` as 'z5', library, debug: true })
@@ -133,8 +166,8 @@ export async function roundTrip(bytes: Uint8Array, dbg: string): Promise<RoundTr
   }
   const b = out.story
   result.identical = bytes.length === b.length && bytes.subarray(0x40).every((x, i) => x === b[0x40 + i])
-  const A = canon(story, symbols)
-  const B = canon(parseStory(b), readSymbols(out.dbg))
+  const A = canon(story, truth, withoutSymbols)
+  const B = canon(parseStory(b), readSymbols(out.dbg), withoutSymbols)
   for (const part of Object.keys(A) as (keyof typeof A)[]) {
     const { same, differences } = comparePart(A[part], B[part])
     result.parts[part] = { result: !same ? 'different' : result.identical ? 'identical' : 'equivalent', differences }

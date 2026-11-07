@@ -56,3 +56,23 @@ describe('decompiling, economy mode with a library that declares abbreviations',
     expect(r.identical).toBe(true)
   }, 60_000)
 })
+
+/**
+ * Without a debug file (6a's second half): the symbols are worked out by comparing the story with its
+ * library compiled alone, set up as the story's was (findReference), and the comparison is by
+ * position, since the names are made up. These come back the same bytes; the rest differ only in
+ * names Inform keeps as text (a property's, an action's), which the made-up names can't match.
+ */
+const IDENTICAL_WITHOUT_SYMBOLS = new Set(['dark-cellar.z5', 'dark-cellar-v8.z8', 'demo.z5', 'hermit.z5', 'locked-chest.z5', 'puny-dark-cellar.z5', 'puny-dark-cellar-v3.z3', 'puny-dark-cellar-v4.z4', 'minimal.z5'])
+
+describe('decompiling to Inform 6 without a debug file (6a)', () => {
+  for (const file of withSymbols) {
+    it(`${file} recompiles to an equivalent story`, async () => {
+      const r = await roundTrip(new Uint8Array(readFileSync(FIXTURES_DIR + file)), readFileSync(FIXTURES_DIR + file.replace(/\.z\d$/, '.dbg'), 'utf8'), true)
+      expect(r.errors).toEqual([])
+      const different = Object.entries(r.parts).filter(([, p]) => p.result === 'different').map(([k, p]) => `${k}:\n    ${p.differences.join('\n    ')}`)
+      expect(different).toEqual([])
+      expect(r.identical).toBe(IDENTICAL_WITHOUT_SYMBOLS.has(file))
+    }, 120_000)
+  }
+})

@@ -5,8 +5,9 @@
  * compiles to the same instructions. Later steps turn the assembly into statements (6b, 6c) and
  * the veneer's calls back into the syntax that made them (6d).
  *
- * This first cut works from the story's debug file (gameinfo.dbg): it says which source file each
- * routine, object and variable came from, and so where the library's Includes went.
+ * It works from the story's debug file (gameinfo.dbg), which says which source file each routine,
+ * object and variable came from, and so where the library's Includes went; or, without one, from
+ * the same worked out by inferSymbols (infer.ts).
  */
 import { packedScale } from '../address.js'
 import type { Symbols, SymbolDeclaration } from '../debug.js'
@@ -15,10 +16,11 @@ import type { Routine } from '../routines.js'
 import { routineBody, type AsmNames } from './asm.js'
 import { informLine, type GrammarNames } from './grammar.js'
 import { LIBRARIES, type LibraryVerb } from './library.generated.js'
+import { classPrototype as prototypeOf, individualProperties } from './objects.js'
 import { informString, informWord } from './text.js'
 
 export interface DecompileOptions {
-  /** The story's gameinfo.dbg, read with readSymbols. */
+  /** The story's gameinfo.dbg, read with readSymbols; or, without one, inferSymbols's. */
   symbols: Symbols
 }
 
@@ -214,20 +216,7 @@ export function decompileInform(story: StoryFile, opts: DecompileOptions): Decom
     for (let k = 0; k + 1 < p.data.length; k += 2) out.push((p.data[k]! << 8) | p.data[k + 1]!)
     return out
   }
-  /** Inform's individual properties (v5+): property 3 points to a table of (number, length, data). */
-  const individuals = (o: ZObject): Property[] => {
-    const p = o.properties.find(p => p.number === 3)
-    if (!p || p.data.length < 2) return []
-    const out: Property[] = []
-    let a = (p.data[0]! << 8) | p.data[1]!
-    for (let guard = 0; a + 3 <= bytes.length && word(a) && guard < 256; guard++) {
-      const id = word(a) & 0x7fff
-      const len = bytes[a + 2]!
-      out.push({ number: id, address: a, dataAddress: a + 3, size: len, data: Array.from(bytes.subarray(a + 3, a + 3 + len)) })
-      a += 3 + len
-    }
-    return out
-  }
+  const individuals = (o: ZObject): Property[] => individualProperties(story, o)
   const OBJECT_VALUED = new Set(['n_to', 's_to', 'e_to', 'w_to', 'ne_to', 'nw_to', 'se_to', 'sw_to', 'u_to', 'd_to', 'in_to', 'out_to', 'door_to', 'with_key', 'found_in', 'add_to_scope', 'door_dir'])
 
   /** A property's values, as the source would give them. */
@@ -262,40 +251,10 @@ export function decompileInform(story: StoryFile, opts: DecompileOptions): Decom
   // object's own (property 3).
   const ADDITIVE = new Set(['name', 'before', 'after', 'life', 'orders', 'describe', 'time_out', 'each_turn'])
   const wordsOf = (data: number[]) => Array.from({ length: data.length >> 1 }, (_, k) => (data[2 * k]! << 8) | data[2 * k + 1]!)
-  const propertyList = (at: number): Property[] => {
-    const out: Property[] = []
-    for (let a = at, guard = 0; a < bytes.length && bytes[a] && guard < 64; guard++) {
-      const b = bytes[a]!
-      let number: number, size: number, data: number
-      if (v <= 3) {
-        number = b & 31
-        size = (b >> 5) + 1
-        data = a + 1
-      } else if (b & 0x80) {
-        number = b & 63
-        size = bytes[a + 1]! & 63 || 64
-        data = a + 2
-      } else {
-        number = b & 63
-        size = b & 0x40 ? 2 : 1
-        data = a + 1
-      }
-      out.push({ number, address: a, dataAddress: data, size, data: Array.from(bytes.subarray(data, data + size)) })
-      a = data + size
-    }
-    return out
-  }
   const classPrototype = new Map<number, { attributes: number[]; properties: Property[] }>()
   for (const c of Object.keys(sym.classes).map(Number)) {
     const o = object(c)
-    if (!o || c <= METACLASSES) continue
-    const end = o.properties.length ? Math.max(...o.properties.map(p => p.dataAddress + p.size)) : o.propertyTable + 1 + 2 * bytes[o.propertyTable]!
-    let at = end + 1 // past the class object's own list's terminating 0
-    const attrBytes = v <= 3 ? 4 : 6
-    const attributes: number[] = []
-    for (let k = 0; k < attrBytes * 8; k++) if (bytes[at + (k >> 3)]! & (0x80 >> (k & 7))) attributes.push(k)
-    at += attrBytes
-    classPrototype.set(c, { attributes, properties: propertyList(at).filter(p => p.number !== 2 && p.number !== 3) })
+    if (o && c > METACLASSES) classPrototype.set(c, prototypeOf(story, o))
   }
   const classProvides = new Map<number, Map<number, number[]>>()
   for (const [c, proto] of classPrototype) classProvides.set(c, new Map(proto.properties.filter(p => p.size % 2 === 0).map(p => [p.number, wordsOf(p.data)])))
@@ -493,7 +452,13 @@ export function decompileInform(story: StoryFile, opts: DecompileOptions): Decom
         if (a.bytesPerElement === 2) {
           const ws = wordsOf(data)
           const items = a.lengthFirst ? ws.slice(1) : ws
-          return [entries(a.lengthFirst ? 'table' : '-->', items.map(w => value(w)), items.every(w => w === 0))]
+          // An array is usually of one kind: when every entry can be a word (or every one a string,
+          // or a routine), they all are, even those whose address is something else's too.
+          const set = items.filter(w => w)
+          const kind = !set.length ? undefined : set.every(w => dict.has(w)) ? 'word' : set.every(w => stringsByPacked.has(w)) ? 'string' : set.every(w => routinesByPacked.has(w) && routineName(routinesByPacked.get(w)!.address)) ? 'routine' : undefined
+          const entry = (w: number) =>
+            !w || !kind ? value(w) : kind === 'word' ? informWord(dict.get(w)!.word) : kind === 'string' ? informString(stringsByPacked.get(w)!) : routineName(routinesByPacked.get(w)!.address)!
+          return [entries(a.lengthFirst ? 'table' : '-->', items.map(entry), items.every(w => w === 0))]
         }
         if (a.lengthFirst && data.length >= 2 && ((data[0]! << 8) | data[1]!) === data.length - 2 && data.slice(2).every(b => b === 0)) return [`Array ${a.name} buffer ${data.length - 2};`]
         const items = a.lengthFirst ? data.slice(1) : data
@@ -597,6 +562,10 @@ export function decompileInform(story: StoryFile, opts: DecompileOptions): Decom
   out.push('! ' + '='.repeat(75))
   out.push('!  Decompiled by Frotzlens (Phase 6a). The library is left out as Includes;')
   out.push('!  the game\'s routines are Inform assembly, as the story holds them.')
+  if (sym.inferred) {
+    out.push('!  The story had no debug file: the library was found by compiling it alone,')
+    out.push('!  and the game\'s names are made up from what the story says.')
+  }
   out.push('!  A decompiled game is still its author\'s work.')
   out.push('! ' + '='.repeat(75))
   const switches: string[] = []
@@ -651,9 +620,10 @@ export function decompileInform(story: StoryFile, opts: DecompileOptions): Decom
 
   // The veneer: Inform's own routines, which it writes for itself; here because the assembly above
   // calls them by name. (6d turns those calls back into the syntax that made them.)
+  const gameRoutines = new Set(items.filter(it => it.decl.kind === 'routine').map(it => it.decl.value))
   const veneer = story.code.routines.filter(r => {
     const s = sym.routines[r.address]
-    return s && !s.artificial && !s.location && !COMPILER_ROUTINES.has(s.name)
+    return s && !s.artificial && !s.location && !COMPILER_ROUTINES.has(s.name) && !gameRoutines.has(r.address)
   })
   if (veneer.length) {
     banner('Inform\'s veneer routines')

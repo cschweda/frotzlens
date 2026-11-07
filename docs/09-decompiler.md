@@ -98,9 +98,9 @@ This is the part that makes the output trustworthy, and the main test:
 | 6d | Veneer idioms and names, with and without a debug file. | Routines equivalent. Read the output against the original source. |
 | 6e | In the app: Download `.inf`, and the Source view polished, per routine and for the whole game (the view itself shows source from 6c, §7). In the CLI: `frotzlens --inform`. | Playwright and axe. A user who recompiles the download gets the same game. |
 
-## 5a. Progress: 6a with a debug file (2026-11-07)
+## 5a. Progress: 6a, with and without a debug file (2026-11-07)
 
-`decompileInform(story, { symbols })` in `@frotzinc/zcode` writes the `.inf`. This first cut needs the story's `gameinfo.dbg`; working without one (§3a's matching) is the rest of 6a.
+`decompileInform(story, { symbols })` in `@frotzinc/zcode` writes the `.inf`, from the story's `gameinfo.dbg` or, without one, from `inferSymbols`.
 
 **What it writes**
 - `!%` switches when the story shows them (strict mode off; PunyInform's `$OMIT_UNUSED_ROUTINES`; economy mode, with an `Abbreviate` for each abbreviation in the order their text is stored), `Release`, `Serial`, and a `Replace` for each library routine the game wrote its own of.
@@ -117,9 +117,18 @@ This is the part that makes the output trustworthy, and the main test:
 
 **Proof** (`test/decompile.test.ts`): each of the 16 debug fixtures (Standard Library, PunyInform and library-free; versions 3, 4, 5 and 8; one in economy mode, with abbreviations) is decompiled, compiled again with `inform6-wasm`, and compared part by part. All 16 are equivalent; 15 are the same bytes after the header (the first 64 bytes, which interpreters change, aren't compared). mingus-1 lists one property name in a different place in Inform's identifier table, which nothing reads.
 
+**Without a debug file** (`inferSymbols`, `src/inform/infer.ts`): the symbols the debug file would have given are worked out by comparing the story with its library compiled alone.
+1. **The reference.** `findReference` compiles an empty game with the story's library and switches (`referenceSource`), and tries each extension `inform6-wasm` has (Frotzsmith's `Exits`, PunyInform's `ext_*.h`) and each library switch a game can set (`TASKS_PROVIDED`, `NO_SCORE`, …), keeping what makes more routines line up. Numbers a game can set (`MAX_SCORE`, `NUMBER_TASKS`, …) are found by compiling with two unusual values, seeing which operands change, and reading the story's there. The caller passes the compiler in, so `@frotzinc/zcode` doesn't depend on it.
+2. **Lining up.** The story's routines are aligned with the reference's by shape (locals and opcodes); the library's come in the same order in both.
+3. **Votes.** Each aligned pair is walked operand by operand: what the reference's operand names (a routine it calls, a global, an array, a string), the story's is. This names the library's routines (entry points and stubs too: the library's call to `NewRoom` is to the game's), globals, arrays, and constants the library prints (`Story`, `Headline`) or starts a global with (PunyInform's `INITIAL_LOCATION_VALUE`). A routine named by the votes but shaped differently is the game's own version.
+4. **The rest is the game's,** named from what the story says: a class or a nameless object by its short name (Inform gives `"(lamp)"` to an object with none), an object by its short name, an embedded routine `obj.prop` or `Class::prop`, an action by its first verb, the rest by address or number. The game's arrays are the gaps in the array space, split where code points into them. Routines and objects are put in the order the compiler met them, from the strings and code each holds.
+
+**Proof without a debug file** (`test/decompile.test.ts`, second half): every fixture is decompiled as if it had none, compiled again, and compared by position (the names can't match). All 16 are equivalent; 9 are the same bytes. The rest differ only in names Inform keeps as text (a property's, an action's), since the made-up names aren't the source's.
+
 **Known limits, for the next steps**
 - The veneer's own numbers are addresses of the story's tables (where the strings start, the class table), which Inform names only inside the veneer. They're right when the rebuilt story keeps the original layout, as every fixture's does. 6d removes the veneer from the output by writing its calls as the syntax that makes them.
 - PunyInform's compact grammar (GV3) keeps routine tokens in a way not yet read; a game line with one is left out and reported.
+- Without a debug file, only the extensions and library settings listed in `infer.ts` are tried; a story built with others decompiles with their code as the game's (correct, longer), or, for a setting that changes the library's code, a library routine that doesn't line up.
 - A file the story included that isn't one of the library's (the game's own, or an extension `inform6-wasm` doesn't have) is written out as the game's, and reported.
 
 ## 6. Risks

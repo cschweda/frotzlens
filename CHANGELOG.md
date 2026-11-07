@@ -7,7 +7,8 @@ All notable changes to Frotzlens: the web app at [frotzlens.frotzinc.com](https:
 ### Added
 - The design for Phase 6, decompiling a story back to Inform 6 source, for review before any code ([docs/09-decompiler.md](docs/09-decompiler.md)).
 - **Source** (for Inform stories): where decompiling to Inform 6 has got, step by step. It shows the source itself once the routines read well.
-- **Decompiling to Inform 6, step 6a** (in `@frotzinc/zcode`, not yet in the app): with a story's debug file, an `.inf` with the library as `Include`s, the game's declarations, classes, objects and grammar, and its routines as Inform assembly. Every test game with a debug file (versions 3, 4, 5 and 8) compiles again to an equivalent story, and all but one to the same bytes after the header ([progress](docs/09-decompiler.md#5a-progress-6a-with-a-debug-file-2026-11-07)).
+- **Decompiling to Inform 6, step 6a** (in `@frotzinc/zcode`, not yet in the app): with a story's debug file, an `.inf` with the library as `Include`s, the game's declarations, classes, objects and grammar, and its routines as Inform assembly. Every test game with a debug file (versions 3, 4, 5 and 8) compiles again to an equivalent story, and all but one to the same bytes after the header ([progress](docs/09-decompiler.md#5a-progress-6a-with-and-without-a-debug-file-2026-11-07)).
+- **Without a debug file, too:** the library is found by compiling it alone, set up as the story's was (its extensions and the game's library settings tried in turn), and lined up with the story routine by routine; the game's names are made up from what the story says. Every test game compiles again to an equivalent story, nine to the same bytes.
 
 ### Changed
 - The Phase 6 design records the decisions: Inform 6 first and ZIL later, Frotzsmith's Inform 6 style, and the Source view held back until step 6c.
