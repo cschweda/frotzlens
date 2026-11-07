@@ -19,7 +19,7 @@ const jsonLd = {
   browserRequirements: 'Requires JavaScript and Web Workers.',
   isAccessibleForFree: true,
   offers: { '@type': 'Offer', price: '0', priceCurrency: 'USD' },
-  license: 'https://www.gnu.org/licenses/gpl-3.0.html',
+  license: 'https://spdx.org/licenses/GPL-3.0-or-later.html',
   codeRepository: site.repoUrl,
   author: { '@type': 'Person', name: 'Christopher Schweda' },
   publisher: { '@type': 'Organization', name: 'Frotz, Inc.', url: site.familyUrl },
