@@ -1,0 +1,32 @@
+@import "tailwindcss";
+@import "@nuxt/ui";
+/* The Frotz, Inc. look: --frotz-amber, .frotz-glow, .frotz-grid, reduced motion. */
+@import "@frotzinc/nuxt-base/css/base.css";
+/* The palette: ground, ink, panel, rule, lamp (dark, light and high contrast), mapped onto Nuxt UI. */
+@import "@frotzinc/nuxt-base/css/palette.css";
+/* The player's own CSS (it needs nothing from Tailwind). */
+@import "@frotzinc/player/player.css";
+
+@theme {
+  --font-sans: "Segoe UI Variable Text", "Segoe UI", "Open Sans", system-ui, sans-serif;
+  --font-display: "Segoe UI Variable Display", "Segoe UI", "Open Sans", system-ui, sans-serif;
+  --font-mono: "Cascadia Code", "JetBrains Mono", "Courier Prime", ui-monospace, monospace;
+}
+
+html { font-size: 17px; }
+body { font-family: var(--font-sans); line-height: 1.55; }
+.font-display { font-family: var(--font-display); }
+.data { font-family: var(--font-mono); font-variant-numeric: tabular-nums; }
+.text-lamp { color: var(--frotz-lamp-text); }
+
+/* Focus is always visible (2.4.7, 2.4.11), in the AA-safe amber. Not on <main>. */
+:focus-visible:not(main) { outline: 3px solid var(--frotz-lamp-text); outline-offset: 2px; }
+
+/* Quieter text at 7:1 in dark (the player's promise holds on the page around it too). */
+.text-quiet { color: var(--frotz-ink-muted); }
+
+/* Primary (amber) in light mode: lamp-text under white text, 6.4:1. */
+:root.light { --ui-primary: var(--frotz-lamp-text); }
+
+/* The page while playing: the header, then the player filling the rest of the window. */
+.play-frame { height: calc(100dvh - 4rem); }

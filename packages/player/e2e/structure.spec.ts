@@ -89,6 +89,8 @@ test.describe('axe in every state (docs/13 §4)', () => {
     await open(page, 'upper.z5')
     await axe(page, { aaaContrast: true })
     await open(page, 'timed.z5')
+    // Paused first: on a slow machine the one-second timer would otherwise add turns mid-test.
+    await page.getByRole('button', { name: 'Pause timer' }).click()
     await axe(page, { aaaContrast: true })
     await play(page, 'hi')
     await axe(page, { aaaContrast: true })
