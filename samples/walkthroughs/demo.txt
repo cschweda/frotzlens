@@ -1,0 +1,7 @@
+! demo: copied from Frotzsmith (app/modules/samples-shared/demo.walkthrough.txt @ 643f61d).
+look
+take lamp
+examine lamp
+north
+south
+inventory

@@ -1,0 +1,6 @@
+! puny-hermit: copied from Frotzsmith (app/modules/samples-shared/puny-hermit.walkthrough.txt @ 643f61d).
+take apple
+north
+examine hermit
+ask hermit about woods
+give apple to hermit

@@ -1,0 +1,3 @@
+! puny-grammar: copied from Frotzsmith (app/modules/samples-shared/puny-grammar.walkthrough.txt @ 643f61d).
+xyzzy
+incant lamp

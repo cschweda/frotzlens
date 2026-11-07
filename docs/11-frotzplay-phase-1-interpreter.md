@@ -1,7 +1,7 @@
 # frotzplay — Phase 1: The Interpreter (`@frotzinc/zmachine`)
 
 **Document 11 · frotzplay Phase 1** (design: [`frotzplay-design.md`](frotzplay-design.md) §8.1, §9)
-**Status:** approved 2026-11-07 (all six items in §10).
+**Status:** done 2026-11-07. Approved with all six items in §10; what was built is in §11.
 **Deliverable:** `@frotzinc/zmachine` runs every v3/4/5/8 opcode from decoded `zcode` instructions, with the §8 screen model, suspendable input, ZVM-compatible random and hooks; a Node runner prints normalized transcripts; every sample's walkthrough transcript equals seeded ZVM's.
 
 > **Exit criteria:** `pnpm -r test` green, including opcode tests for every opcode per version and every item in the kickoff's rule 6; every walkthrough in `samples/walkthroughs/` gives the same normalized transcript as `runReplay` with the same seed; no `eval`/`new Function` anywhere in the package (a test greps for them); no DOM types in the package's `tsconfig` (`lib: ["ES2023"]`).
@@ -183,3 +183,13 @@ ZVM sets no interpreter number or version and reports an 80 × 25 screen (headle
 4. The random design in §4, replacing the design doc's.
 5. Pinning the header to what ZVM writes, read back from ZVM by the test (§5).
 6. v4 builds of two PunyInform samples, and a purpose-built timed-input fixture (§7).
+
+## 11. Done
+
+- **The exit criteria hold.** `pnpm -r test` green (zmachine: 210 tests). Every sample, every version built (v3, v4, v5, v8: 36 story files), played through with its walkthrough under two seeds, gives the same normalized transcript as ZVM turn by turn; the long games (*Architect Legacy*, *Mingus I* and *II*) reach their endings. The header bytes an interpreter sets match ZVM's on every sample. No `eval` in `src/`; the build's `lib` is `ES2023` only.
+- **Every opcode of every version has run**, checked by a coverage test over the opcode tests and the walkthroughs. Every rule-6 item has a named opcode test citing the Standard.
+- **Walkthroughs** weren't written from scratch: Frotzsmith already had one for every sample game (its Solutions), so they are copied into `samples/walkthroughs/` with their commit.
+- **Timed input** is tested with `test/fixtures/timed.inf`, compiled by the test with `@frotzinc/inform6-wasm` (not a sample: it's a test of a mechanism). Command scripts gained two non-typed commands: `[timeout]` (the timer fired: the recorded timer event of design §6) and `[key x]` (a key press for `@read_char`).
+- **Header profiles.** `header.profile: 'zvm'` writes what ZVM writes (for the tests); the default, `'standard'`, writes what frotzplay is (Standard 1.1, timed input, interpreter number 6).
+- **Found on the way:** ZVM runs inside the story buffer it's given (its dynamic memory *is* that buffer), so the oracle is always handed a copy; the interpreter keeps its own copy of the original too. And a turn is normalized with its command echo in place, then the echo dropped, as a screen and Frotzsmith's transcripts do, so a centred title keeps its leading spaces.
+- **Not yet:** save and restore to files (Phase 2: Quetzal) fail as the Standard allows; `save_undo`/`restore_undo` work.

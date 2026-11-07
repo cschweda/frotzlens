@@ -31,7 +31,9 @@ suite builds its own fixtures (`packages/zcode/test/fixtures`).
 | `puny-switchable-lamp.z5` | 28 KB | PunyInform | SWITCHABLE LAMP — a device you turn on and off (PunyInform) |
 | `puny-timed-candle.z5` | 28 KB | PunyInform | TIMED CANDLE — Frotzsmith sample (PunyInform) |
 | `puny-two-rooms.z5` | 28 KB | PunyInform | TWO ROOMS — Frotzsmith sample (PunyInform) |
+| `puny-dark-cellar.z4` | 28 KB | PunyInform | THE DARK CELLAR — Frotzsmith sample (PunyInform) |
 | `puny-hermit.z5` | 28 KB | PunyInform | THE HERMIT — Frotzsmith sample (PunyInform) |
+| `puny-locked-chest.z4` | 28 KB | PunyInform | THE LOCKED CHEST — Frotzsmith sample (PunyInform) |
 | `puny-magic-8-ball.z5` | 28 KB | PunyInform | MAGIC 8-BALL — random responses with random() (PunyInform) |
 | `std-skeleton.z5` | 85 KB | Standard Library | INFORM 6 SKELETON — Frotzsmith starter (Standard Library) |
 | `dark-cellar.z5` | 85 KB | Standard Library | THE DARK CELLAR — Frotzsmith sample (Inform 6 Standard Library) |

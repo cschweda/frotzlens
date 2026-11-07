@@ -42,6 +42,7 @@ Because this is a sibling, not a rival, the credit is designed in:
 - `@frotzinc/player` (MIT): the player UI as a Vue component set and as a framework-free **web component** (`<frotz-play src="…">` or with bytes passed in), built on the family tokens. The accessibility contract (§6) is implemented here, so every embedder gets it.
 - `apps/play` (GPL): the hosted page at frotzplay.frotzinc.com. Drop a file, open `?story=`, play. Saves, transcripts, settings, About.
 - Story sources: a dropped file, a file picker, a URL (same-origin or CORS-enabled, like Parchment), a `postMessage` from an opener (how Frotzlens's Play view will hand over a file).
+- **Sample stories on the start page**, so a first-time visitor can play at once without having a story file: a "Try a sample" row beside the drop zone with a few of Chris's Frotzsmith samples, served from the site (no fetch from elsewhere), each one click to play. Proposed: *The Dark Cellar* (darkness and light; the featured one, as in Frotzlens), *The Locked Chest* (a small puzzle), *The Hermit* (a character to talk to) and *Magic 8-Ball* (random answers, which shows off the seed). `?sample` opens the featured one straight away and `?sample=<name>` a named one, so a link can show it, as Frotzlens's `?sample` does. They are the same files as `samples/`, copied in at build time.
 - Blorb: the story inside, the cover shown, the iFiction title and author in the page title.
 - Saves: Quetzal to a downloaded `.qzl` file and restore from one; **autosave** to IndexedDB per story (keyed by release/serial/checksum) with "continue where you left off"; `save_undo`/`restore_undo`.
 - Transcript: export the session as text; optionally a Frotzsmith-style command script.
@@ -168,11 +169,12 @@ frotzlens/
 
 **Input.** `read` and `read_char` suspend the machine (`awaiting` set, PC at the instruction) and return control; the host supplies the line or character and calls `resume()`. Timed input (v4+) is a deadline the host honours by calling `interrupt()`, which runs the timer routine as the Standard describes; the host records each firing (§6) so replays reproduce it.
 
-**Random.** Two modes, matching ZVM so the oracle comparison holds (§9):
-- *seeded*: a 32-bit xorshift (`s ^= s << 13; s ^= s >> 17; s ^= s << 5`, result `1 + ((s & 0x7FFF) % range)`), the algorithm ZVM uses after a game seeds it (MIT, attributed in a comment). The session seed (§7) starts it; a game's own `@random` with a negative or zero argument reseeds or switches mode exactly as ZVM does.
-- *true random*: only when the user turns determinism off entirely.
+**Random.** Two modes, matching ZVM so the oracle comparison holds (§9; worked out in [docs/11 §4](11-frotzplay-phase-1-interpreter.md)). ZVM resets its seed on start, restart and restore, and an unseeded ZVM draws from `Math.random`; so:
+- *session* (start, restart, restore, and after `@random 0`): `1 + ((r() * range) | 0)`, ZVM's formula, with `r` a mulberry32 stream from the session seed (§7) instead of `Math.random`. The test oracle gives ZVM the same stream, so the two draw the same numbers.
+- *xorshift* (after `@random -n`): ZVM's own 32-bit xorshift, signed shifts and all (`s ^= s << 13; s ^= s >> 17; s ^= s << 5`, result `1 + ((s & 0x7FFF) % range)`), seeded with `-n` (MIT, attributed in a comment).
+- Turning determinism off entirely makes the session stream's seed random and hidden; nothing else changes.
 
-This is a deliberate choice against the Standard 1.1 §2.4 *recommendation* (a predictable counting sequence for seeds under 1000), which is a "should," not a "must," and which ZVM also doesn't implement. It is documented in the README's conformance notes.
+This is a deliberate choice against the Standard 1.1 §2.4 *recommendation* (a predictable counting sequence for seeds under 1000), which is a "should," not a "must," and which ZVM also doesn't implement. It is documented in `@frotzinc/zmachine`'s README.
 
 **Save and undo.** Quetzal 1.4: `IFhd`, `CMem` (XOR-RLE against the original dynamic memory) and `Stks`. `save` produces bytes the host stores or downloads; `restore` takes them. `save_undo`/`restore_undo` keep up to N snapshots in memory.
 
@@ -209,7 +211,7 @@ Frotz, Inc. policy: apps GPL-3.0-or-later, libraries MIT. `@frotzinc/zmachine` a
 | **1** | `@frotzinc/zmachine`: state, loop, every opcode (v3/4/5/8), screen model, input suspension, ZVM-compatible seeded random, hooks, pinned header values. Opcode tests. A Node runner for scripts. Walkthrough scripts for every sample; v4 sample builds; the seeded oracle harness. | Every fixture walkthrough equals seeded `runReplay` |
 | **2** | Quetzal in/out, undo, conformance stories (after the licence check), determinism tests, the oracle's in-memory `Dialog` (or the fallback in §9). | Quetzal checked per §9; same seed + timer events → same transcript |
 | **3** | `@frotzinc/player`: the Screen, the announcer and verbosity, the command line, status announcements, settings, saves (file, autosave, undo), transcript; high-contrast tokens; the contract implemented and its Playwright suite. | Contract suite green; NVDA checklist passed on the sample |
-| **4** | `apps/play`: drop zone, `?story=` (with the non-CORS error), `postMessage` source, Blorb cover and title, autosave wired to IndexedDB, PWA, About with Parchment credits, `netlify.toml`. | Playable at the Netlify preview with a dropped file and a `?story=` URL |
+| **4** | `apps/play`: drop zone, the sample stories on the start page and `?sample`, `?story=` (with the non-CORS error), `postMessage` source, Blorb cover and title, autosave wired to IndexedDB, PWA, About with Parchment credits, `netlify.toml`. | Playable at the Netlify preview with a dropped file and a `?story=` URL |
 | **5** | The `<frotz-play>` web component with the strict-CSP embed test; **Export** (single HTML file and folder), with a Playwright test that opens the exported file from `file://` and plays a turn; `docs/accessibility.md`; README with "Standing on"; light and high-contrast passes; publish `@frotzinc/zmachine`, `@frotzinc/player`, `frotzplay` 0.1.0. | frotzplay 0.1.0 at frotzplay.frotzinc.com; `<frotz-play>` on npm; an exported `dark-cellar.html` plays from a double-click |
 
 After this, frotztrace (not yet started) begins with the interpreter already done; its draft design's interpreter phases are revised to build on `@frotzinc/zmachine` rather than write it.

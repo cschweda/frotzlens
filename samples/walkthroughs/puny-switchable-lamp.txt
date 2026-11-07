@@ -1,0 +1,5 @@
+! puny-switchable-lamp: copied from Frotzsmith (app/modules/samples-shared/puny-switchable-lamp.walkthrough.txt @ 643f61d).
+take lantern
+examine lantern
+switch on lantern
+down

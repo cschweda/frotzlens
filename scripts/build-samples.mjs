@@ -6,7 +6,8 @@
 //   node scripts/build-samples.mjs
 //
 // Standard Library sources are built as v5 (the three largest also as v8);
-// PunyInform sources (puny-*) as v5 and v3. Every source gets
+// PunyInform sources (puny-*) as v5 and v3, and two of them as v4 too (frotzplay's
+// interpreter is tested on every version it plays). Every source gets
 // `Serial "000000";`, as the test fixtures do, so a rebuild gives the same
 // bytes and git sees no change.
 import { readFileSync, readdirSync, rmSync, writeFileSync } from 'node:fs'
@@ -16,6 +17,8 @@ import { withFixedSerial } from '../packages/zcode/scripts/build-fixtures.mjs'
 const DIR = new URL('../samples/', import.meta.url)
 const SRC = new URL('src/', DIR)
 const ALSO_V8 = new Set(['architect-legacy', 'mingus-1', 'mingus-2'])
+/** PunyInform supports v4; these two give the interpreter's tests a v4 story. */
+const ALSO_V4 = new Set(['puny-dark-cellar', 'puny-locked-chest'])
 /** v3 can't hold these: a v3 property has room for 4 dictionary words (§12.4.1), this sample names 5. */
 const NOT_V3 = new Set(['puny-magic-8-ball'])
 
@@ -34,7 +37,7 @@ for (const file of readdirSync(SRC).filter(f => f.endsWith('.inf')).sort()) {
   const source = withFixedSerial(readFileSync(new URL(file, SRC), 'utf8'))
   const puny = name.startsWith('puny-')
   const library = name === 'minimal' ? 'std' : puny ? 'puny' : 'std'
-  const versions = puny ? (NOT_V3.has(name) ? ['z5'] : ['z3', 'z5']) : ALSO_V8.has(name) ? ['z5', 'z8'] : ['z5']
+  const versions = puny ? (NOT_V3.has(name) ? ['z5'] : ALSO_V4.has(name) ? ['z3', 'z4', 'z5'] : ['z3', 'z5']) : ALSO_V8.has(name) ? ['z5', 'z8'] : ['z5']
   for (const version of versions) {
     const r = await compile(source, { version, library })
     if (!r.ok) throw new Error(`${name}.${version} failed to compile (samples/ unchanged):\n${r.rawOutput}`)

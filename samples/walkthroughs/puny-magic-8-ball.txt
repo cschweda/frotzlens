@@ -1,0 +1,4 @@
+! puny-magic-8-ball: copied from Frotzsmith (app/modules/samples-shared/puny-magic-8-ball.walkthrough.txt @ 643f61d).
+shake ball
+shake ball
+shake ball

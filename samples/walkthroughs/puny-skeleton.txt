@@ -1,0 +1,2 @@
+! puny-skeleton: copied from Frotzsmith (app/modules/samples-shared/puny-skeleton.walkthrough.txt @ 643f61d).
+look

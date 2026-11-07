@@ -4,6 +4,13 @@ All notable changes to `@frotzinc/zcode`. Versions follow [Semantic Versioning](
 
 ## [Unreleased]
 
+### Added
+- `decodeZscii(ctx, zchars)`: Z-characters to ZSCII codes, by the same rules as `decodeZchars` but with nothing lost (no `?`, no caps, no budget), for an interpreter. A test checks the two agree on every string of every fixture.
+- The interpreter's building blocks are exported: `decodeInstruction` and its types, the opcode tables (`op0`…`opExt`), `Bytes`, `OutOfBounds`, `Malformed`, and the text functions (`decodeZchars`, `decodeZscii`, `readZchars`, `zsciiToText`, `defaultExtra`, `readAlphabetTable`, `readUnicodeTable`, `textContextFor`).
+- `@buffer_screen` (EXT:29, Standard 1.1) in the opcode table.
+
+## [Unreleased]
+
 ## [0.3.0] - 2026-11-07
 
 - `decompileInform(story, { symbols })`: an Inform story back to Inform 6 source (Phase 6a, with a debug file). The library as `Include`s; the game's constants, globals, arrays, attributes, properties, classes (read from the prototype Inform keeps after each class object), objects and grammar (`Verb`, `Extend`, synonyms) as Inform declares them; routines as Inform assembly with names for what they refer to. Every debug fixture (versions 3, 4, 5 and 8, one in economy mode) recompiles to an equivalent story, 15 of 16 to the same bytes after the header (`test/decompile.test.ts`).

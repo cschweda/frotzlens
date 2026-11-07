@@ -1,0 +1,35 @@
+! ============================================================================
+!  TIMED  —  @frotzinc/zmachine test fixture
+! ----------------------------------------------------------------------------
+!  Timed input, which the ZVM oracle can't run: a line read with a one-second
+!  timer (@aread's third and fourth operands, §15 read, §10.2.4), whose
+!  interrupt routine ticks and ends the read on the third tick; then a timed
+!  key press that the interrupt ends at once. No library. Copyright
+!  Christopher Schweda; MIT, as part of @frotzinc/zmachine's tests.
+! ============================================================================
+
+Array buf -> 42;
+Array parse -> 34;
+Global ticks;
+
+[ Tick;
+    ticks++;
+    print "[tick ", ticks, "]^";
+    if (ticks >= 3) rtrue;
+    rfalse;
+];
+
+[ Stop; rtrue; ];
+
+[ Main result key;
+    buf->0 = 40;
+    parse->0 = 8;
+    print "Type something.^";
+    @aread buf parse 10 Tick -> result;
+    if (result == 0) print "The timer ended the read.^";
+    else print "You typed ", buf->1, " letters.^";
+    print "Press a key.^";
+    @read_char 1 10 Stop -> key;
+    print "Key: ", key, "^";
+    @quit;
+];

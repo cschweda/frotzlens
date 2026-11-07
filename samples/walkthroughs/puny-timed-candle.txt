@@ -1,0 +1,6 @@
+! puny-timed-candle: copied from Frotzsmith (app/modules/samples-shared/puny-timed-candle.walkthrough.txt @ 643f61d).
+examine candle
+wait
+z
+z
+z
