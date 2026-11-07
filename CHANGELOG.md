@@ -2,6 +2,11 @@
 
 All notable changes to Frotzlens: the web app at [frotzlens.frotzinc.com](https://frotzlens.frotzinc.com), and this repository. The packages keep their own changelogs: [`@frotzinc/zcode`](packages/zcode/CHANGELOG.md), [`frotzlens`](packages/cli/CHANGELOG.md) (the CLI), [`@frotzinc/worker-rpc`](packages/worker-rpc/CHANGELOG.md), [`@frotzinc/nuxt-base`](packages/nuxt-base/CHANGELOG.md), [`@frotzinc/inform6-wasm`](packages/inform6-wasm/CHANGELOG.md). Versions follow [Semantic Versioning](https://semver.org/). Part of [Frotz, Inc.](https://frotzinc.com).
 
+## [0.3.3] - 2026-11-07
+
+### Added
+- [docs/16](docs/16-frotzsmith-on-frotzplay.md): a plan for moving Frotzsmith from Parchment to frotzplay. Play, Send-to-Play, the transcript, auto-map and Skein go through `ZPlayer`; *Export* uses frotzplay's single file; Parchment stays behind a setting for a release or two, and is then retired.
+
 ## [0.3.2] - 2026-11-07
 
 Frotzlens itself is unchanged; this release gets frotzplay's packages ready for npm.
