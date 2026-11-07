@@ -36,7 +36,7 @@ The model is plain data: it survives `structuredClone` (so it crosses a worker b
 ## Inform 6 source (in progress)
 
 ```ts
-import { parseStory, readSymbols, decompileInform } from '@frotzinc/zcode'
+import { parseStory, readSymbols, decompileInform, findReference, inferSymbols } from '@frotzinc/zcode'
 
 const { source, problems } = decompileInform(parseStory(bytes), { symbols: readSymbols(gameinfoDbg) })
 
@@ -45,7 +45,7 @@ import { compile } from '@frotzinc/inform6-wasm'
 const story = parseStory(bytes)
 const reference = await findReference(story, async (src, library, version) => {
   const out = await compile(src, { library, version, debug: true })
-  return out.ok ? { story: parseStory(out.story!), symbols: readSymbols(out.dbg!) } : undefined
+  return out.ok && out.story && out.dbg ? { story: parseStory(out.story), symbols: readSymbols(out.dbg) } : undefined
 })
 const { source: inf } = decompileInform(story, { symbols: inferSymbols(story, reference!) })
 ```

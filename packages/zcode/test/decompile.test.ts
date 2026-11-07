@@ -70,6 +70,7 @@ describe('decompiling to Inform 6 without a debug file (6a)', () => {
     it(`${file} recompiles to an equivalent story`, async () => {
       const r = await roundTrip(new Uint8Array(readFileSync(FIXTURES_DIR + file)), readFileSync(FIXTURES_DIR + file.replace(/\.z\d$/, '.dbg'), 'utf8'), true)
       expect(r.errors).toEqual([])
+      expect(r.compiled).toBe(true)
       const different = Object.entries(r.parts).filter(([, p]) => p.result === 'different').map(([k, p]) => `${k}:\n    ${p.differences.join('\n    ')}`)
       expect(different).toEqual([])
       expect(r.identical).toBe(IDENTICAL_WITHOUT_SYMBOLS.has(file))

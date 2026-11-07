@@ -238,7 +238,8 @@ export function inferSymbols(story: StoryFile, ref: Reference): Symbols {
 
   // ── 1. Routines, lined up ─────────────────────────────────────────
   const S = story.code.routines
-  // The reference's own game (its Initialise, its room) has nothing to match.
+  // The reference's own game (its Initialise, its room) has nothing to match. The veneer (no source
+  // location) is lined up too: that's how its routines get their names.
   const R = ref.story.code.routines.filter(r => rs.routines[r.address]?.location?.file !== 0)
   const pairs = align(S.map(key), R.map(key))
   const refRoutineByPacked = new Map(ref.story.code.routines.map(r => [r.address / scale, r]))
@@ -380,6 +381,11 @@ export function inferSymbols(story: StoryFile, ref: Reference): Symbols {
     if (loc) out.declarations.push({ kind: 'array', name: a.name, value: s, location: loc })
   }
   const libraryArrays = out.arrays.slice().sort((a, b) => a.address - b.address)
+  // Where an array starts: a name the library gives one, or a place the game's code points to. Not
+  // where a library-named one's reference size ends (the game's is another size: that's how it was
+  // told apart), nor at every value in the data that points into the array space (each array is
+  // numbered, and strict mode's error messages name arrays by number, so a split too many would
+  // change them).
   const pointedAt = new Set<number>(gameNamed.map(g => g.address))
   const wordAccess = new Set<number>()
   for (const r of S) {
@@ -447,15 +453,19 @@ export function inferSymbols(story: StoryFile, ref: Reference): Symbols {
   // library's objects come first, in the same order); classes are the children of Class (object 1).
   const refObjects = ref.story.objects.objects
   const libraryObjectCount = refObjects.filter(o => (rs.declarations.find(d => (d.kind === 'object' || d.kind === 'class') && d.value === o.number)?.location.file ?? 1) !== 0).length
-  for (let n = 1; n <= libraryObjectCount && n <= objects.length; n++) {
-    const name = rs.objects[n] ?? rs.classes[n]
+  // By the votes first (what the library's code does to it); failing those, by number.
+  const refOfStoryObject = new Map<number, number>()
+  const claimed = new Set<number>()
+  for (const [s, r] of objectOf) if (r <= libraryObjectCount && s <= objects.length) (refOfStoryObject.set(s, r), claimed.add(r))
+  for (let n = 1; n <= libraryObjectCount && n <= objects.length; n++) if (!refOfStoryObject.has(n) && !claimed.has(n)) (refOfStoryObject.set(n, n), claimed.add(n))
+  for (const [n, rn] of refOfStoryObject) {
+    const name = rs.objects[rn] ?? rs.classes[rn]
     if (!name) continue
-    if (rs.classes[n] !== undefined) out.classes[n] = rs.classes[n]!
+    if (rs.classes[rn] !== undefined) out.classes[n] = rs.classes[rn]!
     else out.objects[n] = name
-    const loc = libraryLocation(rs.classes[n] !== undefined ? 'class' : 'object', n)
-    if (loc) out.declarations.push({ kind: rs.classes[n] !== undefined ? 'class' : 'object', name, value: n, location: loc })
+    const loc = libraryLocation(rs.classes[rn] !== undefined ? 'class' : 'object', rn)
+    if (loc) out.declarations.push({ kind: rs.classes[rn] !== undefined ? 'class' : 'object', name, value: n, location: loc })
   }
-  void objectOf
   // Made-up names steer clear of every name the library has (an object called "banner" would be
   // the library's routine Banner: Inform's names don't care about case).
   const taken = new Set(
@@ -474,7 +484,8 @@ export function inferSymbols(story: StoryFile, ref: Reference): Symbols {
     taken.add(name.toLowerCase())
     return name
   }
-  for (let n = libraryObjectCount + 1; n <= objects.length; n++) {
+  for (let n = 1; n <= objects.length; n++) {
+    if (out.objects[n] || out.classes[n] || n <= 4) continue
     const o = objects[n - 1]!
     const isClass = o.parent === 1
     // A class object's short name is the class's name; an object Inform gave none is "(its_name)".

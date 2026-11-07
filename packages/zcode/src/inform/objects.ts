@@ -33,6 +33,7 @@ export function propertyList(story: StoryFile, at: number): Property[] {
 
 /** Inform's individual properties (v4+): property 3 points to a table of (number, length, data), ended by 0. */
 export function individualProperties(story: StoryFile, o: ZObject): Property[] {
+  if (story.header.version < 4) return [] // v3 has none: its property 3 is an ordinary one
   const bytes = story.bytes
   const p = o.properties.find(p => p.number === 3)
   if (!p || p.data.length < 2) return []

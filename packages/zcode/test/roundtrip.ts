@@ -31,7 +31,6 @@ function canon(story: StoryFile, sym: Symbols, anonymous = false) {
   const dict = new Map(story.dictionary.entries.map(e => [e.address, e.word]))
   const arrays = new Map(sym.arrays.map(a => [a.address, a.name]))
   const routineIndex = new Map(story.code.routines.map((r, i) => [r.address, i]))
-  const arrayIndex = new Map(sym.arrays.slice().sort((a, b) => a.address - b.address).map((a, i) => [a.address, i]))
   const routineName = (address: number) => (anonymous ? `#${routineIndex.get(address)}` : sym.routines[address]?.name ?? `?routine@${address}`)
   // Every reading of a word: a routine, string, dictionary word or array at that address can all
   // coincide, so each is kept ("R:x|D:y"), and two words match when they share one (see same()).
@@ -45,7 +44,8 @@ function canon(story: StoryFile, sym: Symbols, anonymous = false) {
       const d = dict.get(w)
       if (d !== undefined) readings.push(`D:${d}`)
       const a = arrays.get(w)
-      if (a !== undefined) readings.push(`A:${anonymous ? arrayIndex.get(w) : a}`)
+      // Without names, an array by its offset into the array space (its bounds were guessed).
+      if (a !== undefined) readings.push(`A:${anonymous ? w - story.header.globals - 480 : a}`)
     }
     return readings.length ? `\u0002${readings.join('\u0001')}\u0002` : String(w)
   }
