@@ -1,0 +1,96 @@
+# Netlify configuration for frotzplay (frotzplay.frotzinc.com).
+#
+# A static Nuxt 4 app (ssr: false), like Frotzlens, in the same monorepo:
+# Frotzlens is `apps/web` (configured by the root netlify.toml), frotzplay is
+# `apps/play` (this file). Both are Netlify sites on the one GitHub repo.
+#
+# Connect the repo in the Netlify UI as a second site with base directory
+# `apps/play`. Netlify then reads this file from the base directory (not the
+# root one), so no `base` is set here, and every path below is relative to
+# `apps/play`.
+#
+# As in Frotzlens: on Netlify, Nitro's Netlify preset writes the static site
+# to `dist` (not .output/public), so `dist` is what's published.
+
+[build]
+  # Skip the build when a push changes nothing frotzplay is built from, so a
+  # Frotzlens-only commit doesn't redeploy frotzplay. Netlify skips when this
+  # exits 0 and builds otherwise. The paths are this app, the libraries it is
+  # built from, and the workspace files that decide how they build. Add a
+  # package here when apps/play starts depending on it.
+  # The first test always builds when there is no previous deploy to compare
+  # with (Netlify sets CACHED_COMMIT_REF to COMMIT_REF then; the diff would be
+  # empty and the very first deploy would be skipped).
+  ignore = "test \"$CACHED_COMMIT_REF\" = \"$COMMIT_REF\" && exit 1; git diff --quiet \"$CACHED_COMMIT_REF\" \"$COMMIT_REF\" -- . ../../packages/zcode ../../packages/zmachine ../../packages/player ../../packages/worker-rpc ../../packages/nuxt-base ../../samples ../../scripts ../../package.json ../../pnpm-lock.yaml ../../pnpm-workspace.yaml ../../tsconfig.base.json"
+  # Netlify runs its own `pnpm install` first; the frozen install keeps a
+  # drifted lockfile from being rewritten (and passing). Then build the
+  # workspace libraries the app depends on (`^...` = its dependencies, not the
+  # app itself: @frotzinc/zcode, zmachine, player, worker-rpc, nuxt-base),
+  # then generate the static site.
+  command = "pnpm install --frozen-lockfile && pnpm --filter \"frotzplay-web^...\" run build && pnpm run generate"
+  publish = "dist"
+
+[build.environment]
+  # Matches .nvmrc and the monorepo's engines (node >= 22.12).
+  NODE_VERSION = "22"
+  PNPM_FLAGS = "--frozen-lockfile"
+
+# Custom redirects belong in apps/play/public/_redirects: Nitro's netlify
+# preset emits its own `_redirects` catch-all that shadows [[redirects]] here.
+
+# Security headers. frotzplay uploads nothing and loads nothing from another
+# origin for itself: no analytics, no CDN, fonts self-hosted. A dropped story
+# is read locally.
+#  - 'unsafe-inline' (scripts): Nuxt's inline SPA bootstrap and the
+#    color-mode script; (styles): Nuxt UI's inline styles in the app shell.
+#    This is the hosted page only. The player itself (<frotz-play>, the
+#    exported bundle) needs neither 'unsafe-inline' nor 'unsafe-eval'.
+#  - No 'unsafe-eval' and no 'wasm-unsafe-eval': the interpreter is plain
+#    TypeScript, never a JIT, and nothing here runs WebAssembly.
+#  - connect-src https:: `?story=<url>` fetches the story directly from the
+#    host the link names (which must send CORS headers). The browser talks to
+#    that host; frotzplay has no proxy and sees nothing. https only: an http
+#    URL would be mixed content anyway, and fails with a worded error.
+#  - img-src data: blob:: a Blorb cover is shown from a blob URL; the export
+#    preview uses data URIs.
+#  - worker-src 'self': the interpreter runs in a same-origin worker here.
+#  - frame-ancestors 'none': nobody embeds the hosted page; embedders use
+#    <frotz-play> instead.
+#  - manifest-src 'self': the PWA manifest.
+# To check before Phase 4 is done: the built site, served with exactly this
+# header, loads, plays a dropped story and a `?story=` URL, and exports, with
+# no CSP violations.
+[[headers]]
+  for = "/*"
+  [headers.values]
+    X-Frame-Options = "DENY"
+    X-Content-Type-Options = "nosniff"
+    Permissions-Policy = "camera=(), microphone=(), geolocation=(), payment=()"
+    Referrer-Policy = "strict-origin-when-cross-origin"
+    Content-Security-Policy = "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self'; connect-src 'self' https:; worker-src 'self'; manifest-src 'self'; frame-src 'none'; frame-ancestors 'none'; base-uri 'self'; form-action 'self'; object-src 'none'"
+
+# Long-cache content-hashed build assets.
+[[headers]]
+  for = "/_nuxt/*"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
+
+# EXCEPT Nuxt's app manifest (builds/latest.json, builds/meta/<id>.json): it
+# is unfingerprinted and must never be immutable-cached. (Later rules override
+# earlier ones on Netlify.)
+[[headers]]
+  for = "/_nuxt/builds/*"
+  [headers.values]
+    Cache-Control = "no-cache"
+
+# The PWA's service worker and manifest must be revalidated, or a stale
+# worker keeps serving an old player after a deploy.
+[[headers]]
+  for = "/sw.js"
+  [headers.values]
+    Cache-Control = "no-cache"
+
+[[headers]]
+  for = "/manifest.webmanifest"
+  [headers.values]
+    Cache-Control = "no-cache"
