@@ -11,13 +11,14 @@ export function useAbout() {
 }
 
 /**
- * The technical details a report can carry: Frotzlens's version and build, its packages, and the
+ * The technical details a report can carry: the app's version and build, its packages, and the
  * browser. Never the story file or anything from it.
  */
 export function technicalDetails(): string {
+  const { name } = useProduct()
   const a = useRuntimeConfig().public.about as { version: string; commit: string; date: string; packages: Record<string, string> }
   const lines = [
-    `Frotzlens ${a.version}${a.commit ? ` (${a.commit}${a.date ? `, ${a.date}` : ''})` : ''}`,
+    `${name} ${a.version}${a.commit ? ` (${a.commit}${a.date ? `, ${a.date}` : ''})` : ''}`,
     ...Object.entries(a.packages).map(([n, v]) => `${n} ${v}`),
     `Browser: ${navigator.userAgent}`,
     `Screen: ${screen.width}×${screen.height}, window ${innerWidth}×${innerHeight}`,

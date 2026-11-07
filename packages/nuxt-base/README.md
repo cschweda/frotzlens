@@ -23,13 +23,58 @@ export default defineNuxtConfig({
 
 - **Config:** `ssr: false` (pure client-side, static), color mode defaulting to dark, and a `build:manifest` hook. The hook stops Web Worker chunks being modulepreloaded and writes `.nuxt/client-manifest.json` for `inject-preloads`.
 - **Nuxt UI color roles** (`app.config.ts`): primary amber, secondary orange, success green, info sky, warning yellow, error red, neutral slate.
-- **Auto-imported utils** (also importable as `@frotzinc/nuxt-base/utils/<name>`):
+- **Auto-imported utils** (also importable as `@frotzinc/nuxt-base/utils/<name>`), besides the shell's (below):
   - `safe-storage`: `safeGetItem`, `safeSetItem` and `safeRemoveItem`, which never throw when storage is denied or full.
   - `slug`: `slugify` and `storyBaseName`.
   - `shortcut`: `isApplePlatform`, `modShortcutLabel(key)` (`⌘K` or `Ctrl+K`) and `isModShortcut(event, key)`.
 - **CSS:**
   - `css/base.css` has `--frotz-amber`, `.frotz-glow`, `.frotz-grid` and the `prefers-reduced-motion` block.
   - `css/palette.css` is opt-in. It holds the `--frotz-ground`, `ink`, `ink-2`, `panel`, `rule`, `lamp` and `lamp-text` tokens for dark and light, and maps them onto Nuxt UI's surface and text variables.
+
+## The family shell
+
+The header, footer and About menu every Frotz, Inc. app shares. Say who the app is in its own `app.config.ts` (typed; a missing or misspelled field is a type error):
+
+```ts
+// app/app.config.ts
+export default defineAppConfig({
+  product: {
+    name: 'Frotzlens',
+    tagline: 'See inside a Z-machine story file',
+    homeHref: '#overview',
+    repoUrl: 'https://github.com/cschweda/frotzlens',
+    npmUrl: 'https://www.npmjs.com/org/frotzinc',
+    familyUrl: 'https://frotzinc.com',
+    licences: [{ what: 'Frotzlens', licence: 'GPL-3.0-or-later', href: '…' }],
+  },
+})
+```
+
+Then use the components (auto-imported):
+
+```vue
+<script setup lang="ts">
+import changelog from '../../../CHANGELOG.md?raw'
+</script>
+
+<template>
+  <UApp>
+    <AppHeader>
+      <template #context>…what's open…</template>
+      <template #actions>…the app's own buttons…</template>
+    </AppHeader>
+    <main>…</main>
+    <AppFooter />
+    <AboutDialogs :changelog="changelog" />
+  </UApp>
+</template>
+```
+
+- **`AppHeader`**: the logo (`/logo.svg`, the app's) and name linking to `homeHref`, the `#context` and `#actions` slots, the About menu, the color-mode switch.
+- **`AppFooter`**: Frotz, Inc. (`/frotzinc-mark.svg`), Changelog, GitHub, npm, and the version.
+- **`AboutMenu`** and **`AboutDialogs`**: About (versions and licences), What's new, Report a problem, Suggest a feature (they open GitHub's issue form filled in; nothing is sent), Check for updates, Source.
+- The versions come from `runtimeConfig.public.about` (`{ version, commit, date, packages }`), which the app builds with `netlify/version` below.
+- The report forms expect `.github/ISSUE_TEMPLATE/bug.yml` and `idea.yml` in the app's repository, and a `SECURITY.md`.
 
 The layer does **not** add `@nuxt/ui` (list it in your own `modules`), any CSS (import it yourself, as shown above, so Tailwind has one entry), or a PWA.
 

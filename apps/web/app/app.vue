@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import changelog from '../../../CHANGELOG.md?raw'
+
 const { story, fileName, status, close, openFile } = useStory()
 const { loadSymbols, clearSymbols } = useSymbols()
 const { route, replace } = useHashRoute()
@@ -70,7 +72,14 @@ function skipToMain(e: MouseEvent) {
   <UApp>
     <div class="flex min-h-screen flex-col">
       <a href="#main" @click="skipToMain" class="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-20 focus:rounded focus:bg-elevated focus:px-3 focus:py-2">Skip to content</a>
-      <AppHeader :loaded="!!story" :file-name="fileName" @search="searching = true" @close="close" />
+      <AppHeader>
+        <template #context>
+          <span v-if="story" class="data hidden truncate text-sm text-muted sm:inline">/ {{ fileName }}</span>
+        </template>
+        <template #actions>
+          <HeaderActions :loaded="!!story" @search="searching = true" @close="close" />
+        </template>
+      </AppHeader>
       <main v-if="!story" id="main" ref="main" tabindex="-1" class="mx-auto w-full max-w-6xl flex-1 px-4 py-8 focus:outline-none">
         <DropZone />
       </main>
@@ -95,7 +104,7 @@ function skipToMain(e: MouseEvent) {
       </div>
       <AppFooter />
       <SearchPalette v-if="story" v-model:open="searching" :story="story" />
-      <AboutDialogs />
+      <AboutDialogs :changelog="changelog" />
     </div>
   </UApp>
 </template>

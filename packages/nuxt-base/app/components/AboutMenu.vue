@@ -1,11 +1,11 @@
 <script setup lang="ts">
 import type { DropdownMenuItem } from '@nuxt/ui'
-import { site } from '~~/site.config'
 
 /**
- * The About menu in the header, as Drafter's Help menu: about Frotzlens (versions, licences), what's
+ * The About menu in the header, as Drafter's Help menu: about the app (versions, licences), what's
  * new (the changelog), report a problem, suggest a feature, check for updates, and the source.
  */
+const product = useProduct()
 const { show } = useAbout()
 const toast = useToast()
 const config = useRuntimeConfig()
@@ -24,13 +24,13 @@ async function checkForUpdates() {
     const live = (await res.json()) as { id?: string }
     if (live.id && live.id !== mine) {
       toast.add({
-        title: 'A newer Frotzlens is available',
+        title: `A newer ${product.name} is available`,
         description: 'Reload to use it. An open story file will need opening again.',
         icon: 'i-lucide-sparkles',
         actions: [{ label: 'Reload', onClick: () => location.reload() }],
       })
     } else {
-      toast.add({ title: `Frotzlens ${version} is the latest`, description: 'You have the newest version of the site.', icon: 'i-lucide-check' })
+      toast.add({ title: `${product.name} ${version} is the latest`, description: 'You have the newest version of the site.', icon: 'i-lucide-check' })
     }
   } catch {
     toast.add({ title: 'Couldn’t check for updates', description: 'The site didn’t answer. Try again in a moment.', icon: 'i-lucide-wifi-off', color: 'warning' })
@@ -39,7 +39,7 @@ async function checkForUpdates() {
 
 const items: DropdownMenuItem[][] = [
   [
-    { label: 'About Frotzlens', icon: 'i-lucide-info', onSelect: () => show('about') },
+    { label: `About ${product.name}`, icon: 'i-lucide-info', onSelect: () => show('about') },
     { label: 'What’s new (changelog)', icon: 'i-lucide-scroll-text', onSelect: () => show('changelog') },
   ],
   [
@@ -48,7 +48,7 @@ const items: DropdownMenuItem[][] = [
   ],
   [
     { label: 'Check for updates', icon: 'i-lucide-refresh-cw', onSelect: checkForUpdates },
-    { label: 'Source on GitHub', icon: 'i-lucide-github', to: site.repoUrl, target: '_blank' },
+    { label: 'Source on GitHub', icon: 'i-lucide-github', to: product.repoUrl, target: '_blank' },
   ],
 ]
 </script>
