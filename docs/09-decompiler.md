@@ -4,7 +4,7 @@ A design for review before any code. It turns an Inform-compiled story file back
 
 ## 1. Goal, and what "done" means
 
-**Goal.** From a story file made by Inform 6 (with the Standard Library or PunyInform; versions 3, 5 and 8), produce one `.inf` file. It should read like something a person wrote, and recompile, with the same Inform and the same library, to an *equivalent* story.
+**Goal.** From a story file made by Inform 6 (with the Standard Library or PunyInform; versions 3, 4, 5 and 8, every version Frotzlens reads), produce one `.inf` file. It should read like something a person wrote, and recompile, with the same Inform and the same library, to an *equivalent* story.
 
 **Equivalent** is defined in §4, and it's what makes this checkable rather than a matter of taste:
 - the same object tree, properties, attributes, dictionary, grammar and strings;
@@ -35,16 +35,18 @@ The proof is possible because Frotzlens already has Inform 6.44 in WebAssembly (
 Everything starts from the model `@frotzinc/zcode` already builds: routines and typed instructions, objects, the dictionary, grammar, strings, globals, cross-references, the fingerprint and, when present, symbols.
 
 **a. Separate the library from the game.** The fingerprint already names the library and its version.
-- Library routines are recognised by their shapes, as the veneer is today.
-  - The signatures come from compiling an empty game with each library version, using `inform6-wasm`, which can compile any version we have the source for.
+- Library routines are recognised by comparing them with the library compiled by `inform6-wasm` (an empty game, for each library version we have the source for).
+  - The opcode-and-locals shape the veneer check uses today isn't enough here, since a game routine could share it, and a false match would drop game code. A routine counts as library only when its **whole instruction stream matches**, operands included (addresses compared by what they point to), **and** it sits where the library's routines sit, among the other matches.
   - A recognised routine is left out; the output says `Include "Parser"; …` instead.
   - A library routine the game replaced keeps its name but not its shape, so it becomes a `Replace` and is emitted.
+  - **When in doubt, nothing is left out.** If the library can't be matched with confidence (an unknown version, a modified copy), the whole library is emitted as game code with no `Include`, so nothing clashes with a second copy. The output is longer but still compiles.
 - Library objects (compass directions, `thedark`, the player), library grammar and library globals are left out the same way.
 
 **b. Declarations.** Each comes from the model, with names from symbols or made up (§3f):
 - `Attribute`, `Property`, `Global` and `Array`, for the game's own.
-  - Arrays are found from symbols, or by what reads and writes them (`loadw`/`storew` on a constant base).
-- **Objects and classes:** `Object`, with the tree as `->` nesting, attributes as `has`, and properties written as what they hold:
+  - Arrays are found from symbols. Without them, every block of static or dynamic memory that isn't an object, a property, a table or a string is kept, byte for byte, as an `Array` (a `->` byte array unless only word access is seen). Accesses with `loadw`, `storew`, `loadb` and `storeb`, and constants that point into the block, decide only where one array ends and the next begins and whether it's words or bytes. So memory nothing is known to read is never dropped, and the layout survives.
+- **Classes** are declared with `Class`, not `Object`: the class objects are found from the class-membership property (`2`, written by Inform for each object's classes) and the class list in the header extension, so `ofclass` and `C.create()` keep working.
+- **Objects:** `Object` (or `C name` for an object of class `C`), with the tree as `->` nesting, attributes as `has`, and properties written as what they hold:
   - a routine becomes an embedded routine, or a named one if it's shared;
   - a string becomes `"…"`, a dictionary word `'…'`, an object its name;
   - anything else is a number.
@@ -79,6 +81,7 @@ This is the part that makes the output trustworthy, and the main test:
 1. Decompile a story, then compile the result with `inform6-wasm`, using the same compiler version and library the fingerprint names.
 2. Parse both stories with `@frotzinc/zcode` and compare them, part by part:
    - the object tree, attributes and properties (with addresses replaced by what they point to);
+   - the globals' starting values and the arrays' contents and sizes, in the same way;
    - the dictionary, the grammar, and the strings as a set;
    - each routine's instructions, normalised (addresses and the order of routines don't count; locals and the stack do).
 3. Report each part as **identical**, **equivalent** or **different**.
@@ -97,7 +100,7 @@ This is the part that makes the output trustworthy, and the main test:
 
 ## 6. Risks
 
-- **Library versions we haven't compiled.** The signatures cover the ones `inform6-wasm` has (6.12.x, PunyInform). A story built with a different version decompiles with its library emitted as game code: correct, just longer.
+- **Library versions we haven't compiled.** The matches cover the versions `inform6-wasm` has (6.12.x, PunyInform). A story built with a different version decompiles with its whole library emitted as game code and no `Include` (§3a), so nothing is declared twice: correct, just longer.
 - **Compiler versions.** Code generation changed across Inform 6 releases, so the round trip uses the fingerprinted version. Where we don't have that version, the check is "equivalent", not "identical".
 - **Hand-written assembly and odd code.** The `@`-assembly fallback means the output still compiles.
 - **Whose work it is.** A decompiled game is still its author's. The app should say so in the Source view, and the docs should too.
