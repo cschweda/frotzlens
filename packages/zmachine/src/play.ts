@@ -24,6 +24,19 @@ export interface PlayResult {
 /** Instructions one turn may run before it's taken to be looping. */
 const TURN_LIMIT = 50_000_000
 
+/**
+ * A turn's text after a command. A screen shows the command echoed on its own line first, so the
+ * turn is normalized with that line in place and then the line is dropped: text that begins with
+ * spaces (a centred chapter title) keeps them, as it does on the screen and in Frotzsmith's ZVM
+ * transcripts.
+ */
+function turnText(command: string, text: string): string {
+  const out = normalizeTurn(`${command}\n${text}`)
+  const nl = out.indexOf('\n')
+  const first = (nl === -1 ? out : out.slice(0, nl)).trim()
+  return first === command.trim() ? out.slice(nl === -1 ? out.length : nl + 1).replace(/^\n+/, '') : out
+}
+
 export function play(story: Uint8Array, commands: string[], options: MachineOptions): PlayResult {
   const m = Machine.create(story, options)
   if (!(m instanceof Machine)) return { turns: [], stoppedBy: m.fault }
@@ -46,7 +59,7 @@ export function play(story: Uint8Array, commands: string[], options: MachineOpti
     const fault = m.resume({ line: command })
     if (fault) return { turns, stoppedBy: fault, machine: m }
     stop = runTurn()
-    turns.push({ command, output: normalizeTurn(m.flushText()) })
+    turns.push({ command, output: turnText(command, m.flushText()) })
   }
   const result: PlayResult = { turns, machine: m }
   if (stop.kind === 'quit' || stop.kind === 'input-char') result.stoppedBy = stop.kind

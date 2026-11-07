@@ -1,0 +1,2 @@
+! std-skeleton: copied from Frotzsmith (app/modules/samples-shared/std-skeleton.walkthrough.txt @ 643f61d).
+look

@@ -1,0 +1,6 @@
+! puny-locked-chest: copied from Frotzsmith (app/modules/samples-shared/puny-locked-chest.walkthrough.txt @ 643f61d).
+take key
+unlock chest with key
+open chest
+take coin
+examine coin

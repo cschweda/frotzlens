@@ -1,0 +1,8 @@
+! puny-dark-cellar: copied from Frotzsmith (app/modules/samples-shared/puny-dark-cellar.walkthrough.txt @ 643f61d).
+down
+up
+take lantern
+down
+look
+take key
+inventory

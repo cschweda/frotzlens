@@ -1,0 +1,6 @@
+! hermit: copied from Frotzsmith (app/modules/samples-shared/hermit.walkthrough.txt @ 643f61d).
+north
+examine hermit
+ask hermit about woods
+take apple
+give apple to hermit

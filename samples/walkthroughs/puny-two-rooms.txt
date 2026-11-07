@@ -1,0 +1,7 @@
+! puny-two-rooms: copied from Frotzsmith (app/modules/samples-shared/puny-two-rooms.walkthrough.txt @ 643f61d).
+look
+take lamp
+examine lamp
+north
+south
+inventory

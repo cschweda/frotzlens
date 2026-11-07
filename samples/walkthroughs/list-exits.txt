@@ -1,0 +1,4 @@
+! list-exits: copied from Frotzsmith (app/modules/samples-shared/list-exits.walkthrough.txt @ 643f61d).
+exits
+north
+exits
