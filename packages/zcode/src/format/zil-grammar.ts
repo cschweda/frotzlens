@@ -12,7 +12,7 @@ import { Writer, banner, dec, hx, type FormatOptions } from './writer.js'
 
 const oneLine = (s: string) => s.replace(/[\p{Cc}\p{Cf}\p{Zl}\p{Zp}]/gu, '?')
 
-/** Search options as their names, highest bit first as ZIL source tends to list them; bits with no name in hex. */
+/** Search options as their names, lowest bit first; bits with no name in hex. */
 export function zilOptions(grammar: ZilGrammar, bits: number): string {
   const names: string[] = []
   let left = bits

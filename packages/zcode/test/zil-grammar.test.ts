@@ -8,6 +8,7 @@ import { describe, expect, it } from 'vitest'
 import { Bytes } from '../src/bytes.js'
 import { formatZilGrammar, zilLineText } from '../src/format/index.js'
 import { INFOCOM_SEARCH_FLAGS, ZILLIB_SEARCH_FLAGS, parseStory, parseZilGrammar, verbNumber } from '../src/index.js'
+import { buildXrefs } from '../src/xrefs.js'
 import { readStory } from './fixtures.js'
 
 describe('verbNumber: where ZILF puts a verb number among a word\'s values', () => {
@@ -44,6 +45,7 @@ describe('parseZilGrammar', () => {
   const mem = base.bytes.slice()
   const put = (at: number, ...b: number[]) => mem.set(b, at)
   const putWord = (at: number, w: number) => put(at, w >> 8, w & 255)
+  const putWordIn = (m: Uint8Array, at: number, w: number) => m.set([w >> 8, w & 255], at)
   const T = 0x100 // a scratch area well inside dynamic memory
   const vtbl = T, st = T + 600, atbl = T + 700, patbl = T + 720, prtbl = T + 740
   putWord(vtbl, st) // verb 255
@@ -64,13 +66,14 @@ describe('parseZilGrammar', () => {
     expect(g).toMatchObject({ format: 'fixed', verbTable: vtbl, actionTable: atbl, preactionTable: patbl, prepositionTable: prtbl })
     expect(g.actions).toEqual([r1, r2])
     expect(g.preactions).toEqual([r3, 0])
-    expect(g.prepositions).toEqual([{ number: 255, words: ['in'] }])
+    expect(g.prepositions).toEqual([{ number: 255, words: ['in'], entries: [inWord.address] }])
+    expect(g.preactionFormat).toBe('words')
   })
 
   it('reads each verb, its words, and its lines', () => {
     expect(g.verbs).toHaveLength(1)
     const v = g.verbs[0]!
-    expect(v).toMatchObject({ number: 255, address: st, words: ['get', 'take'] })
+    expect(v).toMatchObject({ number: 255, address: st, words: ['get', 'take'], entries: [get.address, take.address] })
     expect(v.lines.map(l => [l.objects, l.prepositions, l.find, l.options, l.action])).toEqual([
       [1, [255, 0], [7, 0], [5, 24], 1],
       [1, [0, 0], [0, 0], [26, 24], 0],
@@ -95,6 +98,43 @@ describe('parseZilGrammar', () => {
     const bad = mem.slice()
     bad.set([0, 0], st) // a count of 0
     expect(parseZilGrammar(new Bytes(bad), 5, globals, dict, routines, base.header.highMemory, ZILLIB_SEARCH_FLAGS)).toBeUndefined()
+  })
+
+  it('COMPACT-SYNTAXES? lines: a byte of preposition and object count, the action, then each object', () => {
+    const m = mem.slice()
+    // TAKE IN OBJECT (FIND 7) (HAVE TAKE) = 1 (4 bytes), then TAKE = 0 (2 bytes).
+    m.set([2, (1 << 6) | (255 & 63), 1, 7, 1 | 4, 0, 0], st)
+    const c = parseZilGrammar(new Bytes(m), 5, globals, dict, routines, base.header.highMemory, ZILLIB_SEARCH_FLAGS)!
+    expect(c.format).toBe('compact')
+    expect(c.verbs[0]!.lines.map(l => [l.objects, l.prepositions[0], l.find[0], l.options[0], l.action])).toEqual([
+      [1, 63, 7, 5, 1],
+      [0, 0, 0, 0, 0],
+    ])
+  })
+
+  it('COMPACT-PREACTIONS?: pairs of action and routine, ending with -1', () => {
+    const m = mem.slice()
+    // Only action 1 has a pre-action; the word-per-action table is gone.
+    putWordIn(m, patbl, 1)
+    putWordIn(m, patbl + 2, r3! / scale)
+    putWordIn(m, patbl + 4, 0xffff)
+    putWordIn(m, patbl + 6, 0)
+    const c = parseZilGrammar(new Bytes(m), 5, globals, dict, routines, base.header.highMemory, ZILLIB_SEARCH_FLAGS)!
+    expect(c.preactionFormat).toBe('compact')
+    expect(c.preactionTable).toBe(patbl)
+    expect(c.preactions).toEqual([0, r3])
+  })
+
+  it('cross-references: a verb word refers to its lines\' routines and prepositions', () => {
+    const story = parseStory(mem)
+    const z = { ...story, dictionary: dict }
+    const { xrefs } = buildXrefs(5, z.code.routines, z.strings, z.objects, dict, undefined, g)
+    const to = xrefs[take.id]!.to
+    expect(to).toContain(`routine:${r1!.toString(16).padStart(4, '0')}`)
+    expect(to).toContain(`routine:${r2!.toString(16).padStart(4, '0')}`)
+    expect(to).toContain(`routine:${r3!.toString(16).padStart(4, '0')}`)
+    expect(to).toContain(inWord.id)
+    expect(xrefs[`routine:${r2!.toString(16).padStart(4, '0')}`]!.from).toContainEqual({ id: take.id, address: st + 1 })
   })
 
   it('an Inform story has none, and keeps its own grammar', () => {

@@ -174,8 +174,8 @@ export function buildXrefs(
   // ZIL's syntax tables, the same way: each verb word refers to its lines' action and pre-action
   // routines and to their prepositions' words.
   if (zilGrammar) {
-    const wordByText = new Map(dictionary.entries.map(e => [e.word, e.id]))
-    const prepWords = new Map(zilGrammar.prepositions.map(p => [p.number, p.words]))
+    // By dictionary entry, not spelling: two entries can be spelled alike.
+    const prepEntries = new Map(zilGrammar.prepositions.map(p => [p.number, p.entries]))
     for (const verb of zilGrammar.verbs) {
       const targets: { at: number; to: Id }[] = []
       for (const line of verb.lines) {
@@ -184,14 +184,14 @@ export function buildXrefs(
           if (id) targets.push({ at: line.address, to: id })
         }
         for (const p of line.prepositions.slice(0, line.objects)) {
-          for (const w of p ? (prepWords.get(p) ?? []) : []) {
-            const id = wordByText.get(w)
+          for (const at of p ? (prepEntries.get(p) ?? []) : []) {
+            const id = wordIds.get(at)
             if (id) targets.push({ at: line.address, to: id })
           }
         }
       }
-      for (const verbWord of verb.words) {
-        const from = wordByText.get(verbWord)
+      for (const at of verb.entries) {
+        const from = wordIds.get(at)
         if (from) for (const t of targets) link(from, t.at, t.to)
       }
     }

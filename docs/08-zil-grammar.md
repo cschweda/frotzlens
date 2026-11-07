@@ -16,7 +16,7 @@ The tables:
 |---|---|
 | `VTBL` | 255 words, for verb numbers 255 down to 1. Each is 0 or the address of that verb's syntax table. |
 | Syntax table | A count byte, then the lines, last-defined first. A line is 8 bytes: object count, two prepositions, two FIND flags (attribute numbers), two search-option bytes, and the action number. In ZILF's extended format, bits 2 and 4 of the count mark a TOPIC. `COMPACT-SYNTAXES?` lines (2 to 7 bytes) are read too. |
-| `ATBL`, `PATBL` | The action and pre-action routines, a packed address per action number. |
+| `ATBL`, `PATBL` | The action and pre-action routines, a packed address per action number. With `COMPACT-PREACTIONS?`, `PATBL` is a pair of action number and routine for each action that has one, ending with -1. |
 | `PRTBL` | A count, then each preposition's dictionary word and number. |
 
 Dictionary words carry a part-of-speech byte and up to two values, in an order ZILF fixes. `verbNumber` finds a word's verb number from them.

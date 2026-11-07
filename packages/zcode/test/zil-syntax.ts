@@ -61,12 +61,30 @@ export function readSyntaxForms(source: string): SourceSyntax[] {
   return out
 }
 
-/** What checkSyntaxTables found: forms not decoded, decoded lines no form explains, actions split. */
+/**
+ * The words that a <SYNONYM FIRST SECOND …> makes synonyms of another (SECOND, …): a SYNTAX that
+ * names one before the SYNONYM keeps a preposition number of its own that no word ends up with.
+ */
+export function readSynonymWords(source: string): Set<string> {
+  const text = source.replace(/;"(?:[^"\\]|\\.)*"/g, '')
+  const out = new Set<string>()
+  for (const m of text.matchAll(/<SYNONYM\s+([^>]*)>/g)) for (const w of m[1]!.trim().split(/\s+/).slice(1)) out.add(w)
+  return out
+}
+
+/** What checkSyntaxTables found. Every list should be empty. */
 export interface SyntaxCheck {
   matched: number
   notDecoded: string[]
   unexplained: string[]
+  /** An action name decoded as two numbers. */
   splitActions: string[]
+  /** An action number two action names decode to, or one past the action table. */
+  sharedActions: string[]
+  /** A form with a pre-action whose action has none decoded, or the other way round. */
+  preactions: string[]
+  /** Forms matched only by a preposition number no word has, whose word isn't a SYNONYM's. */
+  unexpectedLoose: string[]
 }
 
 /**
@@ -81,13 +99,16 @@ export function checkSyntaxTables(
   grammar: import('../src/zil-grammar.js').ZilGrammar,
   forms: SourceSyntax[],
   version: number,
+  synonymWords: Set<string>,
 ): SyntaxCheck {
   const trunc = (w: string) => w.replace(/\\/g, '').toLowerCase().slice(0, version <= 3 ? 6 : 9)
   const prepWords = new Map(grammar.prepositions.map(p => [p.number, p.words]))
   type Line = import('../src/zil-grammar.js').ZilSyntaxLine
   const seen = new Set<Line>()
   const actionOf = new Map<string, number>()
-  const out: SyntaxCheck = { matched: 0, notDecoded: [], unexplained: [], splitActions: [] }
+  const out: SyntaxCheck = { matched: 0, notDecoded: [], unexplained: [], splitActions: [], sharedActions: [], preactions: [], unexpectedLoose: [] }
+  const nameOf = new Map<number, string>()
+  const describe = (f: SourceSyntax) => `${f.verb} ${f.objects.map(o => `${o.prep ?? ''} ${o.topic ? 'TOPIC' : `OBJECT(${o.options})`}`).join(' ')} = ${f.action}`
   const matches = (f: SourceSyntax, l: Line, loose: boolean) =>
     l.objects === f.objects.length &&
     f.objects.every((o, i) => {
@@ -96,14 +117,19 @@ export function checkSyntaxTables(
       const wordless = !!o.prep && !!p && !prepWords.has(p)
       return (exact || (loose && wordless)) && o.topic === l.topic[i] && (o.topic || o.options === l.options[i])
     })
-  const take = (f: SourceSyntax, l: Line) => {
+  const take = (f: SourceSyntax, l: Line, loose = false) => {
     seen.add(l)
     const prev = actionOf.get(f.action)
     if (prev !== undefined && prev !== l.action) out.splitActions.push(`${f.action}: ${prev} and ${l.action}`)
     actionOf.set(f.action, l.action)
+    const other = nameOf.get(l.action)
+    if (other !== undefined && other !== f.action) out.sharedActions.push(`${l.action}: ${other} and ${f.action}`)
+    nameOf.set(l.action, f.action)
+    if (l.action >= grammar.actions.length) out.sharedActions.push(`${f.action}: action ${l.action}, past the table's ${grammar.actions.length}`)
+    if (!!f.preaction !== !!grammar.preactions[l.action]) out.preactions.push(`${f.action}: ${f.preaction ?? 'no pre-action'} in the source, ${grammar.preactions[l.action] ? 'one' : 'none'} decoded`)
+    if (loose && !f.objects.every(o => !o.prep || synonymWords.has(o.prep))) out.unexpectedLoose.push(describe(f))
     out.matched++
   }
-  const describe = (f: SourceSyntax) => `${f.verb} ${f.objects.map(o => `${o.prep ?? ''} ${o.topic ? 'TOPIC' : `OBJECT(${o.options})`}`).join(' ')} = ${f.action}`
   const pending: [SourceSyntax, import('../src/zil-grammar.js').ZilVerb][] = []
   for (const f of forms) {
     const v = grammar.verbs.find(x => x.words.includes(trunc(f.verb)))
@@ -114,7 +140,7 @@ export function checkSyntaxTables(
   }
   for (const [f, v] of pending) {
     const hit = v.lines.find(l => !seen.has(l) && matches(f, l, true)) ?? v.lines.find(l => matches(f, l, true))
-    if (hit) take(f, hit)
+    if (hit) take(f, hit, true)
     else out.notDecoded.push(describe(f))
   }
   for (const v of grammar.verbs) {

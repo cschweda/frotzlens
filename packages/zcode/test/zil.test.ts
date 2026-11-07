@@ -20,7 +20,7 @@ import { resolve } from 'node:path'
 import { describe, expect, it } from 'vitest'
 import { formatAbbreviations, formatDictionary, formatHeader, formatObjects, formatTree, formatTxd } from '../src/format/index.js'
 import { parseStory } from '../src/index.js'
-import { checkSyntaxTables, readSyntaxForms } from './zil-syntax.js'
+import { checkSyntaxTables, readSynonymWords, readSyntaxForms } from './zil-syntax.js'
 
 const DIR = process.env.ZIL_STORIES ? `${resolve(process.env.ZIL_STORIES)}/` : ''
 const files = DIR ? readdirSync(DIR).filter(f => /\.z\d$/.test(f)).sort() : []
@@ -51,7 +51,8 @@ const ZILLIB = process.env.ZILLIB ? `${resolve(process.env.ZILLIB)}/` : ''
 const withSource = DIR && SOURCES ? files.filter(f => readdirSync(SOURCES).includes(f.replace(/\.z\d$/, '.zil'))) : []
 
 describe.runIf(DIR && SOURCES && ZILLIB)('ZIL syntax tables against their source (ZIL_SOURCES and ZILLIB are set)', () => {
-  const library = ZILLIB ? readdirSync(ZILLIB).filter(f => f.endsWith('.zil')).flatMap(f => readSyntaxForms(readFileSync(ZILLIB + f, 'utf8'))) : []
+  const librarySources = ZILLIB ? readdirSync(ZILLIB).filter(f => f.endsWith('.zil')).map(f => readFileSync(ZILLIB + f, 'utf8')) : []
+  const library = librarySources.flatMap(readSyntaxForms)
 
   it('has stories with their source', () => expect(withSource.length).toBeGreaterThan(0))
 
@@ -59,11 +60,16 @@ describe.runIf(DIR && SOURCES && ZILLIB)('ZIL syntax tables against their source
     const story = parseStory(new Uint8Array(readFileSync(DIR + f)))
     const grammar = story.zilGrammar!
     expect(grammar.format).toBe('fixed')
-    const forms = [...library, ...readSyntaxForms(readFileSync(SOURCES + f.replace(/\.z\d$/, '.zil'), 'utf8'))]
-    const check = checkSyntaxTables(grammar, forms, story.header.version)
+    const source = readFileSync(SOURCES + f.replace(/\.z\d$/, '.zil'), 'utf8')
+    const forms = [...library, ...readSyntaxForms(source)]
+    const synonyms = new Set([...librarySources, source].flatMap(s => [...readSynonymWords(s)]))
+    const check = checkSyntaxTables(grammar, forms, story.header.version, synonyms)
     expect(check.unexplained).toEqual([])
     expect(check.notDecoded).toEqual([])
     expect(check.splitActions).toEqual([])
+    expect(check.sharedActions).toEqual([])
+    expect(check.preactions).toEqual([])
+    expect(check.unexpectedLoose).toEqual([])
     expect(check.matched).toBeGreaterThanOrEqual(grammar.verbs.reduce((n, v) => n + v.lines.length, 0))
   })
 })
