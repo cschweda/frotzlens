@@ -296,8 +296,8 @@ EXTRA=$(grep -E "$FORBIDDEN_RE" <<<"$FILES" || true)
 [[ -z "$EXTRA" ]] || die "The package holds files it mustn't:"$'\n'"$EXTRA"
 
 # The packed manifest: its license, and nothing that runs on install. A library has no runtime
-# dependencies (peers are fine); the CLI has exactly one, @frotzinc/zcode, at an exact version that
-# is already on npm (so publish zcode first).
+# dependencies (peers are fine); the CLI has @frotzinc/zcode and, for --inform, @frotzinc/inform6-wasm,
+# each at an exact version that is already on npm (so publish those first).
 tar -xzf "$TARBALL" -C "$WORK" package/package.json
 node --input-type=commonjs -e '
   const [path, license, name] = process.argv.slice(1);
@@ -306,9 +306,10 @@ node --input-type=commonjs -e '
   if (pkg.license !== license) bad.push(`license is ${pkg.license}, not ${license}`);
   const deps = pkg.dependencies ?? {};
   if (name === "frotzlens") {
+    const allowed = ["@frotzinc/zcode", "@frotzinc/inform6-wasm"];
     const keys = Object.keys(deps);
-    if (keys.length !== 1 || keys[0] !== "@frotzinc/zcode") bad.push(`dependencies are ${JSON.stringify(deps)}, not just @frotzinc/zcode`);
-    else if (!/^\d+\.\d+\.\d+$/.test(deps["@frotzinc/zcode"])) bad.push(`@frotzinc/zcode is "${deps["@frotzinc/zcode"]}", not an exact version`);
+    if (!keys.includes("@frotzinc/zcode") || keys.some(k => !allowed.includes(k))) bad.push(`dependencies are ${JSON.stringify(deps)}, not @frotzinc/zcode (and @frotzinc/inform6-wasm)`);
+    for (const k of keys) if (!/^\d+\.\d+\.\d+$/.test(deps[k])) bad.push(`${k} is "${deps[k]}", not an exact version`);
   } else if (Object.keys(deps).length) bad.push("has dependencies");
   for (const field of ["optionalDependencies", "bundledDependencies"])
     if (pkg[field] && Object.keys(pkg[field]).length) bad.push(`has ${field}`);
@@ -317,9 +318,10 @@ node --input-type=commonjs -e '
   if (bad.length) { console.error(bad.join("; ")); process.exit(1); }
 ' "$WORK/package/package.json" "$LICENSE_ID" "$PACKAGE_NAME" || die "The packed package.json isn't publishable as is."
 if [[ "$NAME" == cli ]]; then
-  ZCODE=$(node --input-type=commonjs -e 'console.log(require(process.argv[1]).dependencies["@frotzinc/zcode"])' "$WORK/package/package.json")
-  npm view "@frotzinc/zcode@$ZCODE" version >/dev/null 2>&1 ||
-    die "The CLI needs @frotzinc/zcode@$ZCODE, which isn't on npm yet. Publish it first: ./publish.sh zcode"
+  while read -r DEP; do
+    npm view "$DEP" version >/dev/null 2>&1 ||
+      die "The CLI needs $DEP, which isn't on npm yet. Publish it first: ./publish.sh ${DEP%%@[0-9]*}"
+  done < <(node --input-type=commonjs -e 'for (const [k, v] of Object.entries(require(process.argv[1]).dependencies)) console.log(`${k}@${v}`)' "$WORK/package/package.json")
 fi
 info "$(wc -l <<<"$FILES" | tr -d ' ') files, every required one present, none forbidden; $LICENSE_ID, the dependencies it may have, no install scripts."
 
