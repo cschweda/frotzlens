@@ -2,6 +2,14 @@
 
 All notable changes to frotzplay: the web player at frotzplay.frotzinc.com, and this repository. Versions follow [Semantic Versioning](https://semver.org/). Part of [Frotz, Inc.](https://frotzinc.com).
 
+## [0.1.2] - 2026-11-07
+
+### Added
+- Privacy-friendly analytics by [Plausible](https://plausible.io): page views only, no cookies, nothing about the story being played. The CSP allows `https://plausible.io` in `script-src` and nothing else new.
+
+### Changed
+- `@frotzinc/zmachine` 0.1.0 and `@frotzinc/player` 0.1.0 are on npm, with `@frotzinc/zcode` 0.4.0 and `@frotzinc/nuxt-base` 0.2.0.
+
 ## [0.1.1] - 2026-11-07
 
 ### Changed
