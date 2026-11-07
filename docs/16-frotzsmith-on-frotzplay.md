@@ -1,7 +1,7 @@
 # Frotzsmith on frotzplay
 
 **Document 16 · a plan** (frotzplay: [design](frotzplay-design.md), [Phase 5](15-frotzplay-phase-5-embed-export.md); Frotzsmith: its `docs/03-phase-3-play-parchment.md`, `docs/05-phase-5-export-bundles.md`, `docs/06-security.md`)
-**Status:** proposed 2026-11-07, not started. Nothing in Frotzsmith changes until Chris says its working copy is free (it was on `frotzlens-domain` when this was written).
+**Status:** started 2026-11-07. §3 is done (`@frotzinc/player` 0.2.0); Frotzsmith's part follows, on a branch.
 **Deliverable:** Frotzsmith plays, exports and replays with frotzplay. For a release or two, a setting can switch Play back to Parchment, and then Parchment is retired.
 
 > **Exit criteria:** with frotzplay as the player, Frotzsmith's transcript, auto-map, Skein, solution recorder and Send-to-Play work as they do on Parchment, and its tests pass; *Export → HTML* makes a frotzplay single file; switching the setting to Parchment brings the old player back unchanged. At retirement: no `public/play/`, and the CSP without `'unsafe-eval'` or `connect-src blob:`.
@@ -37,6 +37,8 @@ Small, and useful to any host:
 3. **`started`**, when a story boots (what Parchment's `session-start` message does).
 4. **The `theme` attribute** on `<frotz-play>` (`ZPlayer` already has `v-model:theme`), so Frotzsmith's light and dark carry over.
 5. **A `fed` flag** on commands that came through `send()`. Today Frotzsmith leaves fed commands out of the typed transcript (`__frotzScriptRunning`), and keeps doing so.
+
+**Done:** all five, plus `restart()`. Tested in the player's unit tests and in the embed test (the element's methods, events and `theme` under the strict CSP, in Chromium, Firefox and WebKit).
 
 Tests in the player's contract suite. Published like 0.1.0 (`publish.sh`, Chris's 2FA).
 

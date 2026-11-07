@@ -67,3 +67,36 @@ describe('the player’s theme values are the family palette’s', () => {
     }
   })
 })
+
+describe('ZPlayer’s host API: send, press, started, status, fed turns', () => {
+  it('a host types commands; their turns are marked fed, and it hears the status line', async () => {
+    const { default: ZPlayer } = await import('../src/components/ZPlayer.vue')
+    const { flushPromises } = await import('@vue/test-utils')
+    const story = new Uint8Array(readFileSync(join(process.cwd(), '../../samples/dark-cellar.z5')))
+    const kept = new Map<string, string>()
+    const storage = { getItem: (k: string) => kept.get(k) ?? null, setItem: (k: string, v: string) => void kept.set(k, v) }
+    const w = mount(ZPlayer, { props: { story, seed: 1, autosave: false, storage }, attachTo: document.body })
+    for (let i = 0; i < 50 && !w.emitted('started'); i++) await flushPromises()
+    expect(w.emitted('started')).toHaveLength(1)
+    const statuses = () => (w.emitted('status') ?? []).map(e => (e[0] as { left: string }).left)
+    expect(statuses().at(-1)).toBeTruthy()
+
+    const api = w.vm as unknown as { send(l: string): Promise<boolean>; press(k: string): Promise<boolean> }
+    expect(await api.press('Enter')).toBe(false) // waiting for a line, not a key
+    expect(await api.send('take lantern')).toBe(true)
+    const turns = (w.emitted('turn') ?? []).map(e => e[0] as { command: string | null; fed?: boolean; text: string })
+    expect(turns.at(-1)).toMatchObject({ command: 'take lantern', fed: true })
+    expect(turns.at(-1)!.text).toContain('Taken.')
+    expect(turns[0]!.fed).toBeUndefined() // the banner
+
+    // The player typing: not fed.
+    const input = w.find('input')
+    await input.setValue('inventory')
+    await w.find('form').trigger('submit')
+    for (let i = 0; i < 20; i++) await flushPromises()
+    const last = (w.emitted('turn') ?? []).map(e => e[0] as { command: string | null; fed?: boolean }).at(-1)!
+    expect(last.command).toBe('inventory')
+    expect(last.fed).toBeUndefined()
+    w.unmount()
+  })
+})

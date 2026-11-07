@@ -34,3 +34,34 @@ test('<frotz-play> plays under script-src \'self\'; style-src \'self\', with no 
 
   expect(violations).toEqual([])
 })
+
+test('<frotz-play> takes commands from its host: send(), press(), started and status events, theme', async ({ page }) => {
+  const errors: string[] = []
+  page.on('pageerror', e => errors.push(String(e)))
+  await page.addInitScript(() => {
+    const w = window as unknown as { heard: { type: string; detail: unknown }[] }
+    w.heard = []
+    for (const type of ['started', 'status', 'turn']) document.addEventListener(type, e => w.heard.push({ type, detail: (e as CustomEvent).detail }), true)
+  })
+  await page.goto('http://localhost:4182/')
+  await expect(page.getByRole('textbox', { name: 'Command' })).toBeVisible()
+
+  const result = await page.locator('frotz-play').evaluate(async el => {
+    const fp = el as HTMLElement & { send(l: string): Promise<boolean>; press(k: string): Promise<boolean> }
+    const pressed = await fp.press('Enter')
+    const sent = await fp.send('take lantern')
+    return { pressed, sent }
+  })
+  expect(result).toEqual({ pressed: false, sent: true })
+  await expect(page.locator('frotz-play .zp-turn').last()).toContainText('Taken.')
+
+  const heard = await page.evaluate(() => (window as unknown as { heard: { type: string; detail: unknown[] }[] }).heard)
+  expect(heard.filter(h => h.type === 'started')).toHaveLength(1)
+  expect(heard.some(h => h.type === 'status' && (h.detail[0] as { left: string }).left.length > 0)).toBe(true)
+  expect(heard.filter(h => h.type === 'turn').at(-1)!.detail[0]).toMatchObject({ command: 'take lantern', fed: true })
+
+  // theme="light" from the host.
+  await page.locator('frotz-play').evaluate(el => el.setAttribute('theme', 'light'))
+  await expect.poll(() => page.locator('frotz-play').evaluate(el => getComputedStyle(el.shadowRoot!.querySelector('.zp')!).backgroundColor)).toBe('rgb(244, 236, 216)')
+  expect(errors).toEqual([])
+})
