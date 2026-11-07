@@ -1,0 +1,39 @@
+! ============================================================================
+!  UPPER  —  @frotzinc/player test fixture
+! ----------------------------------------------------------------------------
+!  An upper window of three rows: a status row (changed by WAIT) and a two-line
+!  map, for the contract's status (O4) and upper-window (O5) tests. No library.
+!  Copyright Christopher Schweda; MIT, as part of @frotzinc/player's tests.
+! ============================================================================
+
+Array buf -> 42;
+Array parse -> 34;
+Global turns;
+
+[ Status;
+    @set_window 1;
+    @set_cursor 1 1;
+    print "Upper Room                Turns: ", turns, "    ";
+    @set_cursor 2 1;
+    print "Map: north to the Hall";
+    @set_cursor 3 1;
+    print "     south to the Garden";
+    @set_window 0;
+];
+
+[ Main r;
+    buf->0 = 40;
+    parse->0 = 8;
+    @erase_window -1;
+    @split_window 3;
+    Status();
+    print "A test of the upper window: a status row and a map above.^";
+    print "Type WAIT to change the status, LOOK to leave it, QUIT to stop.^";
+    for (::) {
+        print "^>";
+        @aread buf parse -> r;
+        if (buf->2 == 'q') { print "Bye.^"; @quit; }
+        if (buf->2 == 'w') { turns++; Status(); print "Time passes.^"; }
+        else print "Nothing changes.^";
+    }
+];

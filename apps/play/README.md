@@ -9,7 +9,7 @@
 
 A Z-machine player for the web, built for two things: **people who use screen readers**, and **pages with a strict Content-Security-Policy**. It plays version 3, 4, 5 and 8 story files, bare or in a Blorb, in the browser, with nothing uploaded. It will live at **frotzplay.frotzinc.com**. Part of [Frotz, Inc.](https://frotzinc.com), beside [Frotzsmith](https://frotzsmith.com) and [Frotzlens](https://frotzlens.frotzinc.com).
 
-> **Status: in development.** The interpreter is done and tested ([Phase 1](../../docs/11-frotzplay-phase-1-interpreter.md), [Phase 2](../../docs/12-frotzplay-phase-2-state.md)); the player and this site come next. Built in this monorepo: the interpreter in [`packages/zmachine`](../../packages/zmachine), the player in `packages/player`, this app in `apps/play`.
+> **Status: in development.** The interpreter ([Phases 1](../../docs/11-frotzplay-phase-1-interpreter.md)–[2](../../docs/12-frotzplay-phase-2-state.md)) and the player ([Phase 3](../../docs/13-frotzplay-phase-3-player.md)) are done and tested; this site comes next. Built in this monorepo: the interpreter in [`packages/zmachine`](../../packages/zmachine), the player in `packages/player`, this app in `apps/play`.
 
 ## Standing on
 
@@ -47,11 +47,22 @@ frotzplay is a sibling of [Parchment](https://github.com/curiousdannii/parchment
 |---|---|
 | **Interpreter** | Every opcode of versions 3, 4, 5 and 8. Every sample story, played through with its walkthrough, gives the same transcript as ZVM, turn by turn. Passes **Czech** (0 failures in all four versions) and **Praxix** ("All tests passed"). |
 | **Saves** | Quetzal 1.4. A save made here and one made in ZVM are the same bytes, and each restores in both. |
-| **Player, site, export** | Next: Phases 3, 4 and 5 ([design](../../docs/frotzplay-design.md)). |
+| **Player** | [`@frotzinc/player`](../../packages/player) ([Phase 3](../../docs/13-frotzplay-phase-3-player.md)): the [accessibility contract](../../docs/accessibility.md) built in, 87 Playwright tests in three browsers with axe in every state. |
+| **Site, export** | Next: Phases 4 and 5 ([design](../../docs/frotzplay-design.md)). |
 
 ## Screenshots
 
-The player's screenshots come with Phase 3, when it has a screen to show. Today the interpreter plays from a terminal (`zmachine-run`); here it is playing The Dark Cellar, one of the samples the site will offer on its start page:
+The player (`@frotzinc/player`, Phase 3) on its dev page; the site's own page comes in Phase 4.
+
+| | |
+|---|---|
+| ![The Dark Cellar in the dark theme: the status line, the story, the command line and the controls](../../docs/screenshots/frotzplay/play-dark.png) **Dark by default.** Every piece of text at 7:1 contrast or better. One announcement per turn for screen readers; the status line announced only when it changes. | ![The Settings dialog: theme, font, text size and spacing, what the screen reader says, motion and timers](../../docs/screenshots/frotzplay/settings.png) **Settings.** Three themes, OpenDyslexic and monospace, text size and spacing, verbosity, reduced motion, and the story's timers off. |
+| ![The same story in the light theme](../../docs/screenshots/frotzplay/play-light.png) **Light.** | ![The same story in the high-contrast theme, white on black](../../docs/screenshots/frotzplay/play-high-contrast.png) **High contrast.** |
+| ![A story using the upper window: a status row and a two-line map above the story](../../docs/screenshots/frotzplay/upper-window.png) **The upper window as text**, with *Read upper window*. | ![The keyboard shortcuts dialog: every shortcut, changeable or off](../../docs/screenshots/frotzplay/shortcuts.png) **Keyboard shortcuts**, each changeable or off. |
+
+And on a phone: ![The player at 390 pixels wide](../../docs/screenshots/frotzplay/phone.png)
+
+The interpreter also plays from a terminal (`zmachine-run`):
 
 ```text
 $ zmachine-run samples/dark-cellar.z5 samples/walkthroughs/dark-cellar.txt

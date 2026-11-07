@@ -8,4 +8,6 @@ The family shell (the header, footer, About menu and its dialogs, and the report
 
 `packages/zmachine-oracle` is the exception that proves the rule: a **private, GPL-3.0-or-later, test-only** package, never published or bundled, that vendors Frotzsmith's headless ZVM replay as the oracle for `@frotzinc/zmachine`'s differential tests. `@frotzinc/zmachine` (MIT) uses it only as a dev dependency of its tests; nothing from it reaches an MIT package's `dist`. ZVM (`ifvms`) and GlkOte (`glkote-term`) themselves are MIT.
 
+The OpenDyslexic font (© Abbie Gonzalez, SIL Open Font License 1.1, unmodified, with its `OFL.txt`) ships in `packages/player/fonts/` for the player's dyslexia-friendly setting.
+
 Two third-party test suites are in `packages/zmachine/test/conformance/`, unchanged and with their notices: Czech 0.8 (© 2003 Amir Karger, under its own permissive licence, kept in `czech-README.txt`) and Praxix (public domain). They are test sources only, compiled at test time; nothing from them is published.

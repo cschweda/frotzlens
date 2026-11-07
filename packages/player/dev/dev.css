@@ -1,0 +1,11 @@
+/* The dev page's own frame: the family ground, a <main>, the skip link. */
+html, body, #app { margin: 0; height: 100%; background: #0e1116; color: #e6dfcf; font-family: 'Segoe UI', system-ui, sans-serif; }
+.dev { display: flex; flex-direction: column; height: 100%; max-width: 64rem; margin: 0 auto; padding: 1rem; box-sizing: border-box; gap: 0.75rem; }
+.dev header { display: flex; flex-wrap: wrap; align-items: center; gap: 0.75rem 1rem; }
+.dev h1 { margin: 0; font-size: 1.25rem; }
+.dev label { display: inline-flex; gap: 0.5rem; align-items: center; }
+.dev select { font: inherit; min-height: 2.5rem; color: #e6dfcf; background: #151a21; border: 1px solid #2a2f38; border-radius: 6px; padding: 0.25rem 0.5rem; }
+.dev main { flex: 1 1 auto; min-height: 0; }
+.skip { position: absolute; left: -9999px; top: 0.5rem; }
+.skip:focus { left: 0.5rem; z-index: 10; padding: 0.5rem 0.75rem; background: #151a21; color: #f0a830; border-radius: 6px; outline: 3px solid #f0a830; }
+.dev :focus-visible { outline: 3px solid #f0a830; outline-offset: 2px; }
