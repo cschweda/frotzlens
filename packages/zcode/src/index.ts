@@ -7,4 +7,5 @@ export { parseZilGrammar, verbNumber, ZILLIB_SEARCH_FLAGS, INFOCOM_SEARCH_FLAGS,
 export { packedScale, unpack } from './address.js'
 export type * from './types.js'
 export { decompileInform, type DecompileOptions, type Decompiled } from './inform/decompile.js'
+export { decompileChecked, differingRoutines } from './inform/verify.js'
 export { inferSymbols, referenceSource, referenceMatch, findReference, REFERENCE_EXTENSIONS, LIBRARY_SWITCHES, LIBRARY_NUMBERS, type Reference } from './inform/infer.js'

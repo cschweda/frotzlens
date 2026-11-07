@@ -14,6 +14,7 @@ import type { Symbols, SymbolDeclaration } from '../debug.js'
 import type { DictEntry, Property, StoryFile, Version, ZObject } from '../types.js'
 import type { Routine } from '../routines.js'
 import { routineBody, type AsmNames } from './asm.js'
+import { routineStatements } from './statements.js'
 import { informLine, type GrammarNames } from './grammar.js'
 import { LIBRARIES, type LibraryVerb } from './library.generated.js'
 import { classPrototype as prototypeOf, individualProperties } from './objects.js'
@@ -22,11 +23,21 @@ import { informString, informWord } from './text.js'
 export interface DecompileOptions {
   /** The story's gameinfo.dbg, read with readSymbols; or, without one, inferSymbols's. */
   symbols: Symbols
+  /**
+   * Phase 6b: write the game's routines as statements where they can be, not as assembly: for all
+   * (true), or those this says yes to (by the routine's address). decompileChecked turns it off for
+   * any routine whose statements don't compile back to the same instructions.
+   */
+  statements?: boolean | ((address: number) => boolean)
 }
 
 export interface Decompiled {
   /** One .inf. */
   source: string
+  /** For each line of the source (0-based), the address of the routine it's part of, if it is. */
+  lineRoutines: (number | undefined)[]
+  /** The routines written as statements (6b), by address. */
+  statementRoutines: number[]
   /** What couldn't be written as it was, or had to be guessed. */
   problems: string[]
 }
@@ -59,6 +70,7 @@ export function decompileInform(story: StoryFile, opts: DecompileOptions): Decom
   const v = story.header.version as Version
   const bytes = story.bytes
   const problems: string[] = []
+  const statementRoutines: number[] = []
   const word = (a: number) => ((bytes[a]! << 8) | bytes[a + 1]!)
   const scale = packedScale(v)
   const routineOffset = story.header.routinesOffset ?? 0
@@ -202,7 +214,22 @@ export function decompileInform(story: StoryFile, opts: DecompileOptions): Decom
       },
     }
     const head = `[${header ? ` ${header}` : ''}${locals.length ? ` ${locals.join(' ')}` : ''};`
-    return [head, ...routineBody(r, names), close]
+    const asStatements = !veneer && (opts.statements === true || (typeof opts.statements === 'function' && opts.statements(r.address)))
+    const body = asStatements
+      ? routineStatements(r, {
+          ...names,
+          property: p => sym.properties[p],
+          attribute: a => sym.attributes[a],
+          // By name once it's declared (the library's are, by its Include): a name the compiler
+          // doesn't know yet is written in two bytes, as this one-byte number isn't.
+          object: o => (o > METACLASSES && o <= objectCount && sym.objects[o] && (!gameObjects.has(o) || declaredObjects.has(o)) ? sym.objects[o] : undefined),
+        })
+      : routineBody(r, names)
+    // A routine counts as statements only when it has one (not one that's all branches).
+    if (asStatements && body.some(l => !/^\s*[@.]/.test(l))) statementRoutines.push(r.address)
+    // Each line marked with its routine, for lineRoutines (taken out before the source is returned).
+    const mark = `\u0001${r.address}\u0001`
+    return [head, ...body, close].map(l => mark + l)
   }
   const routineAt = new Map(story.code.routines.map(r => [r.address, r]))
 
@@ -633,5 +660,11 @@ export function decompileInform(story: StoryFile, opts: DecompileOptions): Decom
     banner('Numbers the story holds in two bytes (Inform does that for a value it learns later)')
     for (const n of [...forcedLarge].sort((a, b) => a - b)) out.push(`Constant LARGE_${n} = ${n};`)
   }
-  return { source: out.join('\n') + '\n', problems }
+  const lineRoutines: (number | undefined)[] = []
+  const lines = (out.join('\n') + '\n').split('\n').map(l => {
+    const m = /\u0001(\d+)\u0001/.exec(l)
+    lineRoutines.push(m ? Number(m[1]) : undefined)
+    return l.replace(/\u0001\d+\u0001/g, '')
+  })
+  return { source: lines.join('\n'), lineRoutines, statementRoutines: [...new Set(statementRoutines)], problems }
 }

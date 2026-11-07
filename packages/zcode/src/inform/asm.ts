@@ -36,7 +36,7 @@ function opcodeName(i: Instruction, version: Version): string {
   return i.name.toLowerCase()
 }
 
-function operandText(i: Instruction, op: Operand, index: number, n: AsmNames): string {
+export function operandText(i: Instruction, op: Operand, index: number, n: AsmNames): string {
   if (VARIABLE_REFERENCE.has(i.name) && index === 0) {
     return op.kind === 'variable' ? `[${n.variable(op.value)}]` : n.variable(op.value)
   }

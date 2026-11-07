@@ -131,6 +131,14 @@ This is the part that makes the output trustworthy, and the main test:
 - Without a debug file, only the extensions and library settings listed in `infer.ts` are tried; a story built with others decompiles with their code as the game's (correct, longer), or, for a setting that changes the library's code, a library routine that doesn't line up.
 - A file the story included that isn't one of the library's (the game's own, or an extension `inform6-wasm` doesn't have) is written out as the game's, and reported.
 
+## 5b. Progress: 6b, statements (2026-11-07)
+
+`decompileInform(story, { symbols, statements: true })` writes the game's routines as statements where they can be: the stack is followed through each routine, so what one instruction pushes and the next pulls becomes a nested expression (`y = x*2 - g;`), a store an assignment, and prints, calls, `give`, `move`, `remove`, `++`, `style` and `return` their statements. Branches and jumps stay assembly (`if (a == b) jump L;` compiles to a branch around a jump, not one branch); 6c writes them as `if`, `while`, `for` and `switch`. A plain `push` stays assembly too: Inform only pushes a value only to pass it on in its own strict-mode scaffolding.
+
+**Checked, in the product as in the tests:** `decompileChecked(story, symbols, compile)` compiles the source again (`src/inform/verify.ts`) and compares each routine with the original's, instruction by instruction, addresses by what they point to; a routine that differs, or whose statements don't compile (by the error's line), goes back to assembly, and it compiles again, for up to six rounds by default. What it returns says which routines are statements and lists any that still differed in the last compile (none, on every fixture), so a statement that didn't check out is never passed off as one.
+
+**Proof** (`test/decompile.test.ts`): with and without debug files, every game routine of every fixture comes back as statements on the first try, and the stories are what they were: all 16 equivalent, the same bytes where they were before.
+
 ## 6. Risks
 
 - **Library versions we haven't compiled.** The matches cover the versions `inform6-wasm` has (6.12.x, PunyInform). A story built with a different version decompiles with its whole library emitted as game code and no `Include` (§3a), so nothing is declared twice: correct, just longer.

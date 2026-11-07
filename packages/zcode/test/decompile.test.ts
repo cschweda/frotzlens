@@ -68,12 +68,35 @@ const IDENTICAL_WITHOUT_SYMBOLS = new Set(['dark-cellar.z5', 'dark-cellar-v8.z8'
 describe('decompiling to Inform 6 without a debug file (6a)', () => {
   for (const file of withSymbols) {
     it(`${file} recompiles to an equivalent story`, async () => {
-      const r = await roundTrip(new Uint8Array(readFileSync(FIXTURES_DIR + file)), readFileSync(FIXTURES_DIR + file.replace(/\.z\d$/, '.dbg'), 'utf8'), true)
+      // With statements (6b), as a story without its debug file would be decompiled.
+      const r = await roundTrip(new Uint8Array(readFileSync(FIXTURES_DIR + file)), readFileSync(FIXTURES_DIR + file.replace(/\.z\d$/, '.dbg'), 'utf8'), true, true)
       expect(r.errors).toEqual([])
       expect(r.compiled).toBe(true)
+      expect(r.statements!.written.length).toBe(r.statements!.of)
       const different = Object.entries(r.parts).filter(([, p]) => p.result === 'different').map(([k, p]) => `${k}:\n    ${p.differences.join('\n    ')}`)
       expect(different).toEqual([])
       expect(r.identical).toBe(IDENTICAL_WITHOUT_SYMBOLS.has(file))
+    }, 120_000)
+  }
+})
+
+/**
+ * 6b: the routines as statements (decompileChecked writes as statements each routine whose statements
+ * compile back to the same instructions, the rest as assembly). Every game routine of every fixture
+ * comes back as statements, and the stories as before: equivalent, and the same bytes where they were.
+ */
+describe('decompiling to Inform 6 with statements (6b)', () => {
+  for (const file of withSymbols) {
+    it(`${file}: every routine as statements, the story equivalent`, async () => {
+      const dbg = readFileSync(FIXTURES_DIR + file.replace(/\.z\d$/, '.dbg'), 'utf8')
+      const r = await roundTrip(new Uint8Array(readFileSync(FIXTURES_DIR + file)), dbg, false, true)
+      expect(r.errors).toEqual([])
+      expect(r.compiled).toBe(true)
+      expect(Object.entries(r.parts).filter(([, p]) => p.result === 'different').map(([k]) => k)).toEqual([])
+      expect(r.identical).toBe(!NOT_IDENTICAL.has(file))
+      // Every routine the game has (the veneer stays assembly: 6d) is statements; none fell back.
+      expect(r.statements!.of).toBeGreaterThan(0)
+      expect(r.statements!.written.length).toBe(r.statements!.of)
     }, 120_000)
   }
 })
