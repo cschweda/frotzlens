@@ -72,7 +72,7 @@ async function openIssue() {
         <p>{{ site.tagline }}: disassemble it, explore it and play it, in your browser. Nothing is uploaded.</p>
         <section aria-labelledby="about-versions" class="flex flex-col gap-2">
           <h3 id="about-versions" class="font-semibold text-highlighted">Versions</h3>
-          <dl class="data grid grid-cols-[max-content_1fr] gap-x-6 gap-y-1">
+          <dl class="data grid grid-cols-[max-content_minmax(0,1fr)] [&_dd]:[overflow-wrap:anywhere] gap-x-6 gap-y-1">
             <dt class="text-muted">Frotzlens</dt>
             <dd>{{ about.version }}<span v-if="about.commit" class="text-muted"> · {{ about.commit }}{{ about.date ? `, ${about.date}` : '' }}</span></dd>
             <template v-for="(v, name) in about.packages" :key="name">

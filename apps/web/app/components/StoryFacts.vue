@@ -46,7 +46,7 @@ const facts = computed(() => {
 <template>
   <section aria-labelledby="facts-title" class="flex flex-col gap-4">
     <h2 id="facts-title" class="font-display text-2xl font-semibold text-highlighted sm:text-[1.6rem]">What is this file</h2>
-    <dl class="grid grid-cols-[max-content_1fr] gap-x-6 gap-y-2 rounded-xl border border-default bg-muted p-5">
+    <dl class="grid grid-cols-[max-content_minmax(0,1fr)] [&_dd]:[overflow-wrap:anywhere] gap-x-6 gap-y-2 rounded-xl border border-default bg-muted p-5">
       <template v-for="[k, v, to] in facts" :key="k">
         <dt class="text-muted">{{ k }}</dt>
         <dd class="text-default"><a v-if="to" :href="to" class="text-lamp hover:underline">{{ v }}</a><template v-else>{{ v }}</template></dd>

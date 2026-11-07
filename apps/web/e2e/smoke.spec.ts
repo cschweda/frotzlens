@@ -226,7 +226,7 @@ test('the About menu: versions and licences, the changelog, reports, updates', a
   // Check for updates: this build is the live one.
   await menu.click()
   await page.getByRole('menuitem', { name: 'Check for updates' }).click()
-  await expect(page.getByText(/is the latest/)).toBeVisible()
+  await expect(page.getByText(/is the latest/).first()).toBeVisible()
   expect(errors).toEqual([])
 })
 
