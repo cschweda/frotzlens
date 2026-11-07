@@ -1,0 +1,20 @@
+! A first pass for every sample until each has its own walkthrough (samples/walkthroughs/):
+! looking around, moving, the library's verbs, and undo.
+look
+inventory
+north
+south
+east
+west
+up
+down
+examine me
+take all
+drop all
+score
+wait
+xyzzy
+again
+undo
+verbose
+look

@@ -1,0 +1,52 @@
+{
+  "name": "@frotzinc/zmachine",
+  "version": "0.0.0",
+  "description": "A Z-machine interpreter (versions 3, 4, 5 and 8) in TypeScript: decoded instructions run one at a time, no eval, all state plain data, input supplied by the host. Runs in a browser, a Web Worker, or Node.",
+  "license": "MIT",
+  "author": "Christopher Schweda",
+  "type": "module",
+  "homepage": "https://github.com/cschweda/frotzlens/tree/main/packages/zmachine",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/cschweda/frotzlens.git",
+    "directory": "packages/zmachine"
+  },
+  "bugs": {
+    "url": "https://github.com/cschweda/frotzlens/issues"
+  },
+  "keywords": ["z-machine", "interpreter", "interactive-fiction", "inform", "zcode", "frotzinc"],
+  "sideEffects": false,
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    },
+    "./package.json": "./package.json"
+  },
+  "bin": {
+    "zmachine-run": "./bin/run.mjs"
+  },
+  "files": [
+    "dist",
+    "bin",
+    "!dist/**/*.test.*",
+    "README.md",
+    "CHANGELOG.md",
+    "LICENSE"
+  ],
+  "scripts": {
+    "build": "rm -rf dist && tsc -p tsconfig.build.json",
+    "test": "vitest run",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "prepack": "pnpm run build"
+  },
+  "dependencies": {
+    "@frotzinc/zcode": "workspace:*"
+  },
+  "devDependencies": {
+    "@frotzinc/zmachine-oracle": "workspace:*",
+    "@types/node": "^22.20.5",
+    "typescript": "5.9.3",
+    "vitest": "^5.1.0"
+  }
+}

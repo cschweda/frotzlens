@@ -208,6 +208,55 @@ export function decodeZchars(ctx: TextContext, zchars: number[], inAbbreviation 
   return out
 }
 
+/**
+ * Decode Z-characters to ZSCII codes (§3.2–§3.5), for an interpreter: the same rules as
+ * `decodeZchars`, but the output is the codes themselves, so nothing is lost. No code becomes
+ * '?', nothing is cut, and no budget is spent: output stream 3 writes these codes into memory
+ * (§7.1.2.1), and a game may print a code that has no glyph. A newline is 13.
+ *
+ * `decodeZchars(ctx, z)` equals `decodeZscii(ctx, z).map(c => zsciiToText(c, ctx)).join('')`
+ * within its caps; a test checks that over every string of every fixture.
+ */
+export function decodeZscii(ctx: TextContext, zchars: number[], inAbbreviation = false): number[] {
+  const out: number[] = []
+  let alphabet = 0
+  for (let i = 0; i < zchars.length; i++) {
+    const z = zchars[i]!
+    if (z === 0) {
+      out.push(32) // a space leaves a pending shift pending (see decodeZchars)
+    } else if (z >= 1 && z <= 3) {
+      const next = zchars[++i]
+      if (next === undefined) break
+      if (!inAbbreviation) {
+        const address = ctx.abbreviations[32 * (z - 1) + next]
+        if (address !== undefined) for (const c of decodeZscii(ctx, readZchars(ctx.bytes, address).zchars, true)) out.push(c)
+      }
+      alphabet = 0
+    } else if (z === 4 || z === 5) {
+      alphabet = z - 3
+    } else if (alphabet === 2 && z === 6) {
+      const hi = zchars[i + 1]
+      const lo = zchars[i + 2]
+      i += 2
+      if (hi === undefined || lo === undefined) break
+      out.push((hi << 5) | lo)
+      alphabet = 0
+    } else if (alphabet === 2 && z === 7) {
+      out.push(13)
+      alphabet = 0
+    } else {
+      out.push(zsciiFor(ctx, alphabet, z))
+      alphabet = 0
+    }
+  }
+  return out
+}
+
+function zsciiFor(ctx: TextContext, alphabet: number, z: number): number {
+  if (ctx.alphabets) return ctx.alphabets[alphabet]![z - 6]!
+  return DEFAULT_ALPHABETS[alphabet]!.charCodeAt(z - 6) // the defaults are ASCII, which ZSCII 32–126 is
+}
+
 /** The string at `address` as a ZString. Throws OutOfBounds if it runs off the file. */
 export function readString(ctx: TextContext, address: number, id = `string:${hex(address)}` as ZString['id']): ZString {
   const { zchars, length } = readZchars(ctx.bytes, address)

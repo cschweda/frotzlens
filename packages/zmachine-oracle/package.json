@@ -1,0 +1,25 @@
+{
+  "name": "@frotzinc/zmachine-oracle",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Test-only: Frotzsmith's headless ZVM replay, vendored, as the oracle for @frotzinc/zmachine's differential tests. Never published, never bundled.",
+  "license": "GPL-3.0-or-later",
+  "author": "Christopher Schweda",
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "scripts": {
+    "test": "vitest run",
+    "typecheck": "tsc -p tsconfig.json --noEmit"
+  },
+  "dependencies": {
+    "glkote-term": "0.4.4",
+    "ifvms": "1.1.6"
+  },
+  "devDependencies": {
+    "@types/node": "^22.20.5",
+    "typescript": "5.9.3",
+    "vitest": "^5.1.0"
+  }
+}

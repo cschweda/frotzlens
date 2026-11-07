@@ -9,3 +9,10 @@ export type * from './types.js'
 export { decompileInform, type DecompileOptions, type Decompiled } from './inform/decompile.js'
 export { decompileChecked, differingRoutines, structurallyDifferingRoutines } from './inform/verify.js'
 export { inferSymbols, referenceSource, referenceMatch, findReference, REFERENCE_EXTENSIONS, LIBRARY_SWITCHES, LIBRARY_NUMBERS, type Reference } from './inform/infer.js'
+
+// The interpreter's building blocks (@frotzinc/zmachine): the instruction decoder, the opcode
+// tables, the byte reader and text decoding, ZSCII codes included.
+export { decodeInstruction, type Instruction, type Operand, type OperandKind, type Branch } from './decode.js'
+export { op0, op1, op2, opVar, opExt, type OpInfo, type OpForm, type OpCount } from './opcodes.js'
+export { Bytes, OutOfBounds, Malformed } from './bytes.js'
+export { decodeZchars, decodeZscii, readZchars, zsciiToText, defaultExtra, readAlphabetTable, readUnicodeTable, textContextFor, type TextContext } from './text.js'

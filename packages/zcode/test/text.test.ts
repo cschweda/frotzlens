@@ -123,3 +123,32 @@ describe('ZSCII output (§3.8)', () => {
     expect(zsciiToText(252, c)).toBe('?')
   })
 })
+
+describe('decodeZscii', () => {
+  it('gives the same text as decodeZchars, for every string of every fixture', async () => {
+    const { parseStory } = await import('../src/story.js')
+    const { decodeZscii, textContextFor } = await import('../src/text.js')
+    const { storyFiles, readStory } = await import('./fixtures.js')
+    let strings = 0
+    for (const file of storyFiles()) {
+      const story = parseStory(readStory(file))
+      const c = textContextFor(story)
+      const texts = [...story.strings, ...story.abbreviations].map(s => s.address)
+      for (const address of texts) {
+        const { zchars } = readZchars(c.bytes, address)
+        const shown = decodeZchars({ ...c, budget: undefined }, zchars)
+        const codes = decodeZscii(c, zchars)
+        expect(codes.map(code => zsciiToText(code, c)).join(''), `${file} @ ${address.toString(16)}`).toBe(shown)
+        strings++
+      }
+    }
+    expect(strings).toBeGreaterThan(1000)
+  })
+
+  it('keeps what decodeZchars shows as "?": codes with no glyph, and a newline as 13', async () => {
+    const { decodeZscii } = await import('../src/text.js')
+    // A2 escape 6, then ZSCII 1 (no meaning on output) as two 5-bit halves; then A2 7 (newline).
+    expect(decodeZscii(ctx(), [5, 6, 0, 1, 5, 7])).toEqual([1, 13])
+    expect(decodeZchars(ctx(), [5, 6, 0, 1, 5, 7])).toBe('?\n')
+  })
+})

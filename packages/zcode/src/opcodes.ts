@@ -148,6 +148,8 @@ const OPX: Table = {
   0x0b: T('PRINT_UNICODE'),
   0x0c: T('CHECK_UNICODE', { store: true }),
   0x0d: T('SET_TRUE_COLOUR'),
+  // Standard 1.1 (§15, EXT:29): whether the screen may buffer output. Inform 6 never emits it.
+  0x1d: T('BUFFER_SCREEN', { store: true }),
 }
 
 const look = (table: Table, n: number, v: Version): OpInfo | undefined => {
