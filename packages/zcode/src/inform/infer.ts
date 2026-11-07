@@ -71,6 +71,8 @@ export const LIBRARY_SWITCHES: Record<'std' | 'puny', string[]> = {
   std: ['TASKS_PROVIDED', 'AMUSING_PROVIDED', 'NO_SCORE', 'NO_PLACES', 'MANUAL_PRONOUNS', 'DIALECT_US', 'TRADITIONAL_TAKE_ALL', 'NO_TAKE_ALL', 'WITHOUT_DIRECTIONS', 'SERIAL_COMMAS', 'NOINITIAL_LOOK', 'DEATH_MENTION_UNDO', 'OOPS_CHECK'],
   puny: [],
 }
+/** The Standard Library's defaults for those numbers (its `Default` directives): a game that gives one of these needn't have. */
+const NUMBER_DEFAULTS: Record<string, number> = { MAX_SCORE: 0, NUMBER_TASKS: 1, OBJECT_SCORE: 4, ROOM_SCORE: 5, MAX_CARRIED: 100, SACK_OBJECT: 0 }
 export const LIBRARY_NUMBERS: Record<'std' | 'puny', string[]> = {
   std: ['MAX_SCORE', 'NUMBER_TASKS', 'OBJECT_SCORE', 'ROOM_SCORE', 'MAX_CARRIED', 'SACK_OBJECT'],
   puny: [],
@@ -170,7 +172,8 @@ export async function findReference(
     const seen = new Map<number, number>()
     for (const [place, v] of at[0]!) if (at[1]!.has(place)) seen.set(v, (seen.get(v) ?? 0) + 1)
     const found = [...seen].sort((x, y) => y[1] - x[1])[0]
-    if (!found) continue
+    // The library's own default isn't a setting the game made.
+    if (!found || found[0] === NUMBER_DEFAULTS[name]) continue
     const set = [...settings, { name, value: found[0] }]
     const r = await build(chosen, set)
     if (r && referenceMatch(story, r) >= score) {

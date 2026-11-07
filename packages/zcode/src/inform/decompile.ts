@@ -600,7 +600,10 @@ export function decompileInform(story: StoryFile, opts: DecompileOptions): Decom
   const h = story.header
   out.push('! ' + '='.repeat(75))
   out.push('!  Decompiled by Frotzlens. The library is left out as Includes.')
-  if (opts.statements) out.push('!  A routine still in Inform assembly (@) is one whose statements didn\'t compile back the same.')
+  if (opts.statements) {
+    out.push('!  A routine still in Inform assembly (@) is one whose statements')
+    out.push('!  didn\'t compile back the same.')
+  }
   else out.push('!  The game\'s routines are Inform assembly, as the story holds them.')
   if (sym.inferred) {
     out.push('!  The story had no debug file: the library was found by compiling it alone,')
