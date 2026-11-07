@@ -2,6 +2,11 @@
 
 All notable changes to Frotzlens: the web app at [frotzlens.frotzinc.com](https://frotzlens.frotzinc.com), and this repository. The packages keep their own changelogs: [`@frotzinc/zcode`](packages/zcode/CHANGELOG.md), [`frotzlens`](packages/cli/CHANGELOG.md) (the CLI), [`@frotzinc/worker-rpc`](packages/worker-rpc/CHANGELOG.md), [`@frotzinc/nuxt-base`](packages/nuxt-base/CHANGELOG.md), [`@frotzinc/inform6-wasm`](packages/inform6-wasm/CHANGELOG.md). Versions follow [Semantic Versioning](https://semver.org/). Part of [Frotz, Inc.](https://frotzinc.com).
 
+## [0.3.4] - 2026-11-07
+
+### Changed
+- [docs/16](docs/16-frotzsmith-on-frotzplay.md) records what's done: `@frotzinc/player` 0.2.0 is on npm, and Frotzsmith 0.2.0 plays in frotzplay, with Parchment as a choice.
+
 ## [0.3.3] - 2026-11-07
 
 ### Added
