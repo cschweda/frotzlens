@@ -2,6 +2,10 @@
 
 All notable changes to `frotzlens`, the Frotzlens CLI. Versions follow [Semantic Versioning](https://semver.org/). Part of [Frotz, Inc.](https://frotzinc.com).
 
+## [Unreleased]
+
+- `-g` / `--grammar` on a ZIL story (ZILF's, or Infocom's): its syntax tables, each line as its `SYNTAX` form reads, then the action and pre-action routines and the prepositions. A preposition shown as `#238` is a number no word has: ZILF compiles a `SYNTAX` naming a word before a later `SYNONYM` gives that word another's number (Mingus I's ONTO and INTO), so those lines can't be matched by what a player types.
+
 ## [0.1.0] - 2026-11-06
 
 First release. (0.0.1 was an MIT-licensed placeholder; from 0.1.0 the CLI is GPL-3.0-or-later.)

@@ -44,6 +44,8 @@ export interface StoryFile {
   strings: ZString[]
   /** Inform's grammar table, when the story is Inform's and has one (Phase 2). */
   grammar?: import('./grammar.js').Grammar
+  /** ZIL's syntax tables, when the story is ZILF's or Infocom's and has them. */
+  zilGrammar?: import('./zil-grammar.js').ZilGrammar
   /** Cross-references, both ways, by Id (Phase 2). */
   xrefs: import('./xrefs.js').Xrefs
   /** What made it: compiler, library, Inform's veneer routines (Phase 5). */

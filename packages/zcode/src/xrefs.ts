@@ -19,6 +19,7 @@ import type { Instruction } from './decode.js'
 import { operandKind } from './operands.js'
 import type { Routine } from './routines.js'
 import type { Grammar } from './grammar.js'
+import type { ZilGrammar } from './zil-grammar.js'
 import type { Dictionary, Id, ObjectTable, Version, ZString } from './types.js'
 
 /** Where a reference is made: the routine (or object) it's in, and the instruction (or property) address. */
@@ -54,6 +55,7 @@ export function buildXrefs(
   objects: ObjectTable,
   dictionary: Dictionary,
   grammar?: Grammar,
+  zilGrammar?: ZilGrammar,
 ): { xrefs: Xrefs; full: boolean } {
   const out: Xrefs = {}
   const entry = (id: Id) => (out[id] ??= { from: [], to: [] })
@@ -165,6 +167,31 @@ export function buildXrefs(
       }
       for (const verbWord of verb.words) {
         const from = wordByText.get(verbWord)
+        if (from) for (const t of targets) link(from, t.at, t.to)
+      }
+    }
+  }
+  // ZIL's syntax tables, the same way: each verb word refers to its lines' action and pre-action
+  // routines and to their prepositions' words.
+  if (zilGrammar) {
+    // By dictionary entry, not spelling: two entries can be spelled alike.
+    const prepEntries = new Map(zilGrammar.prepositions.map(p => [p.number, p.entries]))
+    for (const verb of zilGrammar.verbs) {
+      const targets: { at: number; to: Id }[] = []
+      for (const line of verb.lines) {
+        for (const r of [zilGrammar.actions[line.action], zilGrammar.preactions[line.action]]) {
+          const id = r ? routineIds.get(r) : undefined
+          if (id) targets.push({ at: line.address, to: id })
+        }
+        for (const p of line.prepositions.slice(0, line.objects)) {
+          for (const at of p ? (prepEntries.get(p) ?? []) : []) {
+            const id = wordIds.get(at)
+            if (id) targets.push({ at: line.address, to: id })
+          }
+        }
+      }
+      for (const at of verb.entries) {
+        const from = wordIds.get(at)
         if (from) for (const t of targets) link(from, t.at, t.to)
       }
     }

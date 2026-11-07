@@ -9,7 +9,7 @@ const { symbols, symbolsFile } = useSymbols()
  * library's banner, Inform's veneer routines. Nothing here is guessed.
  */
 const facts = computed(() => {
-  const { header: h, grammar, fingerprint: fp, blorb } = props.story
+  const { header: h, grammar, zilGrammar, fingerprint: fp, blorb } = props.story
   type Row = [string, string, string?] // label, text, link
   const rows: Row[] = [
     ['Z-machine version', String(h.version)],
@@ -23,6 +23,8 @@ const facts = computed(() => {
   }
   if (grammar) {
     rows.push(['Grammar', `Inform grammar version ${grammar.version}${grammar.version === 3 ? ' (as PunyInform writes it)' : ''}`])
+  } else if (zilGrammar) {
+    rows.push(['Grammar', `ZIL syntax tables (${zilGrammar.verbs.length} verbs, ${zilGrammar.actions.length} actions)`, '#grammar'])
   }
   if (blorb) {
     const pictures = blorb.resources.filter(r => r.usage === 'Pict').length

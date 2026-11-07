@@ -13,7 +13,7 @@ const flags = (e: Entry) => (e.inform ? Object.entries(e.inform).filter(([, on])
 
 /** The verbs (by index in the grammar) whose words include this one. */
 const verbs = computed(() => {
-  const g = props.story.grammar
+  const g = props.story.grammar ?? props.story.zilGrammar
   const w = word.value
   if (!g || !w) return []
   return g.verbs.map((v, i) => ({ v, i })).filter(x => x.v.words.includes(w.word))

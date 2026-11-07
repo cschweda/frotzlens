@@ -26,6 +26,8 @@ Then **play it**, in the same Parchment interpreter Frotzsmith uses, walled off 
 | 4 | Data views | **Done.** Memory (map and hex), Objects (a keyboard-operable tree), Dictionary, Grammar, Routines (linked disassembly) and Strings, each linked to the rest and each with "Copy as text" in Ztools' format. A Playwright smoke test opens a real story, visits every view and runs axe on each; it runs in CI. Live at [frotzlens.frotzinc.com](https://frotzlens.frotzinc.com) ([details](docs/05-phase-4-data-views.md)). |
 | 5 | Debug symbols, Inform fingerprinting, Blorb, polish; Frotzlens 0.1.0 | **Done.** Blorb files open, and a `gameinfo.dbg` names routines, globals, locals, properties, attributes and actions everywhere (with a Names switch). The Overview says what made the story. New views: Globals, Abbreviations, Symbols and Map. `@frotzinc/zcode` and `frotzlens` 0.1.0 are on npm ([details](docs/06-phase-5-symbols.md)). |
 
+**Since 0.1.0:** ZIL grammar. A ZILF-compiled story's syntax tables are decoded: each verb's syntax lines, its action routines and prepositions, in the Grammar view and `frotzlens -g` ([details](docs/08-zil-grammar.md)). See the [changelog](CHANGELOG.md).
+
 The plan and its decisions are in [`docs/`](docs/), starting with [`00-master-design.md`](docs/00-master-design.md).
 
 ## Packages
