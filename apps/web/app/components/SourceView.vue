@@ -95,7 +95,7 @@ const summary = computed(() => {
             :id="`line-${k + 1}`"
             :key="k"
             tabindex="-1"
-            class="flex whitespace-pre pr-4 focus:outline-none"
+            class="flex scroll-mt-24 whitespace-pre pr-4 focus:outline-none"
             :class="inRoutine(k) ? 'bg-elevated' : ''"
           ><span class="w-14 shrink-0 select-none pr-4 text-right text-muted" aria-hidden="true">{{ k + 1 }}</span><span :class="l.trimStart().startsWith('!') ? 'text-muted' : ''">{{ l || ' ' }}</span></li>
         </ol>
