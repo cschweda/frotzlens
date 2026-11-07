@@ -4,6 +4,9 @@ All notable changes to Frotzlens: the web app at [frotzlens.frotzinc.com](https:
 
 ## [Unreleased]
 
+### Changed
+- The header, footer and About menu moved into `@frotzinc/nuxt-base`, to share with frotzplay. Frotzlens looks and works the same. Its identity is now `product` in `app/app.config.ts` (built from `site.config.ts`), and its own header buttons are `HeaderActions`.
+
 ## [0.3.0] - 2026-11-07
 
 Phase 6: decompiling to Inform 6. `@frotzinc/zcode` 0.3.0 and the `frotzlens` 0.3.0 CLI carry it, and are on npm.

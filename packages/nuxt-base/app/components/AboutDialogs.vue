@@ -1,12 +1,14 @@
 <script setup lang="ts">
-import changelog from '../../../../CHANGELOG.md?raw'
-import { site } from '~~/site.config'
-
 /**
- * The About menu's dialogs: About Frotzlens (every version, the licences), What's new (the
- * changelog, as the repository has it at this build), and the report forms (a problem, a feature),
- * which open GitHub's issue form filled in. Nothing is sent from here.
+ * The About menu's dialogs: About the app (every version, the licences), What's new (the changelog,
+ * as the repository has it at this build), and the report forms (a problem, a feature), which open
+ * GitHub's issue form filled in. Nothing is sent from here.
+ *
+ * The app passes its changelog in (a layer can't import the app's files):
+ *   import changelog from '../../CHANGELOG.md?raw'  →  <AboutDialogs :changelog="changelog" />
  */
+const props = defineProps<{ changelog: string }>()
+const product = useProduct()
 const { dialog, close } = useAbout()
 const about = useRuntimeConfig().public.about as { version: string; commit: string; date: string; packages: Record<string, string> }
 
@@ -15,16 +17,10 @@ const openChangelog = computed({ get: () => dialog.value === 'changelog', set: v
 const openReport = computed({ get: () => dialog.value === 'problem' || dialog.value === 'idea', set: v => !v && close() })
 const kind = computed<IssueKind>(() => (dialog.value === 'idea' ? 'idea' : 'problem'))
 
-const changelogHtml = markdownToHtml(changelog, REPO_URL)
+const changelogHtml = computed(() => markdownToHtml(props.changelog, product.repoUrl))
+const SECURITY_URL = securityUrl(product.repoUrl)
 
-const LICENCES = [
-  { what: 'Frotzlens (this site) and the frotzlens CLI', licence: 'GPL-3.0-or-later', href: `${REPO_URL}/blob/main/LICENSE` },
-  { what: 'The @frotzinc libraries (zcode, worker-rpc, nuxt-base, inform6-wasm)', licence: 'MIT', href: `${REPO_URL}/blob/main/LICENSING.md` },
-  { what: 'Parchment, ZVM, GlkOte and jQuery (the Play view’s player)', licence: 'MIT', href: '/play/web/THIRD-PARTY-NOTICES.txt' },
-  { what: 'Open Sans and JetBrains Mono (the fonts, served from this site)', licence: 'SIL Open Font License 1.1', href: 'https://openfontlicense.org' },
-  { what: 'Lucide (the icons)', licence: 'ISC', href: 'https://lucide.dev/license' },
-  { what: 'Nuxt, Nuxt UI and Vue', licence: 'MIT', href: 'https://github.com/nuxt/nuxt/blob/main/LICENSE' },
-]
+const LICENCES = product.licences
 
 const copied = ref('')
 /** Copy to the clipboard and say so; true when it worked. */
@@ -51,7 +47,7 @@ watch(dialog, (d) => {
 })
 const required = computed(() => (kind.value === 'problem' ? draft.happened : draft.idea).trim().length > 0)
 async function openIssue() {
-  const { url, trimmed } = issueLink(draft, details.value)
+  const { url, trimmed } = issueLink(product.repoUrl, draft, details.value)
   // The tab first, while the click still counts as the person's (a browser blocks a window opened
   // after an await). Then the whole text goes on the clipboard, so nothing is lost to a link cut short.
   window.open(url, '_blank', 'noopener,noreferrer')
@@ -65,15 +61,15 @@ async function openIssue() {
 </script>
 
 <template>
-  <!-- About Frotzlens -->
-  <UModal v-model:open="openAbout" title="About Frotzlens" :description="`Version ${about.version}`">
+  <!-- About the app -->
+  <UModal v-model:open="openAbout" :title="`About ${product.name}`" :description="`Version ${about.version}`">
     <template #body>
       <div class="flex flex-col gap-5 text-sm">
-        <p>{{ site.tagline }}: disassemble it, explore it and play it, in your browser. Nothing is uploaded.</p>
+        <p>{{ product.tagline }}: disassemble it, explore it and play it, in your browser. Nothing is uploaded.</p>
         <section aria-labelledby="about-versions" class="flex flex-col gap-2">
           <h3 id="about-versions" class="font-semibold text-highlighted">Versions</h3>
           <dl class="data grid grid-cols-[max-content_minmax(0,1fr)] [&_dd]:[overflow-wrap:anywhere] gap-x-6 gap-y-1">
-            <dt class="text-muted">Frotzlens</dt>
+            <dt class="text-muted">{{ product.name }}</dt>
             <dd>{{ about.version }}<span v-if="about.commit" class="text-muted"> · {{ about.commit }}{{ about.date ? `, ${about.date}` : '' }}</span></dd>
             <template v-for="(v, name) in about.packages" :key="name">
               <dt class="text-muted">{{ name }}</dt>
@@ -90,7 +86,7 @@ async function openIssue() {
           </ul>
         </section>
         <p class="text-muted">
-          From <a :href="site.familyUrl" class="text-lamp underline decoration-dotted underline-offset-4">Frotz, Inc.</a>, a fiction: the Frotz interpreter is the work of its own authors and is not affiliated.
+          From <a :href="product.familyUrl" class="text-lamp underline decoration-dotted underline-offset-4">Frotz, Inc.</a>, a fiction: the Frotz interpreter is the work of its own authors and is not affiliated.
         </p>
         <p v-if="copied" role="status" class="text-muted">{{ copied }}</p>
       </div>
@@ -99,13 +95,13 @@ async function openIssue() {
       <div class="flex flex-wrap gap-2">
         <UButton color="neutral" variant="outline" icon="i-lucide-clipboard" @click="copy(technicalDetails(), 'The technical details')">Copy technical details</UButton>
         <UButton color="neutral" variant="outline" icon="i-lucide-scroll-text" @click="dialog = 'changelog'">What’s new</UButton>
-        <UButton color="neutral" variant="outline" icon="i-lucide-github" :to="REPO_URL" target="_blank">Source</UButton>
+        <UButton color="neutral" variant="outline" icon="i-lucide-github" :to="product.repoUrl" target="_blank">Source</UButton>
       </div>
     </template>
   </UModal>
 
   <!-- What's new: the changelog -->
-  <UModal v-model:open="openChangelog" title="What’s new" description="Frotzlens’s changelog, newest first." :ui="{ content: 'max-w-3xl' }">
+  <UModal v-model:open="openChangelog" title="What’s new" :description="`${product.name}’s changelog, newest first.`" :ui="{ content: 'max-w-3xl' }">
     <template #body>
       <!-- eslint-disable-next-line vue/no-v-html -- markdownToHtml escapes the text first (utils/markdown.ts) -->
       <div class="changelog text-sm" v-html="changelogHtml" />
@@ -113,7 +109,7 @@ async function openIssue() {
   </UModal>
 
   <!-- Report a problem / Suggest a feature -->
-  <UModal v-model:open="openReport" :title="KINDS[kind].name" description="This opens GitHub’s issue form with what you write filled in. You review it and submit it there; Frotzlens sends nothing.">
+  <UModal v-model:open="openReport" :title="KINDS[kind].name" :description="`This opens GitHub’s issue form with what you write filled in. You review it and submit it there; ${product.name} sends nothing.`">
     <template #body>
       <form class="flex flex-col gap-4 text-sm" @submit.prevent="openIssue">
         <UFormField label="Title" name="title">
@@ -133,7 +129,7 @@ async function openIssue() {
         <UFormField v-else label="What you’d like" name="idea" required>
           <UTextarea v-model="draft.idea" :rows="5" class="w-full" />
         </UFormField>
-        <UCheckbox v-model="draft.includeDetails" label="Include technical details (Frotzlens’s version, the browser)" />
+        <UCheckbox v-model="draft.includeDetails" :label="`Include technical details (${product.name}’s version, the browser)`" />
         <details v-if="draft.includeDetails" class="rounded-md border border-default p-3">
           <summary class="cursor-pointer text-muted">What the technical details say</summary>
           <pre class="data mt-2 whitespace-pre-wrap text-xs">{{ details }}</pre>

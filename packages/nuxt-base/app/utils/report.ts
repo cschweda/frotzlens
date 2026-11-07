@@ -1,15 +1,13 @@
 /**
  * Report a problem and Suggest a feature (the About menu): the GitHub new-issue link, built from what
- * the person typed, as Drafter does it. Frotzlens has no server and keeps no token, so it posts
- * nothing: it opens GitHub's issue form with the text filled in, and the person reviews it and
- * submits it there. The story file never goes in, only what they choose to write about it.
+ * the person typed, as Drafter does it. A Frotz, Inc. app has no server and keeps no token, so it
+ * posts nothing: it opens GitHub's issue form with the text filled in, and the person reviews it and
+ * submits it there. A story file never goes in, only what they choose to write about it.
  *
  * GitHub's issue forms (.github/ISSUE_TEMPLATE/bug.yml, idea.yml) take each field's text from a query
- * parameter named by the field's id, beside `template`, `title` and `labels`.
+ * parameter named by the field's id, beside `template`, `title` and `labels`. The repository is the
+ * app's (`product.repoUrl`), passed in.
  */
-export const REPO_URL = 'https://github.com/cschweda/frotzlens'
-export const NEW_ISSUE_URL = `${REPO_URL}/issues/new`
-export const SECURITY_URL = `${REPO_URL}/blob/main/SECURITY.md`
 /** A new-issue link stays under this, which every browser and GitHub take. */
 export const MAX_ISSUE_URL = 7500
 export const TRIMMED_NOTE = '… [Trimmed to fit the link. Paste the rest here.]'
@@ -23,7 +21,7 @@ export interface IssueDraft {
   expected: string
   story: string
   idea: string
-  /** Adds the technical details: Frotzlens's version and build, and the browser. */
+  /** Adds the technical details: the app's version and build, and the browser. */
   includeDetails: boolean
 }
 
@@ -68,20 +66,20 @@ export const issueTitle = (title: string) => Array.from(clean(title).replace(/\s
 
 const enc = encodeURIComponent
 
-export function issueUrl(kind: IssueKind, title: string, fields: IssueField[]): string {
+export function issueUrl(repoUrl: string, kind: IssueKind, title: string, fields: IssueField[]): string {
   const { template, label } = KINDS[kind]
   const params = [`template=${enc(template)}`, ...(title ? [`title=${enc(title)}`] : []), `labels=${enc(label)}`, ...fields.map(f => `${enc(f.id)}=${enc(f.value)}`)]
-  return `${NEW_ISSUE_URL}?${params.join('&')}`
+  return `${repoUrl}/issues/new?${params.join('&')}`
 }
 
 /**
  * The link for a draft, with the longest field cut (and marked) until the link fits. The whole text
  * is also on the clipboard when the link opens, so nothing is lost to a cut.
  */
-export function issueLink(draft: IssueDraft, details: string): { url: string; trimmed: boolean } {
+export function issueLink(repoUrl: string, draft: IssueDraft, details: string): { url: string; trimmed: boolean } {
   const title = issueTitle(draft.title)
   const fields = issueFields(draft, details)
-  let url = issueUrl(draft.kind, title, fields)
+  let url = issueUrl(repoUrl, draft.kind, title, fields)
   let trimmed = false
   // Cut the longest field (by its encoded length, so non-ASCII text counts as it really does) until
   // the link fits; every field can go down to just the note.
@@ -96,7 +94,7 @@ export function issueLink(draft: IssueDraft, details: string): { url: string; tr
     const keep = Math.max(0, chars.length - Math.ceil((over + enc(TRIMMED_NOTE).length) / perChar) - 1)
     longest.value = chars.slice(0, keep).join('') + TRIMMED_NOTE
     trimmed = true
-    url = issueUrl(draft.kind, title, fields)
+    url = issueUrl(repoUrl, draft.kind, title, fields)
   }
   return { url, trimmed }
 }
