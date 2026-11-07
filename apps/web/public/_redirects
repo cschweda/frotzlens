@@ -1,0 +1,5 @@
+# Unknown paths under /play/ are a plain 404, never the app: the app must not load under the
+# player's looser Content-Security-Policy (netlify.toml's /play/* rule). Real player files are
+# served as they are (a rule without ! applies only where no file exists). Nitro adds its own
+# rules after these.
+/play/*  /play/404.html  404

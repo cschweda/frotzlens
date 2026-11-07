@@ -42,9 +42,17 @@ createServer((req, res) => {
     return
   }
   if (existsSync(file) && statSync(file).isDirectory()) file = join(file, 'index.html')
-  if (!existsSync(file)) file = join(root, '200.html')
-  const h = path.startsWith('/play/') ? { ...site, ...player } : site
-  res.writeHead(200, {
+  // As public/_redirects: an unknown /play/ path is a 404 page, never the app; anything else unknown is the app.
+  let status = 200
+  if (!existsSync(file)) {
+    if (path.startsWith('/play/')) {
+      file = join(root, 'play/404.html')
+      status = 404
+    } else file = join(root, '200.html')
+  }
+  // The player's headers for the player's own files (as netlify.toml's /play/* rule).
+  const h = file.startsWith(join(root, 'play/')) ? { ...site, ...player } : site
+  res.writeHead(status, {
     'Content-Type': TYPES[extname(file)] ?? 'application/octet-stream',
     'Content-Security-Policy': h.csp,
     'X-Frame-Options': h.frame,

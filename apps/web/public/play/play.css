@@ -26,3 +26,7 @@
   html.frotz-dark ::-webkit-scrollbar { width: 10px; height: 10px; }
   html.frotz-dark ::-webkit-scrollbar-track { background: #15151a; }
   html.frotz-dark ::-webkit-scrollbar-thumb { background: #3a3a42; border-radius: 5px; }
+  /* Frotzlens: the More paging prompt at full contrast (web.css fades it with opacity, about 2.8:1 in light). */
+  .MorePrompt { opacity: 1 !important; }
+  /* Frotzlens: the save/load dialog fits a narrow frame (web.css fixes it at 400px). */
+  #dialog { width: 100% !important; max-width: 400px; box-sizing: border-box; }

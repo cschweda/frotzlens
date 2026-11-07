@@ -167,9 +167,10 @@ test('play: the sample runs in the sandboxed player, and a command gets an answe
   await expect(iframe).toHaveAttribute('sandbox', 'allow-scripts')
   const game = page.frameLocator('iframe[title$="playing in Parchment"]')
   await expect(game.locator('.BufferWindow')).toContainText('THE DARK CELLAR')
-  await game.locator('input.LineInput').fill('look')
+  // A command only the running game can answer: the lantern is in the Hall.
+  await game.locator('input.LineInput').fill('take lantern')
   await game.locator('input.LineInput').press('Enter')
-  await expect(game.locator('.BufferWindow')).toContainText('>look')
+  await expect(game.locator('.BufferWindow')).toContainText('Taken.')
   // The game can't reach Frotzlens: its origin is opaque.
   expect(await page.frames().find(f => f.url().includes('/play/index.html'))!.evaluate(() => window.origin)).toBe('null')
   expect(errors).toEqual([])

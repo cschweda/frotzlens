@@ -10,7 +10,8 @@ vendored, not written for Frotzlens: copied byte for byte from [Frotzsmith](http
 | ifvms / ZVM (pure-JS Z-machine) | https://github.com/curiousdannii/ifvms.js | MIT |
 | jQuery | https://jquery.com | MIT |
 
-See each upstream project for the full license text.
+`main.js` also bundles [GlkOte](https://github.com/erkyrath/glkote) (MIT, Andrew Plotkin). Each
+project's copyright and permission notice is in [`THIRD-PARTY-NOTICES.txt`](THIRD-PARTY-NOTICES.txt).
 
 ## How Frotzlens runs it
 

@@ -8,10 +8,10 @@
     },
     {
       "path": "public/play/web/zvm.js",
-      "sha256": "0fe07f13807e058fd1894efe15272f6684ecccedead7002d5ea66ce7e316c28c",
+      "sha256": "843b35b2c5e8b1f544edea225158eb9ff82976e4ed34c053639cab39b10f634f",
       "source": "Parchment web build (github.com/curiousdannii/parchment, MIT). Vendored into Frotzsmith 2026-06-28 (commit c776d55), copied into Frotzlens 2026-11-07 byte for byte; the exact upstream release was not recorded then. ZVM is ifvms.js (github.com/curiousdannii/ifvms.js, MIT) as bundled by Parchment.",
       "upstreamSha256": "4aa639f3d644e8696656671006e54484c87a1beff71e1fb28565fd1443f68abf",
-      "patched": "2026-11-04 audit F2: Unicode-table U+E000/C0 → U+FFFD and \\n/U+2028/U+2029 escaped in the abbreviation JIT, plus a header comment. See the header of the file and tools/ifvms-text-fix.mjs."
+      "patched": "Frotzsmith's audit 2026-11-04 F2: Unicode-table U+E000/C0 → U+FFFD and \\n/U+2028/U+2029 escaped in the abbreviation JIT, plus a header comment (repointed at this repository's files on 2026-11-07). The edits are listed in apps/web/scripts/vendored-zvm-patch.mjs; check-vendored.mjs undoes them and compares with upstreamSha256."
     },
     {
       "path": "public/play/web/ie.js",

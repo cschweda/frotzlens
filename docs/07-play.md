@@ -19,7 +19,7 @@ Frotzsmith plays stories its author just compiled. Frotzlens opens anyone's file
   - No `'unsafe-inline'` for scripts: the page's script is `play.js`.
   - `frame-ancestors 'self'` and `X-Frame-Options: SAMEORIGIN`, so only Frotzlens can embed it.
   - `Access-Control-Allow-Origin: *`, because the opaque origin loads Parchment's ES modules, which need CORS. These are public static files.
-- **Patched ZVM.** Frotzsmith's audit fix (F2) closes the known ways a story's text could break out of ZVM's generated code. The vendored files are checked by sha256 in CI (`scripts/check-vendored.mjs`), and `zvm.js` with the patch undone must equal the original download. See `public/play/web/README.md`.
+- **Patched ZVM.** Frotzsmith's audit fix (F2) closes the known ways a story's text could break out of ZVM's generated code. The vendored files are checked by sha256 in CI (`apps/web/scripts/check-vendored.mjs`), and `zvm.js` with the patch undone must equal the original download. See `apps/web/public/play/web/README.md` and its `THIRD-PARTY-NOTICES.txt`.
 
 ## Checked
 

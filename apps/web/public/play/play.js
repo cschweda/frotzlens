@@ -26,6 +26,11 @@
     var s = document.createElement('script')
     s.type = 'module'
     s.src = 'web/main.js'
+    // If the player itself can't load, say so instead of leaving a blank frame.
+    s.onerror = function () {
+      document.getElementById('errorcontent').textContent = 'The player could not be loaded. Reload the page to try again.'
+      document.getElementById('errorpane').style.display = ''
+    }
     document.body.appendChild(s)
   })
 
