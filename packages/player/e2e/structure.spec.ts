@@ -126,7 +126,7 @@ test.describe('axe in every state (docs/13 §4)', () => {
     await page.setViewportSize({ width: 320, height: 640 })
     await axe(page)
     await openSettings(page)
-    await page.getByLabel('Size').selectOption('200')
+    await page.getByRole('group', { name: 'Text size' }).getByRole('radio', { name: '200%' }).check()
     await page.keyboard.press('Escape')
     await axe(page)
   })

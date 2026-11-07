@@ -6,11 +6,19 @@
 import type { Settings } from '../settings.js'
 import ZDialog from './ZDialog.vue'
 
-defineProps<{ open: boolean }>()
+withDefaults(defineProps<{ open: boolean; dyslexic?: boolean }>(), { dyslexic: true })
 const emit = defineEmits<{ close: [] }>()
 const model = defineModel<Settings>({ required: true })
 
 const set = <K extends keyof Settings>(k: K, v: Settings[K]) => (model.value = { ...model.value, [k]: v })
+
+type NumberKey = 'size' | 'lineLength' | 'lineSpacing' | 'letterSpacing'
+const GROUPS: { key: NumberKey; legend: string; options: [number, string][] }[] = [
+  { key: 'size', legend: 'Text size', options: [90, 100, 115, 130, 150, 175, 200].map(v => [v, `${v}%`]) },
+  { key: 'lineLength', legend: 'Line length', options: [[55, 'Narrow'], [70, 'Medium'], [90, 'Wide'], [0, 'Full width']] },
+  { key: 'lineSpacing', legend: 'Line spacing', options: [1.4, 1.6, 1.8, 2, 2.4].map(v => [v, String(v)]) },
+  { key: 'letterSpacing', legend: 'Letter spacing', options: [[0, 'Normal'], [0.05, 'Wider'], [0.12, 'Widest']] },
+]
 </script>
 
 <template>
@@ -23,36 +31,15 @@ const set = <K extends keyof Settings>(k: K, v: Settings[K]) => (model.value = {
     </fieldset>
     <fieldset>
       <legend>Font</legend>
-      <label v-for="f in [['default', 'Standard'], ['dyslexic', 'OpenDyslexic'], ['mono', 'Monospace']] as const" :key="f[0]">
+      <label v-for="f in ([['default', 'Standard'], ['dyslexic', 'OpenDyslexic'], ['mono', 'Monospace']] as const).filter(x => dyslexic || x[0] !== 'dyslexic')" :key="f[0]">
         <input type="radio" name="zp-font" :value="f[0]" :checked="model.font === f[0]" @change="set('font', f[0])"> {{ f[1] }}
       </label>
     </fieldset>
-    <fieldset>
-      <legend>Text</legend>
-      <label>Size
-        <select :value="model.size" @change="set('size', Number(($event.target as HTMLSelectElement).value))">
-          <option v-for="s in [90, 100, 115, 130, 150, 175, 200]" :key="s" :value="s">{{ s }}%</option>
-        </select>
-      </label>
-      <label>Line length
-        <select :value="model.lineLength" @change="set('lineLength', Number(($event.target as HTMLSelectElement).value))">
-          <option :value="55">Narrow</option>
-          <option :value="70">Medium</option>
-          <option :value="90">Wide</option>
-          <option :value="0">Full width</option>
-        </select>
-      </label>
-      <label>Line spacing
-        <select :value="model.lineSpacing" @change="set('lineSpacing', Number(($event.target as HTMLSelectElement).value))">
-          <option v-for="s in [1.4, 1.6, 1.8, 2, 2.4]" :key="s" :value="s">{{ s }}</option>
-        </select>
-      </label>
-      <label>Letter spacing
-        <select :value="model.letterSpacing" @change="set('letterSpacing', Number(($event.target as HTMLSelectElement).value))">
-          <option :value="0">Normal</option>
-          <option :value="0.05">Wider</option>
-          <option :value="0.12">Widest</option>
-        </select>
+    <!-- Radio groups, not <select>s: WebKit's own select markup trips a strict CSP (docs/15 §1). -->
+    <fieldset v-for="g in GROUPS" :key="g.key">
+      <legend>{{ g.legend }}</legend>
+      <label v-for="o in g.options" :key="o[0]">
+        <input type="radio" :name="`zp-${g.key}`" :value="o[0]" :checked="model[g.key] === o[0]" @change="set(g.key, o[0])"> {{ o[1] }}
       </label>
     </fieldset>
     <fieldset>

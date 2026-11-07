@@ -27,7 +27,7 @@ test('R2: light (AA) and high contrast (AAA) themes; the choice is remembered', 
 test('R3: at 200% text and at 320 px, nothing is lost and nothing scrolls sideways', async ({ page }) => {
   await open(page)
   await openSettings(page)
-  await page.getByLabel('Size').selectOption('200')
+  await page.getByRole('group', { name: 'Text size' }).getByRole('radio', { name: '200%' }).check()
   await page.keyboard.press('Escape')
   await play(page, 'look')
   for (const width of [1280, 320]) {

@@ -322,7 +322,7 @@ async function goBack() {
 // ── settings applied (custom properties, no inline style attributes) ──────
 const loadedFonts = new Set<string>()
 async function ensureFont() {
-  if (settings.value.font !== 'dyslexic' || loadedFonts.has('dyslexic') || typeof FontFace === 'undefined') return
+  if (settings.value.font !== 'dyslexic' || !props.fontBase || loadedFonts.has('dyslexic') || typeof FontFace === 'undefined') return
   loadedFonts.add('dyslexic')
   const faces: [string, FontFaceDescriptors][] = [
     ['OpenDyslexic-Regular.woff2', {}],
@@ -340,14 +340,12 @@ async function ensureFont() {
   }
 }
 
+/**
+ * The text settings are data attributes on the root, matched by plain CSS rules (player.css), not
+ * inline styles: WebKit counts even script-set style properties against `style-src`, and an
+ * embedder's CSP may not allow them.
+ */
 function applySettings() {
-  const el = root.value
-  if (!el) return
-  const st = settings.value
-  el.style.setProperty('--zp-size', `${st.size}%`)
-  el.style.setProperty('--zp-measure', st.lineLength ? `${st.lineLength}ch` : 'none')
-  el.style.setProperty('--zp-leading', String(st.lineSpacing))
-  el.style.setProperty('--zp-tracking', `${st.letterSpacing}em`)
   ensureFont()
 }
 watch(settings, applySettings, { deep: true })
@@ -370,6 +368,10 @@ defineExpose({ focusCommand: () => commandLine.value?.focus(), state: s, seed })
     :data-theme="settings.theme"
     :data-font="settings.font"
     :data-motion="settings.motion"
+    :data-size="settings.size"
+    :data-measure="settings.lineLength"
+    :data-leading="String(settings.lineSpacing).replace('.', '_')"
+    :data-tracking="String(settings.letterSpacing).replace('.', '_')"
     @keydown.capture="onKeydown"
   >
     <ZStatusBar v-if="statusBar" :left="s.status.left" :right="s.status.right" />
@@ -390,7 +392,7 @@ defineExpose({ focusCommand: () => commandLine.value?.focus(), state: s, seed })
       @shortcuts="dialogs.shortcuts = true"
     />
     <ZAnnouncer ref="announcer" />
-    <ZSettings v-model="settings" :open="dialogs.settings" @close="dialogs.settings = false" />
+    <ZSettings v-model="settings" :open="dialogs.settings" :dyslexic="!!fontBase" @close="dialogs.settings = false" />
     <ZShortcuts v-model="bindings" :open="dialogs.shortcuts" :mac="mac" @close="dialogs.shortcuts = false" />
     <ZRestoreDialog :open="dialogs.restore" @choose="onRestoreChosen" @cancel="onRestoreCancel" />
   </div>

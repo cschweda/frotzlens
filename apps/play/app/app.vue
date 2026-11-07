@@ -66,6 +66,8 @@ function onWindowDrop(e: DragEvent) {
   if (f) fromFile(f)
 }
 
+const exporting = ref(false)
+
 const parchmentLink = computed(() => (story.value?.url ? `${site.parchmentUrl}/?story=${encodeURIComponent(story.value.url)}` : null))
 
 function anotherStory() {
@@ -93,6 +95,9 @@ function skip(e: MouseEvent) {
           <UButton v-if="parchmentLink" color="neutral" variant="ghost" icon="i-lucide-external-link" :to="parchmentLink" target="_blank" rel="noopener">
             <span class="hidden sm:inline">Open in Parchment</span><span class="sr-only sm:hidden">Open in Parchment</span>
           </UButton>
+          <UButton v-if="story" color="neutral" variant="ghost" icon="i-lucide-download" @click="exporting = true">
+            <span class="hidden sm:inline">Export</span><span class="sr-only sm:hidden">Export this story</span>
+          </UButton>
           <UButton v-if="story" color="neutral" variant="outline" icon="i-lucide-file-plus" @click="anotherStory">
             <span class="hidden sm:inline">Another story</span><span class="sr-only sm:hidden">Open another story</span>
           </UButton>
@@ -104,6 +109,7 @@ function skip(e: MouseEvent) {
       </main>
       <AppFooter />
       <AboutDialogs :changelog="changelog" />
+      <ExportDialog v-if="story" v-model:open="exporting" :story="story" />
     </div>
   </UApp>
 </template>

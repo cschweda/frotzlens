@@ -88,6 +88,27 @@
   --zp-c9: #ffffff;
 }
 
+/* The text settings, as data attributes (no inline styles: CSP-safe in every browser). */
+.zp[data-size='90'] { --zp-size: 90%; }
+.zp[data-size='100'] { --zp-size: 100%; }
+.zp[data-size='115'] { --zp-size: 115%; }
+.zp[data-size='130'] { --zp-size: 130%; }
+.zp[data-size='150'] { --zp-size: 150%; }
+.zp[data-size='175'] { --zp-size: 175%; }
+.zp[data-size='200'] { --zp-size: 200%; }
+.zp[data-measure='55'] { --zp-measure: 55ch; }
+.zp[data-measure='70'] { --zp-measure: 70ch; }
+.zp[data-measure='90'] { --zp-measure: 90ch; }
+.zp[data-measure='0'] { --zp-measure: none; }
+.zp[data-leading='1_4'] { --zp-leading: 1.4; }
+.zp[data-leading='1_6'] { --zp-leading: 1.6; }
+.zp[data-leading='1_8'] { --zp-leading: 1.8; }
+.zp[data-leading='2'] { --zp-leading: 2; }
+.zp[data-leading='2_4'] { --zp-leading: 2.4; }
+.zp[data-tracking='0'] { --zp-tracking: 0em; }
+.zp[data-tracking='0_05'] { --zp-tracking: 0.05em; }
+.zp[data-tracking='0_12'] { --zp-tracking: 0.12em; }
+
 .zp[data-font='dyslexic'] { --zp-font: 'OpenDyslexic', 'Segoe UI', system-ui, sans-serif; }
 .zp[data-font='mono'] { --zp-font: var(--zp-mono); }
 
@@ -225,16 +246,7 @@
 .zp-dialog fieldset { margin: 0 0 1rem; padding: 0.5rem 0.75rem 0.75rem; border: 1px solid var(--zp-rule); border-radius: 8px; }
 .zp-dialog legend { padding: 0 0.25rem; font-weight: 600; }
 .zp-dialog label { display: inline-flex; align-items: center; gap: 0.4rem; min-height: 2rem; margin-right: 1rem; }
-.zp-dialog select, .zp-dialog input[type='file'] { font: inherit; color: var(--zp-ink); background: var(--zp-panel); border: 1px solid var(--zp-rule); border-radius: 6px; min-height: 2.5rem; padding: 0.25rem 0.5rem; }
-/* Native selects ignore min-height in Safari; drawn by hand, with an arrow from two gradients (no URL, so CSP-safe). */
-.zp-dialog select {
-  appearance: none;
-  padding-right: 2rem;
-  background-image: linear-gradient(45deg, transparent 50%, currentColor 50%), linear-gradient(135deg, currentColor 50%, transparent 50%);
-  background-position: calc(100% - 1.05rem) 52%, calc(100% - 0.7rem) 52%;
-  background-size: 0.35rem 0.35rem;
-  background-repeat: no-repeat;
-}
+.zp-dialog input[type='file'] { font: inherit; color: var(--zp-ink); background: var(--zp-panel); border: 1px solid var(--zp-rule); border-radius: 6px; min-height: 2.5rem; padding: 0.25rem 0.5rem; }
 .zp-dialog input[type='radio'], .zp-dialog input[type='checkbox'] { width: 1.625rem; height: 1.625rem; accent-color: var(--zp-lamp); }
 .zp-dialog__actions { display: flex; flex-wrap: wrap; gap: 0.5rem; justify-content: flex-end; margin-top: 1rem; }
 .zp-dialog table { width: 100%; border-collapse: collapse; }

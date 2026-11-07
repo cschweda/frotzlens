@@ -10,3 +10,4 @@ export { turnAnnouncement, statusSentence, timedNotice, type Verbosity } from '.
 export { DEFAULTS as DEFAULT_SETTINGS, loadSettings, saveSettings, type Settings, type Theme, type Font } from './settings.js'
 export { ACTIONS, DEFAULT_BINDINGS, describe as describeBinding, type Action, type Binding } from './shortcuts.js'
 export { keyToZscii } from './keys.js'
+export { bundle, bundleFolder, zip, crc32, slugOf, type BundleOptions, type ExportedFile } from './export.js'

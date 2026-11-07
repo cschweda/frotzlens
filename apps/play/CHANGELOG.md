@@ -5,6 +5,7 @@ All notable changes to frotzplay: the web player at frotzplay.frotzinc.com, and 
 ## [Unreleased]
 
 ### Added
+- **Export** (Phase 5): the story you're playing, as one HTML file that plays from a double-click, or a folder (.zip) for any web host; made in the browser.
 - **The site** (Phase 4, [docs/14](../../docs/14-frotzplay-phase-4-site.md)): the family shell; the start page (drop zone, *Choose a file*, the four samples, the Parchment pointer); the player filling the page; `?sample=`, `?story=` (this site, or another with CORS; worded errors otherwise), a story handed over by the opening window; Blorb titles, authors and covers; *Another story*, *Open in Parchment*; About crediting Parchment and ZVM; one theme for page and player; a PWA. Tested in three browsers against the built site with the production headers.
 - **The social card and icons:** `public/og-image.svg` (rendered to `og-image.png`, 1200 × 630), in the family's style: an amber tile with frotzplay's mark (a play triangle as the Z-machine prompt, its cursor beside it), the wordmark, and a faint Dark Cellar session behind. `logo.svg`, `favicon.svg` and the PNG icons (32, 180, 192, 512).
 - **SEO, ready for the site:** `site.config.ts` (identity, canonical URL, the start page's samples), `seo.ts` (title, description, Open Graph and Twitter cards, canonical, icons, theme colours, schema.org JSON-LD with accessibility properties), `scripts/seo-files.mjs` (`robots.txt`, `sitemap.xml`).

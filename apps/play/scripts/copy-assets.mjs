@@ -10,4 +10,6 @@ const pub = new URL('../public/', import.meta.url)
 mkdirSync(new URL('samples/', pub), { recursive: true })
 for (const f of files) cpSync(new URL(`../../../samples/${f}`, import.meta.url), new URL(`samples/${f}`, pub))
 cpSync(new URL('../../../packages/player/fonts/', import.meta.url), new URL('fonts/', pub), { recursive: true })
-console.log(`copy-assets: ${files.length} samples, the fonts`)
+// The <frotz-play> element (built by @frotzinc/player), which Export puts into what it makes.
+cpSync(new URL('../../../packages/player/dist/frotz-play.js', import.meta.url), new URL('frotz-play.js', pub))
+console.log(`copy-assets: ${files.length} samples, the fonts, frotz-play.js`)

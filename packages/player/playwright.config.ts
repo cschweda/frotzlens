@@ -17,5 +17,9 @@ export default defineConfig({
     { name: 'firefox', use: { ...devices['Desktop Firefox'] } },
     { name: 'webkit', use: { ...devices['Desktop Safari'] } },
   ],
-  webServer: { command: 'pnpm preview', url: `http://localhost:${PORT}`, reuseExistingServer: !process.env.CI, timeout: 120_000 },
+  webServer: [
+    { command: 'pnpm preview', url: `http://localhost:${PORT}`, reuseExistingServer: !process.env.CI, timeout: 120_000 },
+    // The embed test's page: <frotz-play> (dist/frotz-play.js: run `pnpm build` first) under a strict CSP.
+    { command: 'node e2e/embed-server.mjs', url: 'http://localhost:4182/embed.css', reuseExistingServer: !process.env.CI },
+  ],
 })

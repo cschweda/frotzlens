@@ -1,0 +1,3 @@
+html, body { margin: 0; background: #0e1116; color: #e6dfcf; font-family: system-ui, sans-serif; }
+main { max-width: 60rem; margin: 0 auto; padding: 1rem; }
+frotz-play { height: 80vh; }
