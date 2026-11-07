@@ -4,7 +4,8 @@ All notable changes to `@frotzinc/zcode`. Versions follow [Semantic Versioning](
 
 ## [Unreleased]
 
-- `decompileInform(story, { symbols })`: an Inform story back to Inform 6 source (Phase 6a, with a debug file). The library as `Include`s; the game's constants, globals, arrays, attributes, properties, classes (read from the prototype Inform keeps after each class object), objects and grammar (`Verb`, `Extend`, synonyms) as Inform declares them; routines as Inform assembly with names for what they refer to. Every debug fixture (all version 5) recompiles to an equivalent story, 11 of 12 to the same bytes after the header (`test/decompile.test.ts`).
+- `decompileInform(story, { symbols })`: an Inform story back to Inform 6 source (Phase 6a, with a debug file). The library as `Include`s; the game's constants, globals, arrays, attributes, properties, classes (read from the prototype Inform keeps after each class object), objects and grammar (`Verb`, `Extend`, synonyms) as Inform declares them; routines as Inform assembly with names for what they refer to. Every debug fixture (versions 3, 4, 5 and 8, one in economy mode) recompiles to an equivalent story, 15 of 16 to the same bytes after the header (`test/decompile.test.ts`).
+- The version-3, -4 and -8 fixtures and the economy-mode one are built with debug files too (the same story bytes), so the veneer signatures and the decompiler's proof cover every version; v3 and v4 veneer routines are now recognised.
 - `readSymbols` keeps every declaration's place in the source (`symbols.declarations`, and `position` in a location).
 
 ## [0.2.0] - 2026-11-07

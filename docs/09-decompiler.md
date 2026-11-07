@@ -103,7 +103,7 @@ This is the part that makes the output trustworthy, and the main test:
 `decompileInform(story, { symbols })` in `@frotzinc/zcode` writes the `.inf`. This first cut needs the story's `gameinfo.dbg`; working without one (§3a's matching) is the rest of 6a.
 
 **What it writes**
-- `!%` switches when the story shows them (strict mode off; PunyInform's `$OMIT_UNUSED_ROUTINES`), `Release`, `Serial`, and a `Replace` for each library routine the game wrote its own of.
+- `!%` switches when the story shows them (strict mode off; PunyInform's `$OMIT_UNUSED_ROUTINES`; economy mode, with an `Abbreviate` for each abbreviation in the order their text is stored), `Release`, `Serial`, and a `Replace` for each library routine the game wrote its own of.
 - The game's constants, globals, arrays, attributes, properties, classes and objects, in the source's order, with each library `Include` placed as late as the numbering allows.
 - **Classes from the story itself.** Inform keeps each class's prototype (its attributes and the common properties its instances inherit) right after the class object's property table, so a class is written exactly, and an instance only with what it adds.
 - **Properties in the order the compiler met them,** found from the strings and embedded routines they hold (Inform lays both out in that order), and the game's individual properties declared in number order before the first object that has one.
@@ -112,16 +112,15 @@ This is the part that makes the output trustworthy, and the main test:
   - in code: a dictionary word, then a string, a routine, an array;
   - in a property: a routine, then a string, a word, an array;
   - in an array or a global's starting value: a string, then a routine, a word, an array;
-  - in the veneer: only its own strings (its other numbers are masks and table addresses).
+  - in the veneer: only the strings it passes to `RT__Err` (its messages); its other numbers are masks and table addresses, which in a version-8 story often equal a string's packed address.
 - The veneer, as assembly, at the end: the routines above call it by name, which Inform only allows when the source defines it.
 
-**Proof** (`test/decompile.test.ts`): each of the 12 debug fixtures (Standard Library, PunyInform and library-free; all version 5, since the v3, v4 and v8 fixtures are built without debug files) is decompiled, compiled again with `inform6-wasm`, and compared part by part. All 12 are equivalent; 11 are the same bytes after the header (the first 64 bytes, which interpreters change, aren't compared). mingus-1 lists one property name in a different place in Inform's identifier table, which nothing reads.
+**Proof** (`test/decompile.test.ts`): each of the 16 debug fixtures (Standard Library, PunyInform and library-free; versions 3, 4, 5 and 8; one in economy mode, with abbreviations) is decompiled, compiled again with `inform6-wasm`, and compared part by part. All 16 are equivalent; 15 are the same bytes after the header (the first 64 bytes, which interpreters change, aren't compared). mingus-1 lists one property name in a different place in Inform's identifier table, which nothing reads.
 
 **Known limits, for the next steps**
 - The veneer's own numbers are addresses of the story's tables (where the strings start, the class table), which Inform names only inside the veneer. They're right when the rebuilt story keeps the original layout, as every fixture's does. 6d removes the veneer from the output by writing its calls as the syntax that makes them.
 - PunyInform's compact grammar (GV3) keeps routine tokens in a way not yet read; a game line with one is left out and reported.
 - A file the story included that isn't one of the library's (the game's own, or an extension `inform6-wasm` doesn't have) is written out as the game's, and reported.
-- Versions 3, 4 and 8 aren't proved yet: no debug fixture is built for them.
 
 ## 6. Risks
 

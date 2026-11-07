@@ -25,9 +25,9 @@ export const FIXTURES = [
   { name: 'dark-cellar', src: 'dark-cellar', version: 'z5', debug: true },
   // The Standard Library 6.12 needs v5+ (v3 has too few properties and call arguments, v4 lacks
   // tokenise, save_undo and check_arg_count), so the v3 and v4 builds are the PunyInform port.
-  { name: 'puny-dark-cellar-v3', src: 'puny-dark-cellar', version: 'z3', library: 'puny' },
-  { name: 'puny-dark-cellar-v4', src: 'puny-dark-cellar', version: 'z4', library: 'puny' },
-  { name: 'dark-cellar-v8', src: 'dark-cellar', version: 'z8' },
+  { name: 'puny-dark-cellar-v3', src: 'puny-dark-cellar', version: 'z3', library: 'puny', debug: true },
+  { name: 'puny-dark-cellar-v4', src: 'puny-dark-cellar', version: 'z4', library: 'puny', debug: true },
+  { name: 'dark-cellar-v8', src: 'dark-cellar', version: 'z8', debug: true },
   { name: 'puny-dark-cellar', src: 'puny-dark-cellar', version: 'z5', library: 'puny', debug: true },
   { name: 'locked-chest', src: 'locked-chest', version: 'z5', debug: true },
   { name: 'hermit', src: 'hermit', version: 'z5', debug: true },
@@ -40,7 +40,7 @@ export const FIXTURES = [
   { name: 'gv1', src: 'gv1', version: 'z5', debug: true },
   { name: 'minimal', src: 'minimal', version: 'z5', debug: true },
   // Economy mode (-e): the only fixture with a real abbreviation table.
-  { name: 'abbrev', src: 'abbrev', version: 'z5' },
+  { name: 'abbrev', src: 'abbrev', version: 'z5', debug: true },
 ]
 
 /** Every fixture's story file name (e.g. `dark-cellar.z5`). */
