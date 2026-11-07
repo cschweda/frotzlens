@@ -50,7 +50,7 @@ const reference = await findReference(story, async (src, library, version) => {
 const { source: inf } = decompileInform(story, { symbols: inferSymbols(story, reference!) })
 ```
 
-Turns an Inform-compiled story back into one `.inf` (Phase 6, [design](../../docs/09-decompiler.md)). `decompileChecked(story, symbols, compile)` writes the routines as statements (6b), each checked by compiling it again. So far: with the story's debug file or without one, the library left out as `Include`s, the game's declarations, classes, objects and grammar as Inform writes them, and its routines as statements, with their branches as Inform assembly. Every fixture (versions 3, 4, 5 and 8) recompiles to an equivalent story either way; with its debug file all but one to the same bytes after the header, without it nine of sixteen.
+Turns an Inform-compiled story back into one `.inf` (Phase 6, [design](../../docs/09-decompiler.md)). `decompileChecked(story, symbols, compile)` writes the routines as statements (6b) with their control flow (6c), each checked by compiling it again. So far: with the story's debug file or without one, the library left out as `Include`s, the game's declarations, classes, objects and grammar as Inform writes them, and its routines as statements with `if`, `while`, `do` and `switch`. Every fixture (versions 3, 4, 5 and 8) recompiles to an equivalent story either way; with its debug file all but one to the same bytes after the header, without it nine of sixteen.
 
 ## infodump-format text
 

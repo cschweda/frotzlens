@@ -54,7 +54,19 @@ function same(a: string, b: string): boolean {
   })
 }
 
-/** The original's routines (by their place in the code) that the recompiled story has otherwise. */
+/**
+ * The original's routines (by address) whose instructions themselves differ in the recompiled story
+ * (another opcode, operand kind, store or branch), not only their values: when a routine changes
+ * size everything after it moves, and a number nobody named moves with it.
+ */
+export function structurallyDifferingRoutines(original: StoryFile, recompiled: StoryFile): number[] {
+  const skeleton = (r: Routine) => `${r.locals}:${r.initialValues.join(',')}:` + r.instructions.map(i => `${i.name} ${i.operands.map(o => o.kind[0]).join('')}${i.store ?? ''}${i.branch ? `?${i.branch.onTrue}${i.branch.returns ?? ''}` : ''}${i.text?.text ?? ''}`).join(';')
+  const a = original.code.routines
+  const b = recompiled.code.routines
+  return a.filter((r, k) => !b[k] || skeleton(r) !== skeleton(b[k]!)).map(r => r.address)
+}
+
+/** The original's routines (by address) that the recompiled story has otherwise. */
 export function differingRoutines(original: StoryFile, recompiled: StoryFile): number[] {
   const a = original.code.routines
   const b = recompiled.code.routines
@@ -76,33 +88,39 @@ export async function decompileChecked(
   story: StoryFile,
   symbols: Symbols,
   compile: (source: string) => Promise<{ story?: StoryFile; errorLines?: number[] }>,
-  rounds = 6,
-): Promise<Decompiled & { statements: number[]; differing: number[]; compiled: boolean }> {
+  rounds = 8,
+): Promise<Decompiled & { statements: number[]; structured: number[]; differing: number[]; compiled: boolean }> {
+  // Each routine starts structured (6c); one that doesn't come back the same drops to flat
+  // statements (6b), and then to assembly.
+  const flat = new Set<number>()
   const asm = new Set<number>()
-  let last: Decompiled = decompileInform(story, { symbols })
+  const options = () => ({ symbols, statements: (a: number) => !asm.has(a), structure: (a: number) => !flat.has(a) && !asm.has(a) })
+  const demote = (a: number) => (flat.has(a) ? asm.add(a) : flat.add(a))
   let differing: number[] = []
   let compiled = false
   for (let round = 0; round < rounds; round++) {
-    const d = decompileInform(story, { symbols, statements: a => !asm.has(a) })
+    const d = decompileInform(story, options())
     const out = await compile(d.source)
     if (!out.story) {
-      // A statement that doesn't compile: its routine goes back to assembly (by the error's line).
-      const bad = (out.errorLines ?? []).map(l => d.lineRoutines[l - 1]).filter((a): a is number => a !== undefined && !asm.has(a))
+      // A statement that doesn't compile: its routine drops a level (by the error's line).
+      const bad = [...new Set((out.errorLines ?? []).map(l => d.lineRoutines[l - 1]).filter((a): a is number => a !== undefined && !asm.has(a)))]
       if (!bad.length) break
-      for (const a of bad) asm.add(a)
+      for (const a of bad) demote(a)
       continue
     }
     compiled = true
     differing = differingRoutines(story, out.story)
-    last = d
     // Only a routine written as statements can be put right; another differs because they moved it.
     const written = new Set(d.statementRoutines)
     const fresh = differing.filter(a => !asm.has(a) && written.has(a))
     if (!fresh.length) break
-    for (const a of fresh) asm.add(a)
+    // Those whose instructions differ first: the rest may differ only because those moved them.
+    const structural = new Set(structurallyDifferingRoutines(story, out.story))
+    const real = fresh.filter(a => structural.has(a))
+    for (const a of real.length ? real : fresh) demote(a)
   }
-  // The source as it finally stands (the last round may have put more routines back to assembly).
-  last = compiled ? decompileInform(story, { symbols, statements: a => !asm.has(a) }) : decompileInform(story, { symbols })
+  // The source as it finally stands (the last round may have dropped more routines a level).
+  const last = compiled ? decompileInform(story, options()) : decompileInform(story, { symbols })
   const statements = last.statementRoutines.filter(a => !asm.has(a))
-  return { ...last, statements, differing, compiled }
+  return { ...last, statements, structured: statements.filter(a => !flat.has(a)), differing, compiled }
 }

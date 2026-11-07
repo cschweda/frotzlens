@@ -29,6 +29,11 @@ export interface DecompileOptions {
    * any routine whose statements don't compile back to the same instructions.
    */
   statements?: boolean | ((address: number) => boolean)
+  /**
+   * Phase 6c: with statements, write the routines' branches and jumps as if, else, while and do
+   * where they're in the shapes Inform compiles those to: for all, or those this says yes to.
+   */
+  structure?: boolean | ((address: number) => boolean)
 }
 
 export interface Decompiled {
@@ -223,7 +228,7 @@ export function decompileInform(story: StoryFile, opts: DecompileOptions): Decom
           // By name once it's declared (the library's are, by its Include): a name the compiler
           // doesn't know yet is written in two bytes, as this one-byte number isn't.
           object: o => (o > METACLASSES && o <= objectCount && sym.objects[o] && (!gameObjects.has(o) || declaredObjects.has(o)) ? sym.objects[o] : undefined),
-        })
+        }, opts.structure === true || (typeof opts.structure === 'function' && opts.structure(r.address)), !!sym.routines[r.address]?.artificial)
       : routineBody(r, names)
     // A routine counts as statements only when it has one (not one that's all branches).
     if (asStatements && body.some(l => !/^\s*[@.]/.test(l))) statementRoutines.push(r.address)
