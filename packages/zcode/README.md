@@ -36,12 +36,21 @@ The model is plain data: it survives `structuredClone` (so it crosses a worker b
 ## Inform 6 source (in progress)
 
 ```ts
-import { parseStory, readSymbols, decompileInform } from '@frotzinc/zcode'
+import { parseStory, readSymbols, decompileInform, findReference, inferSymbols } from '@frotzinc/zcode'
 
 const { source, problems } = decompileInform(parseStory(bytes), { symbols: readSymbols(gameinfoDbg) })
+
+// Without a debug file: compile the library alone as the story was set up, and work out the rest.
+import { compile } from '@frotzinc/inform6-wasm'
+const story = parseStory(bytes)
+const reference = await findReference(story, async (src, library, version) => {
+  const out = await compile(src, { library, version, debug: true })
+  return out.ok && out.story && out.dbg ? { story: parseStory(out.story), symbols: readSymbols(out.dbg) } : undefined
+})
+const { source: inf } = decompileInform(story, { symbols: inferSymbols(story, reference!) })
 ```
 
-Turns an Inform-compiled story back into one `.inf` (Phase 6, [design](../../docs/09-decompiler.md)). So far: with the story's debug file, the library left out as `Include`s, the game's declarations, classes, objects and grammar as Inform writes them, and its routines as Inform assembly. Every debug fixture (versions 3, 4, 5 and 8) recompiles to an equivalent story, and all but one to the same bytes after the header.
+Turns an Inform-compiled story back into one `.inf` (Phase 6, [design](../../docs/09-decompiler.md)). So far: with the story's debug file or without one, the library left out as `Include`s, the game's declarations, classes, objects and grammar as Inform writes them, and its routines as Inform assembly. Every fixture (versions 3, 4, 5 and 8) recompiles to an equivalent story either way; with its debug file all but one to the same bytes after the header, without it nine of sixteen.
 
 ## infodump-format text
 
