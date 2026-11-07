@@ -49,7 +49,7 @@ frotzplay is a sibling of [Parchment](https://github.com/curiousdannii/parchment
 | **Saves** | Quetzal 1.4. A save made here and one made in ZVM are the same bytes, and each restores in both. |
 | **Player** | [`@frotzinc/player`](../../packages/player) ([Phase 3](../../docs/13-frotzplay-phase-3-player.md)): the [accessibility contract](../../docs/accessibility.md) built in, 87 Playwright tests in three browsers with axe in every state. |
 | **Site** | This app ([Phase 4](../../docs/14-frotzplay-phase-4-site.md)): the start page with the samples, every way a story arrives (a file, a sample, `?story=`, a handover from Frotzlens), Blorb covers and titles, one theme for page and player, offline as a PWA. 38 Playwright tests in three browsers, with the production CSP. |
-| **Embed, export** | Next: [Phase 5](../../docs/frotzplay-design.md). |
+| **Embed, export** | [Phase 5](../../docs/15-frotzplay-phase-5-embed-export.md): `<frotz-play>`, one script that embeds under `script-src 'self'; style-src 'self'` (tested in three browsers); *Export* the story you're playing as one HTML file or a folder, both playing from a double-click. Publishing to npm comes next. |
 
 ## Screenshots
 
