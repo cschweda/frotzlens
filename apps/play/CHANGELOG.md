@@ -2,6 +2,11 @@
 
 All notable changes to frotzplay: the web player at frotzplay.frotzinc.com, and this repository. Versions follow [Semantic Versioning](https://semver.org/). Part of [Frotz, Inc.](https://frotzinc.com).
 
+## [0.1.3] - 2026-11-07
+
+### Changed
+- frotzplay.netlify.app redirects (301, every path) to frotzplay.frotzinc.com, so the site has one address. The rule is in `public/_redirects` and applies only on the netlify.app host.
+
 ## [0.1.2] - 2026-11-07
 
 ### Added

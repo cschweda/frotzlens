@@ -1,0 +1,4 @@
+# One address: frotzplay.netlify.app (every path, query kept) goes to frotzplay.frotzinc.com.
+# A rule with a host applies only on that host, so the custom domain and deploy previews are
+# untouched. Forced (!) so it applies where a file exists, too. Nitro adds its own rules after these.
+https://frotzplay.netlify.app/*  https://frotzplay.frotzinc.com/:splat  301!

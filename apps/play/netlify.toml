@@ -38,9 +38,9 @@
 # Custom redirects belong in apps/play/public/_redirects: Nitro's netlify
 # preset emits its own `_redirects` catch-all that shadows [[redirects]] here.
 
-# Security headers. frotzplay uploads nothing and loads nothing from another
-# origin for itself: no analytics, no CDN, fonts self-hosted. A dropped story
-# is read locally.
+# Security headers. frotzplay uploads nothing and loads one thing from another
+# origin: Plausible's analytics script (https://plausible.io in script-src; page
+# views only). No CDN, fonts self-hosted. A dropped story is read locally.
 #  - 'unsafe-inline' (scripts): Nuxt's inline SPA bootstrap and the
 #    color-mode script; (styles): Nuxt UI's inline styles in the app shell.
 #    This is the hosted page only. The player itself (<frotz-play>, the
