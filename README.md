@@ -7,7 +7,7 @@
 [![Netlify Status](https://api.netlify.com/api/v1/badges/ff4e0b7c-4eed-4fb8-8d7e-25dd7e1f8e69/deploy-status)](https://app.netlify.com/projects/frotzlens/deploys)
 [![TypeScript](https://img.shields.io/badge/TypeScript-strict-3178C6.svg)](https://www.typescriptlang.org)
 [![Z-machine](https://img.shields.io/badge/Z--machine-v3%20%C2%B7%20v4%20%C2%B7%20v5%20%C2%B7%20v8-f59e0b.svg)](https://inform-fiction.org/zmachine/standards/)
-[![Status](https://img.shields.io/badge/status-v0.2.0-brightgreen.svg)](./CHANGELOG.md)
+[![Status](https://img.shields.io/badge/status-v0.3.0-brightgreen.svg)](./CHANGELOG.md)
 
 A browser-based disassembler and inspector for Z-machine story files. Drop a `.z3`, `.z4`, `.z5`, `.z8` or `.zblorb` into a tab and see what's inside: the header, the memory map, the object tree, the dictionary and grammar, every routine as cross-referenced disassembly, and every string. Everything runs in your browser; nothing is uploaded.
 
@@ -57,6 +57,7 @@ Ztools (`txd`, `infodump`), the reference Z-machine tools since the 1990s, print
 - **Everything is linked.** Every routine, string, object, dictionary word and global is a link, with cross-references both ways: what refers to it, and what it refers to. Each grammar line links its action routines, and each verb its words.
 - **The source's names.** It reads Inform's `gameinfo.dbg` and shows routines, locals, globals, properties, attributes and actions by name, with a switch back to txd's numbers.
 - **What made the story, without symbols.** It identifies the compiler and version, the library and version, and Inform's own veneer routines, by their code.
+- **Inform 6 source that's proved, not guessed.** It decompiles an Inform story to one `.inf` that reads like Inform (`if`, `while`, `objectloop`, `o.p`, `move`), with or without the debug file, and checks it by compiling it again, in the browser, routine by routine against the story. Every test game comes back equivalent, and with its debug file byte for byte. Reform (2004), the one earlier Inform decompiler, had no way to check its output.
 - **ZIL.** It reads ZILF's syntax tables, where Ztools reads past the end of the file, and checks them against the source (`SYNTAX` forms) in its tests.
 - **A map from the story file itself.** Rooms, exits, doors, and the rooms an exit routine can lead to, without playing the game.
 - **Play beside the disassembly.** The same story, in Parchment, one click from its code, sandboxed so a hostile file can't reach anything else.
@@ -73,6 +74,9 @@ Ztools (`txd`, `infodump`), the reference Z-machine tools since the 1990s, print
 | 4 | Data views | **Done.** Memory (map and hex), Objects (a keyboard-operable tree), Dictionary, Grammar, Routines (linked disassembly) and Strings, each linked to the rest and each with "Copy as text" in Ztools' format. A Playwright smoke test opens a real story, visits every view and runs axe on each; it runs in CI. Live at [frotzlens.frotzinc.com](https://frotzlens.frotzinc.com) ([details](docs/05-phase-4-data-views.md)). |
 | 5 | Debug symbols, Inform fingerprinting, Blorb, polish; Frotzlens 0.1.0 | **Done.** Blorb files open, and a `gameinfo.dbg` names routines, globals, locals, properties, attributes and actions everywhere (with a Names switch). The Overview says what made the story. New views: Globals, Abbreviations, Symbols and Map. `@frotzinc/zcode` and `frotzlens` 0.1.0 are on npm ([details](docs/06-phase-5-symbols.md)). |
 | 6 | Decompiling to Inform 6 | **Done.** An Inform story (versions 3, 4, 5 and 8, Standard Library, PunyInform or none) back to one `.inf`: the library as `Include`s; the game's objects, classes, grammar and arrays as Inform declares them; its routines as Inform with `if`, `while`, `objectloop`, `switch`, `o.p`, `move` and `give`. Each routine is checked by compiling the whole again and comparing it with the story's: on every test game, every routine comes back the same, and with its debug file every story comes back byte for byte. Without one the library is found by compiling it alone and the game's names are made up. In the app's **Source** view (checked in the browser, with Download `.inf`) and the CLI's `--inform` ([details](docs/09-decompiler.md)). |
+| 7 | Decompiling to ZIL | **Coming soon.** Phase 6's counterpart for ZILF's and Infocom's stories: the syntax tables, objects and routines back to ZIL source, checked the same way, by compiling it again (with ZILF). Inform 6 came first, by decision; the ZIL grammar decoder (0.2.0) is the start. |
+
+**0.3.0 (2026-11-07):** Phase 6, decompiling to Inform 6: the Source view and `frotzlens --inform`.
 
 **After the phases, 0.2.0 (2026-11-07):** ZIL grammar: a ZILF story's syntax tables, decoded ([details](docs/08-zil-grammar.md)). An About menu with versions, licences, the changelog, problem reports, feature requests and an update check. Everything is in the [changelog](CHANGELOG.md).
 
@@ -82,8 +86,8 @@ The plan and its decisions are in [`docs/`](docs/), starting with [`00-master-de
 
 | Package | License | | npm |
 |---|---|---|---|
-| [`@frotzinc/zcode`](packages/zcode) | MIT | The parser and disassembler: `Uint8Array` in, typed model out, plus `txd`- and `infodump`-format text, Blorb, debug symbols, fingerprinting, the room graph and ZIL grammar | [0.2.0](https://www.npmjs.com/package/@frotzinc/zcode) |
-| [`frotzlens`](packages/cli) | GPL-3.0-or-later | The CLI: `frotzlens game.z5`; also `--symbols`, `--info`, `--rooms`, `--json` | [0.2.0](https://www.npmjs.com/package/frotzlens) |
+| [`@frotzinc/zcode`](packages/zcode) | MIT | The parser and disassembler: `Uint8Array` in, typed model out, plus `txd`- and `infodump`-format text, Blorb, debug symbols, fingerprinting, the room graph, ZIL grammar and the Inform 6 decompiler | [0.2.0](https://www.npmjs.com/package/@frotzinc/zcode) (0.3.0 ready) |
+| [`frotzlens`](packages/cli) | GPL-3.0-or-later | The CLI: `frotzlens game.z5`; also `--inform`, `--symbols`, `--info`, `--rooms`, `--json` | [0.2.0](https://www.npmjs.com/package/frotzlens) (0.3.0 ready) |
 | [`@frotzinc/worker-rpc`](packages/worker-rpc) | MIT | Long-lived Web Worker request/response client | 0.1.0 |
 | [`@frotzinc/nuxt-base`](packages/nuxt-base) | MIT | Shared Frotz, Inc. Nuxt layer and Netlify tools | 0.1.0 |
 | [`@frotzinc/inform6-wasm`](packages/inform6-wasm) | MIT (wrapper) | Inform 6.44 in WebAssembly, with the Standard Library and PunyInform | 0.1.0 |
