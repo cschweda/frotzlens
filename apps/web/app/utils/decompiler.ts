@@ -9,7 +9,7 @@ export type StepState = 'done' | 'working' | 'planned'
 export const DECOMPILER_STEPS: { id: string; title: string; detail: string; state: StepState }[] = [
   { id: '6a', title: 'Declarations', detail: 'The library left out as an Include; objects, classes, attributes, properties, globals, arrays and grammar written as Inform declares them; routines as Inform assembly. Done, with or without the story\'s debug file: every test game compiles again to an equivalent story, most to the same bytes.', state: 'done' },
   { id: '6b', title: 'Expressions', detail: 'The stack followed through each routine, so pushes and pulls become expressions, calls and prints. Done: every game routine of every test game comes back as statements, each checked by compiling it again (a routine that doesn\'t come back the same stays assembly; Inform\'s own veneer routines stay assembly until 6d).', state: 'done' },
-  { id: '6c', title: 'Control flow', detail: 'if, while, for and switch rebuilt from the branches; a jump only where nothing fits.', state: 'planned' },
+  { id: '6c', title: 'Control flow', detail: 'if, while, do and switch rebuilt from the branches; a jump only where nothing fits. Done: every routine of the small test games is structured, nine in ten of the big ones, each checked by compiling it again.', state: 'done' },
   { id: '6d', title: 'Idioms and names', detail: 'obj.prop(), ofclass and the rest turned back from veneer calls; the source’s names from a debug file, or names made up from the story.', state: 'planned' },
   { id: '6e', title: 'In the app', detail: 'A Download .inf button; this view finished, for one routine or the whole game (it starts showing source at 6c); and frotzlens --inform in the CLI.', state: 'planned' },
 ]

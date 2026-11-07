@@ -139,6 +139,25 @@ This is the part that makes the output trustworthy, and the main test:
 
 **Proof** (`test/decompile.test.ts`): with and without debug files, every game routine of every fixture comes back as statements on the first try, and the stories are what they were: all 16 equivalent, the same bytes where they were before.
 
+## 5c. Progress: 6c, control flow (2026-11-07)
+
+With `structure: true` the routines' branches and jumps are written as Inform's control flow, wherever they're in the shapes Inform compiles it to (calibrated by compiling each form):
+
+| Source | Compiles to |
+|---|---|
+| `if (C) body` | a branch (when not C) past the body |
+| `if (C) A else B` | the same, A ending in a jump past B; an `else if` chain jumps straight to the end |
+| `if (C1 && C2)` / `if (C1 \|\| C2)` | branches to the same place past the body / the first into the body |
+| `while (C) body` | `.top`; branch out when not C; body; jump top |
+| `do body until (C)` | `.top`; body; branch back when not C |
+| `if (C) rtrue;` | one branch that returns (a branch past an `rtrue` is `if (C) return true;`) |
+| `switch (X) { a, b: …; default: … }` | X pulled into `temp_global`, then a `je` per case, each case jumping to the end unless it returns |
+| `Take, Drop: …` (an embedded routine's action cases) | a `je sw__var` per case, each ending in a return (Inform's own `rfalse` left out) |
+
+What's in none of those shapes stays a `jump L;` (one jump) or a branch in assembly. `decompileChecked` tries each routine structured first; one that doesn't come back the same drops to flat statements (6b), then to assembly; a routine whose instructions differ is dropped before one that only moved (when one routine changes size, others' unnamed numbers move with it).
+
+**Proof:** every game routine of every fixture is statements; in the 14 smaller fixtures every one is structured, in mingus-1 120 of 130 and architect-legacy 86 of 91. The rest are mostly where strict mode inlines its checks (`x in y` checks x is an object first), which 6d turns back into the syntax that made them. The stories are what they were.
+
 ## 6. Risks
 
 - **Library versions we haven't compiled.** The matches cover the versions `inform6-wasm` has (6.12.x, PunyInform). A story built with a different version decompiles with its whole library emitted as game code and no `Include` (§3a), so nothing is declared twice: correct, just longer.

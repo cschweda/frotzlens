@@ -85,7 +85,10 @@ describe('decompiling to Inform 6 without a debug file (6a)', () => {
  * compile back to the same instructions, the rest as assembly). Every game routine of every fixture
  * comes back as statements, and the stories as before: equivalent, and the same bytes where they were.
  */
-describe('decompiling to Inform 6 with statements (6b)', () => {
+/** The share of routines structured where it isn't all of them (6c), as it stands: a floor, not a goal. */
+const STRUCTURED: Record<string, number> = { 'mingus-1.z5': 0.9, 'architect-legacy.z5': 0.9, 'list-exits.z5': 0.5 }
+
+describe('decompiling to Inform 6 with statements (6b) and control flow (6c)', () => {
   for (const file of withSymbols) {
     it(`${file}: every routine as statements, the story equivalent`, async () => {
       const dbg = readFileSync(FIXTURES_DIR + file.replace(/\.z\d$/, '.dbg'), 'utf8')
@@ -97,6 +100,9 @@ describe('decompiling to Inform 6 with statements (6b)', () => {
       // Every routine the game has (the veneer stays assembly: 6d) is statements; none fell back.
       expect(r.statements!.of).toBeGreaterThan(0)
       expect(r.statements!.written.length).toBe(r.statements!.of)
+      // 6c: most have their control flow as if, else, while, do and switch too (the rest are flat
+      // statements, mostly where strict mode's checks are inlined, which 6d turns back into syntax).
+      expect(r.statements!.structured.length / r.statements!.written.length).toBeGreaterThanOrEqual(STRUCTURED[file] ?? 1)
     }, 120_000)
   }
 })
