@@ -9,8 +9,9 @@ set -euo pipefail
 #   ./publish.sh <package> --dry-run   run every check and a dry-run publish; change nothing, ask for
 #                                      no approval (if you're not logged in to npm, it warns instead)
 #   ./publish.sh --help                print this
-#   <package> is worker-rpc, nuxt-base, inform6-wasm, zcode (or the full @frotzinc/<name>), or cli
-#   (the unscoped frotzlens CLI; `frotzlens` works too). Publish zcode before the CLI that needs it.
+#   <package> is worker-rpc, nuxt-base, inform6-wasm, zcode, zmachine, player (or the full
+#   @frotzinc/<name>), or cli (the unscoped frotzlens CLI; `frotzlens` works too). Publish a package
+#   before what depends on it: zcode before the CLI and zmachine, zmachine before player.
 #
 # A release comes first, and this script never makes one: bump the package's version, add its
 # CHANGELOG.md section, merge to main, and push the tag <package name>@<version> (e.g.
@@ -42,7 +43,7 @@ set -euo pipefail
 SCOPE="@frotzinc"
 BRANCH="main"
 WORKFLOW="ci.yml"
-PACKAGES="worker-rpc nuxt-base inform6-wasm zcode cli"
+PACKAGES="worker-rpc nuxt-base inform6-wasm zcode zmachine player cli"
 
 RED='\033[0;31m'
 GREEN='\033[0;32m'
@@ -70,8 +71,18 @@ required_files() {
       ;;
     nuxt-base)
       echo package.json README.md CHANGELOG.md LICENSE nuxt.config.ts app/app.config.ts \
-        app/utils/safe-storage.ts app/utils/slug.ts app/utils/shortcut.ts css/base.css css/palette.css \
+        app/utils/safe-storage.ts app/utils/slug.ts app/utils/shortcut.ts app/utils/product.ts \
+        app/utils/report.ts app/utils/markdown.ts app/composables/useAbout.ts app/composables/useProduct.ts \
+        app/components/AppHeader.vue app/components/AppFooter.vue app/components/AboutMenu.vue \
+        app/components/AboutDialogs.vue css/base.css css/palette.css \
         netlify/check-sw.mjs netlify/inject-preloads.mjs netlify/redirects.mjs netlify/version.mjs
+      ;;
+    zmachine)
+      echo package.json README.md CHANGELOG.md LICENSE dist/index.js dist/index.d.ts dist/machine.js bin/run.mjs
+      ;;
+    player)
+      echo package.json README.md CHANGELOG.md LICENSE dist/player.js dist/player.css dist/index.d.ts \
+        dist/frotz-play.js fonts/OFL.txt fonts/README.md fonts/OpenDyslexic-Regular.woff2
       ;;
     zcode)
       echo package.json README.md CHANGELOG.md LICENSE \
@@ -296,8 +307,9 @@ EXTRA=$(grep -E "$FORBIDDEN_RE" <<<"$FILES" || true)
 [[ -z "$EXTRA" ]] || die "The package holds files it mustn't:"$'\n'"$EXTRA"
 
 # The packed manifest: its license, and nothing that runs on install. A library has no runtime
-# dependencies (peers are fine); the CLI has @frotzinc/zcode and, for --inform, @frotzinc/inform6-wasm,
-# each at an exact version that is already on npm (so publish those first).
+# dependencies (peers are fine), except the @frotzinc packages it's built on: zmachine has
+# @frotzinc/zcode, player has @frotzinc/zmachine. The CLI has @frotzinc/zcode and, for --inform,
+# @frotzinc/inform6-wasm. Each at an exact version that is already on npm (so publish those first).
 tar -xzf "$TARBALL" -C "$WORK" package/package.json
 node --input-type=commonjs -e '
   const [path, license, name] = process.argv.slice(1);
@@ -305,24 +317,31 @@ node --input-type=commonjs -e '
   const bad = [];
   if (pkg.license !== license) bad.push(`license is ${pkg.license}, not ${license}`);
   const deps = pkg.dependencies ?? {};
-  if (name === "frotzlens") {
-    const allowed = ["@frotzinc/zcode", "@frotzinc/inform6-wasm"];
-    const keys = Object.keys(deps);
-    if (!keys.includes("@frotzinc/zcode") || keys.some(k => !allowed.includes(k))) bad.push(`dependencies are ${JSON.stringify(deps)}, not @frotzinc/zcode (and @frotzinc/inform6-wasm)`);
+  // What each package may depend on at run time: [required, also allowed].
+  const ALLOWED = {
+    "frotzlens": [["@frotzinc/zcode"], ["@frotzinc/inform6-wasm"]],
+    "@frotzinc/zmachine": [["@frotzinc/zcode"], []],
+    "@frotzinc/player": [["@frotzinc/zmachine"], []],
+  };
+  const keys = Object.keys(deps);
+  if (ALLOWED[name]) {
+    const [required, optional] = ALLOWED[name];
+    if (required.some(r => !keys.includes(r)) || keys.some(k => !required.includes(k) && !optional.includes(k)))
+      bad.push(`dependencies are ${JSON.stringify(deps)}, not ${[...required, ...optional].join(", ")}`);
     for (const k of keys) if (!/^\d+\.\d+\.\d+$/.test(deps[k])) bad.push(`${k} is "${deps[k]}", not an exact version`);
-  } else if (Object.keys(deps).length) bad.push("has dependencies");
+  } else if (keys.length) bad.push("has dependencies");
   for (const field of ["optionalDependencies", "bundledDependencies"])
     if (pkg[field] && Object.keys(pkg[field]).length) bad.push(`has ${field}`);
   for (const hook of ["preinstall", "install", "postinstall", "prepare"])
     if (pkg.scripts && pkg.scripts[hook]) bad.push(`has a ${hook} script`);
   if (bad.length) { console.error(bad.join("; ")); process.exit(1); }
 ' "$WORK/package/package.json" "$LICENSE_ID" "$PACKAGE_NAME" || die "The packed package.json isn't publishable as is."
-if [[ "$NAME" == cli ]]; then
-  while read -r DEP; do
-    npm view "$DEP" version >/dev/null 2>&1 ||
-      die "The CLI needs $DEP, which isn't on npm yet. Publish it first: ./publish.sh ${DEP%%@[0-9]*}"
-  done < <(node --input-type=commonjs -e 'for (const [k, v] of Object.entries(require(process.argv[1]).dependencies)) console.log(`${k}@${v}`)' "$WORK/package/package.json")
-fi
+# Every dependency must already be on npm at its exact version.
+while read -r DEP; do
+  [[ -n "$DEP" ]] || continue
+  npm view "$DEP" version >/dev/null 2>&1 ||
+    die "$PACKAGE_NAME needs $DEP, which isn't on npm yet. Publish it first: ./publish.sh ${DEP%%@[0-9]*}"
+done < <(node --input-type=commonjs -e 'for (const [k, v] of Object.entries(require(process.argv[1]).dependencies ?? {})) console.log(`${k}@${v}`)' "$WORK/package/package.json")
 info "$(wc -l <<<"$FILES" | tr -d ' ') files, every required one present, none forbidden; $LICENSE_ID, the dependencies it may have, no install scripts."
 
 # ─── Install the real tarball and run it ────────────────────────────
@@ -336,8 +355,10 @@ cp "$WORKTREE/$SMOKE" "$SCRATCH/smoke.mjs"
 (
   cd "$SCRATCH" &&
     npm init -y >/dev/null &&
-    # Peers (nuxt, @nuxt/ui, vue, vitest) aren't installed: the smoke test needs none of them.
+    # Peers (nuxt, @nuxt/ui, vue, vitest) aren't installed: the smoke tests need none of them, but
+    # the player's, which runs it, so Vue (its one peer) is installed for that one.
     npm install --ignore-scripts --no-audit --no-fund --legacy-peer-deps "$TARBALL" >/dev/null &&
+    { [[ "$NAME" != player ]] || npm install --ignore-scripts --no-audit --no-fund vue@^3.5 >/dev/null; } &&
     node smoke.mjs
 ) || die "The packed tarball didn't install, or its smoke test failed."
 info "The packed tarball installs and passes $SMOKE."

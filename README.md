@@ -29,7 +29,7 @@ Then **play it**, in the same Parchment interpreter Frotzsmith uses, walled off 
 
 ![frotzplay — play Z-machine stories in your browser](apps/play/public/og-image.png)
 
-**[frotzplay](apps/play)** is the family's player, built in this repository: an accessible Z-machine player for people who use screen readers and for pages with a strict Content-Security-Policy. It's live at **[frotzplay.netlify.app](https://frotzplay.netlify.app)** (frotzplay.frotzinc.com once its DNS is set). Its own interpreter, [`@frotzinc/zmachine`](packages/zmachine), plays every sample exactly as ZVM does and passes the Czech and Praxix conformance suites; its player, [`@frotzinc/player`](packages/player), has a [published accessibility contract](docs/accessibility.md) tested in three browsers. [Its README](apps/play/README.md) has more, and how it compares with Parchment.
+**[frotzplay](apps/play)** is the family's player, built in this repository: an accessible Z-machine player for people who use screen readers and for pages with a strict Content-Security-Policy. It's live at **[frotzplay.frotzinc.com](https://frotzplay.frotzinc.com)**. Its own interpreter, [`@frotzinc/zmachine`](packages/zmachine), plays every sample exactly as ZVM does and passes the Czech and Praxix conformance suites; its player, [`@frotzinc/player`](packages/player), has a [published accessibility contract](docs/accessibility.md) tested in three browsers. [Its README](apps/play/README.md) has more, and how it compares with Parchment.
 
 | | |
 |---|---|
@@ -98,15 +98,15 @@ The plan and its decisions are in [`docs/`](docs/), starting with [`00-master-de
 
 | Package | License | | npm |
 |---|---|---|---|
-| [`@frotzinc/zcode`](packages/zcode) | MIT | The parser and disassembler: `Uint8Array` in, typed model out, plus `txd`- and `infodump`-format text, Blorb, debug symbols, fingerprinting, the room graph, ZIL grammar and the Inform 6 decompiler | [0.3.0](https://www.npmjs.com/package/@frotzinc/zcode) |
+| [`@frotzinc/zcode`](packages/zcode) | MIT | The parser and disassembler: `Uint8Array` in, typed model out, plus `txd`- and `infodump`-format text, Blorb, debug symbols, fingerprinting, the room graph, ZIL grammar and the Inform 6 decompiler | [0.4.0](https://www.npmjs.com/package/@frotzinc/zcode) |
 | [`frotzlens`](packages/cli) | GPL-3.0-or-later | The CLI: `frotzlens game.z5`; also `--inform`, `--symbols`, `--info`, `--rooms`, `--json` | [0.3.0](https://www.npmjs.com/package/frotzlens) |
 | [`@frotzinc/worker-rpc`](packages/worker-rpc) | MIT | Long-lived Web Worker request/response client | 0.1.0 |
-| [`@frotzinc/nuxt-base`](packages/nuxt-base) | MIT | Shared Frotz, Inc. Nuxt layer and Netlify tools | 0.1.0 |
+| [`@frotzinc/nuxt-base`](packages/nuxt-base) | MIT | Shared Frotz, Inc. Nuxt layer (with the family's header, footer and About menu) and Netlify tools | [0.2.0](https://www.npmjs.com/package/@frotzinc/nuxt-base) |
 | [`@frotzinc/inform6-wasm`](packages/inform6-wasm) | MIT (wrapper) | Inform 6.44 in WebAssembly, with the Standard Library and PunyInform | 0.1.0 |
-| [`@frotzinc/zmachine`](packages/zmachine) | MIT | A Z-machine interpreter (v3, 4, 5, 8): no `eval`, all state plain data, input supplied by the host. frotzplay's engine, in development | |
-| [`@frotzinc/player`](packages/player) | MIT | frotzplay's accessible player as Vue components ([its contract](docs/accessibility.md)); in development | |
+| [`@frotzinc/zmachine`](packages/zmachine) | MIT | A Z-machine interpreter (v3, 4, 5, 8): no `eval`, all state plain data, input supplied by the host. frotzplay's engine | [0.1.0](https://www.npmjs.com/package/@frotzinc/zmachine) |
+| [`@frotzinc/player`](packages/player) | MIT | frotzplay's accessible player as Vue components ([its contract](docs/accessibility.md)), the `<frotz-play>` web component, and Export | [0.1.0](https://www.npmjs.com/package/@frotzinc/player) |
 | `apps/web` | GPL-3.0-or-later | [frotzlens.frotzinc.com](https://frotzlens.frotzinc.com) | |
-| `apps/play` | GPL-3.0-or-later | frotzplay, the accessible Z-machine player ([design](docs/frotzplay-design.md)); in development | |
+| `apps/play` | GPL-3.0-or-later | [frotzplay.frotzinc.com](https://frotzplay.frotzinc.com), the accessible Z-machine player ([design](docs/frotzplay-design.md)) | |
 
 Apps are GPL; libraries are MIT. See [`LICENSING.md`](LICENSING.md).
 
@@ -148,7 +148,7 @@ Each `@frotzinc/*` package, and the `frotzlens` CLI, is released on its own, fro
 
 1. Bump `packages/<name>/package.json`'s version and add its `## [x.y.z]` section to `packages/<name>/CHANGELOG.md`.
 2. Merge to `main`, then tag and push the tag: `git tag @frotzinc/<name>@x.y.z && git push origin @frotzinc/<name>@x.y.z` (the CLI's tag is `frotzlens@x.y.z`). The `ci` workflow runs on it.
-3. `./publish.sh <name> --dry-run`, then `./publish.sh <name>` in a terminal. `<name>` is `zcode`, `cli`, and so on. Publish `zcode` before the `cli` that depends on it. It builds and tests the tag in a temporary worktree, checks the packed files, installs the tarball and runs `scripts/smoke/<name>.mjs` against it, asks you to type the version, and then npm asks for your approval.
+3. `./publish.sh <name> --dry-run`, then `./publish.sh <name>` in a terminal. `<name>` is `zcode`, `cli`, and so on. Publish a package before what depends on it: `zcode` before the `cli` and `zmachine`, `zmachine` before `player`. It builds and tests the tag in a temporary worktree, checks the packed files, installs the tarball and runs `scripts/smoke/<name>.mjs` against it, asks you to type the version, and then npm asks for your approval.
 
 The script never commits, tags or pushes.
 

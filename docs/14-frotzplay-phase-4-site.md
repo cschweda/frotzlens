@@ -36,9 +36,9 @@ Autosave is the player's (Phase 3), keyed by story. The site adds the **PWA** (`
 
 `netlify.toml` (written in Phase 0) as it is: `script-src 'self' 'unsafe-inline'` (Nuxt's inline payload), `connect-src 'self' https:` (`?story=`), `worker-src 'self'` (the service worker), `frame-ancestors 'none'`. The e2e server (`scripts/serve.mjs`) serves the built site with exactly these headers, and every test fails on a CSP violation.
 
-## 5. The worker: a decision for Chris
+## 5. The worker: decided, main thread
 
-The design has `apps/play` run the interpreter in a worker. Phase 3's player already runs it in slices that yield to the page, so a story that loops can't freeze the tab, which is what the worker was for. A worker would also need the player to talk to the machine asynchronously (every state read and every save becomes a message), a substantial change for little gain. **Proposal: stay on the main thread; revisit if a real story ever makes the page stutter.** Until Chris decides, Phase 4 is built without the worker, and nothing else depends on it.
+The design has `apps/play` run the interpreter in a worker. Phase 3's player already runs it in slices that yield to the page, so a story that loops can't freeze the tab, which is what the worker was for. A worker would also need the player to talk to the machine asynchronously (every state read and every save becomes a message), a substantial change for little gain. **Decided (Chris, 2026-11-07): the interpreter stays on the main thread, everywhere; revisit only if a real story ever makes the page stutter.** `apps/play` is built without a worker, and nothing depends on one.
 
 ## 6. Tests
 
