@@ -32,6 +32,8 @@ export const KINDS: Record<string, Kind[]> = {
   STOREW: ['low', 'num', 'any'], STOREB: ['low', 'num', 'any'], PUT_PROP: ['obj', 'num', 'any'],
   PRINT_CHAR: ['char'], PRINT_NUM: ['num'], RANDOM: ['num'], PUSH: ['any'], PULL: ['ref'],
   SET_TEXT_STYLE: ['style'], OUTPUT_STREAM: ['stream', 'num'], READ_CHAR: ['num', 'num', 'routine'],
+  // Timed input's routine (v4+), and the routine a sound calls when it finishes (v5+).
+  READ: ['low', 'low', 'num', 'routine'], SOUND_EFFECT: ['num', 'num', 'num', 'routine'],
 }
 
 /** The kind of operand `i` of `ins` (a call's first operand is its routine). */

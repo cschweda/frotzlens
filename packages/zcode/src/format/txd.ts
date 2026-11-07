@@ -162,8 +162,9 @@ const dictId = (a: number): Id => `dict:${hx(a, 4)}`
 function operandPieces(ins: Instruction, i: number, c: Context): DisassemblyPiece[] {
   const o = ins.operands[i]!
   const plain = (text: string): DisassemblyPiece[] => [{ text }]
-  if (o.kind === 'variable') return plain(variable(o.value, false))
   const kind: Kind = operandKind(ins, i)
+  // A variable-number operand that is itself a variable: txd brackets it (INC [L05], LOAD [(SP)+]).
+  if (o.kind === 'variable') return plain(kind === 'ref' ? `[${variable(o.value, false)}]` : variable(o.value, false))
   // A dictionary word, linked when it is one of the entries (not txd's one-past-the-end).
   const word = (address: number): DisassemblyPiece | undefined => {
     const d = dictionaryAt(c, address)
@@ -386,6 +387,26 @@ export function formatStrings(story: StoryFile, opts: Pick<TxdOptions, 'addresse
 }
 
 /**
+ * The highest address a constant routine operand (a call's; read, read_char and sound_effect's) names, as txd's first pass
+ * takes it: any address in the file whose byte could be a locals count.
+ */
+function highestCalled(story: StoryFile): number {
+  const scale = packedScale(story.header.version as Version)
+  const size = Math.min(story.bytes.length, story.header.fileLength || story.bytes.length)
+  let high = 0
+  for (const r of story.code.routines) {
+    for (const ins of r.instructions) {
+      ins.operands.forEach((o, i) => {
+        if (o.kind === 'variable' || operandKind(ins, i) !== 'routine') return
+        const a = o.value * scale
+        if (a > high && a < size && story.bytes[a]! <= 15) high = a
+      })
+    }
+  }
+  return high
+}
+
+/**
  * The whole disassembly, as txd prints it: the analysis lines, every routine,
  * and the strings after the code.
  */
@@ -397,10 +418,15 @@ export function formatTxd(story: StoryFile, opts: TxdOptions = {}): string {
   const at = (label: string, address: number) => (c.addresses ? `[${label} at ${hx(address)}]` : `[${label}]`)
   const out: string[] = []
   const w = new Writer(width)
-  w.write(`Resident data ends at ${hx(header.highMemory)}, program starts at ${hx(header.highMemory)}, file ends at ${hx(header.fileLength)}\n\n`)
+  // txd's start is the header's initial PC less one: the main routine's header byte (v1–5, v8).
+  w.write(`Resident data ends at ${hx(header.highMemory)}, program starts at ${hx(header.initialPc - 1)}, file ends at ${hx(header.fileLength)}\n\n`)
   w.write(`Starting analysis pass at address ${hx(code.analysisStart)}\n\n`)
-  // txd's "high address" is where the second-to-last routine ends: where it began looking for the last.
-  const high = routines.length > 1 ? routines.at(-2)!.end : (routines[0]?.address ?? code.analysisStart)
+  // txd's "high address": where the second-to-last routine ends (where it began looking for the
+  // last), or the highest routine a call names, if that is further (ZILF calls its last routine).
+  const high = Math.max(
+    routines.length > 1 ? routines.at(-2)!.end : (routines[0]?.address ?? code.analysisStart),
+    highestCalled(story),
+  )
   w.write(`End of analysis pass, low address = ${hx(routines[0]?.address ?? code.analysisStart)}, high address = ${hx(high)}\n\n`)
   // Data between the dictionary and the first routine (PunyInform leaves some), when it's more
   // than alignment padding.
