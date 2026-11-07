@@ -74,13 +74,16 @@ test('O8: timed input is announced, can be paused, and can be turned off', async
   await open(page, 'timed.z5')
   const hint = page.locator('#zp-command-hint')
   await expect(hint.getByText('The game will go on in 1 second unless you type.')).toBeVisible()
-  // Paused: the timer routine isn't called.
+  // Paused: the timer routine isn't called. (Counted from the pause: on a slow machine a tick may
+  // already have happened before the click.)
   await page.getByRole('button', { name: 'Pause timer' }).click()
-  await page.waitForTimeout(1600)
   const story = page.getByRole('region', { name: 'Story' })
-  await expect(story.getByText('[tick 1]')).toHaveCount(0)
+  const ticks = story.getByText(/\[tick \d\]/)
+  const before = await ticks.count()
+  await page.waitForTimeout(1600)
+  await expect(ticks).toHaveCount(before)
   await page.getByRole('button', { name: 'Resume timer' }).click()
-  await expect(story.getByText('[tick 1]')).toBeVisible()
+  await expect(ticks).toHaveCount(before + 1)
 
   await open(page, 'timed.z5')
   await openSettings(page)
