@@ -1,7 +1,7 @@
 {
   "name": "@frotzinc/zcode",
-  "version": "0.0.0",
-  "description": "Z-machine story file parser: header, memory map, text, dictionary, object table, globals \u2014 a typed model from a Uint8Array. Pure TypeScript; runs in a browser, a Web Worker, or Node.",
+  "version": "0.1.0",
+  "description": "Z-machine story file parser and disassembler: header, memory map, text, dictionary, objects, globals, routines, strings, Inform grammar and cross-references as a typed model from a Uint8Array, with Ztools-compatible text, Blorb unwrap, Inform debug symbols and fingerprinting. Pure TypeScript; runs in a browser, a Web Worker, or Node.",
   "license": "MIT",
   "author": "Christopher Schweda",
   "type": "module",
@@ -23,7 +23,9 @@
     "interactive-fiction",
     "parser",
     "disassembler",
-    "frotzinc"
+    "frotzinc",
+    "blorb",
+    "zil"
   ],
   "sideEffects": false,
   "exports": {

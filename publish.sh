@@ -1,17 +1,20 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-# Frotzlens publish script: puts one release of one @frotzinc/* library on npm, from your machine.
+# Frotzlens publish script: puts one release of one package (an @frotzinc/* library, or the
+# frotzlens CLI) on npm, from your machine.
 #
 # Usage:
 #   ./publish.sh <package>             publish packages/<package>/package.json's version to npm
 #   ./publish.sh <package> --dry-run   run every check and a dry-run publish; change nothing, ask for
 #                                      no approval (if you're not logged in to npm, it warns instead)
 #   ./publish.sh --help                print this
-#   <package> is worker-rpc, nuxt-base, or inform6-wasm (or the full @frotzinc/<name>).
+#   <package> is worker-rpc, nuxt-base, inform6-wasm, zcode (or the full @frotzinc/<name>), or cli
+#   (the unscoped frotzlens CLI; `frotzlens` works too). Publish zcode before the CLI that needs it.
 #
 # A release comes first, and this script never makes one: bump the package's version, add its
-# CHANGELOG.md section, merge to main, and push the tag @frotzinc/<name>@<version>. The ci
+# CHANGELOG.md section, merge to main, and push the tag <package name>@<version> (e.g.
+# @frotzinc/zcode@0.1.0, frotzlens@0.1.0). The ci
 # workflow runs on the tag. Then, from main: ./publish.sh <package> --dry-run, then
 # ./publish.sh <package>. There is no version argument and no bump: the version is the release's.
 # A publish asks for npm's approval last, just before it publishes: a link to open in a browser on
@@ -27,7 +30,9 @@ set -euo pipefail
 #   - the tag's own commit (in a temporary worktree, so nothing later on main leaks in) installs,
 #     builds, typechecks, passes the package's tests, and packs;
 #   - the tarball holds the files the package must ship and nothing it mustn't (tests, sources,
-#     configs), declares no runtime dependencies and no install scripts, and its license is MIT;
+#     configs), has no install scripts, and has its license: MIT for the libraries, with no runtime
+#     dependencies; GPL-3.0-or-later for the CLI, whose one dependency is @frotzinc/zcode at an exact
+#     version already on npm;
 #   - the packed tarball installs in a scratch project and its smoke test (scripts/smoke/<name>.mjs)
 #     passes against it.
 # It then shows the package's commits in the release, asks for the version to be typed, and then
@@ -37,7 +42,7 @@ set -euo pipefail
 SCOPE="@frotzinc"
 BRANCH="main"
 WORKFLOW="ci.yml"
-PACKAGES="worker-rpc nuxt-base inform6-wasm"
+PACKAGES="worker-rpc nuxt-base inform6-wasm zcode cli"
 
 RED='\033[0;31m'
 GREEN='\033[0;32m'
@@ -67,6 +72,13 @@ required_files() {
       echo package.json README.md CHANGELOG.md LICENSE nuxt.config.ts app/app.config.ts \
         app/utils/safe-storage.ts app/utils/slug.ts app/utils/shortcut.ts css/base.css css/palette.css \
         netlify/check-sw.mjs netlify/inject-preloads.mjs netlify/redirects.mjs netlify/version.mjs
+      ;;
+    zcode)
+      echo package.json README.md CHANGELOG.md LICENSE \
+        dist/index.js dist/index.d.ts dist/format/index.js dist/format/index.d.ts
+      ;;
+    cli)
+      echo package.json README.md CHANGELOG.md LICENSE dist/bin.js dist/main.js
       ;;
     inform6-wasm)
       echo package.json README.md CHANGELOG.md LICENSE \
@@ -100,6 +112,7 @@ for arg in "$@"; do
         die "One package at a time ('$NAME' and '$arg' given)."
       }
       NAME="${arg#"$SCOPE"/}"
+      [[ "$NAME" == frotzlens ]] && NAME=cli
       ;;
   esac
 done
@@ -109,7 +122,14 @@ done
 }
 [[ " $PACKAGES " == *" $NAME "* ]] || die "'$NAME' isn't a publishable package (one of $PACKAGES)."
 
-PACKAGE_NAME="$SCOPE/$NAME"
+# The CLI is the one unscoped package: frotzlens, from packages/cli, GPL, depending on zcode.
+if [[ "$NAME" == cli ]]; then
+  PACKAGE_NAME="frotzlens"
+  LICENSE_ID="GPL-3.0-or-later"
+else
+  PACKAGE_NAME="$SCOPE/$NAME"
+  LICENSE_ID="MIT"
+fi
 DIR="packages/$NAME"
 MANIFEST="$DIR/package.json"
 
@@ -275,19 +295,33 @@ done
 EXTRA=$(grep -E "$FORBIDDEN_RE" <<<"$FILES" || true)
 [[ -z "$EXTRA" ]] || die "The package holds files it mustn't:"$'\n'"$EXTRA"
 
-# The packed manifest: MIT, no runtime dependencies (peers are fine), and nothing that runs on install.
+# The packed manifest: its license, and nothing that runs on install. A library has no runtime
+# dependencies (peers are fine); the CLI has exactly one, @frotzinc/zcode, at an exact version that
+# is already on npm (so publish zcode first).
 tar -xzf "$TARBALL" -C "$WORK" package/package.json
 node --input-type=commonjs -e '
-  const pkg = require(process.argv[1]);
+  const [path, license, name] = process.argv.slice(1);
+  const pkg = require(path);
   const bad = [];
-  if (pkg.license !== "MIT") bad.push(`license is ${pkg.license}, not MIT`);
-  for (const field of ["dependencies", "optionalDependencies", "bundledDependencies"])
+  if (pkg.license !== license) bad.push(`license is ${pkg.license}, not ${license}`);
+  const deps = pkg.dependencies ?? {};
+  if (name === "frotzlens") {
+    const keys = Object.keys(deps);
+    if (keys.length !== 1 || keys[0] !== "@frotzinc/zcode") bad.push(`dependencies are ${JSON.stringify(deps)}, not just @frotzinc/zcode`);
+    else if (!/^\d+\.\d+\.\d+$/.test(deps["@frotzinc/zcode"])) bad.push(`@frotzinc/zcode is "${deps["@frotzinc/zcode"]}", not an exact version`);
+  } else if (Object.keys(deps).length) bad.push("has dependencies");
+  for (const field of ["optionalDependencies", "bundledDependencies"])
     if (pkg[field] && Object.keys(pkg[field]).length) bad.push(`has ${field}`);
   for (const hook of ["preinstall", "install", "postinstall", "prepare"])
     if (pkg.scripts && pkg.scripts[hook]) bad.push(`has a ${hook} script`);
   if (bad.length) { console.error(bad.join("; ")); process.exit(1); }
-' "$WORK/package/package.json" || die "The packed package.json isn't publishable as is."
-info "$(wc -l <<<"$FILES" | tr -d ' ') files, every required one present, none forbidden; MIT, no dependencies, no install scripts."
+' "$WORK/package/package.json" "$LICENSE_ID" "$PACKAGE_NAME" || die "The packed package.json isn't publishable as is."
+if [[ "$NAME" == cli ]]; then
+  ZCODE=$(node --input-type=commonjs -e 'console.log(require(process.argv[1]).dependencies["@frotzinc/zcode"])' "$WORK/package/package.json")
+  npm view "@frotzinc/zcode@$ZCODE" version >/dev/null 2>&1 ||
+    die "The CLI needs @frotzinc/zcode@$ZCODE, which isn't on npm yet. Publish it first: ./publish.sh zcode"
+fi
+info "$(wc -l <<<"$FILES" | tr -d ' ') files, every required one present, none forbidden; $LICENSE_ID, the dependencies it may have, no install scripts."
 
 # ─── Install the real tarball and run it ────────────────────────────
 

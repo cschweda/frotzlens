@@ -10,7 +10,7 @@
  * got that far.
  */
 import { spawnSync } from 'node:child_process'
-import { readFileSync } from 'node:fs'
+import { existsSync, readFileSync } from 'node:fs'
 import { fileURLToPath } from 'node:url'
 import { gunzipSync } from 'node:zlib'
 import { describe, expect, it } from 'vitest'
@@ -99,8 +99,9 @@ describe('the Phase 2 exit criterion: `frotzlens --routine <addr> dark-cellar.z5
 
   it('through the CLI', () => {
     const bin = fileURLToPath(new URL('../../cli/dist/bin.js', import.meta.url))
+    // The CLI isn't built in every run (publish.sh builds only zcode); it's tested in its own package too.
+    if (!existsSync(bin)) return
     const r = spawnSync(process.execPath, [bin, '--routine', '27f8', 'dark-cellar.z5'], { cwd: FIXTURES_DIR, encoding: 'utf8' })
-    if (r.error || r.status === null) return // the CLI isn't built in this run (it's tested in its package)
     expect(r.status).toBe(0)
     expect(golden('dark-cellar', 'txd').includes(`\n${r.stdout}`)).toBe(true)
     expect(r.stdout.startsWith('Routine R0002, 0 locals\n')).toBe(true)

@@ -11,7 +11,7 @@ frotzlens --symbols gameinfo.dbg game.z5          # the disassembly with the sou
 frotzlens --rooms --symbols gameinfo.dbg game.z5  # the map: rooms and exits
 ```
 
-(Once it's released: `npx frotzlens` today installs a 0.0.1 placeholder. From this repository: `pnpm install && pnpm build`, then `node packages/cli/dist/bin.js`.)
+Install it with `npm install -g frotzlens`, or run it once with `npx frotzlens game.z5`. It needs Node 22.12 or later. From this repository: `pnpm install && pnpm build`, then `node packages/cli/dist/bin.js`.
 
 `frotzlens` reads a `.z3`, `.z4`, `.z5` or `.z8` story file. With no options it prints the disassembly the way Ztools' `txd` does: every routine, with labels, Inform's grammar notes on action and parsing routines, and every string. With `infodump`'s options it prints those sections the way `infodump` does. On every Standard Library and library-free test story the output is byte for byte the same as the original tools', so scripts written for either keep working. With `--json` it prints the parsed model instead.
 
