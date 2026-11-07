@@ -16,8 +16,8 @@ export interface AsmNames {
   routine: (packed: number) => string | undefined
   /** A packed string address as a string literal. */
   string: (packed: number) => string | undefined
-  /** Any other constant: a dictionary word, an array, or the number. `large` when it was stored in two bytes. */
-  value: (n: number, large: boolean) => string
+  /** Any other constant: a dictionary word, an array, or the number. `large` when it was stored in two bytes; `callee` (its packed address) when it's passed to a routine. */
+  value: (n: number, large: boolean, callee?: number) => string
   /** Inline text (print, print_ret) as a string literal. */
   stringLiteral: (text: string) => string
   /** `##Take` for an action number, compared with a variable that holds actions (`action`, `sw__var`). */
@@ -32,7 +32,7 @@ const VARIABLE_REFERENCE = new Set(['INC', 'DEC', 'INC_CHK', 'DEC_CHK', 'STORE',
 /** The Standard's names where Inform's assembler spells them differently. */
 function opcodeName(i: Instruction, version: Version): string {
   if (i.name === 'READ') return version <= 4 ? 'sread' : 'aread' // v5's stores a result; v1-4's doesn't
-  if (i.name === 'CALL') return 'call_vs'
+  if (i.name === 'CALL') return version <= 3 ? 'call' : 'call_vs'
   return i.name.toLowerCase()
 }
 
@@ -60,7 +60,8 @@ function operandText(i: Instruction, op: Operand, index: number, n: AsmNames): s
     const s = n.string(op.value)
     if (s) return s
   }
-  return n.value(op.value, op.kind === 'large')
+  const callee = i.info.call && index > 0 && i.operands[0]?.kind !== 'variable' ? i.operands[0]!.value : undefined
+  return n.value(op.value, op.kind === 'large', callee)
 }
 
 /** The routine's branch and jump targets, labelled in address order. */

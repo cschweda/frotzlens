@@ -103,14 +103,16 @@ export function decompileInform(story: StoryFile, opts: DecompileOptions): Decom
    *   code: a dictionary word (compared with, passed), then a string, a routine;
    *   a property: a routine (embedded or named), a string, a word;
    *   an array or a global: a string, a routine, a word;
-   *   the veneer: only its own strings (its other numbers are masks and table addresses).
+   *   the veneer: only the strings it passes to RT__Err (its messages); its other numbers are masks
+   *   and table addresses.
    */
-  type Where = 'code' | 'property' | 'data' | 'veneer'
+  type Where = 'code' | 'property' | 'data' | 'veneer' | 'veneer-number'
   const ORDER: Record<Where, ('routine' | 'string' | 'word' | 'array')[]> = {
     code: ['word', 'string', 'routine', 'array'],
     property: ['routine', 'string', 'word', 'array'],
     data: ['string', 'routine', 'word', 'array'],
     veneer: ['string'],
+    'veneer-number': [],
   }
   const value = (n: number, large = true, where: Where = 'data'): string => {
     if (large && n >= 256) {
@@ -178,7 +180,12 @@ export function decompileInform(story: StoryFile, opts: DecompileOptions): Decom
         const t = stringsByPacked.get(p)
         return t === undefined ? undefined : informString(t)
       },
-      value: (n, large) => value(n, large, veneer ? 'veneer' : 'code'),
+      // In the veneer, only its messages (passed to RT__Err) are strings; its other numbers are masks
+      // and table addresses, which can be a string's address too.
+      value: (n, large, callee) => {
+        const toErr = callee !== undefined && sym.routines[routinesByPacked.get(callee)?.address ?? -1]?.name === 'RT__Err'
+        return value(n, large, veneer ? (toErr ? 'veneer' : 'veneer-number') : 'code')
+      },
       stringLiteral: informString,
       action: (variable, n) => {
         if (variable < 16 || !ACTION_VARIABLES.has(globalName(variable - 16))) return undefined
@@ -597,10 +604,23 @@ export function decompileInform(story: StoryFile, opts: DecompileOptions): Decom
   const strict = Object.values(sym.routines).some(r => r.name.startsWith('RT__Ch'))
   if (!strict) switches.push('!% -~S')
   if (story.fingerprint?.library?.name === 'PunyInform') switches.push('!% $OMIT_UNUSED_ROUTINES=1')
+  // Economy mode (-e) fills the abbreviation table; each Abbreviate gives the next entry.
+  // Without -e, Inform fills the whole table with one placeholder ("   "), so that text, repeated, isn't one.
+  const counts = new Map<string, number>()
+  for (const ab of story.abbreviations) counts.set(ab.text, (counts.get(ab.text) ?? 0) + 1)
+  const filler = [...counts].sort((x, y) => y[1] - x[1])[0]
+  const abbreviations = story.abbreviations.filter(ab => ab.text.length && !(filler && filler[1] > 1 && ab.text === filler[0]))
+    // Their text is stored in the order they were declared (the table's own order is Inform's).
+    .sort((x, y) => x.address - y.address)
+  if (abbreviations.length) switches.push('!% -e')
   out.unshift(...switches)
   banner('The story file')
   out.push(`Release ${h.release};`)
   if (/^\d{6}$/.test(h.serial)) out.push(`Serial "${h.serial}";`)
+  if (abbreviations.length) {
+    out.push('')
+    for (const ab of abbreviations) out.push(`Abbreviate ${informString(ab.text)};`)
+  }
   if (replaced.length) {
     out.push('')
     for (const r of replaced) out.push(`Replace ${r};`)

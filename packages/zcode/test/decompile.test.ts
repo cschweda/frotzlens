@@ -16,7 +16,7 @@ const NOT_IDENTICAL = new Set(['mingus-1.z5'])
 const withSymbols = storyFiles().filter(f => existsSync(FIXTURES_DIR + f.replace(/\.z\d$/, '.dbg')))
 
 describe('decompiling to Inform 6 (6a)', () => {
-  it('has every debug fixture to check', () => expect(withSymbols).toHaveLength(12))
+  it('has every debug fixture to check', () => expect(withSymbols).toHaveLength(16))
 
   for (const file of withSymbols) {
     it(`${file} recompiles to an equivalent story`, async () => {
