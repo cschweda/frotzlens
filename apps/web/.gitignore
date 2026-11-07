@@ -1,4 +1,7 @@
 public/samples/
+# Written from site.config.ts by scripts/seo-files.mjs.
+public/robots.txt
+public/sitemap.xml
 dist
 test-results/
 playwright-report/
