@@ -16,7 +16,7 @@ const { symbols } = useSymbols()
 const views = computed(() => {
   const s = props.story
   const inform = s.fingerprint?.compiler === 'inform6'
-  return [
+  const list: { key: string; label: string; icon: string; count?: number; tag?: string }[] = [
     { key: 'overview', label: 'Overview', icon: 'i-lucide-layout-dashboard' },
     { key: 'play', label: 'Play', icon: 'i-lucide-gamepad-2' },
     { key: 'memory', label: 'Memory', icon: 'i-lucide-binary' },
@@ -30,7 +30,10 @@ const views = computed(() => {
     // Symbols: for an Inform story, or once loaded; the map needs them.
     ...(inform || symbols.value ? [{ key: 'symbols', label: 'Symbols', icon: 'i-lucide-tag' }] : []),
     ...(symbols.value ? [{ key: 'map', label: 'Map', icon: 'i-lucide-map' }] : []),
+    // Source: Inform 6 from an Inform story; in progress (Phase 6), so it says so.
+    ...(inform ? [{ key: 'source', label: 'Source', icon: 'i-lucide-file-code', tag: 'in progress' }] : []),
   ]
+  return list
 })
 </script>
 
@@ -47,6 +50,7 @@ const views = computed(() => {
           <UIcon :name="v.icon" class="size-4 shrink-0" :class="active === v.key ? 'text-lamp' : ''" aria-hidden="true" />
           {{ v.label }}
           <span v-if="v.count !== undefined" class="data ml-auto pl-2 text-xs text-muted">{{ v.count }}</span>
+          <span v-else-if="v.tag" class="ml-auto rounded-full border border-default px-1.5 text-xs text-muted">{{ v.tag }}</span>
         </a>
       </li>
     </ul>

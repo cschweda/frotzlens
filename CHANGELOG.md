@@ -6,6 +6,10 @@ All notable changes to Frotzlens: the web app at [frotzlens.frotzinc.com](https:
 
 ### Added
 - The design for Phase 6, decompiling a story back to Inform 6 source, for review before any code ([docs/09-decompiler.md](docs/09-decompiler.md)).
+- **Source** (for Inform stories): where decompiling to Inform 6 has got, step by step. It shows the source itself once the routines read well.
+
+### Changed
+- The Phase 6 design records the decisions: Inform 6 first and ZIL later, Frotzsmith's Inform 6 style, and the Source view held back until step 6c.
 
 ## [0.2.0] - 2026-11-07
 

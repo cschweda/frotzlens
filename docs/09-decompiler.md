@@ -105,8 +105,12 @@ This is the part that makes the output trustworthy, and the main test:
 - **Hand-written assembly and odd code.** The `@`-assembly fallback means the output still compiles.
 - **Whose work it is.** A decompiled game is still its author's. The app should say so in the Source view, and the docs should too.
 
-## 7. Questions for Chris
+## 7. Decisions (2026-11-07)
 
-1. **Scope:** Inform 6 first, with ZIL (to ZIL source) later?
-2. **Output style:** do you have a house style for Inform 6 (indentation, brace placement, `!` comments)?
-3. **Order:** start with 6a, which gives a compilable file for every Inform story, and show it in the app early? Or hold the UI until 6c, when the routines read well?
+1. **Scope:** Inform 6 first. ZIL output (to ZIL source) comes later, as its own phase.
+2. **Output style:** the Inform 6 style of Frotzsmith's samples:
+   - four spaces to indent, never tabs;
+   - `Object -> name "short name"`, then `  with ` and the properties one to a line, lined up under the first, ending `,`; then `  has  ` and the attributes, ending `;`;
+   - routines as `[ Name local1 local2;`, the body indented four spaces, closed by `];`;
+   - `! ---` banner comments over each section (the header, the includes, the objects, the routines, the grammar).
+3. **Order:** the Source view stays hidden until 6c, when the routines read well. Until then the app has a **Source** entry, tagged *in progress*, that says how far each step has got (`apps/web/app/utils/decompiler.ts` holds the steps and their state).

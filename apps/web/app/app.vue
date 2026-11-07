@@ -89,6 +89,7 @@ function skipToMain(e: MouseEvent) {
           <AbbreviationsView v-else-if="route.view === 'abbreviations'" :story="story" :file-name="fileName" />
           <SymbolsView v-else-if="route.view === 'symbols'" :story="story" :file-name="fileName" />
           <MapView v-else-if="route.view === 'map'" :story="story" :file-name="fileName" />
+          <SourceView v-else-if="route.view === 'source'" :story="story" :file-name="fileName" />
           <NotFound v-else :what="route.id ? `${route.view} “${route.id}”` : route.view" />
         </main>
       </div>
