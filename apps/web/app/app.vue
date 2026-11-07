@@ -78,6 +78,7 @@ function skipToMain(e: MouseEvent) {
         <AppNav :story="story" :view="route.view" />
         <main id="main" ref="main" tabindex="-1" class="min-w-0 flex-1 focus:outline-none">
           <OverviewView v-if="route.view === 'overview'" :story="story" :file-name="fileName" />
+          <PlayView v-else-if="route.view === 'play'" :story="story" :file-name="fileName" />
           <MemoryView v-else-if="route.view === 'memory'" :story="story" :file-name="fileName" :id="route.id" />
           <ObjectsView v-else-if="route.view === 'objects' || route.view === 'object'" :story="story" :file-name="fileName" :id="route.view === 'object' ? (route.id ?? '') : undefined" />
           <DictionaryView v-else-if="route.view === 'dictionary' || route.view === 'dict'" :story="story" :file-name="fileName" :id="route.view === 'dict' ? (route.id ?? '') : undefined" />

@@ -154,6 +154,27 @@ test('symbols: a debug file names things, and draws the map', async ({ page }) =
   expect(errors).toEqual([])
 })
 
+test('play: the sample runs in the sandboxed player, and a command gets an answer', async ({ page }) => {
+  const errors = watchConsole(page)
+  await page.goto('/')
+  await page.getByRole('button', { name: 'Try a sample' }).click()
+  await expect(page.getByRole('heading', { level: 1, name: 'Overview' })).toBeVisible()
+  await page.getByRole('link', { name: 'Play the game' }).click()
+  await expect(page.getByRole('heading', { level: 1, name: 'Play' })).toBeVisible()
+  await axe(page, 'play, not started')
+  await page.getByRole('button', { name: /^Play dark-cellar/ }).click()
+  const iframe = page.locator('iframe[title$="playing in Parchment"]')
+  await expect(iframe).toHaveAttribute('sandbox', 'allow-scripts')
+  const game = page.frameLocator('iframe[title$="playing in Parchment"]')
+  await expect(game.locator('.BufferWindow')).toContainText('THE DARK CELLAR')
+  await game.locator('input.LineInput').fill('look')
+  await game.locator('input.LineInput').press('Enter')
+  await expect(game.locator('.BufferWindow')).toContainText('>look')
+  // The game can't reach Frotzlens: its origin is opaque.
+  expect(await page.frames().find(f => f.url().includes('/play/index.html'))!.evaluate(() => window.origin)).toBe('null')
+  expect(errors).toEqual([])
+})
+
 test('works at 400px', async ({ page }) => {
   const errors = watchConsole(page)
   await page.setViewportSize({ width: 400, height: 860 })

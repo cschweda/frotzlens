@@ -13,7 +13,10 @@ const errors = computed(() => props.story.errors)
       <p class="data text-sm text-lamp">{{ fileName }}</p>
       <div class="flex flex-wrap items-end justify-between gap-4">
         <h1 class="font-display text-4xl font-bold tracking-tight text-highlighted sm:text-5xl">Overview</h1>
-        <CopyText :text="() => formatHeader(story, { fileName })" label="Copy the header (infodump)" />
+        <div class="flex flex-wrap gap-2">
+          <UButton to="#play" icon="i-lucide-play" color="primary">Play the game</UButton>
+          <CopyText :text="() => formatHeader(story, { fileName })" label="Copy the header (infodump)" />
+        </div>
       </div>
     </header>
 

@@ -31,6 +31,7 @@
 #  - 'unsafe-inline' (scripts): Nuxt's inline SPA bootstrap and the color-mode
 #    script; (styles): Nuxt UI's inline styles.
 #  - img-src blob: a Blorb cover image is shown from a blob URL.
+#  - frame-src 'self': the Play view embeds the player (/play/), below.
 #  - No 'wasm-unsafe-eval': the parser is TypeScript, no WebAssembly on the site.
 # Checked in Phase 3: the built site, served with exactly this header, loads,
 # parses a story in its Web Worker and opens the palette with no violations.
@@ -41,7 +42,24 @@
     X-Content-Type-Options = "nosniff"
     Permissions-Policy = "camera=(), microphone=(), geolocation=(), payment=()"
     Referrer-Policy = "strict-origin-when-cross-origin"
-    Content-Security-Policy = "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self'; connect-src 'self'; worker-src 'self'; frame-src 'none'; frame-ancestors 'none'; base-uri 'self'; form-action 'self'; object-src 'none'"
+    Content-Security-Policy = "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self'; connect-src 'self'; worker-src 'self'; frame-src 'self'; frame-ancestors 'none'; base-uri 'self'; form-action 'self'; object-src 'none'"
+
+# The player (/play/: vendored Parchment, apps/web/public/play/). It overrides the rules above for
+# its own pages (later rules override earlier ones on Netlify):
+#  - 'unsafe-eval' (scripts): ZVM compiles each story's Z-code to JavaScript as it runs. Only here;
+#    the app itself never gets it. No 'unsafe-inline': the page's own script is play.js.
+#  - connect-src blob:: Parchment fetches the story from a blob URL the page makes itself.
+#  - frame-ancestors 'self' / SAMEORIGIN: only Frotzlens may embed it. The app embeds it in a
+#    sandboxed iframe (no allow-same-origin), so the game runs in an opaque origin, cut off from the
+#    app and its storage: a story is anyone's file.
+#  - Access-Control-Allow-Origin *: that opaque origin loads Parchment's module scripts, and a module
+#    from another origin needs CORS. These are public static files, the same for everyone.
+[[headers]]
+  for = "/play/*"
+  [headers.values]
+    X-Frame-Options = "SAMEORIGIN"
+    Access-Control-Allow-Origin = "*"
+    Content-Security-Policy = "default-src 'self'; script-src 'self' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self'; connect-src 'self' blob:; worker-src 'none'; frame-src 'none'; frame-ancestors 'self'; base-uri 'self'; form-action 'none'; object-src 'none'"
 
 # Long-cache content-hashed build assets.
 [[headers]]

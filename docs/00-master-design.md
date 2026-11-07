@@ -230,6 +230,10 @@ Settled in the first session, recorded here as they close:
 - **The CLI's default is the txd disassembly** (as §5.4 always said); Phase 1 printed the header while there was no disassembler.
 - **Phase 1 fixtures (2026-11-06):** the Standard Library targets v5+ only, so the v3 and v4 fixtures are `puny-dark-cellar`; `dark-cellar` is built as v5 and v8. Every fixture gets `Serial "000000";` so builds are byte-for-byte reproducible. See `02-phase-1-core-parser.md` §8.
 
+### Decisions recorded, 6 November 2026 (after Phase 5)
+
+- **Play.** The open story can be played in a Play view, through Parchment, as in Frotzsmith. It runs in a sandboxed, opaque-origin iframe with its own CSP under `/play/`, the only place with `'unsafe-eval'`. It's the game itself, not the deferred live debugger (frotztrace). See `07-play.md`.
+
 ## 12. Later
 
 In rough order of likelihood: decompilation to Inform 6 (the phase-two prize); a Frotzsmith "inspect build" panel using the same core; story-file diff (two builds, or two releases of the same game); Glulx; frotztrace, which starts from this model plus Frotzsmith's headless engine.
