@@ -271,3 +271,39 @@ describe('--symbols, --info, --rooms', () => {
     expect(r.err).toContain("can't read no-such.dbg")
   })
 })
+
+describe('--inform (Phase 6)', () => {
+  const runAsync = async (argv: string[]) => {
+    let out = ''
+    let err = ''
+    const code = await main(argv, {
+      stdout: s => void (out += s),
+      stderr: s => void (err += s),
+      readFile: p => new Uint8Array(readFileSync(FIXTURES + p)),
+      version: '9.9.9',
+    })
+    return { code, out, err }
+  }
+
+  it('decompiles an Inform story to Inform 6, every routine checked by compiling it again', async () => {
+    const r = await runAsync(['--inform', '--symbols', 'hermit.dbg', 'hermit.z5'])
+    expect(r.code).toBe(0)
+    expect(r.out).toContain('Include "Parser";')
+    expect(r.out).toContain('[ Initialise;')
+    expect(r.out).toMatch(/^Object -> hermit "old hermit"$/m)
+    expect(r.err).toMatch(/every one compiles back the same/)
+  }, 60_000)
+
+  it('without a debug file, with names made up from the story', async () => {
+    const r = await runAsync(['--inform', 'dark-cellar.z5'])
+    expect(r.code).toBe(0)
+    expect(r.out).toContain('The story had no debug file')
+    expect(r.out).toMatch(/^Object -> brass_lantern "brass lantern"$/m)
+  }, 60_000)
+
+  it('takes one file and no other option but --symbols', async () => {
+    const r = await runAsync(['--inform', '-o', 'hermit.z5'])
+    expect(r.code).toBe(2)
+    expect(r.err).toMatch(/--inform takes one story file/)
+  })
+})

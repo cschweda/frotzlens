@@ -146,9 +146,13 @@ test('symbols: a debug file names things, and draws the map', async ({ page }) =
   await axe(page, 'the map')
   await visit(page, '#abbreviations')
   await axe(page, 'abbreviations')
+  // The Source view decompiles in a worker, checking it by compiling it again with Inform in WebAssembly.
   await visit(page, '#source')
   await expect(page.getByRole('heading', { level: 1, name: 'Inform 6 source' })).toBeVisible()
-  await expect(page.locator('main').getByText('In progress', { exact: true }).first()).toBeVisible()
+  await expect(page.getByRole('button', { name: /^Download .+\.inf$/ })).toBeVisible({ timeout: 60_000 })
+  const source = page.getByRole('region', { name: 'Inform 6 source' })
+  await expect(source).toContainText('Include "Parser";')
+  await expect(page.getByText(/comes back as the same instructions/)).toBeVisible()
   await axe(page, 'source')
 
   // Names off: txd's numbers again.

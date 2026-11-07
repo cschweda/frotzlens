@@ -23,6 +23,9 @@ importers:
 
   apps/web:
     dependencies:
+      '@frotzinc/inform6-wasm':
+        specifier: workspace:*
+        version: link:../../packages/inform6-wasm
       '@frotzinc/nuxt-base':
         specifier: workspace:*
         version: link:../../packages/nuxt-base
@@ -60,6 +63,9 @@ importers:
 
   packages/cli:
     dependencies:
+      '@frotzinc/inform6-wasm':
+        specifier: workspace:*
+        version: link:../inform6-wasm
       '@frotzinc/zcode':
         specifier: workspace:*
         version: link:../zcode

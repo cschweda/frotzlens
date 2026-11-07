@@ -177,6 +177,13 @@ The inlined checks are taken out before the statements are written (`desugar`), 
 
 **Proof:** with and without debug files, every game routine of every fixture is statements, structured and idiomatic; no fixture's game code has any assembly left, and none needs the veneer written out. The stories are what they were (with debug files, all 16 the same bytes).
 
+## 5e. Progress: 6e, in the app and the CLI (2026-11-07)
+
+- **The app's Source view** shows the open story's source. A worker (`decompile.worker.ts`), fetched with the compiler's WebAssembly and library texts only when the view is opened, runs `decompileChecked` with `@frotzinc/inform6-wasm`, so the check is the tests' check, in the browser. Without a loaded debug file it first finds the library (`findReference`) and makes up names. The view says how many routines came back the same, offers **Download `.inf`** and Copy, and highlights a routine linked from the Routines view (`#source/4f4`); a library routine is said to be `Include`d. The site's Content-Security-Policy allows `wasm-unsafe-eval` for this.
+- **The CLI:** `frotzlens --inform game.z5 [--symbols gameinfo.dbg]` prints the checked source, says on stderr how it came out, and exits 1 if a routine still differed.
+
+**Phase 6 is done.** What's left is in §6 (risks) and §7's later item, ZIL source.
+
 ## 6. Risks
 
 - **Library versions we haven't compiled.** The matches cover the versions `inform6-wasm` has (6.12.x, PunyInform). A story built with a different version decompiles with its whole library emitted as game code and no `Include` (§3a), so nothing is declared twice: correct, just longer.

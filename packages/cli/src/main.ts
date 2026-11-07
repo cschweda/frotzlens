@@ -1,4 +1,4 @@
-import { parseStory, readSymbols, roomGraph, symbolsMatch, type RoomGraph, type StoryFile, type Symbols } from '@frotzinc/zcode'
+import { decompileChecked, findReference, inferSymbols, parseStory, readSymbols, roomGraph, symbolsMatch, type RoomGraph, type StoryFile, type Symbols } from '@frotzinc/zcode'
 import {
   formatAbbreviations,
   formatDictionary,
@@ -47,6 +47,12 @@ Disassembly (txd):
       --symbols <file>  names from Inform's debug file (gameinfo.dbg, written
                         with -k): routines, globals, locals, attributes and
                         properties by name. No longer txd's text.
+
+Inform 6 source:
+      --inform          the story decompiled to Inform 6 (an Inform story): one
+                        .inf, the library as Includes, each routine checked by
+                        compiling it again (with Inform 6.44, built in). Names
+                        from --symbols if given, else made up from the story.
 
 About the file:
       --info            what made it (compiler, library, Inform's veneer)
@@ -122,8 +128,47 @@ function formatRooms(story: StoryFile, g: RoomGraph): string {
   return `${lines.join('\n')}\n`
 }
 
-/** Runs the CLI; returns the exit code (0 ok, 1 a file couldn't be read or parsed, 2 usage). */
-export function main(argv: string[], io: Io): number {
+/**
+ * --inform: the story as Inform 6 (Phase 6), checked by compiling it again. The compiler,
+ * @frotzinc/inform6-wasm, is loaded only for this.
+ */
+async function inform(file: string, story: StoryFile, symbols: Symbols | undefined, io: Io): Promise<number> {
+  if (story.fingerprint?.compiler !== 'inform6') {
+    io.stderr(`frotzlens: ${file}: --inform needs a story Inform compiled (this one ${story.fingerprint?.compiler === 'zilf' ? 'is ZILF\'s' : "isn't Inform's"})\n`)
+    return 1
+  }
+  const { compile } = await import('@frotzinc/inform6-wasm')
+  const library = story.fingerprint.library?.name === 'PunyInform' ? 'puny' : 'std'
+  const version = (`z${story.header.version}`) as 'z3' | 'z4' | 'z5' | 'z8'
+  let names = symbols
+  if (!names) {
+    const reference = await findReference(story, async (source, lib, v) => {
+      const out = await compile(source, { version: v, library: lib, debug: true })
+      return out.ok && out.story && out.dbg ? { story: parseStory(out.story), symbols: readSymbols(out.dbg) } : undefined
+    })
+    if (!reference) {
+      io.stderr(`frotzlens: ${file}: couldn't compile its library alone to compare it with\n`)
+      return 1
+    }
+    names = inferSymbols(story, reference)
+  }
+  const result = await decompileChecked(story, names, async source => {
+    const out = await compile(source, { version, library })
+    return out.ok && out.story ? { story: parseStory(out.story) } : { errorLines: out.diagnostics.filter(d => d.severity !== 'warning' && d.line).map(d => d.line!) }
+  })
+  io.stdout(result.source)
+  for (const p of result.problems) io.stderr(`frotzlens: ${file}: ${p}\n`)
+  const written = result.statementRoutines.length
+  io.stderr(
+    result.compiled
+      ? `frotzlens: ${file}: ${result.statements.length} of ${written} routines as statements, ${result.idiomatic.length} with their control flow and Inform's syntax; ${result.differing.length ? `${result.differing.length} still differ` : 'every one compiles back the same'}\n`
+      : `frotzlens: ${file}: the source didn't compile again, so its routines are Inform assembly\n`,
+  )
+  return result.compiled && !result.differing.length ? 0 : 1
+}
+
+/** Runs the CLI; returns the exit code (0 ok, 1 a file couldn't be read or parsed, 2 usage). --inform's is a promise. */
+export function main(argv: string[], io: Io): number | Promise<number> {
   const wanted = new Set<Section>()
   const files: string[] = []
   let width = 79
@@ -133,6 +178,7 @@ export function main(argv: string[], io: Io): number {
   let noGrammar = false
   let routine: number | undefined
   let symbolsFile: string | undefined
+  let toInform = false
   let info = false
   let rooms = false
 
@@ -160,6 +206,8 @@ export function main(argv: string[], io: Io): number {
         noGrammar = true
       } else if (arg === '--symbols') {
         symbolsFile = value()
+      } else if (arg === '--inform') {
+        toInform = true
       } else if (arg === '--info') {
         info = true
       } else if (arg === '--rooms') {
@@ -204,8 +252,12 @@ export function main(argv: string[], io: Io): number {
     io.stderr(`frotzlens: --rooms needs --symbols: the exits are found by their property names\n\n${USAGE}`)
     return 2
   }
+  if (toInform && (files.length !== 1 || json || wanted.size || routine !== undefined || info || rooms || txd)) {
+    io.stderr(`frotzlens: --inform takes one story file and no other option but --symbols\n\n${USAGE}`)
+    return 2
+  }
   // No section asked for: the disassembly.
-  if (!wanted.size && routine === undefined && !info && !rooms) txd = true
+  if (!wanted.size && routine === undefined && !info && !rooms && !toInform) txd = true
 
   let symbols: Symbols | undefined
   if (symbolsFile) {
@@ -235,6 +287,10 @@ export function main(argv: string[], io: Io): number {
     // The debug file's names only for its own story.
     const own = symbols && symbolsMatch(story.bytes, symbols) !== false ? symbols : undefined
     if (symbols && !own) io.stderr(`frotzlens: ${file}: ${symbolsFile} was written for another story; its names are left out\n`)
+    if (toInform) {
+      if (story.errors.some(e => e.severity === 'error')) return 1
+      return inform(file, story, own, io)
+    }
     const graph = own && rooms ? roomGraph(story, own) : undefined
     if (json) {
       // The debug file's story prefix as hex, not a typed array's 64 numbered keys.

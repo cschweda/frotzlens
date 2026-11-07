@@ -88,6 +88,7 @@ function jump(target: number) {
       <a v-if="prev" :href="`#routine/${hex(prev.address)}`" class="text-muted hover:underline">← {{ routineName(story, prev.address) }}</a>
       <a v-if="next" :href="`#routine/${hex(next.address)}`" class="text-muted hover:underline">{{ routineName(story, next.address) }} →</a>
     </nav>
+    <p v-if="story.fingerprint?.compiler === 'inform6'" class="text-sm"><a :href="`#source/${hex(routine.address)}`" class="text-lamp underline">This routine as Inform 6 source</a></p>
     <div class="overflow-x-auto rounded-xl border border-default bg-muted" role="region" aria-label="Disassembly" tabindex="0">
       <div class="data min-w-max p-4 text-sm leading-6">
         <div class="whitespace-pre text-highlighted">{{ view.header }}</div>

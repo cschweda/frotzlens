@@ -32,7 +32,8 @@
 #    script; (styles): Nuxt UI's inline styles.
 #  - img-src blob: a Blorb cover image is shown from a blob URL.
 #  - frame-src 'self': the Play view embeds the player (/play/), below.
-#  - No 'wasm-unsafe-eval': the parser is TypeScript, no WebAssembly on the site.
+#  - 'wasm-unsafe-eval': the Source view's worker runs Inform 6.44 in WebAssembly
+#    (@frotzinc/inform6-wasm) to check the decompiled source; nothing else does.
 # Checked in Phase 3: the built site, served with exactly this header, loads,
 # parses a story in its Web Worker and opens the palette with no violations.
 [[headers]]
@@ -42,7 +43,7 @@
     X-Content-Type-Options = "nosniff"
     Permissions-Policy = "camera=(), microphone=(), geolocation=(), payment=()"
     Referrer-Policy = "strict-origin-when-cross-origin"
-    Content-Security-Policy = "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self'; connect-src 'self'; worker-src 'self'; frame-src 'self'; frame-ancestors 'none'; base-uri 'self'; form-action 'self'; object-src 'none'"
+    Content-Security-Policy = "default-src 'self'; script-src 'self' 'unsafe-inline' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self'; connect-src 'self'; worker-src 'self'; frame-src 'self'; frame-ancestors 'none'; base-uri 'self'; form-action 'self'; object-src 'none'"
 
 # The player (/play/: vendored Parchment, apps/web/public/play/). It overrides the rules above for
 # its own pages (later rules override earlier ones on Netlify):
