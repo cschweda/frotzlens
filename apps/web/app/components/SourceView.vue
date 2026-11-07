@@ -44,7 +44,14 @@ const summary = computed(() => {
   if (!r) return ''
   if (!r.compiled) return 'The source didn’t compile again, so every routine is written as Inform assembly.'
   const all = r.idiomatic.length === r.of
-  return `${r.of} routine${r.of === 1 ? '' : 's'}: ${all ? 'every one' : `${r.idiomatic.length}`} written with Inform’s control flow and syntax${all ? '' : `, ${r.statements.length - r.idiomatic.length} as plainer statements, ${r.of - r.statements.length} as assembly`}. ${r.differing.length ? `${r.differing.length} still came back differently when compiled again.` : 'Compiled again, every one comes back as the same instructions.'}`
+  const one = r.of === 1
+  const how = all
+    ? `${one ? 'The game’s one routine is' : `All ${r.of} of the game’s routines are`} written with Inform’s control flow and syntax.`
+    : `Of the game’s ${r.of} routines, ${r.idiomatic.length} are written with Inform’s control flow and syntax, ${r.statements.length - r.idiomatic.length} as plainer statements, and ${r.of - r.statements.length} as assembly.`
+  const check = r.differing.length
+    ? `${r.differing.length} still came back differently when compiled again.`
+    : `Compiled again, ${one ? 'it comes' : 'every one comes'} back as the same instructions.`
+  return `${how} ${check}`
 })
 </script>
 

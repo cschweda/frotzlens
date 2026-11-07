@@ -152,7 +152,7 @@ test('symbols: a debug file names things, and draws the map', async ({ page }) =
   await expect(page.getByRole('button', { name: /^Download .+\.inf$/ })).toBeVisible({ timeout: 60_000 })
   const source = page.getByRole('region', { name: 'Inform 6 source' })
   await expect(source).toContainText('Include "Parser";')
-  await expect(page.getByText(/every one comes back as the same instructions/)).toBeVisible()
+  await expect(page.getByText(/comes back as the same instructions/)).toBeVisible()
   await axe(page, 'source')
 
   // Names off: txd's numbers again.

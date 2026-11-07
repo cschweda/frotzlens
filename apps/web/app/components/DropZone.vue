@@ -19,6 +19,10 @@ function onPick(e: Event) {
   if (file) openFile(file)
 }
 const trySample = () => openUrl(site.sample.file, `/samples/${site.sample.file}`)
+// ?sample opens the sample straight away, so a link can show it: /?sample#source is its Inform 6 source.
+onMounted(() => {
+  if (new URLSearchParams(location.search).has('sample') && status.value !== 'loading') trySample()
+})
 </script>
 
 <template>
