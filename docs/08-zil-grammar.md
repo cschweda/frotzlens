@@ -26,7 +26,7 @@ Dictionary words carry a part-of-speech byte and up to two values, in an order Z
 The globals `VERBS`, `ACTIONS`, `PREACTIONS` and `PREPOSITIONS` start out holding the tables' addresses. So Frotzlens looks among the globals' starting values for:
 - a verb table whose every entry reads as a syntax table;
 - an action table whose every word is a routine;
-- a pre-action table (zeros and routines, at least one routine);
+- a pre-action table: a word per action (zeros and routines, at least one routine), or `COMPACT-PREACTIONS?`'s pairs of action number and routine, ending with -1;
 - a preposition table whose words are dictionary entries.
 
 Inform stories are skipped. They have their own grammar table.
