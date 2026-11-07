@@ -2,7 +2,7 @@
 
 All notable changes to `@frotzinc/zcode`. Versions follow [Semantic Versioning](https://semver.org/). Part of [Frotz, Inc.](https://frotzinc.com).
 
-## [Unreleased]
+## [0.2.0] - 2026-11-07
 
 - ZIL's syntax tables, as `story.zilGrammar`, for stories that aren't Inform's (ZILF's, and Infocom's old parser): every verb with its words and syntax lines (prepositions, FIND flags, search options, TOPIC objects), the action and pre-action routines, and the prepositions. Found through the globals, without symbols; checked (locally: the stories aren't in this repository) against the `<SYNTAX>` forms of zillib and four ZILF games. `COMPACT-SYNTAXES?` lines and `COMPACT-PREACTIONS?` tables are read too. `parseZilGrammar`, `verbNumber`, `ZILLIB_SEARCH_FLAGS`, `INFOCOM_SEARCH_FLAGS`.
 - `formatGrammar` prints ZIL's tables in infodump's layout, each line as its `SYNTAX` form reads (Frotzlens's own text: Ztools can't read them). `formatZilGrammar`, `zilLineText`, `zilOptions`, `zilPreposition`, `zilVerbWord`.

@@ -35,6 +35,7 @@ onMounted(() => (shortcut.value = modShortcutLabel('k')))
           <span class="hidden sm:inline">Names</span>
         </UButton>
         <UButton v-if="loaded" color="neutral" variant="ghost" icon="i-lucide-file-plus" aria-label="Open another file" @click="emit('close')" />
+        <AboutMenu />
         <UColorModeButton />
       </div>
     </div>
