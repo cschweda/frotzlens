@@ -131,6 +131,22 @@ describe('exit codes and messages', () => {
     expect(run(['-w', ' ', 'demo.z5']).code).toBe(2)
   })
 
+  it('a Blorb with a story in it: the same disassembly as the bare story', () => {
+    const story = readFileSync(FIXTURES + 'demo.z5')
+    const be = (n: number) => Buffer.from([(n >>> 24) & 255, (n >>> 16) & 255, (n >>> 8) & 255, n & 255])
+    const zcod = Buffer.concat([Buffer.from('ZCOD'), be(story.length), story, Buffer.alloc(story.length & 1)])
+    const dir = mkdtempSync(join(tmpdir(), 'frotzlens-cli-'))
+    try {
+      writeFileSync(join(dir, 'demo.zblorb'), Buffer.concat([Buffer.from('FORM'), be(4 + zcod.length), Buffer.from('IFRS'), zcod]))
+      const r = spawnSync(process.execPath, [BIN, 'demo.zblorb'], { cwd: dir, encoding: 'utf8', maxBuffer: 1 << 26 })
+      expect(r.status).toBe(0)
+      expect(r.stderr).toBe('')
+      expect(r.stdout).toBe(run(['demo.z5']).out)
+    } finally {
+      rmSync(dir, { recursive: true, force: true })
+    }
+  })
+
   it('a Blorb file: the error, and no made-up header', () => {
     const dir = mkdtempSync(join(tmpdir(), 'frotzlens-cli-'))
     try {

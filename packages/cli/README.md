@@ -40,7 +40,7 @@ Sections (infodump):
 
 Short options bundle as `infodump`'s do (`-oti`). The exit status is 0 on success, 1 if a file couldn't be read or had errors (reported on stderr; whatever could be read is still printed), and 2 for a usage error.
 
-**Where it differs from Ztools:** PunyInform stories use Inform's version 3 grammar, which `txd` and `infodump` misread (as version 1; `infodump` stops partway). `frotzlens` reads it correctly, so for those stories its grammar sections and notes are right where the originals are garbage. A Blorb (`.zblorb`) file isn't read yet: `frotzlens` says so and exits 1. For versions 1, 2, 6 and 7 it shows the header and nothing else.
+**Where it differs from Ztools:** PunyInform stories use Inform's version 3 grammar, which `txd` and `infodump` misread (as version 1; `infodump` stops partway). `frotzlens` reads it correctly, so for those stories its grammar sections and notes are right where the originals are garbage. A Blorb (`.zblorb`, `.zlb`) is unwrapped and its story read; one with no Z-machine story in it (a Glulx game's) is reported, with exit status 1. For versions 1, 2, 6 and 7 it shows the header and nothing else.
 
 Everything runs locally. Nothing is uploaded. `frotzlens` is the command-line side of [Frotzlens](https://frotzlens.frotzinc.com), the browser-based story file inspector, and is built on [`@frotzinc/zcode`](https://www.npmjs.com/package/@frotzinc/zcode) (MIT).
 

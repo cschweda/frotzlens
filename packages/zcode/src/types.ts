@@ -25,9 +25,11 @@ export type Id =
 // ── The whole file ────────────────────────────────────────────────
 
 export interface StoryFile {
-  /** The story itself (once Blorb unwrap lands, the unwrapped story). */
+  /** The story itself: for a Blorb with a story in it, that story; for one without, the Blorb's own bytes. */
   bytes: Uint8Array
   container: 'bare' | 'blorb'
+  /** The Blorb's chunks, resources and metadata, when the file was one. */
+  blorb?: import('./blorb.js').Blorb
   header: Header
   memory: MemoryMap
   /** 96 entries (v2+), by index; empty in v1. */
@@ -44,7 +46,8 @@ export interface StoryFile {
   grammar?: import('./grammar.js').Grammar
   /** Cross-references, both ways, by Id (Phase 2). */
   xrefs: import('./xrefs.js').Xrefs
-  // Phase 5:  symbols, fingerprint, rooms
+  /** What made it: compiler, library, Inform's veneer routines (Phase 5). */
+  fingerprint?: import('./fingerprint.js').Fingerprint
   errors: ParseError[]
 }
 
@@ -241,6 +244,8 @@ export interface ParseError {
     | 'bad-header'
     | 'unsupported-version'
     | 'blorb-unsupported'
+    /** A Blorb that doesn't follow the spec somewhere; its story is still read when it can be found. */
+    | 'bad-blorb'
     | 'bad-address'
     | 'bad-object'
     | 'bad-property'

@@ -154,9 +154,9 @@ export function main(argv: string[], io: Io): number {
       models.push({ file, ...forJson(story) })
       continue
     }
-    // Nothing to show for a file that isn't a story (a Blorb, a bad or missing header); the
-    // errors above say why. A version 1, 2, 6 or 7 file still has a real header to show.
-    const notAStory = story.container === 'blorb' || story.bytes.length < 64 || story.errors.some(e => e.code === 'bad-header')
+    // Nothing to show for a file that isn't a story (a Blorb with no story in it, a bad or missing
+    // header); the errors above say why. A version 1, 2, 6 or 7 file still has a real header to show.
+    const notAStory = story.bytes.length < 64 || story.errors.some(e => e.code === 'bad-header' || e.code === 'blorb-unsupported')
     if (notAStory) continue
     let continuation = false
     for (const s of SECTIONS) {

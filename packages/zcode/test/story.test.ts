@@ -111,7 +111,8 @@ describe('bad input never throws (error policy)', () => {
     blorb.set([...'IFRS'].map(c => c.charCodeAt(0)), 8)
     const s = parseStory(blorb)
     expect(s.container).toBe('blorb')
-    expect(codes(s)).toEqual(['blorb-unsupported'])
+    // Its FORM length is 0: too short even for its type, and no story in it.
+    expect(codes(s)).toEqual(['bad-blorb', 'blorb-unsupported'])
   })
 
   it('a truncated file (corrupt-truncated): an error, and every table that fits', () => {

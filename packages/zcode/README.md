@@ -13,7 +13,7 @@ story.memory.segments             // the header, object table, dictionary, … a
 story.errors                      // [] — or what went wrong, and the model still holds everything that could be read
 ```
 
-It covers versions 3, 4, 5 and 8. For versions 1, 2, 6 and 7 it reads the header and reports `unsupported-version`. It recognises a Blorb file and reports `blorb-unsupported`; unwrapping comes later.
+It covers versions 3, 4, 5 and 8. For versions 1, 2, 6 and 7 it reads the header and reports `unsupported-version`. A Blorb file is unwrapped: the story inside is parsed, and `story.blorb` lists the rest (pictures, sounds, the cover, the iFiction metadata). A Blorb with no Z-machine story in it (a Glulx game's) reports `blorb-unsupported`.
 
 ## What's in the model
 

@@ -37,14 +37,14 @@ const trySample = () => openUrl(site.sample.file, `/samples/${site.sample.file}`
       <p class="max-w-xl text-lg text-default">
         Drop a Z-machine story file to see what's inside.
       </p>
-      <p class="text-sm text-muted">.z3, .z4, .z5 or .z8 — read here, in your browser. Nothing is uploaded.</p>
+      <p class="text-sm text-muted">.z3, .z4, .z5, .z8, or a Blorb (.zblorb, .zlb) — read here, in your browser. Nothing is uploaded.</p>
       <div class="flex flex-wrap items-center justify-center gap-3">
         <UButton size="lg" icon="i-lucide-folder-open" :disabled="busy" @click="input?.click()">Choose a file</UButton>
         <UButton size="lg" color="neutral" variant="outline" icon="i-lucide-sparkles" :disabled="busy" @click="trySample">
           Try a sample
         </UButton>
       </div>
-      <input ref="input" type="file" class="sr-only" accept=".z3,.z4,.z5,.z8" tabindex="-1" aria-hidden="true" @change="onPick">
+      <input ref="input" type="file" class="sr-only" accept=".z3,.z4,.z5,.z8,.zblorb,.zlb" tabindex="-1" aria-hidden="true" @change="onPick">
       <p v-if="status === 'loading'" class="text-sm text-muted" role="status">Reading…</p>
       <p v-else-if="status === 'failed'" class="text-sm text-error" role="alert">{{ failure }}</p>
     </div>
