@@ -73,7 +73,7 @@ export function decompileInform(story: StoryFile, opts: DecompileOptions): Decom
   const arrays = new Map(sym.arrays.map(a => [a.address, a]))
   const objectCount = story.objects.objects.length
   /** The game's objects, and those written out so far. */
-  const gameObjects = new Set(sym.declarations.filter(d => d.kind === 'object' && d.location.file === 0).map(d => d.value))
+  let gameObjects = new Set<number>() // filled once it's known which files are the library's
   const declaredObjects = new Set<number>()
 
   const routineName = (address: number): string | undefined => {
@@ -422,6 +422,7 @@ export function decompileInform(story: StoryFile, opts: DecompileOptions): Decom
   const decls = sym.declarations
   const game = decls.filter(d => !isLibraryFile(d.location.file))
   const library = decls.filter(d => isLibraryFile(d.location.file))
+  gameObjects = new Set(game.filter(d => d.kind === 'object').map(d => d.value))
   /** Each top-level include, in the order the compiler read them, with its declarations' keys by kind. */
   const blocks: { name: string; first: number; min: Record<string, number> }[] = []
   for (const d of library) {
@@ -438,11 +439,23 @@ export function decompileInform(story: StoryFile, opts: DecompileOptions): Decom
   blocks.sort((a, b) => a.first - b.first)
 
   // The game's declarations in source order, each turned into text.
-  // (Declarations from another file come where that file's first one would; within a file, in order.)
-  game.sort((a, b) => a.location.file - b.location.file || (a.location.position ?? a.location.line * 1000) - (b.location.position ?? b.location.line * 1000))
+  // The main file's in its order; another of the game's files goes in, in its own order, just before
+  // the first of the main file's that the compiler must have read after it (as an Include would).
+  const byPosition = (a: SymbolDeclaration, b: SymbolDeclaration) => (a.location.position ?? a.location.line * 1000) - (b.location.position ?? b.location.line * 1000)
+  const ordered = game.filter(d => d.location.file === MAIN_FILE).sort(byPosition)
+  for (const f of [...new Set(game.map(d => d.location.file))].filter(f => f !== MAIN_FILE).sort((a, b) => a - b)) {
+    const theirs = game.filter(d => d.location.file === f).sort(byPosition)
+    const min: Record<string, number> = {}
+    for (const d of theirs) {
+      const cat = ORDERED[d.kind]
+      if (cat && (min[cat] === undefined || d.value < min[cat]!)) min[cat] = d.value
+    }
+    const at = ordered.findIndex(d => d.location.file === MAIN_FILE && ORDERED[d.kind] !== undefined && min[ORDERED[d.kind]!] !== undefined && d.value > min[ORDERED[d.kind]!]!)
+    ordered.splice(at < 0 ? ordered.length : at, 0, ...theirs)
+  }
   const items: Item[] = []
   const declaredHere = new Set<string>()
-  for (const d of game) {
+  for (const d of ordered) {
     const key = `${d.kind}:${d.value}:${d.name}`
     if (declaredHere.has(key)) continue
     declaredHere.add(key)
