@@ -94,6 +94,12 @@ export function routineStatements(r: Routine, n: StatementNames): string[] {
       return { text: constant(op, i, k), precedence: ATOM, asm: [] }
     }
     const ops = i.operands.map((_, k) => operand(k))
+    /** An operand that is an object: by its name when it's a one-byte number the names know. */
+    const obj = (k: number): string => {
+      const op = i.operands[k]!
+      if (!sp[k] && op.kind === 'small') return n.object(op.value) ?? ops[k]!.text
+      return ops[k]!.text
+    }
     const sub = (node: Node, above: number) => (node.precedence < above ? `(${node.text})` : node.text)
     const asmOf = [...taken.slice().reverse().flatMap(x => x.asm)]
     const keep = (node: Node) => {
@@ -130,8 +136,8 @@ export function routineStatements(r: Routine, n: StatementNames): string[] {
     } else if (name === 'LOADW' && i.store !== undefined) keep({ text: `${sub(ops[0]!, ATOM)}-->${sub(ops[1]!, ATOM)}`, precedence: 8, asm: [] })
     else if (name === 'LOADB' && i.store !== undefined) keep({ text: `${sub(ops[0]!, ATOM)}->${sub(ops[1]!, ATOM)}`, precedence: 8, asm: [] })
     else if (name === 'GET_PROP' && i.store !== undefined && i.operands[1]!.kind !== 'variable' && n.property(i.operands[1]!.value)) {
-      keep({ text: `${sub(ops[0]!, ATOM)}.${n.property(i.operands[1]!.value)}`, precedence: 9, asm: [] })
-    } else if (name === 'GET_PARENT' && i.store !== undefined) keep({ text: `parent(${ops[0]!.text})`, precedence: ATOM, asm: [] })
+      keep({ text: `${i.operands[0]!.kind === 'small' ? obj(0) : sub(ops[0]!, ATOM)}.${n.property(i.operands[1]!.value)}`, precedence: 9, asm: [] })
+    } else if (name === 'GET_PARENT' && i.store !== undefined) keep({ text: `parent(${obj(0)})`, precedence: ATOM, asm: [] })
     else if (name === 'RANDOM' && i.store !== undefined) keep({ text: `random(${ops[0]!.text})`, precedence: ATOM, asm: [] })
     else if (i.info.call && i.store !== undefined && i.operands[0]!.kind !== 'variable' && n.routine(i.operands[0]!.value)) {
       keep({ text: `${n.routine(i.operands[0]!.value)}(${ops.slice(1).map(o => o.text).join(', ')})`, precedence: ATOM, asm: [] })
@@ -148,13 +154,13 @@ export function routineStatements(r: Routine, n: StatementNames): string[] {
     // A string literal: Inform prints a long one from the strings area by itself (print_paddr).
     else if (name === 'PRINT_PADDR' && !sp[0] && ops[0]!.text.startsWith('"')) statement(`print ${ops[0]!.text}`)
     else if (name === 'PRINT_PADDR') statement(`print (string) ${ops[0]!.text}`)
-    else if (name === 'PRINT_OBJ') statement(`print (object) ${ops[0]!.text}`)
+    else if (name === 'PRINT_OBJ') statement(`print (object) ${obj(0)}`)
     else if (i.info.call && i.store === undefined && i.operands[0]!.kind !== 'variable' && n.routine(i.operands[0]!.value)) {
       statement(`${n.routine(i.operands[0]!.value)}(${ops.slice(1).map(o => o.text).join(', ')})`)
-    } else if (name === 'SET_ATTR' && i.operands[1]!.kind !== 'variable' && n.attribute(i.operands[1]!.value)) statement(`give ${ops[0]!.text} ${n.attribute(i.operands[1]!.value)}`)
-    else if (name === 'CLEAR_ATTR' && i.operands[1]!.kind !== 'variable' && n.attribute(i.operands[1]!.value)) statement(`give ${ops[0]!.text} ~${n.attribute(i.operands[1]!.value)}`)
-    else if (name === 'INSERT_OBJ') statement(`move ${ops[0]!.text} to ${ops[1]!.text}`)
-    else if (name === 'REMOVE_OBJ') statement(`remove ${ops[0]!.text}`)
+    } else if (name === 'SET_ATTR' && i.operands[1]!.kind !== 'variable' && n.attribute(i.operands[1]!.value)) statement(`give ${obj(0)} ${n.attribute(i.operands[1]!.value)}`)
+    else if (name === 'CLEAR_ATTR' && i.operands[1]!.kind !== 'variable' && n.attribute(i.operands[1]!.value)) statement(`give ${obj(0)} ~${n.attribute(i.operands[1]!.value)}`)
+    else if (name === 'INSERT_OBJ') statement(`move ${obj(0)} to ${obj(1)}`)
+    else if (name === 'REMOVE_OBJ') statement(`remove ${obj(0)}`)
     else if (name === 'RTRUE') statement('rtrue')
     else if (name === 'RFALSE') statement('rfalse')
     else if (name === 'RET') statement(`return ${ops[0]!.text}`)

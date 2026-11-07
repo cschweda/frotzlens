@@ -30,7 +30,7 @@ function shapeOf(story: StoryFile, r: Routine, index: Map<number, number>): stri
     return out.length ? out.join('|') : String(w)
   }
   const at = new Map(r.instructions.map((i, k) => [i.address, k]))
-  return `${r.locals}:` + r.instructions.map(i => {
+  return `${r.locals}:${r.initialValues.join(',')}:` + r.instructions.map(i => {
     const ops = i.operands.map(o => (o.kind === 'variable' ? `v${o.value}` : o.kind === 'large' ? `L${value(o.value)}` : `s${o.value}`)).join(',')
     const b = i.branch ? (i.branch.returns !== undefined ? `?${i.branch.onTrue}${i.branch.returns}` : `?${i.branch.onTrue}@${at.get(i.branch.target!)}`) : ''
     const j = i.jumpTarget !== undefined ? `@${at.get(i.jumpTarget)}` : ''
@@ -67,9 +67,10 @@ export function differingRoutines(original: StoryFile, recompiled: StoryFile): n
 
 /**
  * decompileInform with statements (6b), checked: the source is compiled again (`compile`, e.g.
- * @frotzinc/inform6-wasm's, giving the parsed story or undefined), and any routine that doesn't come
- * back the same is written as assembly, until they all do or `rounds` run out. `checked` says which
- * of the original's routines (by address) are statements, `differing` any left that still differ.
+ * @frotzinc/inform6-wasm's), and any routine that doesn't come back the same, or doesn't compile (by
+ * the error's line), is written as assembly, until they all do or `rounds` run out. `statements` says
+ * which routines (by address) are statements; `differing` lists those that still differed in the
+ * last compile (empty when the check came out clean).
  */
 export async function decompileChecked(
   story: StoryFile,
@@ -100,7 +101,8 @@ export async function decompileChecked(
     if (!fresh.length) break
     for (const a of fresh) asm.add(a)
   }
-  if (!compiled) last = decompileInform(story, { symbols })
+  // The source as it finally stands (the last round may have put more routines back to assembly).
+  last = compiled ? decompileInform(story, { symbols, statements: a => !asm.has(a) }) : decompileInform(story, { symbols })
   const statements = last.statementRoutines.filter(a => !asm.has(a))
   return { ...last, statements, differing, compiled }
 }

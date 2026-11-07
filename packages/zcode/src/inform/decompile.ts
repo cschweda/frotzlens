@@ -215,15 +215,18 @@ export function decompileInform(story: StoryFile, opts: DecompileOptions): Decom
     }
     const head = `[${header ? ` ${header}` : ''}${locals.length ? ` ${locals.join(' ')}` : ''};`
     const asStatements = !veneer && (opts.statements === true || (typeof opts.statements === 'function' && opts.statements(r.address)))
-    if (asStatements) statementRoutines.push(r.address)
     const body = asStatements
       ? routineStatements(r, {
           ...names,
           property: p => sym.properties[p],
           attribute: a => sym.attributes[a],
-          object: o => sym.objects[o],
+          // By name once it's declared (the library's are, by its Include): a name the compiler
+          // doesn't know yet is written in two bytes, as this one-byte number isn't.
+          object: o => (o > METACLASSES && o <= objectCount && sym.objects[o] && (!gameObjects.has(o) || declaredObjects.has(o)) ? sym.objects[o] : undefined),
         })
       : routineBody(r, names)
+    // A routine counts as statements only when it has one (not one that's all branches).
+    if (asStatements && body.some(l => !/^\s*[@.]/.test(l))) statementRoutines.push(r.address)
     // Each line marked with its routine, for lineRoutines (taken out before the source is returned).
     const mark = `\u0001${r.address}\u0001`
     return [head, ...body, close].map(l => mark + l)
