@@ -6,7 +6,7 @@ All notable changes to Frotzlens: the web app at [frotzlens.frotzinc.com](https:
 
 ## [0.3.0] - 2026-11-07
 
-Phase 6: decompiling to Inform 6. `@frotzinc/zcode` 0.3.0 and the `frotzlens` 0.3.0 CLI carry it.
+Phase 6: decompiling to Inform 6. `@frotzinc/zcode` 0.3.0 and the `frotzlens` 0.3.0 CLI carry it, and are on npm.
 
 ### Added
 - **The Source view: Inform 6 source.** An Inform story (versions 3, 4, 5 and 8; the Standard Library, PunyInform or none) decompiled to one `.inf`, made in a worker and checked there: compiled again with Inform 6.44 in WebAssembly, every routine compared with the story's, and any that doesn't come back the same written plainer, down to Inform assembly. The compiler is fetched only when Source is opened. Download it as an `.inf`, copy it, or follow a routine's "This routine as Inform 6 source" link from the Routines view. With the story's debug file loaded, the source's own names; without one, names made up from the story ([details](docs/09-decompiler.md)).
