@@ -1,6 +1,6 @@
 {
   "name": "@frotzinc/player",
-  "version": "0.0.0",
+  "version": "0.1.0",
   "description": "An accessible Z-machine player as Vue components: built for screen readers and strict Content-Security-Policies, on @frotzinc/zmachine.",
   "license": "MIT",
   "author": "Christopher Schweda",

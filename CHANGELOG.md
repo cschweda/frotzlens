@@ -2,7 +2,11 @@
 
 All notable changes to Frotzlens: the web app at [frotzlens.frotzinc.com](https://frotzlens.frotzinc.com), and this repository. The packages keep their own changelogs: [`@frotzinc/zcode`](packages/zcode/CHANGELOG.md), [`frotzlens`](packages/cli/CHANGELOG.md) (the CLI), [`@frotzinc/worker-rpc`](packages/worker-rpc/CHANGELOG.md), [`@frotzinc/nuxt-base`](packages/nuxt-base/CHANGELOG.md), [`@frotzinc/inform6-wasm`](packages/inform6-wasm/CHANGELOG.md). Versions follow [Semantic Versioning](https://semver.org/). Part of [Frotz, Inc.](https://frotzinc.com).
 
-## [Unreleased]
+## [0.3.1] - 2026-11-07
+
+Frotzlens itself looks and works the same; this release moves its shell into `@frotzinc/nuxt-base` and brings frotzplay into the repository.
+
+- **frotzplay 0.1.0** is live at [frotzplay.netlify.app](https://frotzplay.netlify.app): the site, `@frotzinc/zmachine` 0.1.0 and `@frotzinc/player` 0.1.0 ([its changelog](apps/play/CHANGELOG.md)). The player now sits on its own warm "paper" page.
 
 ### Added
 - **frotzplay** begins in this repository: an accessible Z-machine player for screen-reader users and strict-CSP pages ([design](docs/frotzplay-design.md)). Its interpreter, `@frotzinc/zmachine`, plays every sample exactly as ZVM does ([Phase 1](docs/11-frotzplay-phase-1-interpreter.md)), saves games that restore in ZVM and the other way round, and passes the Czech and Praxix conformance suites ([Phase 2](docs/12-frotzplay-phase-2-state.md)). Its player, `@frotzinc/player`, has the accessibility contract built in and tested in three browsers ([Phase 3](docs/13-frotzplay-phase-3-player.md), [the contract](docs/accessibility.md)). Its site, `apps/play`, is built: the start page with sample stories, every way a story arrives, Blorb covers, a PWA ([Phase 4](docs/14-frotzplay-phase-4-site.md)). The `<frotz-play>` web component embeds under a strict CSP, and *Export* makes a single HTML file or a folder that plays from a double-click ([Phase 5](docs/15-frotzplay-phase-5-embed-export.md)).

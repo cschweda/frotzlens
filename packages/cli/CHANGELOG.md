@@ -2,8 +2,6 @@
 
 All notable changes to `frotzlens`, the Frotzlens CLI. Versions follow [Semantic Versioning](https://semver.org/). Part of [Frotz, Inc.](https://frotzinc.com).
 
-## [Unreleased]
-
 ## [0.3.0] - 2026-11-07
 
 - `--inform`: the story decompiled to Inform 6 (Phase 6), each routine checked by compiling the whole again with Inform 6.44 (`@frotzinc/inform6-wasm`, now a dependency, loaded only for this) and comparing it with the story's. Names from `--symbols` if given, else made up; the library found by compiling it alone. Says on stderr how many routines came back the same; exits 1 if any didn't.

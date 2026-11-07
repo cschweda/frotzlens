@@ -2,7 +2,9 @@
 
 All notable changes to `@frotzinc/nuxt-base`. Versions follow [Semantic Versioning](https://semver.org/). Part of [Frotz, Inc.](https://frotzinc.com).
 
-## [Unreleased]
+## [0.2.0] - 2026-11-07
+
+The family shell, shared by Frotzlens and frotzplay.
 
 ### Added
 - **The family shell**, moved from Frotzlens (and relicensed MIT by its author) so every Frotz, Inc. app shares one header, footer and About menu:

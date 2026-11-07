@@ -24,7 +24,13 @@ function watch(page: Page) {
 async function playsATurn(page: Page) {
   const input = page.getByRole('textbox', { name: 'Command' })
   await expect(input).toBeVisible()
-  await expect(page).toHaveTitle('The Dark Cellar')
+  await expect(page).toHaveTitle('The Dark Cellar — frotzplay')
+  // frotzplay's branding: the mark and name in the header, the links in the footer.
+  await expect(page.getByRole('banner').getByRole('link', { name: 'frotzplay' })).toBeVisible()
+  await expect(page.locator('header svg.fp-logo')).toBeVisible()
+  const nav = page.getByRole('navigation', { name: 'frotzplay' })
+  await expect(nav.getByRole('link', { name: 'Source on GitHub' })).toHaveAttribute('href', 'https://github.com/cschweda/frotzlens/tree/main/apps/play')
+  await expect(nav.getByRole('link', { name: 'From Frotz, Inc.' })).toHaveAttribute('href', 'https://frotzinc.com')
   await input.fill('take lantern')
   await input.press('Enter')
   await expect(page.locator('frotz-play .zp-turn').last()).toContainText('Taken.')

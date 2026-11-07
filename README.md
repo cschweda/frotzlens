@@ -25,6 +25,18 @@ Then **play it**, in the same Parchment interpreter Frotzsmith uses, walled off 
 | ![Inform 6 source: the sample decompiled, checked by compiling it again in the browser](docs/screenshots/source.png) **Inform 6 source.** The story decompiled to Inform 6 and checked by compiling it again in the browser: Download `.inf`, or `frotzlens --inform`. [Open the sample's](https://frotzlens.frotzinc.com/?sample#source). | |
 | ![The drop zone: drop a story file, or try the sample](docs/screenshots/drop-zone.png) **Start here.** Drop a story file, or try the sample. Nothing is uploaded. | ![About Frotzlens: every version, and the licences](docs/screenshots/about.png) **About.** Every version, the licences, the changelog, and a way to report a problem or suggest a feature. |
 
+## frotzplay
+
+![frotzplay — play Z-machine stories in your browser](apps/play/public/og-image.png)
+
+**[frotzplay](apps/play)** is the family's player, built in this repository: an accessible Z-machine player for people who use screen readers and for pages with a strict Content-Security-Policy. It's live at **[frotzplay.netlify.app](https://frotzplay.netlify.app)** (frotzplay.frotzinc.com once its DNS is set). Its own interpreter, [`@frotzinc/zmachine`](packages/zmachine), plays every sample exactly as ZVM does and passes the Czech and Praxix conformance suites; its player, [`@frotzinc/player`](packages/player), has a [published accessibility contract](docs/accessibility.md) tested in three browsers. [Its README](apps/play/README.md) has more, and how it compares with Parchment.
+
+| | |
+|---|---|
+| ![frotzplay's start page: the drop zone and four sample stories](docs/screenshots/frotzplay/start.png) **The start page.** Drop a story, choose a file, or try a sample. | ![The Dark Cellar playing on frotzplay, on its own warm dark page](docs/screenshots/frotzplay/site-playing.png) **Playing.** The story on its own page, dark by default, every piece of text at 7:1 contrast or better. |
+| ![The player's Settings: theme, font, text size and spacing, what the screen reader says, motion and timers](docs/screenshots/frotzplay/settings.png) **Settings.** Three themes, OpenDyslexic, text size and spacing, screen-reader verbosity, the story's timers off. | ![An exported story: frotzplay's header, the player, and links to frotzplay, GitHub and Frotz, Inc.](docs/screenshots/frotzplay/export.png) **Export.** One HTML file that plays from a double-click, or a folder for any web host. |
+| ![The same story on parchment, the light theme](docs/screenshots/frotzplay/play-light.png) **Light: parchment.** | ![The upper window shown as text, with a status row and a map](docs/screenshots/frotzplay/upper-window.png) **The upper window as text**, read aloud on demand. |
+
 ## Who it's for
 
 - **Authors** writing in Inform 6 or ZIL (in [Frotzsmith](https://frotzsmith.com) or at the command line) can see what the compiler made of their game.

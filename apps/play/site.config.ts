@@ -5,8 +5,11 @@
 export const site = {
   name: 'frotzplay',
   tagline: 'Play Z-machine stories in your browser',
+  /** At most 160 characters: search results and link previews cut longer ones. The long version is llms.txt. */
   description:
-    'An accessible Z-machine player: play Z-machine interactive fiction (versions 3, 4, 5 and 8, bare or in a Blorb, as Inform makes it) in your browser, built for screen readers and strict security policies. Saves are real files; nothing is uploaded.',
+    'An accessible Z-machine player: play interactive fiction in your browser, built for screen readers and strict security policies. Nothing is uploaded.',
+  /** When frotzplay was first published (the structured data's datePublished). */
+  published: '2026-11-07',
   /** What the social card (public/og-image.png) shows, for its alt text. */
   imageAlt:
     'The frotzplay logo, an amber tile with a play triangle and a prompt cursor, beside the words "Play Z-machine stories in your browser", over a faded transcript of The Dark Cellar.',

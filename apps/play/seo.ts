@@ -3,8 +3,12 @@
  * colours, and schema.org JSON-LD, as Frotzlens's nuxt.config.ts has them. apps/play's
  * nuxt.config.ts (Phase 4) uses it: `app: { head: seoHead }`.
  */
+import { buildCommit } from '@frotzinc/nuxt-base/netlify/version'
 import type { AppHeadMetaObject } from 'nuxt/schema'
 import { site } from './site.config'
+
+/** The build's commit date (YYYY-MM-DD): the structured data's dateModified, so it moves with every deploy. */
+const modified = buildCommit(new URL('../../', import.meta.url))?.date ?? new Date().toISOString().slice(0, 10)
 
 export const title = `${site.name} — ${site.tagline}`
 const image = `${site.siteUrl}/og-image.png`
@@ -29,6 +33,9 @@ export const jsonLd = {
   offers: { '@type': 'Offer', price: '0', priceCurrency: 'USD' },
   license: 'https://spdx.org/licenses/GPL-3.0-or-later.html',
   codeRepository: site.repoUrl,
+  datePublished: site.published,
+  dateModified: modified,
+  inLanguage: 'en',
   accessMode: ['textual'],
   accessModeSufficient: [['textual']],
   accessibilityFeature: ['structuralNavigation', 'readingOrder', 'highContrastDisplay', 'displayTransformability', 'timingControl', 'ttsMarkup'],

@@ -2,14 +2,14 @@
 
 All notable changes to `@frotzinc/zcode`. Versions follow [Semantic Versioning](https://semver.org/). Part of [Frotz, Inc.](https://frotzinc.com).
 
-## [Unreleased]
+## [0.4.0] - 2026-11-07
+
+What frotzplay's interpreter needs from the decoder.
 
 ### Added
 - `decodeZscii(ctx, zchars)`: Z-characters to ZSCII codes, by the same rules as `decodeZchars` but with nothing lost (no `?`, no caps, no budget), for an interpreter. A test checks the two agree on every string of every fixture.
 - The interpreter's building blocks are exported: `decodeInstruction` and its types, the opcode tables (`op0`…`opExt`), `Bytes`, `OutOfBounds`, `Malformed`, and the text functions (`decodeZchars`, `decodeZscii`, `readZchars`, `zsciiToText`, `defaultExtra`, `readAlphabetTable`, `readUnicodeTable`, `textContextFor`).
 - `@buffer_screen` (EXT:29, Standard 1.1) in the opcode table.
-
-## [Unreleased]
 
 ## [0.3.0] - 2026-11-07
 
