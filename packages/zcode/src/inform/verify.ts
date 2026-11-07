@@ -89,13 +89,20 @@ export async function decompileChecked(
   symbols: Symbols,
   compile: (source: string) => Promise<{ story?: StoryFile; errorLines?: number[] }>,
   rounds = 8,
-): Promise<Decompiled & { statements: number[]; structured: number[]; differing: number[]; compiled: boolean }> {
-  // Each routine starts structured (6c); one that doesn't come back the same drops to flat
-  // statements (6b), and then to assembly.
+): Promise<Decompiled & { statements: number[]; structured: number[]; idiomatic: number[]; differing: number[]; compiled: boolean }> {
+  // Each routine starts with the veneer's calls as syntax (6d) and its control flow structured (6c);
+  // one that doesn't come back the same drops a level: without the idioms, then flat statements
+  // (6b), then assembly.
+  const plain = new Set<number>()
   const flat = new Set<number>()
   const asm = new Set<number>()
-  const options = () => ({ symbols, statements: (a: number) => !asm.has(a), structure: (a: number) => !flat.has(a) && !asm.has(a) })
-  const demote = (a: number) => (flat.has(a) ? asm.add(a) : flat.add(a))
+  const options = () => ({
+    symbols,
+    statements: (a: number) => !asm.has(a),
+    structure: (a: number) => !flat.has(a) && !asm.has(a),
+    idioms: (a: number) => !plain.has(a) && !flat.has(a) && !asm.has(a),
+  })
+  const demote = (a: number) => (flat.has(a) ? asm.add(a) : plain.has(a) ? flat.add(a) : plain.add(a))
   let differing: number[] = []
   let compiled = false
   for (let round = 0; round < rounds; round++) {
@@ -122,5 +129,6 @@ export async function decompileChecked(
   // The source as it finally stands (the last round may have dropped more routines a level).
   const last = compiled ? decompileInform(story, options()) : decompileInform(story, { symbols })
   const statements = last.statementRoutines.filter(a => !asm.has(a))
-  return { ...last, statements, structured: statements.filter(a => !flat.has(a)), differing, compiled }
+  const structured = statements.filter(a => !flat.has(a))
+  return { ...last, statements, structured, idiomatic: structured.filter(a => !plain.has(a)), differing, compiled }
 }

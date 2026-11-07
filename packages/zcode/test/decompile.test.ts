@@ -73,6 +73,8 @@ describe('decompiling to Inform 6 without a debug file (6a)', () => {
       expect(r.errors).toEqual([])
       expect(r.compiled).toBe(true)
       expect(r.statements!.written.length).toBe(r.statements!.of)
+      expect(r.statements!.idiomatic.length).toBe(r.statements!.written.length)
+      expect(r.source).not.toContain("Inform's veneer routines")
       const different = Object.entries(r.parts).filter(([, p]) => p.result === 'different').map(([k, p]) => `${k}:\n    ${p.differences.join('\n    ')}`)
       expect(different).toEqual([])
       expect(r.identical).toBe(IDENTICAL_WITHOUT_SYMBOLS.has(file))
@@ -85,10 +87,7 @@ describe('decompiling to Inform 6 without a debug file (6a)', () => {
  * compile back to the same instructions, the rest as assembly). Every game routine of every fixture
  * comes back as statements, and the stories as before: equivalent, and the same bytes where they were.
  */
-/** The share of routines structured where it isn't all of them (6c), as it stands: a floor, not a goal. */
-const STRUCTURED: Record<string, number> = { 'mingus-1.z5': 0.9, 'architect-legacy.z5': 0.9, 'list-exits.z5': 0.5 }
-
-describe('decompiling to Inform 6 with statements (6b) and control flow (6c)', () => {
+describe('decompiling to Inform 6 with statements (6b), control flow (6c) and idioms (6d)', () => {
   for (const file of withSymbols) {
     it(`${file}: every routine as statements, the story equivalent`, async () => {
       const dbg = readFileSync(FIXTURES_DIR + file.replace(/\.z\d$/, '.dbg'), 'utf8')
@@ -96,13 +95,19 @@ describe('decompiling to Inform 6 with statements (6b) and control flow (6c)', (
       expect(r.errors).toEqual([])
       expect(r.compiled).toBe(true)
       expect(Object.entries(r.parts).filter(([, p]) => p.result === 'different').map(([k]) => k)).toEqual([])
-      expect(r.identical).toBe(!NOT_IDENTICAL.has(file))
+      // All the same bytes, mingus-1 too: its individual property is written by name where its code
+      // uses it, as the original did, so the identifier table's order is the original's.
+      expect(r.identical).toBe(true)
       // Every routine the game has (the veneer stays assembly: 6d) is statements; none fell back.
       expect(r.statements!.of).toBeGreaterThan(0)
       expect(r.statements!.written.length).toBe(r.statements!.of)
-      // 6c: most have their control flow as if, else, while, do and switch too (the rest are flat
-      // statements, mostly where strict mode's checks are inlined, which 6d turns back into syntax).
-      expect(r.statements!.structured.length / r.statements!.written.length).toBeGreaterThanOrEqual(STRUCTURED[file] ?? 1)
+      // 6c and 6d: every one with its control flow as if, while, objectloop and switch, and the
+      // veneer's calls and strict mode's checks as the syntax that makes them; so no assembly is
+      // left in the game's code, and the veneer isn't written out (the compiler writes its own).
+      expect(r.statements!.structured.length).toBe(r.statements!.written.length)
+      expect(r.statements!.idiomatic.length).toBe(r.statements!.written.length)
+      expect(r.source).not.toContain("Inform's veneer routines")
+      expect(r.source.split('\n').filter(l => /^\s+@/.test(l))).toEqual([])
     }, 120_000)
   }
 })
