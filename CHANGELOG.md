@@ -4,6 +4,9 @@ All notable changes to Frotzlens: the web app at [frotzlens.frotzinc.com](https:
 
 ## [Unreleased]
 
+### Added
+- The design for Phase 6, decompiling a story back to Inform 6 source, for review before any code ([docs/09-decompiler.md](docs/09-decompiler.md)).
+
 ## [0.2.0] - 2026-11-07
 
 `@frotzinc/zcode` 0.2.0 and the `frotzlens` 0.2.0 CLI carry the ZIL grammar, and are on npm.
