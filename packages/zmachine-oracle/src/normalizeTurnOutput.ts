@@ -1,4 +1,4 @@
-// Vendored from Frotzsmith (app/modules/inform6/engine/normalizeTurnOutput.ts @ cf87b65), GPL-3.0-or-later. Unchanged but for .js on relative imports.
+// Vendored from frotzsmith (app/modules/inform6/engine/normalizeTurnOutput.ts @ cf87b65), GPL-3.0-or-later. Unchanged but for .js on relative imports.
 import type { EngineTarget } from './StoryEngine.js'
 
 /**

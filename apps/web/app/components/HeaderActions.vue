@@ -1,6 +1,6 @@
 <script setup lang="ts">
 /**
- * Frotzlens's own buttons in the family header (AppHeader's #actions slot, from @frotzinc/nuxt-base):
+ * frotzlens's own buttons in the family header (AppHeader's #actions slot, from @frotzinc/nuxt-base):
  * Go to… (the search palette), Names (with a debug file) and Open another file. Only with a story open.
  */
 defineProps<{ loaded: boolean }>()

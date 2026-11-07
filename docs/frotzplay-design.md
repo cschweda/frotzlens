@@ -3,7 +3,7 @@
 **Status:** Draft 2, 7 November 2026 (review fixes: oracle limits, RNG, CSP scope, contract corrections)
 **Author:** Christopher Schweda
 **Companion:** `frotzplay-kickoff-prompt.md`
-**Lives in:** the `cschweda/frotzlens` monorepo, as `packages/zmachine`, `packages/player`, `apps/play` · **Site:** frotzplay.frotzinc.com · **Family:** Frotz, Inc.
+**Lives in:** the `cschweda/frotzlens` monorepo, as `packages/zmachine`, `packages/player`, `apps/play` · **Site:** frotzplay.frotzinc.com · **Family:** frotz, Inc.
 
 ---
 
@@ -13,13 +13,13 @@ frotzplay is a Z-machine player for the web, built for two things no existing pl
 
 ## 2. Why build it, and why not just use Parchment
 
-Parchment is the web player for interactive fiction. Dannii Willis has maintained it since 2008; it is what IFDB, the IF Archive and most jams use; it plays Z-machine, Glulx, TADS, Hugo, ADRIFT and more by running the reference interpreters compiled to WebAssembly (through Emglken; Z-code on **Bocfel** since it retired ZVM) behind a Glk display layer. It also makes single-file, offline pages with its Site Generator. Frotzsmith and Frotzlens embed it. frotzplay does not try to replace it and says so on its front page.
+Parchment is the web player for interactive fiction. Dannii Willis has maintained it since 2008; it is what IFDB, the IF Archive and most jams use; it plays Z-machine, Glulx, TADS, Hugo, ADRIFT and more by running the reference interpreters compiled to WebAssembly (through Emglken; Z-code on **Bocfel** since it retired ZVM) behind a Glk display layer. It also makes single-file, offline pages with its Site Generator. frotzsmith and frotzlens embed it. frotzplay does not try to replace it and says so on its front page.
 
 frotzplay exists for two differences that come from how Parchment is built, not from bugs in it (checked against Parchment 2026.8.23; corrected 2026-11-07, when it turned out Parchment had moved from ZVM to Bocfel):
 
 **Accessibility.** Parchment draws every format through one general Glk display layer, which wasn't designed around screen readers, and it publishes no accessibility statement. How well each of these works there is to be checked with NVDA before frotzplay claims anything about it: are status-line changes announced; does output arrive as one announcement or many; is verbosity a setting; does the upper window have a text alternative? Blind and low-vision players are a visible part of the IF community and play with workarounds. A player where every one of these is designed, tested with NVDA and published as a contract (§6) would, as far as we know, be the first.
 
-**Embedding under a strict CSP.** Parchment's engines are WebAssembly, so a page embedding it must allow `'wasm-unsafe-eval'` (and its older Z-code engine, ZVM, a JIT, needed `'unsafe-eval'`: Frotzlens's sandboxed Play view vendors that older Parchment). `@frotzinc/zmachine` is plain TypeScript and interprets decoded instructions one at a time and never calls `eval`, so the `<frotz-play>` element and the exported bundle run under `script-src 'self'; style-src 'self'` with no `'unsafe-eval'`, no `'wasm-unsafe-eval'` and no `'unsafe-inline'`: inside frotzlens's own origin without a sandbox, in frotzpack's generated game pages, on sites with security policies, and in a browser extension. (The hosted Nuxt page, `apps/play`, still needs the same `'unsafe-inline'` for Nuxt's inline payload that Frotzlens's `netlify.toml` has; the strict-CSP promise is about the player, not about a Nuxt app hosting it.)
+**Embedding under a strict CSP.** Parchment's engines are WebAssembly, so a page embedding it must allow `'wasm-unsafe-eval'` (and its older Z-code engine, ZVM, a JIT, needed `'unsafe-eval'`: frotzlens's sandboxed Play view vendors that older Parchment). `@frotzinc/zmachine` is plain TypeScript and interprets decoded instructions one at a time and never calls `eval`, so the `<frotz-play>` element and the exported bundle run under `script-src 'self'; style-src 'self'` with no `'unsafe-eval'`, no `'wasm-unsafe-eval'` and no `'unsafe-inline'`: inside frotzlens's own origin without a sandbox, in frotzpack's generated game pages, on sites with security policies, and in a browser extension. (The hosted Nuxt page, `apps/play`, still needs the same `'unsafe-inline'` for Nuxt's inline payload that frotzlens's `netlify.toml` has; the strict-CSP promise is about the player, not about a Nuxt app hosting it.)
 
 Everything else frotzplay does better is a consequence of owning the whole stack: deterministic play with a seed, Quetzal saves as real files, autosave, transcript export, typography controls, and the Frotz family look.
 
@@ -41,31 +41,31 @@ Because this is a sibling, not a rival, the credit is designed in:
 - `@frotzinc/zmachine` (MIT): the interpreter, specified in §8.1 below: every v3/4/5/8 opcode, the §8 screen model, suspendable input (line, char, timed), seeded random (ZVM-compatible, §8), Quetzal 1.4 save/restore, undo. Zero DOM, zero `eval`. Serializable state.
 - `@frotzinc/player` (MIT): the player UI as a Vue component set and as a framework-free **web component** (`<frotz-play src="…">` or with bytes passed in), built on the family tokens. The accessibility contract (§6) is implemented here, so every embedder gets it.
 - `apps/play` (GPL): the hosted page at frotzplay.frotzinc.com. Drop a file, open `?story=`, play. Saves, transcripts, settings, About.
-- Story sources: a dropped file, a file picker, a URL (same-origin or CORS-enabled, like Parchment), a `postMessage` from an opener (how Frotzlens's Play view will hand over a file).
-- **Sample stories on the start page**, so a first-time visitor can play at once without having a story file: a "Try a sample" row beside the drop zone with a few of Chris's Frotzsmith samples, served from the site (no fetch from elsewhere), each one click to play. Proposed: *The Dark Cellar* (darkness and light; the featured one, as in Frotzlens), *The Locked Chest* (a small puzzle), *The Hermit* (a character to talk to) and *Magic 8-Ball* (random answers, which shows off the seed). `?sample` opens the featured one straight away and `?sample=<name>` a named one, so a link can show it, as Frotzlens's `?sample` does. They are the same files as `samples/`, copied in at build time.
+- Story sources: a dropped file, a file picker, a URL (same-origin or CORS-enabled, like Parchment), a `postMessage` from an opener (how frotzlens's Play view will hand over a file).
+- **Sample stories on the start page**, so a first-time visitor can play at once without having a story file: a "Try a sample" row beside the drop zone with a few of Chris's frotzsmith samples, served from the site (no fetch from elsewhere), each one click to play. Proposed: *The Dark Cellar* (darkness and light; the featured one, as in frotzlens), *The Locked Chest* (a small puzzle), *The Hermit* (a character to talk to) and *Magic 8-Ball* (random answers, which shows off the seed). `?sample` opens the featured one straight away and `?sample=<name>` a named one, so a link can show it, as frotzlens's `?sample` does. They are the same files as `samples/`, copied in at build time.
 - Blorb: the story inside, the cover shown, the iFiction title and author in the page title.
 - Saves: Quetzal to a downloaded `.qzl` file and restore from one; **autosave** to IndexedDB per story (keyed by release/serial/checksum) with "continue where you left off"; `save_undo`/`restore_undo`.
-- Transcript: export the session as text; optionally a Frotzsmith-style command script.
+- Transcript: export the session as text; optionally a frotzsmith-style command script.
 - Settings: theme (dark default, light, high-contrast; the high-contrast tokens are new and go in `nuxt-base`'s `css/palette.css` beside the others), font (the family stack, a dyslexia-friendly option, a monospace option), size, line length, reader verbosity (§6), motion.
-- Offline: a PWA, as Frotzsmith is.
+- Offline: a PWA, as frotzsmith is.
 - **Export a playable bundle.** One click produces a game you can hand to anyone: a **single self-contained HTML file** (the player and the story inside it, no network, works from a double-click on the desktop or from any static host), or a **folder** (`index.html`, `story.z5`, `frotzplay.js`, `frotzplay.css`, `README.txt`) for people who want the story file separate. Both carry the cover, title and author, the accessibility contract, and the family look. (Parchment's Site Generator makes single-file pages too; frotzplay's carry the contract and no WebAssembly, and come from the same page you play on.)
-- Testing: the interpreter's transcripts equal Frotzsmith's `runReplay` (ZVM) on every fixture walkthrough (walkthroughs written in Phase 1; see §9 for the oracle's limits); conformance stories if licensed; the accessibility contract checked by Playwright + axe and by NVDA.
+- Testing: the interpreter's transcripts equal frotzsmith's `runReplay` (ZVM) on every fixture walkthrough (walkthroughs written in Phase 1; see §9 for the oracle's limits); conformance stories if licensed; the accessibility contract checked by Playwright + axe and by NVDA.
 
 ### Out of scope for v1 (designed for, not built)
 
 - **Any format but Z-code.** Glulx, TADS, Hugo: use Parchment. This is a rule, not a backlog item; the moment frotzplay plays Glulx it is competing on Parchment's terms.
 - **Version 6**, sound, graphics (beyond the Blorb cover).
 - **The debugger.** That's frotztrace, a later product (not started; its draft design is in `../frotztrace/docs`). It will add a `Debugger` to `zmachine` and its views on top of this player's Screen. frotzplay owes it only the hooks and serializable state in §8.1; nothing here waits on it.
-- **Replacing Parchment in Frotzlens and Frotzsmith.** Designed for: once frotzplay has shipped, Frotzlens's Play view can embed `<frotz-play>` and drop its sandbox. A later decision.
+- **Replacing Parchment in frotzlens and frotzsmith.** Designed for: once frotzplay has shipped, frotzlens's Play view can embed `<frotz-play>` and drop its sandbox. A later decision.
 - **A cloud save sync.** Autosave is local.
 
 ## 5. Product principles
 
 1. **Accessible by contract, not by accident.** §6 is a public document; the Playwright suite enforces it; NVDA verifies it before each release. If a change breaks the contract, it doesn't ship.
 2. **No `eval`, ever.** The whole reason it can go where Parchment can't.
-3. **Independent, and honest about it.** The Standard is the specification. Other interpreters may be read for understanding; anything copied is attributed per its license, and nothing GPL enters an MIT package. ZVM is the test oracle through Frotzsmith's `runReplay`; it is not shipped.
+3. **Independent, and honest about it.** The Standard is the specification. Other interpreters may be read for understanding; anything copied is attributed per its license, and nothing GPL enters an MIT package. ZVM is the test oracle through frotzsmith's `runReplay`; it is not shipped.
 4. **Z-code only.** See §4.
-5. **The family look.** Dark by default, the `@frotzinc/nuxt-base` tokens, the Frotzlens shell. All Frotz, Inc. apps share one look and feel.
+5. **The family look.** Dark by default, the `@frotzinc/nuxt-base` tokens, the frotzlens shell. All frotz, Inc. apps share one look and feel.
 6. **Nothing leaves the machine.** No upload, no analytics on play, saves local.
 7. **Generous about Parchment.** §3.
 
@@ -112,12 +112,12 @@ Besides the two gaps and the contract:
 
 - **Deterministic play, on request.** Every session has a seed. By default it is chosen at random when the story starts (so players don't all get the same "random" game), shown in the About/session panel and copyable. A seed in the URL (`?seed=`) or settings fixes it; the same story, commands, timer events and seed play the same way, which matters for walkthroughs, teaching, and bug reports. Tests always pass a seed.
 - **Real saves.** Quetzal to a file you own, restorable in any interpreter; autosave with "continue"; undo.
-- **Transcripts** as text, and as command scripts Frotzsmith and frotzcheck can replay.
+- **Transcripts** as text, and as command scripts frotzsmith and frotzcheck can replay.
 - **Typography.** The family type, a dyslexia-friendly face, line length and spacing controls, three themes.
 - **A playable bundle, exported.** Drop a story, click Export, get `my-game.html` that plays anywhere, or a folder ready to upload to itch.io, Netlify or a thumb drive. No build step, no server, no CSP to configure (the file carries its own strict one), no instructions. Parchment's Site Generator does this for every format; frotzplay's is one click from the story you're playing, and carries the contract.
 - **An embed that behaves.** `<frotz-play>` is one script tag (and, optionally, one same-origin worker file; §8), needs no `'unsafe-eval'` or `'unsafe-inline'`, carries the contract, and exposes events (`turn`, `input-wanted`, `quit`, `save`) so a host page can build on it.
 - **Blorb done properly.** Cover, title and author from the iFiction record; the page title is the story's.
-- **The family.** One click to inspect the same story in Frotzlens (and, once frotztrace exists, to debug it there).
+- **The family.** One click to inspect the same story in frotzlens (and, once frotztrace exists, to debug it there).
 
 ## 8. Architecture
 
@@ -130,7 +130,7 @@ frotzlens/
 │   ├── nuxt-base/    @frotzinc/nuxt-base  MIT  (exists; gains the shell from apps/web, and high-contrast tokens)
 │   └── …
 └── apps/
-    ├── web/          Frotzlens            GPL  (exists)
+    ├── web/          frotzlens            GPL  (exists)
     └── play/         frotzplay            GPL  NEW  hosted page: drop zone, ?story=, saves, settings
 ```
 
@@ -145,13 +145,13 @@ frotzlens/
   - in the custom element, styles are applied as constructable stylesheets (`adoptedStyleSheets`), not injected `<style>` tags. The embed test (§9) is what proves this passes `style-src 'self'` in Chrome, Firefox and Safari; if a browser disagrees, the fallback is a same-origin `frotzplay.css` linked from inside the shadow root.
 
   `apps/play` wraps these components in the Nuxt UI shell. The web component is the same `ZPlayer` built with `defineCustomElement`, so an embedder needs one tag and no stylesheet.
-- **`apps/play`** is thin: the family shell, the **drop zone that is the first thing on the page when the app starts** (drop a story anywhere on the window, or choose a file, or open a `?story=` link; the same as Frotzlens's start page), the URL loader, the `player` component, and **Export**.
+- **`apps/play`** is thin: the family shell, the **drop zone that is the first thing on the page when the app starts** (drop a story anywhere on the window, or choose a file, or open a `?story=` link; the same as frotzlens's start page), the URL loader, the `player` component, and **Export**.
 - **Export** lives in `player` as a pure function (`bundle(story, options) → { html }` and `bundleFolder(…) → files[]`) so the CLI and frotzpack can call it too. The single-file form inlines the built `<frotz-play>` script and CSS (the app ships its own built copy as a string asset), the story as base64, and the cover as a data URI; it sets a `<meta http-equiv="Content-Security-Policy">` that forbids everything but itself (the inline script and stylesheet allowed by their `sha256-` hashes, images by `data:`), works from `file://` (no fetches, no workers: the main-thread path), and names the file from the story's title. The folder form is the same page split into files, with a `README.txt` that says "open index.html" and how to put it on a web host.
-- **Shell extraction.** `AppHeader`, `AppFooter`, `AboutMenu`, `AboutDialogs`, `useAbout` and the report and markdown utils they use (`report.ts`, `markdown.ts`) move from `apps/web` into `nuxt-base`, so the apps share one header, About menu and footer. Today they import `~~/site.config` and hard-code "Frotzlens" and its repo URL; that becomes a typed `product` key in each app's `app.config.ts` (name, tagline, repo, npm and family URLs, licences), the changelog is passed in by the app, and `AppHeader` gets slots for each app's own buttons (Frotzlens's Go to…, Names and Open another file). `AppNav` stays in Frotzlens: it is Frotzlens's list of views, not shell. The move doesn't touch the views.
+- **Shell extraction.** `AppHeader`, `AppFooter`, `AboutMenu`, `AboutDialogs`, `useAbout` and the report and markdown utils they use (`report.ts`, `markdown.ts`) move from `apps/web` into `nuxt-base`, so the apps share one header, About menu and footer. Today they import `~~/site.config` and hard-code "frotzlens" and its repo URL; that becomes a typed `product` key in each app's `app.config.ts` (name, tagline, repo, npm and family URLs, licences), the changelog is passed in by the app, and `AppHeader` gets slots for each app's own buttons (frotzlens's Go to…, Names and Open another file). `AppNav` stays in frotzlens: it is frotzlens's list of views, not shell. The move doesn't touch the views.
 
 ### 8.1 `@frotzinc/zmachine` — the interpreter
 
-**Why a new interpreter and not ZVM.** ZVM (ifvms.js, Parchment's Z-code engine until it moved to Bocfel, and what Frotzsmith uses) compiles each Z-code routine to a JavaScript function and runs that, which is why it needs `'unsafe-eval'`, and why it can't be stepped or hooked between instructions. `@frotzinc/zcode` already decodes; the interpreter is "apply this `Instruction` to this machine state."
+**Why a new interpreter and not ZVM.** ZVM (ifvms.js, Parchment's Z-code engine until it moved to Bocfel, and what frotzsmith uses) compiles each Z-code routine to a JavaScript function and runs that, which is why it needs `'unsafe-eval'`, and why it can't be stepped or hooked between instructions. `@frotzinc/zcode` already decodes; the interpreter is "apply this `Instruction` to this machine state."
 
 **Machine state** (all serializable; one mechanism for Quetzal, undo, autosave and, later, rewind):
 
@@ -161,9 +161,9 @@ frotzlens/
 
 **Execution loop.** `step()` decodes the instruction at PC with `zcode`'s decoder (cached per address, since code is immutable), runs it, advances. `run(budget)` steps until input is needed, the budget is spent, the game quits, or a fault. Every memory write, call, return, branch, print and input goes through a hook. Nothing in the loop touches the DOM.
 
-**Screen model.** The Standard's §8, not Glk: a lower window (a scrollback of styled runs with a current line) and an upper window (a `rows × cols` character grid with a cursor), `buffer_mode`, output streams 1–4. `show_status` and the v3 status line render into the upper window, and for v3 the model also keeps the structured room/score/moves for the announcer (§6). The player draws the model; the Node runner flattens it to text the way Frotzsmith's `normalizeTurnOutput` expects.
+**Screen model.** The Standard's §8, not Glk: a lower window (a scrollback of styled runs with a current line) and an upper window (a `rows × cols` character grid with a cursor), `buffer_mode`, output streams 1–4. `show_status` and the v3 status line render into the upper window, and for v3 the model also keeps the structured room/score/moves for the announcer (§6). The player draws the model; the Node runner flattens it to text the way frotzsmith's `normalizeTurnOutput` expects.
 
-**Header.** The interpreter number/version and screen size written into the header change what games print (wrapping, centring, version banners). They are parameters; the Node runner and the oracle tests use the values Frotzsmith's `headless-glkote` reports, pinned in one place, so transcripts differ only for real reasons.
+**Header.** The interpreter number/version and screen size written into the header change what games print (wrapping, centring, version banners). They are parameters; the Node runner and the oracle tests use the values frotzsmith's `headless-glkote` reports, pinned in one place, so transcripts differ only for real reasons.
 
 **Input.** `read` and `read_char` suspend the machine (`awaiting` set, PC at the instruction) and return control; the host supplies the line or character and calls `resume()`. Timed input (v4+) is a deadline the host honours by calling `interrupt()`, which runs the timer routine as the Standard describes; the host records each firing (§6) so replays reproduce it.
 
@@ -180,7 +180,7 @@ This is a deliberate choice against the Standard 1.1 §2.4 *recommendation* (a p
 
 ## 9. Testing
 
-- **Walkthroughs to test against.** Today Frotzsmith's golden test covers only `demo.z5` with two commands, and `samples/` has no walkthroughs and no v4 story. Phase 1 writes a command script for every sample (`samples/walkthroughs/<name>.txt`, Frotzsmith's `parseScript` format) that reaches the end or covers every room and verb, and adds a v4 build of at least two samples to `scripts/build-samples.mjs`.
+- **Walkthroughs to test against.** Today frotzsmith's golden test covers only `demo.z5` with two commands, and `samples/` has no walkthroughs and no v4 story. Phase 1 writes a command script for every sample (`samples/walkthroughs/<name>.txt`, frotzsmith's `parseScript` format) that reaches the end or covers every room and verb, and adds a v4 build of at least two samples to `scripts/build-samples.mjs`.
 - **What the ZVM oracle can and can't check.** The headless ZVM in `runReplay` does no file I/O (its `HeadlessDialog` answers every save/restore prompt with "cancelled"), has no seed parameter, and runs no timers. So:
   - *transcripts*: compared with ZVM seeded through the harness (the harness sets ZVM's `xorshift_seed` to the test's seed before boot, and frotzplay uses the same xorshift, §8.1), so random-using samples such as `magic-8-ball` compare too;
   - *save/restore*: first, give the vendored test harness an in-memory `Dialog` (a `Map` of filerefs) so ZVM can save and restore; if that isn't cheap, check Quetzal against Bocfel-in-WASM or against `.qzl` files saved by a desktop interpreter and committed with provenance. Either way, frotzplay's own round-trip (save at turn k, restore, continue = uninterrupted transcript) is always checked;
@@ -192,20 +192,20 @@ This is a deliberate choice against the Standard 1.1 §2.4 *recommendation* (a p
 
 ## 10. Licensing
 
-Frotz, Inc. policy: apps GPL-3.0-or-later, libraries MIT. `@frotzinc/zmachine` and `@frotzinc/player` are MIT, which is deliberate: an embeddable player under GPL would keep most sites from using it. `apps/play` is GPL. Because the libraries are MIT, no code from GPL interpreters (Frotz, and anything derived from it) may be used in them; Parchment and ZVM are MIT and may be learned from, with attribution for anything copied. ZVM is a test-only oracle through Frotzsmith's engine and ships in nothing.
+frotz, Inc. policy: apps GPL-3.0-or-later, libraries MIT. `@frotzinc/zmachine` and `@frotzinc/player` are MIT, which is deliberate: an embeddable player under GPL would keep most sites from using it. `apps/play` is GPL. Because the libraries are MIT, no code from GPL interpreters (Frotz, and anything derived from it) may be used in them; Parchment and ZVM are MIT and may be learned from, with attribution for anything copied. ZVM is a test-only oracle through frotzsmith's engine and ships in nothing.
 
 ## 11. Branding and deployment
 
 - Icon: the family badge with a play glyph drawn as a Z-machine prompt (`>` leaning into a triangle). Not a lantern.
-- The Frotzlens header, footer and About menu; the shortcuts dialog; the family amber for focus and the prompt.
-- frotzplay.frotzinc.com, static, Netlify, base `apps/play`, same monorepo site setup. Chris connects it. PWA like Frotzsmith.
+- The frotzlens header, footer and About menu; the shortcuts dialog; the family amber for focus and the prompt.
+- frotzplay.frotzinc.com, static, Netlify, base `apps/play`, same monorepo site setup. Chris connects it. PWA like frotzsmith.
 - `frotzplay` reserved on npm with the placeholder pattern (GPL for the app name; the libraries are the `@frotzinc` ones).
 
 ## 12. Phases
 
 | Phase | Builds | Done when |
 |---|---|---|
-| **0** | Shell extraction: `AppHeader`/`AppFooter`/`AboutMenu`/`AboutDialogs`/`useAbout` and their utils into `nuxt-base`, `site.config` replaced by a typed `product` app config, header slots for app buttons; Frotzlens uses them unchanged. Reserve `frotzplay` on npm. | Frotzlens Playwright green; placeholder published |
+| **0** | Shell extraction: `AppHeader`/`AppFooter`/`AboutMenu`/`AboutDialogs`/`useAbout` and their utils into `nuxt-base`, `site.config` replaced by a typed `product` app config, header slots for app buttons; frotzlens uses them unchanged. Reserve `frotzplay` on npm. | frotzlens Playwright green; placeholder published |
 | **1** | `@frotzinc/zmachine`: state, loop, every opcode (v3/4/5/8), screen model, input suspension, ZVM-compatible seeded random, hooks, pinned header values. Opcode tests. A Node runner for scripts. Walkthrough scripts for every sample; v4 sample builds; the seeded oracle harness. | Every fixture walkthrough equals seeded `runReplay` |
 | **2** | Quetzal in/out, undo, conformance stories (after the licence check), determinism tests, the oracle's in-memory `Dialog` (or the fallback in §9). | Quetzal checked per §9; same seed + timer events → same transcript |
 | **3** | `@frotzinc/player`: the Screen, the announcer and verbosity, the command line, status announcements, settings, saves (file, autosave, undo), transcript; high-contrast tokens; the contract implemented and its Playwright suite. | Contract suite green; NVDA checklist passed on the sample |
@@ -227,4 +227,4 @@ After this, frotztrace (not yet started) begins with the interpreter already don
 
 ## 14. Later
 
-Frotzlens's Play view on `<frotz-play>` (dropping the sandbox); Frotzsmith's player likewise, if it wants to; frotzpack's generated game page; frotztrace (once started) on the same Screen; a Chrome extension that plays `.z5` links in place; a "feelies shelf" when frotzpack exists.
+frotzlens's Play view on `<frotz-play>` (dropping the sandbox); frotzsmith's player likewise, if it wants to; frotzpack's generated game page; frotztrace (once started) on the same Screen; a Chrome extension that plays `.z5` links in place; a "feelies shelf" when frotzpack exists.

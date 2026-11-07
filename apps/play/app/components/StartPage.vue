@@ -56,7 +56,7 @@ function onPick(e: Event) {
 
     <section aria-labelledby="samples-title" class="flex flex-col gap-3">
       <h2 id="samples-title" class="font-display text-2xl font-semibold text-highlighted">Try a sample</h2>
-      <p class="text-quiet">Short games from <a href="https://frotzsmith.com" class="underline decoration-dotted underline-offset-4">Frotzsmith</a>, to see how frotzplay works.</p>
+      <p class="text-quiet">Short games from <a href="https://frotzsmith.com" class="underline decoration-dotted underline-offset-4">frotzsmith</a>, to see how frotzplay works.</p>
       <ul class="grid gap-3 sm:grid-cols-2">
         <li v-for="(s, i) in site.samples" :key="s.id">
           <button

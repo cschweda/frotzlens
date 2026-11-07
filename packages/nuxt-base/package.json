@@ -1,7 +1,7 @@
 {
   "name": "@frotzinc/nuxt-base",
-  "version": "0.2.0",
-  "description": "The shared Frotz, Inc. Nuxt layer: static client-side config, dark-default color mode, Nuxt UI color roles, house CSS and palette, the family shell (header, footer, About menu), small utils, and Netlify post-build tools.",
+  "version": "0.2.1",
+  "description": "The shared frotz, Inc. Nuxt layer: static client-side config, dark-default color mode, Nuxt UI color roles, house CSS and palette, the family shell (header, footer, About menu), small utils, and Netlify post-build tools.",
   "license": "MIT",
   "author": "Christopher Schweda",
   "type": "module",

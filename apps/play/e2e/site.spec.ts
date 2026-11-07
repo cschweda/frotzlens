@@ -184,7 +184,7 @@ test('one theme for the page and the player, remembered: the header’s switch, 
   await expect(page.locator('.zp')).toHaveAttribute('data-theme', 'high-contrast')
 })
 
-test('a story handed over by the opening window (the Frotzlens handshake)', async ({ page, context }) => {
+test('a story handed over by the opening window (the frotzlens handshake)', async ({ page, context }) => {
   await page.goto('/')
   const bytes = [...sample('hermit.z5')]
   const popup = context.waitForEvent('page')

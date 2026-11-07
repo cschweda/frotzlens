@@ -1,8 +1,8 @@
-# Suggest a feature. Frotzlens's About menu → Suggest a feature… fills these fields from the link it
+# Suggest a feature. frotzlens's About menu → Suggest a feature… fills these fields from the link it
 # opens (?template=idea.yml&title=…&idea=…&version=…): the ids here and in
 # apps/web/app/utils/report.ts must match.
 name: Suggest a feature
-description: Something you'd like Frotzlens to do.
+description: Something you'd like frotzlens to do.
 labels: [enhancement]
 body:
   - type: textarea

@@ -1,6 +1,6 @@
 // The two hand edits that close audit F2 in the vendored Play interpreter
 // (public/play/web/zvm.js), as [patched, original] pairs — the minified form
-// of Frotzsmith's tools/ifvms-text-fix.mjs (copied from Frotzsmith with the player). Tests undo them to prove the bytes are upstream
+// of frotzsmith's tools/ifvms-text-fix.mjs (copied from frotzsmith with the player). Tests undo them to prove the bytes are upstream
 // plus exactly these edits, and that the unpatched form really is vulnerable.
 
 /** @type {ReadonlyArray<readonly [string, string]>} */

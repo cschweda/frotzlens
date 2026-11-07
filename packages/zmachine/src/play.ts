@@ -1,12 +1,12 @@
 /**
  * Play a story from a list of commands and return each turn's text: the Node runner, and what the
- * differential tests compare with ZVM. The shape matches Frotzsmith's runReplay: turn 0 is the
+ * differential tests compare with ZVM. The shape matches frotzsmith's runReplay: turn 0 is the
  * banner, then one turn per command, until the story stops asking for a line.
  *
  * Two commands aren't typed text: `[timeout]` says a timed read's interval ran out (the timer
  * firing, recorded in a command script so a replay is deterministic: frotzplay-design §6), and
  * `[key x]` presses a key for @read_char (`[key]` alone is Return). Without one of those, a
- * request for a key press ends play, as it does in Frotzsmith's ZVM replay.
+ * request for a key press ends play, as it does in frotzsmith's ZVM replay.
  */
 import { Machine } from './machine.js'
 import { normalizeTurn } from './normalize.js'
@@ -40,7 +40,7 @@ const TURN_LIMIT = 50_000_000
 /**
  * A turn's text after a command. A screen shows the command echoed on its own line first, so the
  * turn is normalized with that line in place and then the line is dropped: text that begins with
- * spaces (a centred chapter title) keeps them, as it does on the screen and in Frotzsmith's ZVM
+ * spaces (a centred chapter title) keeps them, as it does on the screen and in frotzsmith's ZVM
  * transcripts.
  */
 function turnText(command: string, text: string): string {

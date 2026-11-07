@@ -1,7 +1,7 @@
 # Inform 6 → WebAssembly build
 
 Pinned, single-threaded Emscripten build of the Inform 6 compiler used by
-Frotzsmith: `inform6.mjs` (ES-module glue) + `inform6.wasm`.
+frotzsmith: `inform6.mjs` (ES-module glue) + `inform6.wasm`.
 
 ## Pinned versions
 
@@ -65,7 +65,7 @@ to the native build. Three things are required and are easy to miss:
 
 ## Provenance (clean-room)
 
-Frotzsmith is a clean-room implementation. **No code from Borogove** (or any other
+frotzsmith is a clean-room implementation. **No code from Borogove** (or any other
 IF IDE) is used; Borogove served only as proof that client-side Inform 6
 compilation is feasible. This Emscripten recipe was derived from the Emscripten
 docs and first-principles debugging (the `-sSTACK_SIZE` fix was diagnosed locally,

@@ -2,7 +2,7 @@
   "name": "@frotzinc/zmachine-oracle",
   "version": "0.0.0",
   "private": true,
-  "description": "Test-only: Frotzsmith's headless ZVM replay, vendored, as the oracle for @frotzinc/zmachine's differential tests. Never published, never bundled.",
+  "description": "Test-only: frotzsmith's headless ZVM replay, vendored, as the oracle for @frotzinc/zmachine's differential tests. Never published, never bundled.",
   "license": "GPL-3.0-or-later",
   "author": "Christopher Schweda",
   "type": "module",

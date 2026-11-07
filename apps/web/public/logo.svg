@@ -1,5 +1,5 @@
 <svg width="512" height="512" viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg">
-  <title>Frotzlens</title>
+  <title>frotzlens</title>
   <defs>
     <linearGradient id="a" x1="0" y1="0" x2="1" y2="1">
       <stop offset="0%" stop-color="#fcd34d"/>
@@ -8,7 +8,7 @@
   </defs>
   <rect width="512" height="512" rx="112" fill="url(#a)"/>
   <!-- A loupe over a row of bytes: small bytes in a row, the two under the glass magnified.
-       (A 24-unit grid, as Frotzsmith's hammer.) -->
+       (A 24-unit grid, as frotzsmith's hammer.) -->
   <g transform="translate(106,125) scale(12.5)">
     <g fill="#0b0b0e">
       <rect x="0.4" y="8" width="2" height="2" rx="0.4" opacity="0.55"/>

@@ -1,5 +1,5 @@
 /**
- * The ZVM oracle: Frotzsmith's headless ZVM replay, vendored, for @frotzinc/zmachine's
+ * The ZVM oracle: frotzsmith's headless ZVM replay, vendored, for @frotzinc/zmachine's
  * differential tests. GPL-3.0-or-later, private, test-only; never published, never bundled.
  */
 export { runReplay, ReplayRunError } from './replayCore.js'

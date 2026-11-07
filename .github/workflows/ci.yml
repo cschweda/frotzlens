@@ -1,4 +1,4 @@
-# CI for the Frotzlens monorepo: every push and pull request, and every release
+# CI for the frotzlens monorepo: every push and pull request, and every release
 # tag (@frotzinc/<name>@<version>, or frotzlens@<version> for the CLI). publish.sh refuses to publish a version
 # whose tag's run of this workflow didn't pass.
 name: ci

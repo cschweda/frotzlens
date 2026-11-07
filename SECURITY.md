@@ -1,6 +1,6 @@
 # Security
 
-Frotzlens reads story files that anyone can make, so a hostile file is something it expects. The parser treats every byte as untrusted and never throws. The site loads nothing from other origins. The Play view runs a story in a sandboxed, opaque-origin iframe ([docs/07-play.md](docs/07-play.md)).
+frotzlens reads story files that anyone can make, so a hostile file is something it expects. The parser treats every byte as untrusted and never throws. The site loads nothing from other origins. The Play view runs a story in a sandboxed, opaque-origin iframe ([docs/07-play.md](docs/07-play.md)).
 
 ## Reporting a problem
 

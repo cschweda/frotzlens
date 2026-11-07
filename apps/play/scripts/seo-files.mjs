@@ -1,5 +1,5 @@
 // Writes public/robots.txt and public/sitemap.xml from site.config.ts's siteUrl, so the one canonical
-// URL stays in one place (as Frotzlens's). Without them, Netlify's single-page fallback would answer
+// URL stays in one place (as frotzlens's). Without them, Netlify's single-page fallback would answer
 // /robots.txt with the app's HTML. The sitemap is the one URL: every page's canonical link is the
 // start page (a ?sample= or ?story= link is the same page with a story open).
 import { mkdirSync, readFileSync, writeFileSync } from 'node:fs'

@@ -1,6 +1,6 @@
 /**
  * The room graph, from direction properties named by the debug file, and its
- * Frotzsmith map shape. Doors (no fixture has one) are checked on a model
+ * frotzsmith map shape. Doors (no fixture has one) are checked on a model
  * built by hand.
  */
 import { readFileSync } from 'node:fs'

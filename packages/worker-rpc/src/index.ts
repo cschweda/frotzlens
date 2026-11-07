@@ -1,6 +1,6 @@
 /**
  * Shared request/response client for long-lived Web Workers.
- * Extracted from Frotzsmith's compile workers (Inform 6 and ZIL).
+ * Extracted from frotzsmith's compile workers (Inform 6 and ZIL).
  *
  * One long-lived worker per client, requests tagged with a monotonic
  * `requestId` so a late reply from an abandoned request is ignored. Every

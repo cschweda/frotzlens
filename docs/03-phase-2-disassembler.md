@@ -1,4 +1,4 @@
-# Frotzlens — Phase 2: Disassembler
+# frotzlens — Phase 2: Disassembler
 
 **Document 03 · Phase 2**
 **Deliverable:** `@frotzinc/zcode` decodes every routine, string and Inform grammar table, and indexes cross-references. The `frotzlens` CLI prints Ztools' `txd` disassembly and the rest of `infodump` (`-m`, `-g`, full `-f`).

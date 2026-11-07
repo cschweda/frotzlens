@@ -4,7 +4,7 @@
 **Status:** built 2026-11-07 (§7); waiting on Chris for the Netlify site and the worker decision (§5).
 **Deliverable:** frotzplay.frotzinc.com's page: the family shell, a start page with a drop zone and the sample stories, `?story=` and `?sample=` links, stories handed over by `postMessage`, Blorb covers and titles, autosave, a PWA, the About dialog with Parchment's credits, "Open in Parchment"; built and served with the production CSP; playable on a Netlify preview.
 
-> **Exit criteria:** `nuxt generate` builds; a Playwright suite against the built site, served with `netlify.toml`'s headers, opens a story by drop, by file picker, by each sample, by `?sample=`, by `?story=` (same origin, and another origin with CORS), shows the worded error for a server without CORS and for a file that isn't a story, plays a turn in each, and finds no axe violations and no CSP violations; the Frotzlens suite still passes; Chris connects the Netlify site.
+> **Exit criteria:** `nuxt generate` builds; a Playwright suite against the built site, served with `netlify.toml`'s headers, opens a story by drop, by file picker, by each sample, by `?sample=`, by `?story=` (same origin, and another origin with CORS), shows the worded error for a server without CORS and for a file that isn't a story, plays a turn in each, and finds no axe violations and no CSP violations; the frotzlens suite still passes; Chris connects the Netlify site.
 
 ---
 
@@ -22,7 +22,7 @@
 | A dropped file, or *Choose a file* | read in the browser; nothing uploaded | not a Z-machine story (or a version 6, or a Glulx Blorb): say which, and point Glulx at Parchment |
 | `?sample` / `?sample=<id>` | `/samples/<file>`, copied from `samples/` at build time | an unknown id: say so, show the samples |
 | `?story=<url>` | `fetch`, from the browser straight to that server (`connect-src https:`) | no CORS: *"That server doesn't allow other sites to read its files, so frotzplay can't open this story. Download it and drop it here instead."*; not found; not a story |
-| `postMessage` from an opener | the Frotzlens handshake: frotzplay posts `{ source: 'frotzplay', type: 'ready' }` to `window.opener`; it takes one `{ source: 'frotzlens', type: 'story', bytes, name }` from that window only, from an allowed origin (frotzlens.frotzinc.com, and the page's own) | anything else is ignored |
+| `postMessage` from an opener | the frotzlens handshake: frotzplay posts `{ source: 'frotzplay', type: 'ready' }` to `window.opener`; it takes one `{ source: 'frotzlens', type: 'story', bytes, name }` from that window only, from an allowed origin (frotzlens.frotzinc.com, and the page's own) | anything else is ignored |
 
 A **Blorb** (`.zblorb`) is unwrapped with `@frotzinc/zcode`; its iFiction title and author name the page, and its cover (the frontispiece picture) shows on the start of play.
 
@@ -30,7 +30,7 @@ A **Blorb** (`.zblorb`) is unwrapped with `@frotzinc/zcode`; its iFiction title 
 
 ## 3. Autosave and the PWA
 
-Autosave is the player's (Phase 3), keyed by story. The site adds the **PWA** (`@vite-pwa/nuxt`, as Frotzsmith): the app shell and the samples precached, so frotzplay opens offline, and a story dropped offline plays. The service worker is checked after `generate` with `nuxt-base`'s `check-sw` (what's precached, what isn't).
+Autosave is the player's (Phase 3), keyed by story. The site adds the **PWA** (`@vite-pwa/nuxt`, as frotzsmith): the app shell and the samples precached, so frotzplay opens offline, and a story dropped offline plays. The service worker is checked after `generate` with `nuxt-base`'s `check-sw` (what's precached, what isn't).
 
 ## 4. Security headers
 

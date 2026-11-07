@@ -7,7 +7,7 @@
 [![WCAG 2.2 AA](https://img.shields.io/badge/WCAG-2.2%20AA%20(target)-0b7285.svg)](../../docs/frotzplay-design.md#6-the-accessibility-contract)
 [![Status](https://img.shields.io/badge/status-v0.1.0-brightgreen.svg)](./CHANGELOG.md)
 
-A Z-machine player for the web, built for two things: **people who use screen readers**, and **pages with a strict Content-Security-Policy**. It plays version 3, 4, 5 and 8 story files, bare or in a Blorb, in the browser, with nothing uploaded. It's live at **[frotzplay.frotzinc.com](https://frotzplay.frotzinc.com)**. Part of [Frotz, Inc.](https://frotzinc.com), beside [Frotzsmith](https://frotzsmith.com) and [Frotzlens](https://frotzlens.frotzinc.com).
+A Z-machine player for the web, built for two things: **people who use screen readers**, and **pages with a strict Content-Security-Policy**. It plays version 3, 4, 5 and 8 story files, bare or in a Blorb, in the browser, with nothing uploaded. It's live at **[frotzplay.frotzinc.com](https://frotzplay.frotzinc.com)**. Part of [frotz, Inc.](https://frotzinc.com), beside [frotzsmith](https://frotzsmith.com) and [frotzlens](https://frotzlens.frotzinc.com).
 
 > **Status: in development.** The interpreter ([Phases 1](../../docs/11-frotzplay-phase-1-interpreter.md)–[2](../../docs/12-frotzplay-phase-2-state.md)), the player ([Phase 3](../../docs/13-frotzplay-phase-3-player.md)) and this site ([Phase 4](../../docs/14-frotzplay-phase-4-site.md)) are built and tested; it goes live when its Netlify site is connected. Built in this monorepo: the interpreter in [`packages/zmachine`](../../packages/zmachine), the player in `packages/player`, this app in `apps/play`.
 
@@ -48,7 +48,7 @@ frotzplay is a sibling of [Parchment](https://github.com/curiousdannii/parchment
 | **Interpreter** | Every opcode of versions 3, 4, 5 and 8. Every sample story, played through with its walkthrough, gives the same transcript as ZVM, turn by turn. Passes **Czech** (0 failures in all four versions) and **Praxix** ("All tests passed"). |
 | **Saves** | Quetzal 1.4. A save made here and one made in ZVM are the same bytes, and each restores in both. |
 | **Player** | [`@frotzinc/player`](../../packages/player) ([Phase 3](../../docs/13-frotzplay-phase-3-player.md)): the [accessibility contract](../../docs/accessibility.md) built in, 87 Playwright tests in three browsers with axe in every state. |
-| **Site** | This app ([Phase 4](../../docs/14-frotzplay-phase-4-site.md)): the start page with the samples, every way a story arrives (a file, a sample, `?story=`, a handover from Frotzlens), Blorb covers and titles, one theme for page and player, offline as a PWA. 38 Playwright tests in three browsers, with the production CSP. |
+| **Site** | This app ([Phase 4](../../docs/14-frotzplay-phase-4-site.md)): the start page with the samples, every way a story arrives (a file, a sample, `?story=`, a handover from frotzlens), Blorb covers and titles, one theme for page and player, offline as a PWA. 38 Playwright tests in three browsers, with the production CSP. |
 | **Embed, export** | [Phase 5](../../docs/15-frotzplay-phase-5-embed-export.md): `<frotz-play>`, one script that embeds under `script-src 'self'; style-src 'self'` (tested in three browsers); *Export* the story you're playing as one HTML file or a folder, both playing from a double-click. Publishing to npm comes next. |
 
 ## Screenshots
@@ -60,7 +60,7 @@ frotzplay is a sibling of [Parchment](https://github.com/curiousdannii/parchment
 | ![The same story in the light theme](../../docs/screenshots/frotzplay/play-light.png) **Light.** | ![The same story in the high-contrast theme, white on black](../../docs/screenshots/frotzplay/play-high-contrast.png) **High contrast.** |
 | ![A story using the upper window: a status row and a two-line map above the story](../../docs/screenshots/frotzplay/upper-window.png) **The upper window as text**, with *Read upper window*. | ![The keyboard shortcuts dialog: every shortcut, changeable or off](../../docs/screenshots/frotzplay/shortcuts.png) **Keyboard shortcuts**, each changeable or off. |
 
-| ![An exported story: frotzplay's header, the player, and a footer linking to frotzplay, GitHub and Frotz, Inc.](../../docs/screenshots/frotzplay/export.png) **Export**: one HTML file that plays from a double-click, with frotzplay's branding. | ![The player at 390 pixels wide](../../docs/screenshots/frotzplay/phone.png) **On a phone.** |
+| ![An exported story: frotzplay's header, the player, and a footer linking to frotzplay, GitHub and frotz, Inc.](../../docs/screenshots/frotzplay/export.png) **Export**: one HTML file that plays from a double-click, with frotzplay's branding. | ![The player at 390 pixels wide](../../docs/screenshots/frotzplay/phone.png) **On a phone.** |
 
 The interpreter also plays from a terminal (`zmachine-run`):
 
@@ -69,7 +69,7 @@ $ zmachine-run samples/dark-cellar.z5 samples/walkthroughs/dark-cellar.txt
 The cellar below is pitch black. You'll want a light.
 
 THE DARK CELLAR
-A Frotzsmith sample: darkness & light.
+A frotzsmith sample: darkness & light.
 Release 1 / Serial number 000000 / Inform v6.44 Library v6.12.8 S
 
 Hall
@@ -113,10 +113,10 @@ You can see a rusty key here.
 
 ## Hosting
 
-**To put it live (once, in your personal Netlify account):** Add new project → Import an existing project → GitHub → `cschweda/frotzlens`; branch `main`, **base directory `apps/play`** (build command and publish directory come from `netlify.toml`); project name `frotzplay`; then Domain management → add `frotzplay.frotzinc.com` and its DNS record (a CNAME to `frotzplay.netlify.app`, as for Frotzlens). HTTPS follows.
+**To put it live (once, in your personal Netlify account):** Add new project → Import an existing project → GitHub → `cschweda/frotzlens`; branch `main`, **base directory `apps/play`** (build command and publish directory come from `netlify.toml`); project name `frotzplay`; then Domain management → add `frotzplay.frotzinc.com` and its DNS record (a CNAME to `frotzplay.netlify.app`, as for frotzlens). HTTPS follows.
 
 A static Nuxt site on Netlify at frotzplay.frotzinc.com: a second Netlify site on this repo with base directory `apps/play`. [`netlify.toml`](netlify.toml) carries its build, its security headers, and an `ignore` rule that skips the deploy when a commit touches nothing frotzplay is built from. The page's SEO (title, description, Open Graph and Twitter cards, canonical URL, schema.org JSON-LD with accessibility properties) is in [`seo.ts`](seo.ts), from [`site.config.ts`](site.config.ts); `scripts/seo-files.mjs` writes `robots.txt` and `sitemap.xml`. Page views are counted with [Plausible](https://plausible.io) (no cookies; nothing about the story you play), the one outside script the CSP allows. The social card is [`public/og-image.svg`](public/og-image.svg), rendered to `og-image.png` (1200 × 630).
 
 ## Licensing
 
-Frotz, Inc. policy: apps GPL-3.0-or-later, libraries MIT. This app is GPL-3.0-or-later ([`LICENSE`](../../LICENSE)). The libraries, `@frotzinc/zmachine` and `@frotzinc/player`, are MIT and carry their own `LICENSE`, so any site can embed the player. No code from GPL interpreters goes into them.
+frotz, Inc. policy: apps GPL-3.0-or-later, libraries MIT. This app is GPL-3.0-or-later ([`LICENSE`](../../LICENSE)). The libraries, `@frotzinc/zmachine` and `@frotzinc/player`, are MIT and carry their own `LICENSE`, so any site can embed the player. No code from GPL interpreters goes into them.

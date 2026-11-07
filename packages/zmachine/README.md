@@ -30,4 +30,4 @@ The Z-Machine Standards Document 1.1, versions 3, 4, 5 and 8, checked against [Z
 
 The [Z-Machine Standards Document](https://inform-fiction.org/zmachine/standards/) (Graham Nelson, Andrew Hunter and contributors); [ZVM / ifvms.js](https://github.com/curiousdannii/ifvms.js) by Dannii Willis, the test oracle, whose xorshift `@random` is copied here with attribution (MIT).
 
-MIT. From [Frotz, Inc.](https://frotzinc.com).
+MIT. From [frotz, Inc.](https://frotzinc.com).

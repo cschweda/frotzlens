@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-// frotzlens — the Frotzlens CLI. GPL-3.0-or-later.
+// frotzlens — the frotzlens CLI. GPL-3.0-or-later.
 import { readFileSync } from 'node:fs'
 import { main } from './main.js'
 

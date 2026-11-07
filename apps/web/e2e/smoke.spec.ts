@@ -181,7 +181,7 @@ test('play: the sample runs in the sandboxed player, and a command gets an answe
   await game.locator('input.LineInput').fill('take lantern')
   await game.locator('input.LineInput').press('Enter')
   await expect(game.locator('.BufferWindow')).toContainText('Taken.')
-  // The game can't reach Frotzlens: its origin is opaque.
+  // The game can't reach frotzlens: its origin is opaque.
   expect(await page.frames().find(f => f.url().includes('/play/index.html'))!.evaluate(() => window.origin)).toBe('null')
   expect(errors).toEqual([])
 })
@@ -192,9 +192,9 @@ test('the About menu: versions and licences, the changelog, reports, updates', a
   const menu = page.getByRole('button', { name: 'About', exact: true })
 
   await menu.click()
-  await page.getByRole('menuitem', { name: 'About Frotzlens' }).click()
-  const about = page.getByRole('dialog', { name: 'About Frotzlens' })
-  await expect(about).toContainText(/Frotzlens\s*0\.\d+\.\d+/)
+  await page.getByRole('menuitem', { name: 'About frotzlens' }).click()
+  const about = page.getByRole('dialog', { name: 'About frotzlens' })
+  await expect(about).toContainText(/frotzlens\s*0\.\d+\.\d+/)
   await expect(about).toContainText('@frotzinc/zcode')
   await expect(about.getByRole('link', { name: 'GPL-3.0-or-later' })).toBeVisible()
   await axe(page, 'about')
@@ -228,7 +228,7 @@ test('the About menu: versions and licences, the changelog, reports, updates', a
   expect(url.origin + url.pathname).toBe('https://github.com/cschweda/frotzlens/issues/new')
   expect(url.searchParams.get('template')).toBe('bug.yml')
   expect(url.searchParams.get('what-happened')).toBe('It broke')
-  expect(url.searchParams.get('version')).toMatch(/^Frotzlens 0\.\d+\.\d+/)
+  expect(url.searchParams.get('version')).toMatch(/^frotzlens 0\.\d+\.\d+/)
   await page.keyboard.press('Escape')
 
   // Check for updates: this build is the live one.

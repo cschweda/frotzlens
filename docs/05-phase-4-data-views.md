@@ -1,4 +1,4 @@
-# Frotzlens — Phase 4: Data Views
+# frotzlens — Phase 4: Data Views
 
 **Document 05 · Phase 4**
 **Deliverable:** every part of a story file has a view, every address and name in one links to the view of what it names, and every view copies as Ztools-format text.

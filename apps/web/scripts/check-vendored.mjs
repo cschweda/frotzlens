@@ -1,5 +1,5 @@
-// The vendored player (public/play/web/, Parchment, copied from Frotzsmith) is exactly the reviewed
-// bytes: every file listed in vendored-files.json, each with its sha256. zvm.js, with Frotzsmith's
+// The vendored player (public/play/web/, Parchment, copied from frotzsmith) is exactly the reviewed
+// bytes: every file listed in vendored-files.json, each with its sha256. zvm.js, with frotzsmith's
 // security patch undone, is the original download, so the patch is all that changed. jquery.min.js
 // is the official 3.5.1 file less its trailing newline. Exits 1 on any difference.
 //   node scripts/check-vendored.mjs   (CI runs it)

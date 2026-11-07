@@ -1,32 +1,32 @@
 {
-  "$comment": "Vendored third-party files the site serves: the Parchment player (public/play/web/), copied from Frotzsmith, which vendored and patched it. sha256 is of the file as committed; upstreamSha256 of the original download when known. scripts/check-vendored.mjs fails on any change: update this file deliberately after reviewing the new bytes.",
+  "$comment": "Vendored third-party files the site serves: the Parchment player (public/play/web/), copied from frotzsmith, which vendored and patched it. sha256 is of the file as committed; upstreamSha256 of the original download when known. scripts/check-vendored.mjs fails on any change: update this file deliberately after reviewing the new bytes.",
   "files": [
     {
       "path": "public/play/web/main.js",
       "sha256": "a9aa860682ac472fb022594dd2682a65c91ba88b2f5507dab708d16d58c634ba",
-      "source": "Parchment web build (github.com/curiousdannii/parchment, MIT). Vendored into Frotzsmith 2026-06-28 (commit c776d55), copied into Frotzlens 2026-11-07 byte for byte; the exact upstream release was not recorded then."
+      "source": "Parchment web build (github.com/curiousdannii/parchment, MIT). Vendored into frotzsmith 2026-06-28 (commit c776d55), copied into frotzlens 2026-11-07 byte for byte; the exact upstream release was not recorded then."
     },
     {
       "path": "public/play/web/zvm.js",
       "sha256": "843b35b2c5e8b1f544edea225158eb9ff82976e4ed34c053639cab39b10f634f",
-      "source": "Parchment web build (github.com/curiousdannii/parchment, MIT). Vendored into Frotzsmith 2026-06-28 (commit c776d55), copied into Frotzlens 2026-11-07 byte for byte; the exact upstream release was not recorded then. ZVM is ifvms.js (github.com/curiousdannii/ifvms.js, MIT) as bundled by Parchment.",
+      "source": "Parchment web build (github.com/curiousdannii/parchment, MIT). Vendored into frotzsmith 2026-06-28 (commit c776d55), copied into frotzlens 2026-11-07 byte for byte; the exact upstream release was not recorded then. ZVM is ifvms.js (github.com/curiousdannii/ifvms.js, MIT) as bundled by Parchment.",
       "upstreamSha256": "4aa639f3d644e8696656671006e54484c87a1beff71e1fb28565fd1443f68abf",
-      "patched": "Frotzsmith's audit 2026-11-04 F2: Unicode-table U+E000/C0 → U+FFFD and \\n/U+2028/U+2029 escaped in the abbreviation JIT, plus a header comment (repointed at this repository's files on 2026-11-07). The edits are listed in apps/web/scripts/vendored-zvm-patch.mjs; check-vendored.mjs undoes them and compares with upstreamSha256."
+      "patched": "frotzsmith's audit 2026-11-04 F2: Unicode-table U+E000/C0 → U+FFFD and \\n/U+2028/U+2029 escaped in the abbreviation JIT, plus a header comment (repointed at this repository's files on 2026-11-07). The edits are listed in apps/web/scripts/vendored-zvm-patch.mjs; check-vendored.mjs undoes them and compares with upstreamSha256."
     },
     {
       "path": "public/play/web/ie.js",
       "sha256": "6d885b5763741e7f311f16c72133c72f7f9ad5b06c3e0a8410c1b1a53187fc52",
-      "source": "Parchment web build (github.com/curiousdannii/parchment, MIT). Vendored into Frotzsmith 2026-06-28 (commit c776d55), copied into Frotzlens 2026-11-07 byte for byte; the exact upstream release was not recorded then."
+      "source": "Parchment web build (github.com/curiousdannii/parchment, MIT). Vendored into frotzsmith 2026-06-28 (commit c776d55), copied into frotzlens 2026-11-07 byte for byte; the exact upstream release was not recorded then."
     },
     {
       "path": "public/play/web/web.css",
       "sha256": "d13ab4eb6723bafdb23a61706fc86e509c91f1bdf0c4ad1977152127611155a5",
-      "source": "Parchment web build (github.com/curiousdannii/parchment, MIT). Vendored into Frotzsmith 2026-06-28 (commit c776d55), copied into Frotzlens 2026-11-07 byte for byte; the exact upstream release was not recorded then."
+      "source": "Parchment web build (github.com/curiousdannii/parchment, MIT). Vendored into frotzsmith 2026-06-28 (commit c776d55), copied into frotzlens 2026-11-07 byte for byte; the exact upstream release was not recorded then."
     },
     {
       "path": "public/play/web/waiting.gif",
       "sha256": "a5f0061830d5ae41d5b2d350d70430939ffc46365d0d1f2bafac844e9b95087c",
-      "source": "Parchment web build (github.com/curiousdannii/parchment, MIT). Vendored into Frotzsmith 2026-06-28 (commit c776d55), copied into Frotzlens 2026-11-07 byte for byte; the exact upstream release was not recorded then."
+      "source": "Parchment web build (github.com/curiousdannii/parchment, MIT). Vendored into frotzsmith 2026-06-28 (commit c776d55), copied into frotzlens 2026-11-07 byte for byte; the exact upstream release was not recorded then."
     },
     {
       "path": "public/play/web/jquery.min.js",

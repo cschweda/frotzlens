@@ -46,7 +46,7 @@
   </g>
 
   <!-- Wordmark + tagline -->
-  <text x="286" y="300" font-family="Georgia, 'Times New Roman', serif" font-size="98" font-weight="700" fill="#f5f3ee">Frotzlens</text>
+  <text x="286" y="300" font-family="Georgia, 'Times New Roman', serif" font-size="98" font-weight="700" fill="#f5f3ee">frotzlens</text>
   <text x="290" y="352" font-size="33" fill="#a8a29e">See inside a Z-machine story file</text>
   <text x="290" y="406" font-family="'Courier New', Courier, monospace" font-size="26" fill="#fbbf24">&gt; disassemble &#183; explore &#183; entirely client-side</text>
 

@@ -6,7 +6,7 @@ import { createWorkerRpc } from '@frotzinc/worker-rpc'
  * sits in a shallowRef and is marked raw: Vue never walks it to make it reactive.
  *
  * Loading: a Web Worker parses it (worker-rpc), falling back to the main thread
- * if the worker can't run — the shape of Frotzsmith's useI6Wasm.
+ * if the worker can't run — the shape of frotzsmith's useI6Wasm.
  */
 const story = shallowRef<StoryFile | null>(null)
 const fileName = ref('')

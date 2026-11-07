@@ -1,6 +1,6 @@
 /**
- * Grid placement for the map: Trizbort's rule, as Frotzsmith's map draws it
- * (ported from Frotzsmith's app/composables/map-graph.ts, by the same author,
+ * Grid placement for the map: Trizbort's rule, as frotzsmith's map draws it
+ * (ported from frotzsmith's app/composables/map-graph.ts, by the same author,
  * keyed by object number here instead of room name). The start room sits at
  * (0, 0); each exit puts its room one step away in its compass direction,
  * or the nearest free cell when that one is taken; up, down, in and out go

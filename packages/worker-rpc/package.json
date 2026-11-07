@@ -1,6 +1,6 @@
 {
   "name": "@frotzinc/worker-rpc",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Request/response client for a long-lived Web Worker: request IDs, timeouts, dead-worker recovery, explicit ok | error | unavailable | timeout outcomes.",
   "license": "MIT",
   "author": "Christopher Schweda",

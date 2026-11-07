@@ -1,6 +1,6 @@
-# Frotzlens
+# frotzlens
 
-![Frotzlens — see inside a Z-machine story file](./apps/web/public/og-image.png)
+![frotzlens — see inside a Z-machine story file](./apps/web/public/og-image.png)
 
 [![License: GPLv3 (apps), MIT (libraries)](https://img.shields.io/badge/License-GPLv3%20%2B%20MIT-blue.svg)](./LICENSING.md)
 [![CI](https://github.com/cschweda/frotzlens/actions/workflows/ci.yml/badge.svg)](https://github.com/cschweda/frotzlens/actions/workflows/ci.yml)
@@ -11,9 +11,9 @@
 
 A browser-based disassembler and inspector for Z-machine story files. Drop a `.z3`, `.z4`, `.z5`, `.z8` or `.zblorb` into a tab and see what's inside: the header, the memory map, the object tree, the dictionary and grammar, every routine as cross-referenced disassembly, and every string. Everything runs in your browser; nothing is uploaded.
 
-It's the browser-native successor to Ztools' `txd` and `infodump`, with an Inform 6 focus, and the companion to [Frotzsmith](https://frotzsmith.com), the browser IDE for Inform 6 and ZIL. Both are part of [Frotz, Inc.](https://frotzinc.com), home of the Frotz family of interactive-fiction tools.
+It's the browser-native successor to Ztools' `txd` and `infodump`, with an Inform 6 focus, and the companion to [frotzsmith](https://frotzsmith.com), the browser IDE for Inform 6 and ZIL. Both are part of [frotz, Inc.](https://frotzinc.com), home of the Frotz family of interactive-fiction tools.
 
-Then **play it**, in the same Parchment interpreter Frotzsmith uses, walled off in a sandbox ([details](docs/07-play.md)). What changed, version by version: the [changelog](CHANGELOG.md), also under **About → What's new** on the site.
+Then **play it**, in the same Parchment interpreter frotzsmith uses, walled off in a sandbox ([details](docs/07-play.md)). What changed, version by version: the [changelog](CHANGELOG.md), also under **About → What's new** on the site.
 
 ## Screenshots
 
@@ -23,7 +23,7 @@ Then **play it**, in the same Parchment interpreter Frotzsmith uses, walled off 
 | ![The object tree and one object's attributes and properties](docs/screenshots/objects.png) **Objects.** The tree, operable from the keyboard, and each object's attributes and properties, decoded. | ![The map of Mingus I, drawn from the rooms' exits](docs/screenshots/map.png) **The map.** Rooms and exits read from the story's direction properties, with the debug file; exits a routine decides are dashed. |
 | ![ZIL syntax tables, each line as its SYNTAX form reads](docs/screenshots/grammar-zil.png) **ZIL grammar.** A ZILF story's syntax tables, each line as its `SYNTAX` form reads, which Ztools can't read at all. | ![The story playing in Parchment, beside the disassembly](docs/screenshots/play.png) **Play.** The story itself, in Parchment, sandboxed from the rest of the site. |
 | ![Inform 6 source: the sample decompiled, checked by compiling it again in the browser](docs/screenshots/source.png) **Inform 6 source.** The story decompiled to Inform 6 and checked by compiling it again in the browser: Download `.inf`, or `frotzlens --inform`. [Open the sample's](https://frotzlens.frotzinc.com/?sample#source). | |
-| ![The drop zone: drop a story file, or try the sample](docs/screenshots/drop-zone.png) **Start here.** Drop a story file, or try the sample. Nothing is uploaded. | ![About Frotzlens: every version, and the licences](docs/screenshots/about.png) **About.** Every version, the licences, the changelog, and a way to report a problem or suggest a feature. |
+| ![The drop zone: drop a story file, or try the sample](docs/screenshots/drop-zone.png) **Start here.** Drop a story file, or try the sample. Nothing is uploaded. | ![About frotzlens: every version, and the licences](docs/screenshots/about.png) **About.** Every version, the licences, the changelog, and a way to report a problem or suggest a feature. |
 
 ## frotzplay
 
@@ -34,12 +34,12 @@ Then **play it**, in the same Parchment interpreter Frotzsmith uses, walled off 
 | | |
 |---|---|
 | ![frotzplay's start page: the drop zone and four sample stories](docs/screenshots/frotzplay/start.png) **The start page.** Drop a story, choose a file, or try a sample. | ![The Dark Cellar playing on frotzplay, on its own warm dark page](docs/screenshots/frotzplay/site-playing.png) **Playing.** The story on its own page, dark by default, every piece of text at 7:1 contrast or better. |
-| ![The player's Settings: theme, font, text size and spacing, what the screen reader says, motion and timers](docs/screenshots/frotzplay/settings.png) **Settings.** Three themes, OpenDyslexic, text size and spacing, screen-reader verbosity, the story's timers off. | ![An exported story: frotzplay's header, the player, and links to frotzplay, GitHub and Frotz, Inc.](docs/screenshots/frotzplay/export.png) **Export.** One HTML file that plays from a double-click, or a folder for any web host. |
+| ![The player's Settings: theme, font, text size and spacing, what the screen reader says, motion and timers](docs/screenshots/frotzplay/settings.png) **Settings.** Three themes, OpenDyslexic, text size and spacing, screen-reader verbosity, the story's timers off. | ![An exported story: frotzplay's header, the player, and links to frotzplay, GitHub and frotz, Inc.](docs/screenshots/frotzplay/export.png) **Export.** One HTML file that plays from a double-click, or a folder for any web host. |
 | ![The same story on parchment, the light theme](docs/screenshots/frotzplay/play-light.png) **Light: parchment.** | ![The upper window shown as text, with a status row and a map](docs/screenshots/frotzplay/upper-window.png) **The upper window as text**, read aloud on demand. |
 
 ## Who it's for
 
-- **Authors** writing in Inform 6 or ZIL (in [Frotzsmith](https://frotzsmith.com) or at the command line) can see what the compiler made of their game.
+- **Authors** writing in Inform 6 or ZIL (in [frotzsmith](https://frotzsmith.com) or at the command line) can see what the compiler made of their game.
   - Is that object where it should be?
   - Which grammar lines reach this action?
   - How big are the tables?
@@ -64,7 +64,7 @@ Then **play it**, in the same Parchment interpreter Frotzsmith uses, walled off 
 
 ## What it does that nothing else does
 
-Ztools (`txd`, `infodump`), the reference Z-machine tools since the 1990s, print a story file's insides as text in a terminal. Frotzlens matches their output byte for byte on every Standard Library and library-free story they read correctly. The exceptions are PunyInform's grammar, which Ztools misreads, and one map ([details](docs/03-phase-2-disassembler.md#5-deliberate-differences-from-ztools)). As far as we know, no other tool does any of the following, let alone all of it in a browser tab with nothing installed and nothing uploaded:
+Ztools (`txd`, `infodump`), the reference Z-machine tools since the 1990s, print a story file's insides as text in a terminal. frotzlens matches their output byte for byte on every Standard Library and library-free story they read correctly. The exceptions are PunyInform's grammar, which Ztools misreads, and one map ([details](docs/03-phase-2-disassembler.md#5-deliberate-differences-from-ztools)). As far as we know, no other tool does any of the following, let alone all of it in a browser tab with nothing installed and nothing uploaded:
 
 - **Everything is linked.** Every routine, string, object, dictionary word and global is a link, with cross-references both ways: what refers to it, and what it refers to. Each grammar line links its action routines, and each verb its words.
 - **The source's names.** It reads Inform's `gameinfo.dbg` and shows routines, locals, globals, properties, attributes and actions by name, with a switch back to txd's numbers.
@@ -79,12 +79,12 @@ Ztools (`txd`, `infodump`), the reference Z-machine tools since the 1990s, print
 
 | Phase | | |
 |---|---|---|
-| 0 | Shared libraries extracted from Frotzsmith | **Done.** `@frotzinc/worker-rpc`, `nuxt-base` and `inform6-wasm` 0.1.0 on npm; Frotzsmith uses them. |
+| 0 | Shared libraries extracted from frotzsmith | **Done.** `@frotzinc/worker-rpc`, `nuxt-base` and `inform6-wasm` 0.1.0 on npm; frotzsmith uses them. |
 | 1 | Core parser and CLI | **Done.** Header, memory map, text, dictionary, objects and globals for v3, v4, v5 and v8, matching `infodump` byte for byte. |
 | 2 | Disassembler: routines, strings, grammar, cross-references | **Done.** Every routine and string, Inform grammar (versions 1, 2 and 3), and cross-references. The disassembly matches `txd`, and `-f` matches `infodump -f`, byte for byte on every Standard Library and library-free story. The exceptions are PunyInform's grammar, which Ztools misreads, and `minimal`'s map ([details](docs/03-phase-2-disassembler.md#5-deliberate-differences-from-ztools)). |
 | 3 | Web app shell and Overview dashboard | **Done.** Drop a story file (or try the sample) and see the Overview: stats, a to-scale memory map, the story facts. Parsing runs in a Web Worker; every view is a hash route; ⌘K jumps to any routine, object, string or dictionary word. Live at [frotzlens.frotzinc.com](https://frotzlens.frotzinc.com) ([details](docs/04-phase-3-web-shell.md)). |
 | 4 | Data views | **Done.** Memory (map and hex), Objects (a keyboard-operable tree), Dictionary, Grammar, Routines (linked disassembly) and Strings, each linked to the rest and each with "Copy as text" in Ztools' format. A Playwright smoke test opens a real story, visits every view and runs axe on each; it runs in CI. Live at [frotzlens.frotzinc.com](https://frotzlens.frotzinc.com) ([details](docs/05-phase-4-data-views.md)). |
-| 5 | Debug symbols, Inform fingerprinting, Blorb, polish; Frotzlens 0.1.0 | **Done.** Blorb files open, and a `gameinfo.dbg` names routines, globals, locals, properties, attributes and actions everywhere (with a Names switch). The Overview says what made the story. New views: Globals, Abbreviations, Symbols and Map. `@frotzinc/zcode` and `frotzlens` 0.1.0 are on npm ([details](docs/06-phase-5-symbols.md)). |
+| 5 | Debug symbols, Inform fingerprinting, Blorb, polish; frotzlens 0.1.0 | **Done.** Blorb files open, and a `gameinfo.dbg` names routines, globals, locals, properties, attributes and actions everywhere (with a Names switch). The Overview says what made the story. New views: Globals, Abbreviations, Symbols and Map. `@frotzinc/zcode` and `frotzlens` 0.1.0 are on npm ([details](docs/06-phase-5-symbols.md)). |
 | 6 | Decompiling to Inform 6 | **Done.** An Inform story (versions 3, 4, 5 and 8, Standard Library, PunyInform or none) back to one `.inf`: the library as `Include`s; the game's objects, classes, grammar and arrays as Inform declares them; its routines as Inform with `if`, `while`, `objectloop`, `switch`, `o.p`, `move` and `give`. Each routine is checked by compiling the whole again and comparing it with the story's: on every test game, every routine comes back the same, and with its debug file every story comes back byte for byte. Without one the library is found by compiling it alone and the game's names are made up. In the app's **Source** view (checked in the browser, with Download `.inf`) and the CLI's `--inform` ([details](docs/09-decompiler.md)). |
 | 7 | Decompiling to ZIL | **Coming soon.** Phase 6's counterpart for ZILF's and Infocom's stories: the syntax tables, objects and routines back to ZIL source, checked the same way, by compiling it again (with ZILF). Inform 6 came first, by decision; the ZIL grammar decoder (0.2.0) is the start. |
 
@@ -98,13 +98,13 @@ The plan and its decisions are in [`docs/`](docs/), starting with [`00-master-de
 
 | Package | License | | npm |
 |---|---|---|---|
-| [`@frotzinc/zcode`](packages/zcode) | MIT | The parser and disassembler: `Uint8Array` in, typed model out, plus `txd`- and `infodump`-format text, Blorb, debug symbols, fingerprinting, the room graph, ZIL grammar and the Inform 6 decompiler | [0.4.0](https://www.npmjs.com/package/@frotzinc/zcode) |
-| [`frotzlens`](packages/cli) | GPL-3.0-or-later | The CLI: `frotzlens game.z5`; also `--inform`, `--symbols`, `--info`, `--rooms`, `--json` | [0.3.0](https://www.npmjs.com/package/frotzlens) |
-| [`@frotzinc/worker-rpc`](packages/worker-rpc) | MIT | Long-lived Web Worker request/response client | 0.1.0 |
-| [`@frotzinc/nuxt-base`](packages/nuxt-base) | MIT | Shared Frotz, Inc. Nuxt layer (with the family's header, footer and About menu) and Netlify tools | [0.2.0](https://www.npmjs.com/package/@frotzinc/nuxt-base) |
-| [`@frotzinc/inform6-wasm`](packages/inform6-wasm) | MIT (wrapper) | Inform 6.44 in WebAssembly, with the Standard Library and PunyInform | 0.1.0 |
-| [`@frotzinc/zmachine`](packages/zmachine) | MIT | A Z-machine interpreter (v3, 4, 5, 8): no `eval`, all state plain data, input supplied by the host. frotzplay's engine | [0.1.0](https://www.npmjs.com/package/@frotzinc/zmachine) |
-| [`@frotzinc/player`](packages/player) | MIT | frotzplay's accessible player as Vue components ([its contract](docs/accessibility.md)), the `<frotz-play>` web component, and Export | [0.1.0](https://www.npmjs.com/package/@frotzinc/player) |
+| [`@frotzinc/zcode`](packages/zcode) | MIT | The parser and disassembler: `Uint8Array` in, typed model out, plus `txd`- and `infodump`-format text, Blorb, debug symbols, fingerprinting, the room graph, ZIL grammar and the Inform 6 decompiler | [0.4.1](https://www.npmjs.com/package/@frotzinc/zcode) |
+| [`frotzlens`](packages/cli) | GPL-3.0-or-later | The CLI: `frotzlens game.z5`; also `--inform`, `--symbols`, `--info`, `--rooms`, `--json` | [0.3.1](https://www.npmjs.com/package/frotzlens) |
+| [`@frotzinc/worker-rpc`](packages/worker-rpc) | MIT | Long-lived Web Worker request/response client | [0.1.1](https://www.npmjs.com/package/@frotzinc/worker-rpc) |
+| [`@frotzinc/nuxt-base`](packages/nuxt-base) | MIT | Shared frotz, Inc. Nuxt layer (with the family's header, footer and About menu) and Netlify tools | [0.2.1](https://www.npmjs.com/package/@frotzinc/nuxt-base) |
+| [`@frotzinc/inform6-wasm`](packages/inform6-wasm) | MIT (wrapper) | Inform 6.44 in WebAssembly, with the Standard Library and PunyInform | [0.1.1](https://www.npmjs.com/package/@frotzinc/inform6-wasm) |
+| [`@frotzinc/zmachine`](packages/zmachine) | MIT | A Z-machine interpreter (v3, 4, 5, 8): no `eval`, all state plain data, input supplied by the host. frotzplay's engine | [0.1.1](https://www.npmjs.com/package/@frotzinc/zmachine) |
+| [`@frotzinc/player`](packages/player) | MIT | frotzplay's accessible player as Vue components ([its contract](docs/accessibility.md)), the `<frotz-play>` web component, and Export | [0.2.1](https://www.npmjs.com/package/@frotzinc/player) |
 | `apps/web` | GPL-3.0-or-later | [frotzlens.frotzinc.com](https://frotzlens.frotzinc.com) | |
 | `apps/play` | GPL-3.0-or-later | [frotzplay.frotzinc.com](https://frotzplay.frotzinc.com), the accessible Z-machine player ([design](docs/frotzplay-design.md)) | |
 
@@ -119,7 +119,7 @@ node packages/cli/dist/bin.js --routine 27f8 samples/dark-cellar.z5   # one rout
 node packages/cli/dist/bin.js -f samples/dark-cellar.z5               # everything infodump prints
 ```
 
-[`samples/`](samples/) holds 34 story files to try it on, from a 1.5 KB library-free story to the 135 KB *Mingus I*, as v3, v5 and v8: Frotzsmith's Inform 6 samples plus a minimal Frotzlens fixture, rebuilt with `pnpm samples`.
+[`samples/`](samples/) holds 34 story files to try it on, from a 1.5 KB library-free story to the 135 KB *Mingus I*, as v3, v5 and v8: frotzsmith's Inform 6 samples plus a minimal frotzlens fixture, rebuilt with `pnpm samples`.
 
 With no options it prints the disassembly the way `txd` does (`-n` for `txd -n`); with `infodump`'s options (`-i -m -a -o -t -g -d -f -w`) those sections the way `infodump` does, so scripts written for either keep working. `--json` prints the parsed model instead. See [`packages/cli`](packages/cli).
 
@@ -152,4 +152,4 @@ Each `@frotzinc/*` package, and the `frotzlens` CLI, is released on its own, fro
 
 The script never commits, tags or pushes.
 
-From [Frotz, Inc.](https://frotzinc.com) — Frotz, Inc. is a fiction. The Frotz interpreter is the work of its own authors and is not affiliated.
+From [frotz, Inc.](https://frotzinc.com) — frotz, Inc. is a fiction. The Frotz interpreter is the work of its own authors and is not affiliated.

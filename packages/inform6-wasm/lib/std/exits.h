@@ -1,5 +1,5 @@
 ! ============================================================================
-!  Exits.h  --  Frotzsmith helper  (Inform 6 Standard Library only)
+!  Exits.h  --  frotzsmith helper  (Inform 6 Standard Library only)
 ! ----------------------------------------------------------------------------
 !  Defines the `LookRoutine` entry point so every room automatically lists its
 !  obvious exits after the description -- no need to type EXITS. It walks the

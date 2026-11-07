@@ -2,9 +2,9 @@
 import type { StoryFile } from '@frotzinc/zcode'
 
 /**
- * Play the story, in Parchment (the interpreter Frotzsmith uses), beside the disassembly. The player
+ * Play the story, in Parchment (the interpreter frotzsmith uses), beside the disassembly. The player
  * runs in a sandboxed iframe with an opaque origin (public/play/play.js): the story is anyone's file,
- * so the game gets no access to Frotzlens or its storage. The bytes are posted to the frame when it
+ * so the game gets no access to frotzlens or its storage. The bytes are posted to the frame when it
  * says it's ready; a Blorb's story is the unwrapped one.
  */
 const props = defineProps<{ story: StoryFile; fileName: string }>()
@@ -53,7 +53,7 @@ onBeforeUnmount(() => document.removeEventListener('fullscreenchange', onFs))
   <div class="flex flex-col gap-6">
     <ViewHeader title="Play" :eyebrow="fileName">
       Play the story itself, in <a href="https://github.com/curiousdannii/parchment" class="text-lamp underline decoration-dotted underline-offset-4 hover:decoration-solid">Parchment</a>,
-      the interpreter Frotzsmith uses. It runs here in your browser, walled off from the rest of Frotzlens.
+      the interpreter frotzsmith uses. It runs here in your browser, walled off from the rest of frotzlens.
       Nothing is uploaded, and nothing is saved when you leave.
     </ViewHeader>
 

@@ -1,7 +1,7 @@
 /**
  * ZIL's syntax tables as text: each verb, its words and its lines, as infodump lays out a grammar,
  * each line written the way its <SYNTAX> form reads (LOOK AT OBJECT (FIND 26) (TAKE IN-ROOM
- * CARRIED)). This is Frotzlens's own text: Ztools can't read ZILF's tables, so there's no output of
+ * CARRIED)). This is frotzlens's own text: Ztools can't read ZILF's tables, so there's no output of
  * theirs to match. FIND flags are attribute numbers (the names aren't in the story); search options
  * are named by the library's flags when known (zillib's, or Infocom's), else hex.
  */

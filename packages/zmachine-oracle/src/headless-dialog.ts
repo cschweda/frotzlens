@@ -1,4 +1,4 @@
-// Vendored from Frotzsmith (app/modules/inform6/engine/headless-dialog.ts @ cf87b65), GPL-3.0-or-later.
+// Vendored from frotzsmith (app/modules/inform6/engine/headless-dialog.ts @ cf87b65), GPL-3.0-or-later.
 // Changed: given a Map, it keeps files in it (saves write, restores read), so ZVM can save and restore
 // in tests; without one it behaves as before.
 /**

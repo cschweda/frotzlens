@@ -5,7 +5,7 @@
  * identity in; the layer never imports it.
  */
 export interface Product {
-  /** The app's name, as the header, the About menu and the dialogs say it: 'Frotzlens'. */
+  /** The app's name, as the header, the About menu and the dialogs say it: 'frotzlens'. */
   name: string
   /** One line on what it is, for the About dialog: 'See inside a Z-machine story file'. */
   tagline: string
@@ -15,7 +15,7 @@ export interface Product {
   repoUrl: string
   /** The app's packages on npm, for the footer. */
   npmUrl: string
-  /** Frotz, Inc.'s home. */
+  /** frotz, Inc.'s home. */
   familyUrl: string
   /** The About dialog's licences, in order: what, its licence, and a link to the licence text. */
   licences: ProductLicence[]

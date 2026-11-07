@@ -1,4 +1,4 @@
-# Frotzlens — Phase 3: Web App Shell
+# frotzlens — Phase 3: Web App Shell
 
 **Document 04 · Phase 3**
 **Deliverable:** drop a story file into frotzlens.frotzinc.com and see the Overview dashboard — on the Netlify preview once the repo is connected (Chris's personal Netlify account, not ICJIA's).
@@ -20,13 +20,13 @@ apps/web/                         frotzlens-web (private, GPL-3.0-or-later)
 │   ├── composables/useStory.ts   load a file: worker first (worker-rpc), main thread if workers fail
 │   ├── composables/useHashRoute.ts  the hash route: #overview, #routine/1b22, #object/47, …
 │   └── components/               DropZone, OverviewView, ItemView, MemoryMap, StatTile, StoryFacts, SearchPalette, AppHeader, AppFooter
-└── public/                       badge, card, icons, the Frotz, Inc. mark; samples/dark-cellar.z5 (copied at build)
+└── public/                       badge, card, icons, the frotz, Inc. mark; samples/dark-cellar.z5 (copied at build)
 ```
 
 ## 2. Decisions (inside what's settled)
 
 - **One page, hash-routed.** `ssr: false` (from nuxt-base) and every view a hash (`#routine/1b22`), as the design says, so a link to any view is bookmarkable and no server routes exist. Phase 3 has the Overview and the routes; the other views arrive in Phase 4 — until then a route to one shows what it is and a link back.
-- **Parsing in a worker** through `@frotzinc/worker-rpc`, with the main-thread fallback (Frotzsmith's `useI6Wasm` shape). The model crosses by structured clone (tested in zcode).
+- **Parsing in a worker** through `@frotzinc/worker-rpc`, with the main-thread fallback (frotzsmith's `useI6Wasm` shape). The model crosses by structured clone (tested in zcode).
 - **Nothing leaves the machine.** No analytics, no third-party requests: fonts self-hosted by Nuxt UI's font module at build time (Open Sans, JetBrains Mono), Segoe UI and Cascadia Code used when installed. The CSP in `netlify.toml` allows the site's own origin and nothing else: plus `'unsafe-inline'` for Nuxt's inline bootstrap and color-mode script and Nuxt UI's inline styles, and `data:`/`blob:` images.
 - **The palette** (colours) comes from `@frotzinc/nuxt-base`'s `palette.css` (dark default, light available); no colour is hard-coded in a component.
 - **The sample** is `samples/dark-cellar.z5`, copied into `public/samples/` before dev and build (not committed twice). Its name is in `site.config.ts` only; the copy script reads it from there.

@@ -3,7 +3,7 @@ import { roomGraph, toMapGraph, type RoomExit, type StoryFile } from '@frotzinc/
 
 /**
  * The map of an Inform game, from its rooms' exits (which need the debug file
- * to be found). Drawn on a grid, as Frotzsmith's map is, and listed as text
+ * to be found). Drawn on a grid, as frotzsmith's map is, and listed as text
  * below — the list is the map for anyone who can't see the picture.
  */
 const props = defineProps<{ story: StoryFile; fileName: string }>()
@@ -62,7 +62,7 @@ const copy = () => JSON.stringify(toMapGraph(graph.value!), null, 2) + '\n'
 
 <template>
   <div class="flex flex-col gap-6">
-    <ViewHeader title="Map" :eyebrow="fileName" :copy="graph ? copy : undefined" copy-label="Copy the map (Frotzsmith's shape)">
+    <ViewHeader title="Map" :eyebrow="fileName" :copy="graph ? copy : undefined" copy-label="Copy the map (frotzsmith's shape)">
       The rooms and the exits between them, from each room’s direction properties. Exits worked out as the
       game runs are drawn to the rooms their routine can return, dashed.
     </ViewHeader>

@@ -1,6 +1,6 @@
 /**
  * frotzplay's <head>: title, description, Open Graph and Twitter cards, canonical URL, icons, theme
- * colours, and schema.org JSON-LD, as Frotzlens's nuxt.config.ts has them. apps/play's
+ * colours, and schema.org JSON-LD, as frotzlens's nuxt.config.ts has them. apps/play's
  * nuxt.config.ts (Phase 4) uses it: `app: { head: seoHead }`.
  */
 import { buildCommit } from '@frotzinc/nuxt-base/netlify/version'
@@ -44,7 +44,7 @@ export const jsonLd = {
   accessibilitySummary:
     'Built for screen readers: one announcement per turn, the status line announced only when it changes, verbosity settings, timed input that can be paused, everything operable from the keyboard. Designed to meet WCAG 2.2 AA, with a published, tested accessibility contract.',
   author: { '@type': 'Person', name: 'Christopher Schweda' },
-  publisher: { '@type': 'Organization', name: 'Frotz, Inc.', url: site.familyUrl },
+  publisher: { '@type': 'Organization', name: 'frotz, Inc.', url: site.familyUrl },
 }
 
 export const seoHead: AppHeadMetaObject = {

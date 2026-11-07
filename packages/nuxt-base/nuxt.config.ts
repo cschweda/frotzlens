@@ -1,5 +1,5 @@
 /**
- * @frotzinc/nuxt-base — the shared Nuxt layer for Frotz, Inc. apps.
+ * @frotzinc/nuxt-base — the shared Nuxt layer for frotz, Inc. apps.
  *
  *   export default defineNuxtConfig({ extends: ['@frotzinc/nuxt-base'] })
  *

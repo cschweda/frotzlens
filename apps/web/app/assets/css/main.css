@@ -1,6 +1,6 @@
 @import "tailwindcss";
 @import "@nuxt/ui";
-/* The Frotz, Inc. look: --frotz-amber, .frotz-glow, .frotz-grid, reduced motion. */
+/* The frotz, Inc. look: --frotz-amber, .frotz-glow, .frotz-grid, reduced motion. */
 @import "@frotzinc/nuxt-base/css/base.css";
 /* The palette: ground, ink, panel, rule, lamp (dark and light), mapped onto Nuxt UI. */
 @import "@frotzinc/nuxt-base/css/palette.css";

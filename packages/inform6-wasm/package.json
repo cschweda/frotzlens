@@ -1,6 +1,6 @@
 {
   "name": "@frotzinc/inform6-wasm",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "The Inform 6.44 compiler in WebAssembly, with the Inform Standard Library and PunyInform. compile(source) \u2192 story file, diagnostics, and gameinfo.dbg. Runs in a browser, a Web Worker, or Node.",
   "license": "MIT",
   "author": "Christopher Schweda",

@@ -73,7 +73,7 @@ export function grammarLines(story: StoryFile): { verb: string; line: GrammarLin
 export function formatGrammar(story: StoryFile, opts: FormatOptions): string {
   const w = new Writer(opts.width)
   const g = story.grammar
-  // ZIL's syntax tables, in their own layout (Ztools can't read them; this is Frotzlens's text).
+  // ZIL's syntax tables, in their own layout (Ztools can't read them; this is frotzlens's text).
   if (!g && story.zilGrammar) return formatZilGrammar(story, story.zilGrammar, opts)
   if (!g) {
     banner(w, opts, 'There are no parse tables')
