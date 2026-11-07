@@ -5,6 +5,7 @@
   "type": "module",
   "scripts": {
     "sample": "node scripts/copy-sample.mjs && node scripts/seo-files.mjs",
+    "check:vendored": "node scripts/check-vendored.mjs",
     "dev": "pnpm run sample && nuxt dev",
     "generate": "pnpm run sample && nuxt generate",
     "preview": "nuxt preview",

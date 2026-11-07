@@ -44,3 +44,11 @@ body {
   outline: 3px solid var(--frotz-lamp-text);
   outline-offset: 2px;
 }
+
+/* Primary (amber) in light mode: Nuxt UI's amber-500 under white text is about 2.1:1, under AA's 4.5:1.
+   The palette's light lamp-text (#8a5208) under white is about 6.4:1, so solid primary buttons
+   ("Play the game", "Choose a file") read in both themes. Dark mode keeps the bright amber, with
+   Nuxt UI's dark text on it. */
+:root.light {
+  --ui-primary: var(--frotz-lamp-text);
+}

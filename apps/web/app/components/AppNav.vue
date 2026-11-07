@@ -18,6 +18,7 @@ const views = computed(() => {
   const inform = s.fingerprint?.compiler === 'inform6'
   return [
     { key: 'overview', label: 'Overview', icon: 'i-lucide-layout-dashboard' },
+    { key: 'play', label: 'Play', icon: 'i-lucide-gamepad-2' },
     { key: 'memory', label: 'Memory', icon: 'i-lucide-binary' },
     { key: 'objects', label: 'Objects', icon: 'i-lucide-box', count: s.objects.objects.length },
     { key: 'dictionary', label: 'Dictionary', icon: 'i-lucide-book-a', count: s.dictionary.entries.length },

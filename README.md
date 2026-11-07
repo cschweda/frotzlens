@@ -12,6 +12,8 @@ A browser-based disassembler and inspector for Z-machine story files. Drop a `.z
 
 It's the browser-native successor to Ztools' `txd` and `infodump`, with an Inform 6 focus, and the companion to [Frotzsmith](https://frotzsmith.com), the browser IDE for Inform 6 and ZIL. Both are part of [Frotz, Inc.](https://frotzinc.com), home of the Frotz family of interactive-fiction tools.
 
+Then **play it**, in the same Parchment interpreter Frotzsmith uses, walled off in a sandbox ([details](docs/07-play.md)).
+
 ## Status
 
 | Phase | | |
