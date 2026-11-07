@@ -4,7 +4,7 @@
  * only what they point to: a routine by its name, a string by its text, a word by its spelling.
  */
 import { compile } from '@frotzinc/inform6-wasm'
-import { decompileInform, findReference, inferSymbols, parseStory, readSymbols, type StoryFile, type Symbols } from '../src/index.js'
+import { decompileChecked, decompileInform, findReference, inferSymbols, parseStory, readSymbols, type StoryFile, type Symbols } from '../src/index.js'
 import { informLine } from '../src/inform/grammar.js'
 
 export type PartResult = 'identical' | 'equivalent' | 'different'
@@ -15,6 +15,8 @@ export interface RoundTrip {
   errors: string[]
   /** Every byte after the header the same. */
   identical: boolean
+  /** With `statements`: the routines (by address) written as statements, and how many could have been. */
+  statements?: { written: number[]; of: number }
   parts: Record<string, { result: PartResult; differences: string[] }>
 }
 
@@ -140,7 +142,7 @@ function comparePart(a: Map<string, string>, b: Map<string, string>, max = 5): {
  * library compiled alone), and compare without names; the debug file is still what the original is
  * read with.
  */
-export async function roundTrip(bytes: Uint8Array, dbg: string, withoutSymbols = false): Promise<RoundTrip> {
+export async function roundTrip(bytes: Uint8Array, dbg: string, withoutSymbols = false, statements = false): Promise<RoundTrip> {
   const story = parseStory(bytes)
   const truth = readSymbols(dbg)
   let symbols = truth
@@ -154,11 +156,20 @@ export async function roundTrip(bytes: Uint8Array, dbg: string, withoutSymbols =
     if (!ref) throw new Error('No library to compile a reference with.')
     symbols = inferSymbols(story, ref)
   }
-  const { source, problems } = decompileInform(story, { symbols })
   const library = story.fingerprint?.library?.name === 'PunyInform' ? 'puny' : 'std'
+  const version = `z${story.header.version}` as 'z5'
+  let checked: Awaited<ReturnType<typeof decompileChecked>> | undefined
+  if (statements) {
+    checked = await decompileChecked(story, symbols, async src => {
+      const o = await compile(src, { version, library })
+      return o.ok && o.story ? { story: parseStory(o.story) } : { errorLines: o.diagnostics.filter(d => d.severity !== 'warning' && d.line).map(d => d.line!) }
+    })
+  }
+  const { source, problems } = checked ?? decompileInform(story, { symbols })
   const out = await compile(source, { version: `z${story.header.version}` as 'z5', library, debug: true })
   const errors = out.diagnostics.filter(d => d.severity !== 'warning').map(d => `${d.line}: ${d.message}`)
   const result: RoundTrip = { source, problems, compiled: !!out.story && out.ok, errors, identical: false, parts: {} }
+  if (checked) result.statements = { written: checked.statements, of: decompileInform(story, { symbols, statements: true }).statementRoutines.length }
   if (!out.story) return result
   if (!out.dbg) {
     result.errors.push('The compiler wrote no debug file, so the stories can\'t be compared.')
