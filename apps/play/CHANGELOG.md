@@ -5,6 +5,14 @@ All notable changes to frotzplay: the web player at frotzplay.frotzinc.com, and 
 ## [Unreleased]
 
 ### Added
+- **The social card and icons:** `public/og-image.svg` (rendered to `og-image.png`, 1200 × 630), in the family's style: an amber tile with frotzplay's mark (a play triangle as the Z-machine prompt, its cursor beside it), the wordmark, and a faint Dark Cellar session behind. `logo.svg`, `favicon.svg` and the PNG icons (32, 180, 192, 512).
+- **SEO, ready for the site:** `site.config.ts` (identity, canonical URL, the start page's samples), `seo.ts` (title, description, Open Graph and Twitter cards, canonical, icons, theme colours, schema.org JSON-LD with accessibility properties), `scripts/seo-files.mjs` (`robots.txt`, `sitemap.xml`).
+- **The README:** the social card, where things stand, a comparison with Parchment, and what the interpreter shows today.
+
+### Changed
+- **The Parchment comparison is corrected.** Parchment now runs Z-code on Bocfel in WebAssembly (ZVM is retired there), so a page embedding it needs `'wasm-unsafe-eval'`, not `'unsafe-eval'`; and its Site Generator already makes single-file pages. The design and kickoff say so.
+
+### Added
 - The design (`docs/frotzplay-design.md`) and the kickoff prompt (`docs/frotzplay-kickoff-prompt.md`), draft 2, in the monorepo's `docs/`.
 - `apps/play/`: `README.md`, this changelog, and `netlify.toml` (security headers, and an `ignore` rule so Frotzlens-only commits don't redeploy frotzplay).
 

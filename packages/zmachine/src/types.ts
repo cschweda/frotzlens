@@ -7,6 +7,10 @@
 export type StopReason =
   | { kind: 'input-line'; maxLength: number; timeout?: Timeout; preloaded: string }
   | { kind: 'input-char'; timeout?: Timeout }
+  /** The story is saving: keep `data` (a Quetzal file), then resume({ saved }). */
+  | { kind: 'save'; data: Uint8Array }
+  /** The story wants a saved game: resume({ restore: bytes }), or { restore: null } to cancel. */
+  | { kind: 'restore' }
   /** The instruction budget is spent; call run() again. */
   | { kind: 'budget' }
   | { kind: 'quit' }
@@ -30,6 +34,8 @@ export type FaultCode =
   | 'bad-property'
   | 'bad-story'
   | 'not-waiting'
+  /** A save file that can't be restored here (another story's, or damaged). The game goes on: the restore fails. */
+  | 'bad-save'
 
 /** Something the story did that the Standard doesn't allow, or a story that can't run. Never thrown past the package. */
 export interface Fault {
@@ -124,9 +130,11 @@ export interface StreamState {
   memory: { table: number; count: number }[]
 }
 
-/** A read the machine is waiting on, so resume() can finish it. */
+/** A read, save or restore the machine is waiting on, so resume() can finish it. */
 export interface PendingInput {
-  kind: 'line' | 'char'
+  kind: 'line' | 'char' | 'save' | 'restore'
+  /** save/restore: the address of the instruction's store byte (v4+) or branch byte (v3), Quetzal's PC. */
+  at?: number
   /** The read's store variable (aread, read_char), or null (sread). */
   store: number | null
   textBuffer: number
@@ -185,11 +193,41 @@ export interface MachineOptions {
     interpreterVersion?: number
     /** Colour available (Flags 1 bit 0, v5+). */
     colour?: boolean
+    /** The Standard revision to claim (default 1.1, what this implements). Tests set ZVM's 1.2 to compare save files byte for byte. */
+    standard?: [number, number]
   }
   hooks?: Hooks
   /** save_undo states kept (default 10). */
   undoDepth?: number
 }
 
-/** What resume() takes: the line typed, the key pressed, or a timed read's interval running out. */
-export type InputValue = { line: string } | { char: number } | { timeout: true }
+/** What resume() takes: the line typed, the key pressed, a timed read's interval running out, or how a save or restore went. */
+export type InputValue =
+  | { line: string }
+  | { char: number }
+  | { timeout: true }
+  /** After a `save` stop: whether the host kept the file. */
+  | { saved: boolean }
+  /** After a `restore` stop: the file, or null when the player cancelled. */
+  | { restore: Uint8Array | null }
+
+/**
+ * The whole machine as plain data (for autosave, and for posting to and from a worker): restored
+ * with Machine.fromSnapshot(story, snapshot, options), it goes on exactly where it was.
+ */
+export interface MachineSnapshot {
+  version: 1
+  /** Which story: release, serial and checksum, checked on restore. */
+  story: { release: number; serial: string; checksum: number }
+  dynamic: Uint8Array
+  pc: number
+  frames: Frame[]
+  random: RandomState
+  screen: ScreenModel
+  input: InputState
+  streams: StreamState
+  counters: { instructions: number; turns: number }
+  undo: Snapshot[]
+  /** A timed read whose interrupt routine is running. */
+  interrupted: PendingInput | null
+}

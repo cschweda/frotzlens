@@ -29,12 +29,28 @@ interface Run {
 function run(version: Version, body: (a: Asm) => void, layout: Layout = {}, input: string[] = []): Run {
   const m = Machine.create(assemble(version, body, layout), { seed: 1 }) as Machine
   if (!(m instanceof Machine)) throw new Error(JSON.stringify(m))
-  let stop = m.run(1_000_000)
+  // A save is kept (as `saved`), and the next restore gets it back, once: a restore returns to
+  // the save, so a program that saves then restores would otherwise restore forever.
+  let saved: Uint8Array | null = null
+  const go = (): StopReason => {
+    for (;;) {
+      const s = m.run(1_000_000)
+      if (s.kind === 'save') {
+        saved = s.data
+        m.resume({ saved: true })
+      } else if (s.kind === 'restore') {
+        m.resume({ restore: saved })
+        saved = null
+      }
+      else return s
+    }
+  }
+  let stop = go()
   let out = m.flushText()
   for (const x of input) {
     const fault = x === 'timeout' ? m.resume({ timeout: true }) : stop.kind === 'input-char' ? m.resume({ char: x.charCodeAt(0) }) : m.resume({ line: x })
     if (fault) throw new Error(fault.message)
-    stop = m.run(1_000_000)
+    stop = go()
     out += m.flushText()
   }
   record(m)
@@ -761,13 +777,35 @@ describe('the game: random, verify, undo, save, restart, quit', () => {
     expect(r.out).toBe('0 0 ')
   })
 
-  it('save and restore to files fail until Phase 2 (v3 branch, v4 store, v5+ extended)', () => {
-    const r3 = run(3, a => a.routine('main').op('SAVE', [], { branch: { to: 'saved' } }).op('RESTORE', [], { branch: { to: 'saved' } }).op('PRINT', [], { text: 'failed' }).op('QUIT').label('saved').op('QUIT'))
-    expect(r3.out).toBe('failed')
-    const r4 = run(4, a => a.routine('main').op('SAVE', [], { store: 0 }).op('PRINT_NUM', [sp]).op('RESTORE', [], { store: 0 }).op('PRINT_NUM', [sp]).op('QUIT'))
-    expect(r4.out).toBe('00')
-    const r5 = run(5, a => a.routine('main').op('SAVE', [], { store: 0 }).op('PRINT_NUM', [sp]).op('RESTORE', [], { store: 0 }).op('PRINT_NUM', [sp]).op('QUIT'))
-    expect(r5.out).toBe('00')
+  it('@save and @restore stop for the host, and finish as the version says: v3 branch, v4 store, v5+ extended (§15)', () => {
+    for (const version of [3, 4, 5] as const) {
+      const m = Machine.create(
+        assemble(version, a => {
+          a.routine('main')
+          if (version <= 3) {
+            a.op('SAVE', [], { branch: { to: 'ok' } }).op('PRINT', [], { text: 'no ' }).jump('next').label('ok').op('PRINT', [], { text: 'yes ' }).label('next')
+            a.op('RESTORE', [], { branch: { to: 'ok2' } }).op('PRINT', [], { text: 'no' }).op('QUIT').label('ok2').op('PRINT', [], { text: 'yes' })
+          } else {
+            a.op('SAVE', [], { store: 0 }).op('PRINT_NUM', [sp]).op('PRINT_CHAR', [32])
+            a.op('RESTORE', [], { store: 0 }).op('PRINT_NUM', [sp])
+          }
+          a.op('QUIT')
+        }),
+        { seed: 1 },
+      ) as Machine
+      const stop = m.run(1e6)
+      expect(stop.kind, `v${version}`).toBe('save')
+      m.resume({ saved: false })
+      expect(m.run(1e6).kind, `v${version}`).toBe('restore')
+      m.resume({ restore: null })
+      m.run(1e6)
+      expect(m.flushText(), `v${version}`).toBe(version <= 3 ? 'no no' : '0 0')
+    }
+  })
+
+  it('v5+\u2019s auxiliary-file @save table bytes name fails, as the Standard allows', () => {
+    const r = run(5, a => a.routine('main').op('SAVE', [L(DATA), 10, L(DATA + 100)], { store: 0 }).op('PRINT_NUM', [sp]).op('QUIT'))
+    expect(r.out).toBe('0')
   })
 
   it('@restart reloads dynamic memory but keeps the transcript bit (§6.1.3, §11.1)', () => {

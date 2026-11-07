@@ -1,4 +1,6 @@
-// Vendored from Frotzsmith (app/modules/inform6/engine/headless-glkote.ts @ cf87b65), GPL-3.0-or-later. Unchanged but for .js on relative imports.
+// Vendored from Frotzsmith (app/modules/inform6/engine/headless-glkote.ts @ cf87b65), GPL-3.0-or-later.
+// Changed: with `answerFilePrompts`, a save/restore prompt is answered with the file 'save' (the
+// dialog's in-memory store) instead of "cancelled".
 /**
  * A GlkOte implementation with no display. glkapi drives it the same way it
  * drives the web/terminal GlkOte: it calls `init(iface)` once (we kick off the
@@ -27,6 +29,7 @@ interface Turn {
 }
 
 export class HeadlessGlkOte {
+  constructor(private readonly answerFilePrompts = false) {}
   private accept: Accept | null = null
   private gen = 0
   private buffer = ''
@@ -93,7 +96,8 @@ export class HeadlessGlkOte {
 
     // A fileref prompt (save / restore / script) — answer "cancelled".
     if (arg.specialinput) {
-      this.accept?.({ type: 'specialresponse', gen: this.gen, response: 'fileref_prompt', value: null })
+      const value = this.answerFilePrompts ? { filename: 'save', usage: 'save', gameid: '' } : null
+      this.accept?.({ type: 'specialresponse', gen: this.gen, response: 'fileref_prompt', value })
       return
     }
 

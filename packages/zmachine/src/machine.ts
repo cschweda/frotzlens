@@ -12,7 +12,8 @@ import { Objects } from './objects.js'
 import { initialRandom, random } from './random.js'
 import { Screen, initialScreen } from './screen.js'
 import { encodeWord, inputToZscii, unicodeToZscii, zsciiAt, zsciiText } from './text.js'
-import type { Fault, Frame, Hooks, InputValue, MachineOptions, MachineState, PendingInput, Snapshot, StopReason } from './types.js'
+import { readQuetzal, writeQuetzal } from './quetzal.js'
+import type { Fault, Frame, Hooks, InputValue, MachineOptions, MachineSnapshot, MachineState, PendingInput, Snapshot, StopReason } from './types.js'
 
 const MAX_FRAMES = 1024
 const MAX_EVAL_STACK = 0xffff
@@ -166,9 +167,11 @@ export class Machine {
       m[0x2c] = m[0x2c] || 2
       m[0x2d] = m[0x2d] || 9
     }
-    // The Standard this follows (§11.1.5): frotzplay 1.1. ZVM claims 1.2, and (v3) writes nothing.
-    if (!zvm) set16(H.standard, 0x0101)
-    else if (v >= 4) set16(H.standard, 0x0102)
+    // The Standard this follows (§11.1.5): 1.1, which is what this implements. (ZVM claims 1.2, with
+    // its @gestalt; the 'zvm' profile still says 1.1, since a story may act on the claim, as Praxix
+    // does. The header test leaves these two bytes out.)
+    const [major, minor] = h.standard ?? [1, 1]
+    set16(H.standard, (major << 8) | minor)
     // Flags 3 (§11.1.7.4): none of its features.
     const ext = (m[H.extension]! << 8) | m[H.extension + 1]!
     if (ext && ext + 9 < this.mem.staticBase && ((m[ext]! << 8) | m[ext + 1]!) >= 4) set16(ext + 8, 0)
@@ -220,6 +223,8 @@ export class Machine {
   }
 
   private waiting(p: PendingInput): StopReason {
+    if (p.kind === 'save') return { kind: 'save', data: this.quetzal(p.at!) }
+    if (p.kind === 'restore') return { kind: 'restore' }
     if (p.kind === 'char') return p.timeout ? { kind: 'input-char', timeout: p.timeout } : { kind: 'input-char' }
     const { max, preloaded } = this.lineLimits(p.textBuffer)
     return p.timeout ? { kind: 'input-line', maxLength: max, timeout: p.timeout, preloaded } : { kind: 'input-line', maxLength: max, preloaded }
@@ -240,6 +245,25 @@ export class Machine {
     const p = this.state.input.pending
     if (!p) return { code: 'not-waiting', message: 'The story isn’t waiting for input.', pc: this.state.pc }
     try {
+      if (p.kind === 'save' || p.kind === 'restore') {
+        if (!('saved' in input) && !('restore' in input)) return { code: 'not-waiting', message: `The story is waiting for a ${p.kind}, not typed input.`, pc: this.state.pc }
+        this.state.input.pending = null
+        if ('saved' in input) {
+          this.completeSave(p.at!, input.saved ? 1 : 0)
+          return null
+        }
+        if (!input.restore) {
+          this.completeSave(p.at!, 0)
+          return null
+        }
+        const why = this.restoreQuetzal(input.restore)
+        if (why) {
+          this.completeSave(p.at!, 0)
+          return { code: 'bad-save', message: why, pc: this.state.pc }
+        }
+        return null
+      }
+      if (!('line' in input) && !('char' in input) && !('timeout' in input)) return { code: 'not-waiting', message: 'The story is waiting for typed input, not a save file.', pc: this.state.pc }
       if ('timeout' in input) {
         if (!p.timeout) return { code: 'not-waiting', message: 'This read has no time limit.', pc: this.state.pc }
         // Run the interrupt routine (§10.2.4): it returns true to end the read.
@@ -384,8 +408,10 @@ export class Machine {
     const streams = this.state.streams
     const s3 = streams.memory.at(-1)
     if (s3) {
-      // Stream 3 takes everything, and nothing else gets it (§7.1.2.2).
+      // Stream 3 takes everything, and nothing else gets it (§7.1.2.2). ZSCII 0 prints nothing
+      // anywhere (§3.8.2.1).
       for (const c of codes) {
+        if (c === 0) continue
         this.mem.setByte(s3.table + 2 + s3.count, c === 10 ? 13 : c)
         s3.count++
       }
@@ -393,7 +419,7 @@ export class Machine {
     }
     if (!streams.screen) return
     let text = ''
-    for (const c of codes) text += zsciiText(c, this.text)
+    for (const c of codes) if (c !== 0) text += zsciiText(c, this.text)
     this.screen.print(text)
     this.hooks?.print?.(text, this.state.screen.window)
   }
@@ -562,6 +588,120 @@ export class Machine {
       separators,
       lookup: (encoded: Uint8Array) => index.get(String.fromCharCode(...encoded)) ?? 0,
     }
+  }
+
+  // ── save files (Quetzal 1.4) ──────────────────────────────────────────────
+
+  private storyId() {
+    const m = this.story
+    return { release: (m[0x02]! << 8) | m[0x03]!, serial: m.subarray(0x12, 0x18), checksum: (m[0x1c]! << 8) | m[0x1d]! }
+  }
+
+  /** The machine as a Quetzal file, with `at` as the save instruction's store or branch byte. */
+  private quetzal(at: number): Uint8Array {
+    const id = this.storyId()
+    return writeQuetzal(
+      { release: id.release, serial: id.serial, checksum: id.checksum, pc: at, dynamic: this.state.memory.subarray(0, this.mem.staticBase), frames: this.state.frames },
+      this.story.subarray(0, this.mem.staticBase),
+    )
+  }
+
+  /**
+   * Finish a save or restore whose result is `value` (§15 save/restore): v4+ store it at the store
+   * byte `at`; v3 branch on it from the branch byte(s) at `at`.
+   */
+  private completeSave(at: number, value: number): void {
+    if (this.version >= 4) {
+      this.state.pc = at + 1
+      return this.writeVar(this.mem.byte(at), value)
+    }
+    const b = this.mem.byte(at)
+    let offset: number
+    let after: number
+    if (b & 0x40) {
+      offset = b & 0x3f
+      after = at + 1
+    } else {
+      offset = (((b & 0x3f) << 8) | this.mem.byte(at + 1)) << 18 >> 18
+      after = at + 2
+    }
+    this.state.pc = after
+    if ((value !== 0) !== ((b & 0x80) !== 0)) return
+    if (offset === 0 || offset === 1) return this.ret(offset)
+    this.state.pc = after + offset - 2
+  }
+
+  /** Restore a Quetzal file; the reason in words when it can't be. */
+  private restoreQuetzal(bytes: Uint8Array): string | null {
+    let q
+    try {
+      q = readQuetzal(bytes, this.story.subarray(0, this.mem.staticBase))
+    } catch (e) {
+      return `That save file can\u2019t be restored: ${e instanceof Error ? e.message : String(e)}.`
+    }
+    const id = this.storyId()
+    if (q.release !== id.release || q.checksum !== id.checksum || q.serial.some((b, i) => b !== id.serial[i])) {
+      return 'That save file is from a different story (or a different release of this one).'
+    }
+    // Flags 2 survives a restore (§11.1.7.2… ZVM keeps the whole low byte).
+    const flags2 = this.state.memory[0x11]!
+    this.state.memory.set(q.dynamic, 0)
+    this.state.memory[0x11] = flags2
+    this.state.frames = q.frames
+    this.writeHeader()
+    this.state.random.mode = 'session'
+    this.state.random.xorshift = 0
+    this.state.streams.memory = []
+    this.dictionaries.clear()
+    // v3: the upper window collapses on a restore (§8.6.1.3).
+    if (this.version === 3) this.screen.split(0, 3)
+    this.completeSave(q.pc, 2)
+    return null
+  }
+
+  // ── snapshots (autosave, workers) ─────────────────────────────────────────
+
+  /** The whole machine as plain data. */
+  snapshot(): MachineSnapshot {
+    const id = this.storyId()
+    const s = this.state
+    return structuredCopy({
+      version: 1,
+      story: { release: id.release, serial: String.fromCharCode(...id.serial), checksum: id.checksum },
+      dynamic: s.memory.slice(0, this.mem.staticBase),
+      pc: s.pc,
+      frames: s.frames,
+      random: s.random,
+      screen: s.screen,
+      input: s.input,
+      streams: s.streams,
+      counters: s.counters,
+      undo: s.undo,
+      interrupted: this.interrupted,
+    })
+  }
+
+  /** A machine in exactly the state of `snapshot`, or why it can't be (another story's). */
+  static fromSnapshot(story: Uint8Array, snapshot: MachineSnapshot, options: MachineOptions): Machine | { fault: Fault } {
+    const m = Machine.create(story, options)
+    if (!(m instanceof Machine)) return m
+    const id = m.storyId()
+    const sid = snapshot.story
+    if (snapshot.version !== 1 || sid.release !== id.release || sid.checksum !== id.checksum || sid.serial !== String.fromCharCode(...id.serial)) {
+      return { fault: { code: 'bad-save', message: 'That saved state is from a different story (or a different release of this one).', pc: 0 } }
+    }
+    const c = structuredCopy(snapshot)
+    m.state.memory.set(c.dynamic, 0)
+    m.state.pc = c.pc
+    m.state.frames = c.frames
+    m.state.random = c.random
+    Object.assign(m.state.screen, c.screen)
+    m.state.input = c.input
+    m.state.streams = c.streams
+    m.state.counters = c.counters
+    m.state.undo = c.undo
+    m.interrupted = c.interrupted
+    return m
   }
 
   // ── undo (§15 save_undo / restore_undo) ───────────────────────────────────
@@ -866,11 +1006,18 @@ export class Machine {
         this.state.pc = this.current
         return
       case 'RESTART': return this.restart()
-      // Save and restore to files are Phase 2 (Quetzal); until then they fail, as the Standard allows.
       case 'SAVE':
-      case 'RESTORE':
-        if (this.version <= 3) return this.branch(ins, false)
-        return this.store(ins, 0)
+      case 'RESTORE': {
+        // v5+'s auxiliary-file forms (@save table bytes name) fail, as the Standard allows (§15).
+        if (ins.operands.length) return this.store(ins, 0)
+        // Quetzal's PC: the store byte (v4+), or the branch byte(s) (v3), which in this 0OP form
+        // follow the opcode byte directly.
+        const at = this.version <= 3 ? ins.address + 1 : ins.address + ins.length - 1
+        const p: PendingInput = { kind: ins.name === 'SAVE' ? 'save' : 'restore', store: null, textBuffer: 0, parseBuffer: 0, at }
+        this.state.input.pending = p
+        this.stop = this.waiting(p)
+        return
+      }
       case 'SAVE_UNDO':
         this.saveUndo(ins.store ?? null)
         return this.store(ins, 1)
@@ -909,3 +1056,15 @@ export class Machine {
 }
 
 const cloneFrames = (frames: Frame[]): Frame[] => frames.map(f => ({ ...f, locals: f.locals.slice(), evalStack: f.evalStack.slice() }))
+
+/** A deep copy of plain data (Uint8Arrays included), without structuredClone (not in this package's lib). */
+function structuredCopy<T>(x: T): T {
+  if (x instanceof Uint8Array) return x.slice() as T
+  if (Array.isArray(x)) return x.map(structuredCopy) as T
+  if (x && typeof x === 'object') {
+    const out: Record<string, unknown> = {}
+    for (const [k, v] of Object.entries(x)) out[k] = structuredCopy(v)
+    return out as T
+  }
+  return x
+}

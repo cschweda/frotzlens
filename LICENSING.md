@@ -7,3 +7,5 @@ Dependencies point one way, apps → libraries, and no library bundles GPL code.
 The family shell (the header, footer, About menu and its dialogs, and the report and changelog helpers they use) was written for Frotzlens by its author and moved into `@frotzinc/nuxt-base` in 2026-11, so every Frotz, Inc. app can share it. Its author relicensed it MIT for that move; it carries `nuxt-base`'s `LICENSE`.
 
 `packages/zmachine-oracle` is the exception that proves the rule: a **private, GPL-3.0-or-later, test-only** package, never published or bundled, that vendors Frotzsmith's headless ZVM replay as the oracle for `@frotzinc/zmachine`'s differential tests. `@frotzinc/zmachine` (MIT) uses it only as a dev dependency of its tests; nothing from it reaches an MIT package's `dist`. ZVM (`ifvms`) and GlkOte (`glkote-term`) themselves are MIT.
+
+Two third-party test suites are in `packages/zmachine/test/conformance/`, unchanged and with their notices: Czech 0.8 (© 2003 Amir Karger, under its own permissive licence, kept in `czech-README.txt`) and Praxix (public domain). They are test sources only, compiled at test time; nothing from them is published.

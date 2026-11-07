@@ -10,16 +10,18 @@ The ZVM oracle for [`@frotzinc/zmachine`](../zmachine)'s differential tests: Fro
 
 | File | Changed |
 |---|---|
-| `replayCore.ts` | `options.seed`; returns the header ZVM wrote. |
-| `ZmachineEngine.ts` | Keeps the VM so `header()` can read it back. |
+| `replayCore.ts` | `options.seed`, `options.files`; returns the header ZVM wrote. |
+| `ZmachineEngine.ts` | Keeps the VM so `header()` can read it back; passes `files` to the dialog. |
+| `headless-dialog.ts` | Given a `Map`, keeps save files in it. |
+| `headless-glkote.ts` | With files, answers save/restore prompts with the file `save`. |
 | `StoryEngine.ts` | Z-machine only; `BootOptions`. |
 | `glk.ts` | Node only (the browser branch, an indirect `eval`, is gone). |
-| `headless-glkote.ts`, `headless-dialog.ts`, `normalizeTurnOutput.ts`, `parseScript.ts` | Unchanged but for `.js` on relative imports (this repo is NodeNext). |
+| `normalizeTurnOutput.ts`, `parseScript.ts` | Unchanged but for `.js` on relative imports (this repo is NodeNext). |
 | `random.ts` | New: mulberry32, the same as `@frotzinc/zmachine`'s. |
 
 ## What it can't check
 
-- **Save and restore:** the headless dialog cancels every file prompt. (Phase 2 adds an in-memory dialog.)
+- **Save and restore:** only with `{ files }` (an in-memory store); without it, file prompts are cancelled.
 - **Timed input:** no timers are run.
 - **Character input:** a `@read_char` ends the replay.
 - **The status line:** the grid is kept apart from the transcript (`status`), and only changed lines arrive, so it isn't compared.

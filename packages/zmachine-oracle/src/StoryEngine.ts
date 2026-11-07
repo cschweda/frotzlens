@@ -27,4 +27,6 @@ export interface BootOptions {
    * random mode uses; @random -n then switches both to ZVM's xorshift, seeded the same.
    */
   seed?: number
+  /** Save files by name: a save writes 'save', a restore reads it. Without this, saves and restores fail. */
+  files?: Map<string, Uint8Array>
 }
