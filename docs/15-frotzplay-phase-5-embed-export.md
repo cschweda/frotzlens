@@ -37,6 +37,6 @@ Versions 0.1.0 for `@frotzinc/zmachine` and `@frotzinc/player` (and `@frotzinc/z
 - **Tests:** the player's suite is now 96 (contract 87, embed 3, export 6); the site's 42 (41 + the Firefox service-worker skip).
 
 **Still to do, with Chris (§3):**
-1. Extend `publish.sh` for `zmachine` and `player`: libraries whose runtime dependencies are other `@frotzinc` packages at exact versions already on npm (as the CLI's is), and a smoke test each in `scripts/smoke/`.
+1. ~~Extend `publish.sh` for `zmachine` and `player`~~ Done (Frotzlens 0.3.2): their runtime dependencies are other `@frotzinc` packages at exact versions already on npm, as the CLI's are; `scripts/smoke/zmachine.mjs` and `scripts/smoke/player.mjs` test the packed tarballs.
 2. The release: versions (`@frotzinc/zcode` 0.4.0, `@frotzinc/nuxt-base` 0.2.0, `@frotzinc/zmachine` 0.1.0, `@frotzinc/player` 0.1.0), changelogs, tags, CI on the tags.
 3. Publish in dependency order (zcode, nuxt-base, zmachine, player), each with Chris's npm 2FA link; then the `frotzplay` name.

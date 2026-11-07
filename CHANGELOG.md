@@ -2,6 +2,14 @@
 
 All notable changes to Frotzlens: the web app at [frotzlens.frotzinc.com](https://frotzlens.frotzinc.com), and this repository. The packages keep their own changelogs: [`@frotzinc/zcode`](packages/zcode/CHANGELOG.md), [`frotzlens`](packages/cli/CHANGELOG.md) (the CLI), [`@frotzinc/worker-rpc`](packages/worker-rpc/CHANGELOG.md), [`@frotzinc/nuxt-base`](packages/nuxt-base/CHANGELOG.md), [`@frotzinc/inform6-wasm`](packages/inform6-wasm/CHANGELOG.md). Versions follow [Semantic Versioning](https://semver.org/). Part of [Frotz, Inc.](https://frotzinc.com).
 
+## [0.3.2] - 2026-11-07
+
+Frotzlens itself is unchanged; this release gets frotzplay's packages ready for npm.
+
+### Changed
+- **`publish.sh` publishes `@frotzinc/zmachine` and `@frotzinc/player`.** A library may now depend at run time on the `@frotzinc` package it's built on (zmachine on zcode, player on zmachine), at an exact version already on npm, as the CLI does. Each has a smoke test in `scripts/smoke/` that installs the packed tarball on its own: zmachine plays a 72-byte story made in the test, and the player (with Vue, its peer) exports one as a single file and as a `.zip`.
+- **frotzplay runs its interpreter on the main thread, decided** ([docs/14 §5](docs/14-frotzplay-phase-4-site.md)): its cooperative budget already keeps a looping story from freezing the page, so there's no worker.
+
 ## [0.3.1] - 2026-11-07
 
 Frotzlens itself looks and works the same; this release moves its shell into `@frotzinc/nuxt-base` and brings frotzplay into the repository.

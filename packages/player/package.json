@@ -36,6 +36,7 @@
   },
   "files": [
     "dist",
+    "fonts",
     "README.md",
     "CHANGELOG.md",
     "LICENSE"
