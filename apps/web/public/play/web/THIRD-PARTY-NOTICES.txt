@@ -1,8 +1,11 @@
 Third-party notices for the bundled interpreter (public/play/web/)
 =================================================================
 
-These files are redistributed under the MIT License. Each project's notice follows, as its
-upstream LICENSE states it.
+These files are redistributed under the MIT License. Each notice below is the project's LICENSE
+file as its repository states it today (fetched 2026-11-07): the exact Parchment release these files
+came from wasn't recorded when Frotzsmith vendored them (2026-06-28), and main.js carries no
+license header, so the years may differ slightly from that release's. jQuery's is from its 3.5.1 tag,
+the version vendored.
 
 -----------------------------------------------------------------
 Parchment (main.js, ie.js, web.css, waiting.gif) — https://github.com/curiousdannii/parchment
