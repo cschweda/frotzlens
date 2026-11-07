@@ -2,6 +2,14 @@
 
 All notable changes to frotzplay: the web player at frotzplay.frotzinc.com, and this repository. Versions follow [Semantic Versioning](https://semver.org/). Part of [Frotz, Inc.](https://frotzinc.com).
 
+## [0.1.1] - 2026-11-07
+
+### Changed
+- The meta description (and the Open Graph and Twitter ones) is 149 characters, under the 160 that search results and link previews show.
+
+### Added
+- `datePublished` and `dateModified` in the structured data (JSON-LD); `dateModified` is the build's commit date, so it moves with each deploy. And `inLanguage`.
+
 ## [0.1.0] - 2026-11-07
 
 The first release of frotzplay, live at [frotzplay.netlify.app](https://frotzplay.netlify.app) (and frotzplay.frotzinc.com once its DNS is set).

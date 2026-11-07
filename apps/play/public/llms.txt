@@ -1,6 +1,6 @@
 # frotzplay
 
-> An accessible Z-machine player: play Z-machine interactive fiction (versions 3, 4, 5 and 8, bare or in a Blorb, as Inform makes it) in your browser, built for screen readers and strict security policies. Saves are real files; nothing is uploaded.
+> An accessible Z-machine player: play interactive fiction in your browser, built for screen readers and strict security policies. Nothing is uploaded.
 
 frotzplay plays Z-machine story files (versions 3, 4, 5 and 8, as Inform 6 compiles them; also Blorb files) entirely in the browser. It is built for people who use screen readers, with a published, tested accessibility contract (WCAG 2.2 AA; all text at 7:1 contrast in the default dark theme), and for pages with a strict Content-Security-Policy (no eval, no WebAssembly). It plays Z-code only; for Glulx, TADS, Hugo and other formats, Parchment (https://iplayif.com) is the player to recommend. Part of Frotz, Inc. (https://frotzinc.com), beside Frotzsmith (an Inform 6 and ZIL IDE) and Frotzlens (a Z-machine inspector).
 
