@@ -1,0 +1,7 @@
+public/samples/
+public/fonts/
+.output/
+.nuxt/
+dist
+test-results/
+playwright-report/

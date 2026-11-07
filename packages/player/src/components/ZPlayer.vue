@@ -12,7 +12,7 @@ import { computed, onBeforeUnmount, onMounted, reactive, ref, useTemplateRef, wa
 import { timedNotice, turnAnnouncement } from '../announce.js'
 import { clearAutosave, readAutosave, storyKey, writeAutosave } from '../autosave.js'
 import { useMachine, type TurnBlock } from '../composables/useMachine.js'
-import { loadSettings, saveSettings, type Settings } from '../settings.js'
+import { loadSettings, saveSettings, type Settings, type Theme } from '../settings.js'
 import { loadBindings, matches, saveBindings, type Action } from '../shortcuts.js'
 import ZAnnouncer from './ZAnnouncer.vue'
 import ZCommandLine from './ZCommandLine.vue'
@@ -59,6 +59,25 @@ function safeStorage() {
 }
 
 const settings = ref<Settings>(loadSettings(store))
+
+/**
+ * The theme, as a model a host can bind (v-model:theme): frotzplay's page ties it to its own
+ * light/dark switch. Left unbound, the player keeps its own setting.
+ */
+const themeModel = defineModel<Theme>('theme')
+watch(
+  themeModel,
+  t => {
+    if (t && t !== settings.value.theme) settings.value = { ...settings.value, theme: t }
+  },
+  { immediate: true },
+)
+watch(
+  () => settings.value.theme,
+  t => {
+    if (themeModel.value !== undefined && t !== themeModel.value) themeModel.value = t
+  },
+)
 // A first visit from a system that asks for more contrast starts in high contrast (statement R5);
 // a theme chosen here always wins.
 try {

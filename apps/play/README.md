@@ -9,7 +9,7 @@
 
 A Z-machine player for the web, built for two things: **people who use screen readers**, and **pages with a strict Content-Security-Policy**. It plays version 3, 4, 5 and 8 story files, bare or in a Blorb, in the browser, with nothing uploaded. It will live at **frotzplay.frotzinc.com**. Part of [Frotz, Inc.](https://frotzinc.com), beside [Frotzsmith](https://frotzsmith.com) and [Frotzlens](https://frotzlens.frotzinc.com).
 
-> **Status: in development.** The interpreter ([Phases 1](../../docs/11-frotzplay-phase-1-interpreter.md)–[2](../../docs/12-frotzplay-phase-2-state.md)) and the player ([Phase 3](../../docs/13-frotzplay-phase-3-player.md)) are done and tested; this site comes next. Built in this monorepo: the interpreter in [`packages/zmachine`](../../packages/zmachine), the player in `packages/player`, this app in `apps/play`.
+> **Status: in development.** The interpreter ([Phases 1](../../docs/11-frotzplay-phase-1-interpreter.md)–[2](../../docs/12-frotzplay-phase-2-state.md)), the player ([Phase 3](../../docs/13-frotzplay-phase-3-player.md)) and this site ([Phase 4](../../docs/14-frotzplay-phase-4-site.md)) are built and tested; it goes live when its Netlify site is connected. Built in this monorepo: the interpreter in [`packages/zmachine`](../../packages/zmachine), the player in `packages/player`, this app in `apps/play`.
 
 ## Standing on
 
@@ -48,14 +48,14 @@ frotzplay is a sibling of [Parchment](https://github.com/curiousdannii/parchment
 | **Interpreter** | Every opcode of versions 3, 4, 5 and 8. Every sample story, played through with its walkthrough, gives the same transcript as ZVM, turn by turn. Passes **Czech** (0 failures in all four versions) and **Praxix** ("All tests passed"). |
 | **Saves** | Quetzal 1.4. A save made here and one made in ZVM are the same bytes, and each restores in both. |
 | **Player** | [`@frotzinc/player`](../../packages/player) ([Phase 3](../../docs/13-frotzplay-phase-3-player.md)): the [accessibility contract](../../docs/accessibility.md) built in, 87 Playwright tests in three browsers with axe in every state. |
-| **Site, export** | Next: Phases 4 and 5 ([design](../../docs/frotzplay-design.md)). |
+| **Site** | This app ([Phase 4](../../docs/14-frotzplay-phase-4-site.md)): the start page with the samples, every way a story arrives (a file, a sample, `?story=`, a handover from Frotzlens), Blorb covers and titles, one theme for page and player, offline as a PWA. 38 Playwright tests in three browsers, with the production CSP. |
+| **Embed, export** | Next: [Phase 5](../../docs/frotzplay-design.md). |
 
 ## Screenshots
 
-The player (`@frotzinc/player`, Phase 3) on its dev page; the site's own page comes in Phase 4.
-
 | | |
 |---|---|
+| ![The start page: what frotzplay is, the drop zone, and four sample stories](../../docs/screenshots/frotzplay/start.png) **The start page.** Drop a story, choose a file, or try a sample. | ![The Dark Cellar playing on the site, in the family's header](../../docs/screenshots/frotzplay/site-playing.png) **Playing**, in the family's header and footer. |
 | ![The Dark Cellar in the dark theme: the status line, the story, the command line and the controls](../../docs/screenshots/frotzplay/play-dark.png) **Dark by default.** Every piece of text at 7:1 contrast or better. One announcement per turn for screen readers; the status line announced only when it changes. | ![The Settings dialog: theme, font, text size and spacing, what the screen reader says, motion and timers](../../docs/screenshots/frotzplay/settings.png) **Settings.** Three themes, OpenDyslexic and monospace, text size and spacing, verbosity, reduced motion, and the story's timers off. |
 | ![The same story in the light theme](../../docs/screenshots/frotzplay/play-light.png) **Light.** | ![The same story in the high-contrast theme, white on black](../../docs/screenshots/frotzplay/play-high-contrast.png) **High contrast.** |
 | ![A story using the upper window: a status row and a two-line map above the story](../../docs/screenshots/frotzplay/upper-window.png) **The upper window as text**, with *Read upper window*. | ![The keyboard shortcuts dialog: every shortcut, changeable or off](../../docs/screenshots/frotzplay/shortcuts.png) **Keyboard shortcuts**, each changeable or off. |
@@ -112,6 +112,8 @@ You can see a rusty key here.
 - Phases: [0, the shared shell](../../docs/10-frotzplay-phase-0-shell.md) · [1, the interpreter](../../docs/11-frotzplay-phase-1-interpreter.md) · [2, saves and conformance](../../docs/12-frotzplay-phase-2-state.md).
 
 ## Hosting
+
+**To put it live (once, in your personal Netlify account):** Add new project → Import an existing project → GitHub → `cschweda/frotzlens`; branch `main`, **base directory `apps/play`** (build command and publish directory come from `netlify.toml`); project name `frotzplay`; then Domain management → add `frotzplay.frotzinc.com` and its DNS record (a CNAME to `frotzplay.netlify.app`, as for Frotzlens). HTTPS follows.
 
 A static Nuxt site on Netlify at frotzplay.frotzinc.com: a second Netlify site on this repo with base directory `apps/play`. [`netlify.toml`](netlify.toml) carries its build, its security headers, and an `ignore` rule that skips the deploy when a commit touches nothing frotzplay is built from. The page's SEO (title, description, Open Graph and Twitter cards, canonical URL, schema.org JSON-LD with accessibility properties) is in [`seo.ts`](seo.ts), from [`site.config.ts`](site.config.ts); `scripts/seo-files.mjs` writes `robots.txt` and `sitemap.xml`. The social card is [`public/og-image.svg`](public/og-image.svg), rendered to `og-image.png` (1200 × 630).
 

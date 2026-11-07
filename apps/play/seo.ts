@@ -3,6 +3,7 @@
  * colours, and schema.org JSON-LD, as Frotzlens's nuxt.config.ts has them. apps/play's
  * nuxt.config.ts (Phase 4) uses it: `app: { head: seoHead }`.
  */
+import type { AppHeadMetaObject } from 'nuxt/schema'
 import { site } from './site.config'
 
 export const title = `${site.name} — ${site.tagline}`
@@ -39,7 +40,7 @@ export const jsonLd = {
   publisher: { '@type': 'Organization', name: 'Frotz, Inc.', url: site.familyUrl },
 }
 
-export const seoHead = {
+export const seoHead: AppHeadMetaObject = {
   title,
   htmlAttrs: { lang: 'en' },
   meta: [

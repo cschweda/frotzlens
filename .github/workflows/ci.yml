@@ -37,6 +37,17 @@ jobs:
           name: player-contract-results
           path: packages/player/test-results/
           retention-days: 7
+      # frotzplay's site (apps/play): typecheck, generate as Netlify does, and test the built site,
+      # served with its netlify.toml headers, in three browsers (docs/14).
+      - run: pnpm --filter frotzplay-web run typecheck
+      - run: pnpm --filter frotzplay-web run generate
+      - run: pnpm --filter frotzplay-web run test:e2e
+      - uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: frotzplay-site-results
+          path: apps/play/test-results/
+          retention-days: 7
       # The web app (apps/web): typecheck it and generate the static site, as Netlify does.
       - run: pnpm --filter frotzlens-web run check:vendored
       - run: pnpm --filter frotzlens-web run typecheck
