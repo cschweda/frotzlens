@@ -2,6 +2,12 @@
 
 All notable changes to frotzplay: the web player at frotzplay.frotzinc.com, and this repository. Versions follow [Semantic Versioning](https://semver.org/). Part of [Frotz, Inc.](https://frotzinc.com).
 
+## [0.1.4] - 2026-11-07
+
+### Changed
+- Built with `@frotzinc/player` 0.2.0 (its host API: `send()`, `press()`, the `started` and `status` events); the site looks and works the same.
+- The site's browser tests no longer fail on WebKit's "ResizeObserver loop completed with undelivered notifications" notice, which is not an error.
+
 ## [0.1.3] - 2026-11-07
 
 ### Changed

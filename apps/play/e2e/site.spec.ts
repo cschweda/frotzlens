@@ -8,13 +8,21 @@ import { expect, test, type Page } from '@playwright/test'
 
 const sample = (f: string) => readFileSync(new URL(`../../../samples/${f}`, import.meta.url))
 
-/** Every test fails on a CSP violation or an uncaught error. */
+/**
+ * Every test fails on a CSP violation or an uncaught error. Except one notice: "ResizeObserver
+ * loop completed with undelivered notifications", which WebKit reports as an error when a layout
+ * settles over two frames. The spec calls it a notification, not a failure; nothing is lost.
+ */
+const BENIGN = /^ResizeObserver loop (completed with undelivered notifications|limit exceeded)/
+
 test.beforeEach(async ({ page }) => {
   const problems: string[] = []
   page.on('console', m => {
     if (/Content[- ]Security[- ]Policy|violates the following/i.test(m.text())) problems.push(m.text())
   })
-  page.on('pageerror', e => problems.push(String(e)))
+  page.on('pageerror', e => {
+    if (!BENIGN.test(e.message)) problems.push(String(e))
+  })
   ;(page as unknown as { __problems: string[] }).__problems = problems
 })
 test.afterEach(async ({ page }) => {
