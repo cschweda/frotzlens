@@ -605,14 +605,16 @@ export function decompileInform(story: StoryFile, opts: DecompileOptions): Decom
   if (!strict) switches.push('!% -~S')
   if (story.fingerprint?.library?.name === 'PunyInform') switches.push('!% $OMIT_UNUSED_ROUTINES=1')
   // Economy mode (-e) fills the abbreviation table; each Abbreviate gives the next entry.
-  // Without -e, Inform fills the whole table with one placeholder ("   "), so that text, repeated, isn't one.
-  const counts = new Map<string, number>()
-  for (const ab of story.abbreviations) counts.set(ab.text, (counts.get(ab.text) ?? 0) + 1)
-  const filler = [...counts].sort((x, y) => y[1] - x[1])[0]
-  const abbreviations = story.abbreviations.filter(ab => ab.text.length && !(filler && filler[1] > 1 && ab.text === filler[0]))
-    // Their text is stored in the order they were declared (the table's own order is Inform's).
-    .sort((x, y) => x.address - y.address)
-  if (abbreviations.length) switches.push('!% -e')
+  // Without -e, Inform fills the table with a placeholder, three spaces. The library's own (PunyInform
+  // declares some in globals.h) come with its Include; the game's are written here.
+  const PLACEHOLDER = '   '
+  const libraryAbbreviations = new Set((lib?.abbreviations ?? []).map(a => a.replace(/\^/g, '\n').replace(/~/g, '"')))
+  const inTable = story.abbreviations.filter(ab => ab.text.length && ab.text !== PLACEHOLDER)
+  // Their text is stored in the order they were declared (the table's own order is Inform's).
+  const abbreviations = inTable.filter(ab => !libraryAbbreviations.has(ab.text)).sort((x, y) => x.address - y.address)
+  const firstLibrary = Math.min(...inTable.filter(ab => libraryAbbreviations.has(ab.text)).map(ab => ab.address))
+  if (abbreviations.some(ab => ab.address > firstLibrary)) problems.push('Some of the game\'s abbreviations were declared after the library\'s; here they come first, so the table is the same but laid out in another order.')
+  if (inTable.length) switches.push('!% -e')
   out.unshift(...switches)
   banner('The story file')
   out.push(`Release ${h.release};`)

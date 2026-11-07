@@ -40,3 +40,19 @@ describe('Inform 6 text', () => {
     expect(informWord('coins', true)).toBe("'coins//p'")
   })
 })
+
+describe('decompiling, economy mode with a library that declares abbreviations', () => {
+  // PunyInform's globals.h declares abbreviations of its own: with -e they're in the story's table
+  // beside any of the game's, and come back with the Include, not written out again.
+  it('puny-dark-cellar built with -e recompiles to the same bytes', async () => {
+    const { compile } = await import('@frotzinc/inform6-wasm')
+    const src = readFileSync(new URL('./fixtures/src/puny-dark-cellar.inf', import.meta.url), 'utf8')
+    const out = await compile(`!% -e\n${src}`, { version: 'z5', library: 'puny', debug: true })
+    expect(out.ok).toBe(true)
+    const r = await roundTrip(out.story!, out.dbg!)
+    expect(r.errors).toEqual([])
+    expect(r.source).not.toMatch(/Abbreviate "Are you sure/)
+    expect(Object.entries(r.parts).filter(([, p]) => p.result === 'different').map(([k]) => k)).toEqual([])
+    expect(r.identical).toBe(true)
+  }, 60_000)
+})
