@@ -1,7 +1,7 @@
 # frotzplay — Phase 3: The Player (`@frotzinc/player`)
 
 **Document 13 · frotzplay Phase 3** (design: [`frotzplay-design.md`](frotzplay-design.md) §6, §8; Phases [1](11-frotzplay-phase-1-interpreter.md), [2](12-frotzplay-phase-2-state.md))
-**Status:** proposal, for approval before any code (kickoff: "At the start of Phase 3: propose the `player` component tree and the `docs/accessibility.md` outline, statement by statement, with each statement's test").
+**Status:** done 2026-11-07 (§6). Approved with all seven items in §5; OpenDyslexic included.
 **Deliverable:** `@frotzinc/player`, plain-Vue components that play a story with `@frotzinc/zmachine` and meet the accessibility contract; `docs/accessibility.md` written; its Playwright + axe suite green on a dev page playing the sample; Chris runs the NVDA checklist.
 
 > **Exit criteria:** every browser-checkable statement in §3 has a passing Playwright test (named after the statement) on the dev page, in Chromium, Firefox and WebKit; axe finds nothing (WCAG 2.2 A and AA rules, plus AAA contrast in the dark theme) in any state listed in §4; the dev page plays The Dark Cellar's walkthrough to the end by keyboard alone; `docs/accessibility.md` has every statement and its test; the NVDA checklist is ready for Chris.
@@ -107,3 +107,12 @@ Start (a story loaded, waiting for a command); after five turns; a v3 story with
 5. **Default shortcuts:** Alt+Shift with a letter, since single keys would fire while typing (2.1.4) and NVDA owns Insert/Caps Lock combinations: Alt+Shift+U read the upper window, Alt+Shift+L repeat the status line, Alt+Shift+Z undo, Alt+Shift+S save, Alt+Shift+R restore, Alt+Shift+O settings, Alt+Shift+K the shortcuts list. One catch: on a Mac, Option+Shift+letter types a special character, so while the command line has focus these would eat characters that IF commands never use. All changeable or off (I6).
 6. **The dyslexia-friendly font** (design open question 2): OpenDyslexic, under the SIL Open Font License 1.1 (checked against the font files when they're added), self-hosted. Include it, or leave it out (opinions on its benefit differ; the spacing and size controls help everyone)?
 7. **Settings and autosave are per viewer, in the browser** (`localStorage` and IndexedDB): nothing is sent anywhere.
+
+## 6. Done
+
+- **`@frotzinc/player`** as proposed (§1, §2): plain Vue and its own CSS, Vite library build (38 KB of JavaScript, 6 KB of CSS), the dev page with the four start-page samples and two test stories (`timed.z5` from zmachine's fixture, `upper.z5`, a three-row upper window).
+- **The contract** is [`docs/accessibility.md`](accessibility.md), with the NVDA checklist for Chris. **87 Playwright tests pass** (29 × Chromium, Firefox, WebKit): every P statement, and axe (WCAG 2.0–2.2 A/AA, AAA contrast in dark and high contrast) in every state of §4. **17 unit tests** (announcements, keys, settings, shortcuts, the run markup, the fault path, and that the player's theme values are the family palette's).
+- **Found by the suite and fixed:** radio buttons and selects under 24 px (I7; Safari ignores a native select's height, so selects are drawn by hand, the arrow from CSS gradients, CSP-safe); the Enter button squeezed past its label at 320 px and 200% (R3); Escape while recording a shortcut closed the dialog (I6); Safari doesn't focus a clicked button, so recording now listens on the whole table; a dialog's native `close` event arrives a moment late, so dialogs now report closing at once.
+- **Choices made on the way:** game colours are mapped to versions measured readable in each theme (backgrounds ignored), so 7:1 holds whatever a game sets; the transcript hides the game's trailing prompt (the next turn shows the command after its own "> "), and the announcer still says it in *full* verbosity; a story fault offers "Go back one turn" (the snapshot before the last command) as well as "Start again".
+- **New tokens in `nuxt-base/css/palette.css`:** `--frotz-ink-muted` (dark 8.32:1, light 8.41:1) and the `.high-contrast` theme.
+- **For Chris:** run the NVDA checklist in [`docs/accessibility.md`](accessibility.md); confirm or change the v3 status sentence. The player's toolbar on a phone is tall; Phase 4 decides the site's layout and can fold it into a menu.

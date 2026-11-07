@@ -28,6 +28,15 @@ jobs:
       - run: pnpm build
       - run: pnpm typecheck
       - run: pnpm test
+      # frotzplay's player: the accessibility contract (docs/accessibility.md) in three browsers.
+      - run: pnpm --filter @frotzinc/player exec playwright install --with-deps chromium firefox webkit
+      - run: pnpm --filter @frotzinc/player run test:e2e
+      - uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: player-contract-results
+          path: packages/player/test-results/
+          retention-days: 7
       # The web app (apps/web): typecheck it and generate the static site, as Netlify does.
       - run: pnpm --filter frotzlens-web run check:vendored
       - run: pnpm --filter frotzlens-web run typecheck

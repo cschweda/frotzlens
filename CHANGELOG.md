@@ -5,7 +5,7 @@ All notable changes to Frotzlens: the web app at [frotzlens.frotzinc.com](https:
 ## [Unreleased]
 
 ### Added
-- **frotzplay** begins in this repository: an accessible Z-machine player for screen-reader users and strict-CSP pages ([design](docs/frotzplay-design.md)). Its interpreter, `@frotzinc/zmachine`, plays every sample exactly as ZVM does ([Phase 1](docs/11-frotzplay-phase-1-interpreter.md)), saves games that restore in ZVM and the other way round, and passes the Czech and Praxix conformance suites ([Phase 2](docs/12-frotzplay-phase-2-state.md)).
+- **frotzplay** begins in this repository: an accessible Z-machine player for screen-reader users and strict-CSP pages ([design](docs/frotzplay-design.md)). Its interpreter, `@frotzinc/zmachine`, plays every sample exactly as ZVM does ([Phase 1](docs/11-frotzplay-phase-1-interpreter.md)), saves games that restore in ZVM and the other way round, and passes the Czech and Praxix conformance suites ([Phase 2](docs/12-frotzplay-phase-2-state.md)). Its player, `@frotzinc/player`, has the accessibility contract built in and tested in three browsers ([Phase 3](docs/13-frotzplay-phase-3-player.md), [the contract](docs/accessibility.md)).
 - `samples/`: v4 builds of *The Dark Cellar* and *The Locked Chest* (PunyInform), and a walkthrough for every sample game (`samples/walkthroughs/`).
 
 ### Changed

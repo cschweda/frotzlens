@@ -1,0 +1,70 @@
+{
+  "name": "@frotzinc/player",
+  "version": "0.0.0",
+  "description": "An accessible Z-machine player as Vue components: built for screen readers and strict Content-Security-Policies, on @frotzinc/zmachine.",
+  "license": "MIT",
+  "author": "Christopher Schweda",
+  "type": "module",
+  "homepage": "https://github.com/cschweda/frotzlens/tree/main/packages/player",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/cschweda/frotzlens.git",
+    "directory": "packages/player"
+  },
+  "bugs": {
+    "url": "https://github.com/cschweda/frotzlens/issues"
+  },
+  "keywords": [
+    "z-machine",
+    "interactive-fiction",
+    "accessibility",
+    "screen-reader",
+    "vue",
+    "frotzinc"
+  ],
+  "sideEffects": [
+    "*.css"
+  ],
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/player.js"
+    },
+    "./player.css": "./dist/player.css",
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "dist",
+    "README.md",
+    "CHANGELOG.md",
+    "LICENSE"
+  ],
+  "scripts": {
+    "build": "rm -rf dist && vite build && vue-tsc -p tsconfig.build.json",
+    "dev": "node dev/prepare.mjs && vite --config vite.dev.config.ts",
+    "preview": "node dev/prepare.mjs && vite build --config vite.dev.config.ts && vite preview --config vite.dev.config.ts --port 4180 --strictPort",
+    "test": "vitest run",
+    "test:e2e": "playwright test",
+    "typecheck": "vue-tsc -p tsconfig.json --noEmit"
+  },
+  "peerDependencies": {
+    "vue": "^3.5.0"
+  },
+  "dependencies": {
+    "@frotzinc/zmachine": "workspace:*"
+  },
+  "devDependencies": {
+    "@axe-core/playwright": "4.14.0",
+    "@frotzinc/inform6-wasm": "workspace:*",
+    "@playwright/test": "1.64.1",
+    "@types/node": "^22.20.5",
+    "@vitejs/plugin-vue": "6.0.10",
+    "@vue/test-utils": "^2.4.6",
+    "happy-dom": "^20.0.0",
+    "typescript": "5.9.3",
+    "vite": "8.3.6",
+    "vitest": "^5.1.0",
+    "vue": "^3.5.45",
+    "vue-tsc": "^3.3.14"
+  }
+}
