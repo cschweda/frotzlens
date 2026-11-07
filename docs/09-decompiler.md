@@ -4,7 +4,7 @@ A design for review before any code. It turns an Inform-compiled story file back
 
 ## 1. Goal, and what "done" means
 
-**Goal.** From a story file made by Inform 6 (with the Standard Library or PunyInform; versions 3, 4, 5 and 8, every version Frotzlens reads), produce one `.inf` file. It should read like something a person wrote, and recompile, with the same Inform and the same library, to an *equivalent* story.
+**Goal.** From a story file made by Inform 6 (versions 5 and 8 with the Standard Library, which can't target 3 or 4; versions 3, 4, 5 and 8 with PunyInform or no library: every version Frotzlens reads), produce one `.inf` file. It should read like something a person wrote, and recompile, with the same Inform and the same library, to an *equivalent* story.
 
 **Equivalent** is defined in §4, and it's what makes this checkable rather than a matter of taste:
 - the same object tree, properties, attributes, dictionary, grammar and strings;
