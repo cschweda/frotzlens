@@ -17,7 +17,7 @@ m.resume({ line: 'look' })
 stop = m.run(100_000)
 ```
 
-Or from a terminal: `zmachine-run story.z5 script.txt [--seed N]` prints each turn's text.
+Or from a terminal: `zmachine-run story.z5 script.txt [--seed N]` prints each turn's text. A script is one command per line (`!` starts a comment); `[timeout]` means a timed read's interval ran out, and `[key x]` presses a key for `@read_char` (`[key]` is Return), so a recorded session with its timer events replays exactly.
 
 ## Conformance
 

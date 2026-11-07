@@ -169,11 +169,12 @@ frotzlens/
 
 **Input.** `read` and `read_char` suspend the machine (`awaiting` set, PC at the instruction) and return control; the host supplies the line or character and calls `resume()`. Timed input (v4+) is a deadline the host honours by calling `interrupt()`, which runs the timer routine as the Standard describes; the host records each firing (§6) so replays reproduce it.
 
-**Random.** Two modes, matching ZVM so the oracle comparison holds (§9):
-- *seeded*: a 32-bit xorshift (`s ^= s << 13; s ^= s >> 17; s ^= s << 5`, result `1 + ((s & 0x7FFF) % range)`), the algorithm ZVM uses after a game seeds it (MIT, attributed in a comment). The session seed (§7) starts it; a game's own `@random` with a negative or zero argument reseeds or switches mode exactly as ZVM does.
-- *true random*: only when the user turns determinism off entirely.
+**Random.** Two modes, matching ZVM so the oracle comparison holds (§9; worked out in [docs/11 §4](11-frotzplay-phase-1-interpreter.md)). ZVM resets its seed on start, restart and restore, and an unseeded ZVM draws from `Math.random`; so:
+- *session* (start, restart, restore, and after `@random 0`): `1 + ((r() * range) | 0)`, ZVM's formula, with `r` a mulberry32 stream from the session seed (§7) instead of `Math.random`. The test oracle gives ZVM the same stream, so the two draw the same numbers.
+- *xorshift* (after `@random -n`): ZVM's own 32-bit xorshift, signed shifts and all (`s ^= s << 13; s ^= s >> 17; s ^= s << 5`, result `1 + ((s & 0x7FFF) % range)`), seeded with `-n` (MIT, attributed in a comment).
+- Turning determinism off entirely makes the session stream's seed random and hidden; nothing else changes.
 
-This is a deliberate choice against the Standard 1.1 §2.4 *recommendation* (a predictable counting sequence for seeds under 1000), which is a "should," not a "must," and which ZVM also doesn't implement. It is documented in the README's conformance notes.
+This is a deliberate choice against the Standard 1.1 §2.4 *recommendation* (a predictable counting sequence for seeds under 1000), which is a "should," not a "must," and which ZVM also doesn't implement. It is documented in `@frotzinc/zmachine`'s README.
 
 **Save and undo.** Quetzal 1.4: `IFhd`, `CMem` (XOR-RLE against the original dynamic memory) and `Stks`. `save` produces bytes the host stores or downloads; `restore` takes them. `save_undo`/`restore_undo` keep up to N snapshots in memory.
 

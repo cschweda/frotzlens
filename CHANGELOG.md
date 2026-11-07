@@ -4,6 +4,10 @@ All notable changes to Frotzlens: the web app at [frotzlens.frotzinc.com](https:
 
 ## [Unreleased]
 
+### Added
+- **frotzplay** begins in this repository: an accessible Z-machine player for screen-reader users and strict-CSP pages ([design](docs/frotzplay-design.md)). Its interpreter, `@frotzinc/zmachine`, plays every sample exactly as ZVM does ([Phase 1](docs/11-frotzplay-phase-1-interpreter.md)).
+- `samples/`: v4 builds of *The Dark Cellar* and *The Locked Chest* (PunyInform), and a walkthrough for every sample game (`samples/walkthroughs/`).
+
 ### Changed
 - The header, footer and About menu moved into `@frotzinc/nuxt-base`, to share with frotzplay. Frotzlens looks and works the same. Its identity is now `product` in `app/app.config.ts` (built from `site.config.ts`), and its own header buttons are `HeaderActions`.
 

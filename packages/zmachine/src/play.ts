@@ -2,6 +2,11 @@
  * Play a story from a list of commands and return each turn's text: the Node runner, and what the
  * differential tests compare with ZVM. The shape matches Frotzsmith's runReplay: turn 0 is the
  * banner, then one turn per command, until the story stops asking for a line.
+ *
+ * Two commands aren't typed text: `[timeout]` says a timed read's interval ran out (the timer
+ * firing, recorded in a command script so a replay is deterministic: frotzplay-design §6), and
+ * `[key x]` presses a key for @read_char (`[key]` alone is Return). Without one of those, a
+ * request for a key press ends play, as it does in Frotzsmith's ZVM replay.
  */
 import { Machine } from './machine.js'
 import { normalizeTurn } from './normalize.js'
@@ -55,11 +60,17 @@ export function play(story: Uint8Array, commands: string[], options: MachineOpti
   let stop = runTurn()
   turns.push({ command: '', output: normalizeTurn(m.flushText()) })
   for (const command of commands) {
-    if (stop.kind !== 'input-line') break
-    const fault = m.resume({ line: command })
+    const key = /^\[key(?: (.))?\]$/.exec(command)
+    let input: Parameters<Machine['resume']>[0]
+    if (command === '[timeout]' && (stop.kind === 'input-line' || stop.kind === 'input-char') && stop.timeout) input = { timeout: true }
+    else if (key && stop.kind === 'input-char') input = { char: key[1] ? key[1].charCodeAt(0) : 13 }
+    else if (stop.kind === 'input-line' && !key && command !== '[timeout]') input = { line: command }
+    else break
+    const fault = m.resume(input)
     if (fault) return { turns, stoppedBy: fault, machine: m }
     stop = runTurn()
-    turns.push({ command, output: turnText(command, m.flushText()) })
+    // A typed line is echoed on the screen; a key press or the timer isn't.
+    turns.push({ command, output: 'line' in input ? turnText(command, m.flushText()) : normalizeTurn(m.flushText()) })
   }
   const result: PlayResult = { turns, machine: m }
   if (stop.kind === 'quit' || stop.kind === 'input-char') result.stoppedBy = stop.kind

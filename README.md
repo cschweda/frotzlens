@@ -91,7 +91,9 @@ The plan and its decisions are in [`docs/`](docs/), starting with [`00-master-de
 | [`@frotzinc/worker-rpc`](packages/worker-rpc) | MIT | Long-lived Web Worker request/response client | 0.1.0 |
 | [`@frotzinc/nuxt-base`](packages/nuxt-base) | MIT | Shared Frotz, Inc. Nuxt layer and Netlify tools | 0.1.0 |
 | [`@frotzinc/inform6-wasm`](packages/inform6-wasm) | MIT (wrapper) | Inform 6.44 in WebAssembly, with the Standard Library and PunyInform | 0.1.0 |
+| [`@frotzinc/zmachine`](packages/zmachine) | MIT | A Z-machine interpreter (v3, 4, 5, 8): no `eval`, all state plain data, input supplied by the host. frotzplay's engine, in development | |
 | `apps/web` | GPL-3.0-or-later | [frotzlens.frotzinc.com](https://frotzlens.frotzinc.com) | |
+| `apps/play` | GPL-3.0-or-later | frotzplay, the accessible Z-machine player ([design](docs/frotzplay-design.md)); in development | |
 
 Apps are GPL; libraries are MIT. See [`LICENSING.md`](LICENSING.md).
 

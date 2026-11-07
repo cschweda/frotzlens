@@ -14,7 +14,14 @@
   "bugs": {
     "url": "https://github.com/cschweda/frotzlens/issues"
   },
-  "keywords": ["z-machine", "interpreter", "interactive-fiction", "inform", "zcode", "frotzinc"],
+  "keywords": [
+    "z-machine",
+    "interpreter",
+    "interactive-fiction",
+    "inform",
+    "zcode",
+    "frotzinc"
+  ],
   "sideEffects": false,
   "exports": {
     ".": {
@@ -44,6 +51,7 @@
     "@frotzinc/zcode": "workspace:*"
   },
   "devDependencies": {
+    "@frotzinc/inform6-wasm": "workspace:*",
     "@frotzinc/zmachine-oracle": "workspace:*",
     "@types/node": "^22.20.5",
     "typescript": "5.9.3",

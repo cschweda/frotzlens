@@ -135,6 +135,9 @@ importers:
         specifier: workspace:*
         version: link:../zcode
     devDependencies:
+      '@frotzinc/inform6-wasm':
+        specifier: workspace:*
+        version: link:../inform6-wasm
       '@frotzinc/zmachine-oracle':
         specifier: workspace:*
         version: link:../zmachine-oracle
