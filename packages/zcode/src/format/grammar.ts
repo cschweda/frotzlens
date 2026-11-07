@@ -7,6 +7,7 @@
 import type { Grammar, GrammarLine, GrammarToken } from '../grammar.js'
 import type { StoryFile } from '../types.js'
 import { wrapIndented } from './txd.js'
+import { formatZilGrammar } from './zil-grammar.js'
 import { Writer, banner, dec, hx, type FormatOptions } from './writer.js'
 
 const ELEMENTARY = ['noun', 'held', 'multi', 'multiheld', 'multiexcept', 'multiinside', 'creature', 'special', 'number', 'topic']
@@ -72,6 +73,8 @@ export function grammarLines(story: StoryFile): { verb: string; line: GrammarLin
 export function formatGrammar(story: StoryFile, opts: FormatOptions): string {
   const w = new Writer(opts.width)
   const g = story.grammar
+  // ZIL's syntax tables, in their own layout (Ztools can't read them; this is Frotzlens's text).
+  if (!g && story.zilGrammar) return formatZilGrammar(story, story.zilGrammar, opts)
   if (!g) {
     banner(w, opts, 'There are no parse tables')
     w.write('  Verb entries = 0\n\n')

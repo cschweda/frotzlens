@@ -22,7 +22,7 @@ const views = computed(() => {
     { key: 'memory', label: 'Memory', icon: 'i-lucide-binary' },
     { key: 'objects', label: 'Objects', icon: 'i-lucide-box', count: s.objects.objects.length },
     { key: 'dictionary', label: 'Dictionary', icon: 'i-lucide-book-a', count: s.dictionary.entries.length },
-    ...(s.grammar ? [{ key: 'grammar', label: 'Grammar', icon: 'i-lucide-git-fork', count: s.grammar.verbs.length }] : []),
+    ...(s.grammar || s.zilGrammar ? [{ key: 'grammar', label: 'Grammar', icon: 'i-lucide-git-fork', count: (s.grammar ?? s.zilGrammar)!.verbs.length }] : []),
     { key: 'routines', label: 'Routines', icon: 'i-lucide-code', count: s.code.routines.length },
     { key: 'strings', label: 'Strings', icon: 'i-lucide-quote', count: s.strings.length },
     { key: 'globals', label: 'Globals', icon: 'i-lucide-variable', count: s.globals.length },

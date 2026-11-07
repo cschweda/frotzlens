@@ -7,6 +7,7 @@ import { HEADER_SIZE, parseHeader } from './header.js'
 import { buildMemoryMap } from './memory.js'
 import { parseObjects, type ObjectsResult } from './objects.js'
 import { parseGrammar } from './grammar.js'
+import { INFOCOM_SEARCH_FLAGS, ZILLIB_SEARCH_FLAGS, parseZilGrammar } from './zil-grammar.js'
 import { MAX_SWEEP_WORK, sweepRoutines } from './routines.js'
 import { sweepStrings } from './strings.js'
 import { MAX_XREFS, buildXrefs } from './xrefs.js'
@@ -202,8 +203,16 @@ function parse(data: Uint8Array, opts: ParseOptions): StoryFile {
         parseGrammar(bytes, version, header.staticMemory, header.globals + 480, dictionary),
       )
     : undefined
+  // Not Inform's: ZIL's syntax tables, if a global leads to them. ZILF (its mark at 0x38) means
+  // zillib's search options; otherwise Infocom's.
+  const zilf = String.fromCharCode(...data.subarray(0x38, 0x3c)) === 'ZILF'
+  const zilGrammar = header.inform
+    ? undefined
+    : guarded(errors, 'bad-address', 'The ZIL syntax tables', undefined, () =>
+        parseZilGrammar(bytes, version, globals, dictionary, routines, header.highMemory || data.length, zilf ? ZILLIB_SEARCH_FLAGS : INFOCOM_SEARCH_FLAGS),
+      )
   progress('grammar', 1)
-  const { xrefs, full } = buildXrefs(version, routines, strings, objects.table, dictionary, grammar)
+  const { xrefs, full } = buildXrefs(version, routines, strings, objects.table, dictionary, grammar, zilGrammar)
   if (full) {
     errors.push({ code: 'bad-address', severity: 'warning', message: `The cross-reference index was cut at ${MAX_XREFS.toLocaleString('en')} references.` })
   }
@@ -228,7 +237,7 @@ function parse(data: Uint8Array, opts: ParseOptions): StoryFile {
   )
   progress('memory', 1)
 
-  const model: StoryFile = { bytes: data, container: 'bare', header, memory, abbreviations, dictionary, objects: objects.table, globals, code, strings, ...(grammar ? { grammar } : {}), xrefs, errors }
+  const model: StoryFile = { bytes: data, container: 'bare', header, memory, abbreviations, dictionary, objects: objects.table, globals, code, strings, ...(grammar ? { grammar } : {}), ...(zilGrammar ? { zilGrammar } : {}), xrefs, errors }
   model.fingerprint = fingerprint(model)
   progress('fingerprint', 1)
   return model

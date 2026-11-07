@@ -2,6 +2,10 @@
 
 All notable changes to `frotzlens`, the Frotzlens CLI. Versions follow [Semantic Versioning](https://semver.org/). Part of [Frotz, Inc.](https://frotzinc.com).
 
+## [Unreleased]
+
+- `-g` / `--grammar` on a ZIL story (ZILF's, or Infocom's): its syntax tables, each line as its `SYNTAX` form reads, then the action and pre-action routines and the prepositions.
+
 ## [0.1.0] - 2026-11-06
 
 First release. (0.0.1 was an MIT-licensed placeholder; from 0.1.0 the CLI is GPL-3.0-or-later.)
