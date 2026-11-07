@@ -6,7 +6,7 @@ All notable changes to Frotzlens: the web app at [frotzlens.frotzinc.com](https:
 
 ## [0.2.0] - 2026-11-07
 
-`@frotzinc/zcode` 0.2.0 and the `frotzlens` 0.2.0 CLI carry the ZIL grammar.
+`@frotzinc/zcode` 0.2.0 and the `frotzlens` 0.2.0 CLI carry the ZIL grammar, and are on npm.
 
 ### Added
 - **An About menu** in the header, as in Drafter:
