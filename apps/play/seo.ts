@@ -74,7 +74,16 @@ export const seoHead: AppHeadMetaObject = {
     { name: 'twitter:image', content: image },
     { name: 'twitter:image:alt', content: site.imageAlt },
   ],
-  script: [{ type: 'application/ld+json', innerHTML: JSON.stringify(jsonLd) }],
+  script: [
+    { type: 'application/ld+json', innerHTML: JSON.stringify(jsonLd) },
+    // Privacy-friendly analytics by Plausible: page views only, no cookies, nothing about the story.
+    // The CSP allows https://plausible.io in script-src (netlify.toml); its events go to connect-src https:.
+    { src: 'https://plausible.io/js/pa-1s0C6gmyurpUg2-547goU.js', async: true },
+    {
+      innerHTML:
+        'window.plausible=window.plausible||function(){(plausible.q=plausible.q||[]).push(arguments)},plausible.init=plausible.init||function(i){plausible.o=i||{}};plausible.init()',
+    },
+  ],
   link: [
     { rel: 'canonical', href: `${site.siteUrl}/` },
     { rel: 'icon', type: 'image/svg+xml', href: '/favicon.svg' },
