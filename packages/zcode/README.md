@@ -33,6 +33,16 @@ It covers versions 3, 4, 5 and 8. For versions 1, 2, 6 and 7 it reads the header
 
 The model is plain data: it survives `structuredClone` (so it crosses a worker boundary), and everything but `bytes`, the story itself, serialises to JSON as it is. Every addressable thing has a stable `id` (`object:47`, `dict:1ca3`, `global:3`, `abbrev:12`).
 
+## Inform 6 source (in progress)
+
+```ts
+import { parseStory, readSymbols, decompileInform } from '@frotzinc/zcode'
+
+const { source, problems } = decompileInform(parseStory(bytes), { symbols: readSymbols(gameinfoDbg) })
+```
+
+Turns an Inform-compiled story back into one `.inf` (Phase 6, [design](../../docs/09-decompiler.md)). So far: with the story's debug file, the library left out as `Include`s, the game's declarations, classes, objects and grammar as Inform writes them, and its routines as Inform assembly. Every debug fixture (all version 5 so far) recompiles to an equivalent story, and all but one to the same bytes after the header.
+
 ## infodump-format text
 
 ```ts

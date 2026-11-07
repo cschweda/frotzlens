@@ -2,6 +2,11 @@
 
 All notable changes to `@frotzinc/zcode`. Versions follow [Semantic Versioning](https://semver.org/). Part of [Frotz, Inc.](https://frotzinc.com).
 
+## [Unreleased]
+
+- `decompileInform(story, { symbols })`: an Inform story back to Inform 6 source (Phase 6a, with a debug file). The library as `Include`s; the game's constants, globals, arrays, attributes, properties, classes (read from the prototype Inform keeps after each class object), objects and grammar (`Verb`, `Extend`, synonyms) as Inform declares them; routines as Inform assembly with names for what they refer to. Every debug fixture (all version 5) recompiles to an equivalent story, 11 of 12 to the same bytes after the header (`test/decompile.test.ts`).
+- `readSymbols` keeps every declaration's place in the source (`symbols.declarations`, and `position` in a location).
+
 ## [0.2.0] - 2026-11-07
 
 - ZIL's syntax tables, as `story.zilGrammar`, for stories that aren't Inform's (ZILF's, and Infocom's old parser): every verb with its words and syntax lines (prepositions, FIND flags, search options, TOPIC objects), the action and pre-action routines, and the prepositions. Found through the globals, without symbols; checked (locally: the stories aren't in this repository) against the `<SYNTAX>` forms of zillib and four ZILF games. `COMPACT-SYNTAXES?` lines and `COMPACT-PREACTIONS?` tables are read too. `parseZilGrammar`, `verbNumber`, `ZILLIB_SEARCH_FLAGS`, `INFOCOM_SEARCH_FLAGS`.

@@ -12,7 +12,18 @@ export interface SourceLocation {
   file: number
   line: number
   character: number
+  /** The byte offset in the file (Inform's file-position), which orders declarations within it. */
+  position?: number
   endLine?: number
+}
+
+/** One declaration with a place in the source: the decompiler orders its output by these. */
+export interface SymbolDeclaration {
+  kind: 'routine' | 'object' | 'class' | 'global' | 'array' | 'property' | 'attribute' | 'action' | 'fake-action' | 'constant'
+  name: string
+  /** The address (routine, array), the number (object, class, global, property, attribute, action) or the value (constant). */
+  value: number
+  location: SourceLocation
 }
 
 export interface SymbolRoutine {
@@ -58,6 +69,8 @@ export interface Symbols {
   classes: Record<number, string>
   arrays: SymbolArray[]
   constants: Record<string, number>
+  /** Everything with a source location, in the file's order. */
+  declarations: SymbolDeclaration[]
   /** The first 64 bytes of the story this was written with: its header. */
   prefix?: Uint8Array
   /** Problems reading the file: a malformed document, entries with no usable value. */
@@ -73,7 +86,8 @@ function location(el: XmlElement): SourceLocation | undefined {
   const line = num(childText(loc, 'line'))
   if (file === undefined || line === undefined) return undefined
   const end = num(childText(loc, 'end-line'))
-  return { file, line, character: num(childText(loc, 'character')) ?? 0, ...(end !== undefined ? { endLine: end } : {}) }
+  const position = num(childText(loc, 'file-position'))
+  return { file, line, character: num(childText(loc, 'character')) ?? 0, ...(position !== undefined ? { position } : {}), ...(end !== undefined ? { endLine: end } : {}) }
 }
 
 function base64(s: string): Uint8Array | undefined {
@@ -101,7 +115,7 @@ export const MAX_DEBUG_FILE = 128 * 1024 * 1024
 /** Read a gameinfo.dbg. Never throws: what couldn't be read is in `problems`. */
 export function readSymbols(xml: string): Symbols {
   const s: Symbols = {
-    sources: [], routines: {}, objects: {}, globals: {}, properties: {}, attributes: {}, actions: {}, classes: {}, arrays: [], constants: {}, problems: [],
+    sources: [], routines: {}, objects: {}, globals: {}, properties: {}, attributes: {}, actions: {}, classes: {}, arrays: [], constants: {}, declarations: [], problems: [],
   }
   if (xml.length > MAX_DEBUG_FILE) {
     s.problems.push('The debug file is too large to read.')
@@ -126,6 +140,10 @@ export function readSymbols(xml: string): Symbols {
   // Globals are given by byte address; the header in the prefix says where the table starts.
   const globalsBase = s.prefix ? (s.prefix[0x0c]! << 8) | s.prefix[0x0d]! : undefined
   let skipped = 0
+  const declare = (kind: SymbolDeclaration['kind'], name: string, value: number, el: XmlElement) => {
+    const loc = location(el)
+    if (loc) s.declarations.push({ kind, name, value, location: loc })
+  }
 
   for (const el of root.children) {
     const name = childText(el, 'identifier')
@@ -161,6 +179,7 @@ export function readSymbols(xml: string): Symbols {
           locals: Array.from(locals, l => l ?? ''),
           ...(loc ? { location: loc } : {}),
         }
+        declare('routine', name, address, el)
         break
       }
       case 'global-variable': {
@@ -170,8 +189,10 @@ export function readSymbols(xml: string): Symbols {
           break
         }
         const n = (address - globalsBase) / 2
-        if (Number.isInteger(n) && n >= 0 && n < 240) s.globals[n] = name
-        else skipped++
+        if (Number.isInteger(n) && n >= 0 && n < 240) {
+          s.globals[n] = name
+          declare('global', name, n, el)
+        } else skipped++
         break
       }
       case 'array': {
@@ -187,6 +208,7 @@ export function readSymbols(xml: string): Symbols {
           bytesPerElement: num(childText(el, 'bytes-per-element')) ?? 1,
           lengthFirst: childText(el, 'zeroth-element-holds-length') === 'true',
         })
+        declare('array', name, value, el)
         break
       }
       case 'object':
@@ -202,14 +224,19 @@ export function readSymbols(xml: string): Symbols {
         }
         if (el.name === 'object') s.objects[value] = name
         else if (el.name === 'property') {
-          if (child(el, 'identifier')?.attrs.artificial !== 'true') s.properties[value] = name
+          if (child(el, 'identifier')?.attrs.artificial === 'true') break // made up by the compiler, never declared
+          s.properties[value] = name
         } else if (el.name === 'attribute') s.attributes[value] = name
         else if (el.name === 'constant') s.constants[name] = value
         else s.actions[value] = name.replace(/^##/, '')
+        declare(el.name === 'fake-action' ? 'fake-action' : el.name as SymbolDeclaration['kind'], el.name === 'action' || el.name === 'fake-action' ? name.replace(/^##/, '') : name, value, el)
         break
       }
       case 'class': {
-        if (name !== undefined && value !== undefined) s.classes[value] = name
+        if (name !== undefined && value !== undefined) {
+          s.classes[value] = name
+          declare('class', name, value, el)
+        }
         break
       }
     }
