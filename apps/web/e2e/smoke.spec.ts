@@ -148,7 +148,7 @@ test('symbols: a debug file names things, and draws the map', async ({ page }) =
   await axe(page, 'abbreviations')
   await visit(page, '#source')
   await expect(page.getByRole('heading', { level: 1, name: 'Inform 6 source' })).toBeVisible()
-  await expect(page.getByText('In progress').first()).toBeVisible()
+  await expect(page.locator('main').getByText('In progress', { exact: true }).first()).toBeVisible()
   await axe(page, 'source')
 
   // Names off: txd's numbers again.

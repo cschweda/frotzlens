@@ -96,7 +96,7 @@ This is the part that makes the output trustworthy, and the main test:
 | 6b | Expressions: the stack, operators, calls, prints. | Routines equivalent. |
 | 6c | Control flow: `if`, `while`, `for`, `switch`. `jump` where no pattern fits. | Routines equivalent. Count the jumps left, and push them down. |
 | 6d | Veneer idioms and names, with and without a debug file. | Routines equivalent. Read the output against the original source. |
-| 6e | In the app: a **Source** view beside the disassembly, per routine and for the whole game, with Download `.inf`. In the CLI: `frotzlens --inform`. | Playwright and axe. A user who recompiles the download gets the same game. |
+| 6e | In the app: Download `.inf`, and the Source view polished, per routine and for the whole game (the view itself shows source from 6c, §7). In the CLI: `frotzlens --inform`. | Playwright and axe. A user who recompiles the download gets the same game. |
 
 ## 6. Risks
 
@@ -109,7 +109,7 @@ This is the part that makes the output trustworthy, and the main test:
 
 1. **Scope:** Inform 6 first. ZIL output (to ZIL source) comes later, as its own phase.
 2. **Output style:** the Inform 6 style of Frotzsmith's samples:
-   - four spaces to indent, never tabs;
+   - spaces, never tabs: four to indent a routine's body, two before `with` and `has`;
    - `Object -> name "short name"`, then `  with ` and the properties one to a line, lined up under the first, ending `,`; then `  has  ` and the attributes, ending `;`;
    - routines as `[ Name local1 local2;`, the body indented four spaces, closed by `];`;
    - `! ---` banner comments over each section (the header, the includes, the objects, the routines, the grammar).
