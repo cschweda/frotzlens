@@ -1,6 +1,6 @@
 # ZIL grammar: the syntax tables, decoded
 
-Started 2026-11-07. Frotzlens already read every part of a ZIL-compiled story but its grammar. ZILF writes ZIL's syntax tables (the old parser's: `VTBL`, the per-verb syntax tables, `ATBL`, `PATBL`, `PRTBL`), and Ztools can't read them. infodump and txd look for the verb table at the start of static memory, where Infocom's compiler put it and ZILF doesn't, and they read past the end of the file.
+Started 2026-11-07. frotzlens already read every part of a ZIL-compiled story but its grammar. ZILF writes ZIL's syntax tables (the old parser's: `VTBL`, the per-verb syntax tables, `ATBL`, `PATBL`, `PRTBL`), and Ztools can't read them. infodump and txd look for the verb table at the start of static memory, where Infocom's compiler put it and ZILF doesn't, and they read past the end of the file.
 
 ## Where the format comes from
 
@@ -23,7 +23,7 @@ Dictionary words carry a part-of-speech byte and up to two values, in an order Z
 
 ## Found without symbols
 
-The globals `VERBS`, `ACTIONS`, `PREACTIONS` and `PREPOSITIONS` start out holding the tables' addresses. So Frotzlens looks among the globals' starting values for:
+The globals `VERBS`, `ACTIONS`, `PREACTIONS` and `PREPOSITIONS` start out holding the tables' addresses. So frotzlens looks among the globals' starting values for:
 - a verb table whose every entry reads as a syntax table;
 - an action table whose every word is a routine;
 - a pre-action table: a word per action (zeros and routines, at least one routine), or `COMPACT-PREACTIONS?`'s pairs of action number and routine, ending with -1;
@@ -36,7 +36,7 @@ Inform stories are skipped. They have their own grammar table.
 - **CLI:** `frotzlens -g` prints the tables in infodump's layout. Each line is written the way its `<SYNTAX>` form reads, e.g. `TAKE OBJECT (FIND 26) (MANY IN-ROOM)`, followed by the action table (with pre-actions) and the prepositions.
   - FIND flags are attribute numbers, because flag names aren't in the story.
   - Search options are named by zillib's flags for ZILF stories, else Infocom's. Bits without a name show in hex.
-  - This text is Frotzlens's own: there is no Ztools output to match.
+  - This text is frotzlens's own: there is no Ztools output to match.
 - **Web app:** the Grammar view shows ZIL tables the same way, with links to each line's action and pre-action routines.
 - **Cross-references:** each verb word refers to its lines' routines and preposition words.
 
@@ -49,4 +49,4 @@ The ground truth is the source: zillib's `verbs.zil` and the game's own files. `
 
 It passes on Cloak of Darkness, Two Rooms, West of House (each as z3 and z5) and Mingus I. Forms compiled only with debugging or scoring on aren't in those stories, so they're left out. `test/zil-grammar.test.ts` runs in CI. It builds the tables by hand inside a real story and checks the reading, the word values, TOPIC, Infocom's flag names and the text.
 
-Mingus I turned up a ZILF quirk. A `SYNTAX` naming ONTO or INTO is compiled with a preposition number of its own (238, 237). But zillib's `<SYNONYM ON ONTO>` gives the dictionary word `onto` ON's number, so those lines can never match what a player types. Frotzlens shows such a preposition as `#238`, a number no word has, rather than hiding it.
+Mingus I turned up a ZILF quirk. A `SYNTAX` naming ONTO or INTO is compiled with a preposition number of its own (238, 237). But zillib's `<SYNONYM ON ONTO>` gives the dictionary word `onto` ON's number, so those lines can never match what a player types. frotzlens shows such a preposition as `#238`, a number no word has, rather than hiding it.

@@ -2,8 +2,8 @@
 /**
  * The family header: the logo and name (home), then the app's own parts in two slots, then the
  * About menu and the color-mode switch, which every app has.
- *   #context  beside the name: what's open (Frotzlens: "/ story.z5"). Hidden on a phone is the app's call.
- *   #actions  before the About menu: the app's own buttons (Frotzlens: Go to…, Names, Open another file).
+ *   #context  beside the name: what's open (frotzlens: "/ story.z5"). Hidden on a phone is the app's call.
+ *   #actions  before the About menu: the app's own buttons (frotzlens: Go to…, Names, Open another file).
  * The app supplies /logo.svg.
  */
 const product = useProduct()

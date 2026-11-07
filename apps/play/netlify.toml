@@ -1,7 +1,7 @@
 # Netlify configuration for frotzplay (frotzplay.frotzinc.com).
 #
-# A static Nuxt 4 app (ssr: false), like Frotzlens, in the same monorepo:
-# Frotzlens is `apps/web` (configured by the root netlify.toml), frotzplay is
+# A static Nuxt 4 app (ssr: false), like frotzlens, in the same monorepo:
+# frotzlens is `apps/web` (configured by the root netlify.toml), frotzplay is
 # `apps/play` (this file). Both are Netlify sites on the one GitHub repo.
 #
 # Connect the repo in the Netlify UI as a second site with base directory
@@ -9,12 +9,12 @@
 # root one), so no `base` is set here, and every path below is relative to
 # `apps/play`.
 #
-# As in Frotzlens: on Netlify, Nitro's Netlify preset writes the static site
+# As in frotzlens: on Netlify, Nitro's Netlify preset writes the static site
 # to `dist` (not .output/public), so `dist` is what's published.
 
 [build]
   # Skip the build when a push changes nothing frotzplay is built from, so a
-  # Frotzlens-only commit doesn't redeploy frotzplay. Netlify skips when this
+  # frotzlens-only commit doesn't redeploy frotzplay. Netlify skips when this
   # exits 0 and builds otherwise. The paths are this app, the libraries it is
   # built from, and the workspace files that decide how they build. Add a
   # package here when apps/play starts depending on it.

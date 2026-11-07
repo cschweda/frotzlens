@@ -4,7 +4,7 @@
  * holds a room, a door (followed through its `door_to` when that is a room
  * too), a routine (an exit worked out as the game runs) or a string (a
  * refusal: "You can't go that way"). `toMapGraph` gives the shape
- * Frotzsmith's map draws.
+ * frotzsmith's map draws.
  */
 import { packedScale } from './address.js'
 import type { Symbols } from './debug.js'
@@ -129,7 +129,7 @@ function startRoom(story: StoryFile, symbols: Symbols): number | undefined {
 }
 
 /**
- * Frotzsmith's map shape: rooms by name, an edge for each exit that reaches a room, and for each
+ * frotzsmith's map shape: rooms by name, an edge for each exit that reaches a room, and for each
  * room a routine exit can return (so a map of a game whose exits are routines is still connected).
  * Names two rooms share get their number.
  */
@@ -142,7 +142,7 @@ export function toMapGraph(g: RoomGraph): { rooms: string[]; edges: { from: stri
   const edges = g.exits.flatMap(e =>
     (e.to !== undefined ? [e.to] : (e.candidates ?? [])).filter(t => name.has(t)).map(t => ({ from: name.get(e.from)!, to: name.get(t)!, dir: e.dir })),
   )
-  // The start first: Frotzsmith lays the map out from its first room.
+  // The start first: frotzsmith lays the map out from its first room.
   const rooms = g.rooms.map(r => name.get(r.number)!)
   const start = g.start !== undefined ? name.get(g.start)! : null
   return { rooms: start ? [start, ...rooms.filter(r => r !== start)] : rooms, edges, start }

@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-# Frotzlens publish script: puts one release of one package (an @frotzinc/* library, or the
+# frotzlens publish script: puts one release of one package (an @frotzinc/* library, or the
 # frotzlens CLI) on npm, from your machine.
 #
 # Usage:
@@ -24,7 +24,7 @@ set -euo pipefail
 # Works in Git Bash on Windows as well as on macOS and Linux.
 #
 # Before anything is published, it checks that:
-#   - you're in the Frotzlens repository's root, on main (or at the release's tag), up to date with
+#   - you're in the frotzlens repository's root, on main (or at the release's tag), up to date with
 #     origin/main, with a clean tree, and logged in to npm and to the GitHub CLI;
 #   - the release exists: the tag @frotzinc/<name>@<version> is on this branch, the package's
 #     CHANGELOG.md has its section, the ci workflow passed for the tag, and <version> isn't on npm;
@@ -174,7 +174,7 @@ trap cleanup EXIT
 # ─── Preflight ──────────────────────────────────────────────────────
 
 [[ -f pnpm-workspace.yaml && -f "$MANIFEST" ]] ||
-  die "No pnpm-workspace.yaml or $MANIFEST here. Run this from the Frotzlens repository's root."
+  die "No pnpm-workspace.yaml or $MANIFEST here. Run this from the frotzlens repository's root."
 for tool in git node pnpm npm gh tar; do
   command -v "$tool" >/dev/null || die "$tool is required."
 done

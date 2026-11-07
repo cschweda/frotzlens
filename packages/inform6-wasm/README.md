@@ -45,4 +45,4 @@ await compile(source, { locateFile: p => (p.endsWith('.wasm') ? wasmUrl : p) })
 - PunyInform (`lib/puny/`): **MIT**, © Fredrik Ramsberg and Johan Berntsson. See `lib/puny/LICENSE-punyinform`.
 - `lib/std/exits.h`, a helper that lists a room's exits after its description: **MIT**, part of this wrapper.
 
-Extracted from [Frotzsmith](https://frotzsmith.com). From [Frotz, Inc.](https://frotzinc.com).
+Extracted from [frotzsmith](https://frotzsmith.com). From [frotz, inc.](https://frotzinc.com).

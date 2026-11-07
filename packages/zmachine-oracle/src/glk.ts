@@ -1,4 +1,4 @@
-// Vendored from Frotzsmith (app/modules/inform6/engine/glk.ts @ cf87b65), GPL-3.0-or-later.
+// Vendored from frotzsmith (app/modules/inform6/engine/glk.ts @ cf87b65), GPL-3.0-or-later.
 // Changed: Node only. The browser-worker branch (indirect eval of glkapi.js) is gone; this
 // package runs in Vitest and the Node runner, never in a browser.
 //

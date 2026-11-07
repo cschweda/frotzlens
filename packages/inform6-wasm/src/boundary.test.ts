@@ -1,5 +1,5 @@
 /**
- * The MIT/GPL line: no file in this package may import from a Frotzsmith
+ * The MIT/GPL line: no file in this package may import from a frotzsmith
  * (GPL app) path. Nuxt aliases (`~/`, `~~/`, `#imports`) mean app code.
  */
 import { readdirSync, readFileSync } from 'node:fs'

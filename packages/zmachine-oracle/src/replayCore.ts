@@ -1,4 +1,4 @@
-// Vendored from Frotzsmith (app/modules/inform6/engine/replayCore.ts @ cf87b65), GPL-3.0-or-later.
+// Vendored from frotzsmith (app/modules/inform6/engine/replayCore.ts @ cf87b65), GPL-3.0-or-later.
 // Changed: options.seed (reproducible randomness) and options.files (saves), see BootOptions; the
 // header ZVM wrote is returned.
 import type { BootOptions, EngineTarget, ReplayResult, TurnRecord } from './StoryEngine.js'

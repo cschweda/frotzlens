@@ -1,6 +1,11 @@
 # Changelog
 
-All notable changes to `frotzlens`, the Frotzlens CLI. Versions follow [Semantic Versioning](https://semver.org/). Part of [Frotz, Inc.](https://frotzinc.com).
+All notable changes to `frotzlens`, the frotzlens CLI. Versions follow [Semantic Versioning](https://semver.org/). Part of [frotz, inc.](https://frotzinc.com).
+
+## [0.3.1] - 2026-11-07
+
+### Changed
+- The family's names are lower case everywhere: frotzlens, frotzsmith, frotzplay, and frotz, inc. (the README, comments and any text shown).
 
 ## [0.3.0] - 2026-11-07
 

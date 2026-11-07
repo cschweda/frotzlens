@@ -1,20 +1,20 @@
-# Report a problem. Frotzlens's About menu → Report a problem… fills these fields from the link it
+# Report a problem. frotzlens's About menu → Report a problem… fills these fields from the link it
 # opens (?template=bug.yml&title=…&what-happened=…&expected=…&story=…&version=…), by each field's
 # id: the ids here and in apps/web/app/utils/report.ts must match.
 name: Report a problem
-description: Something in Frotzlens (the site or the CLI) didn't work the way you expected.
+description: Something in frotzlens (the site or the CLI) didn't work the way you expected.
 labels: [bug]
 body:
   - type: markdown
     attributes:
       value: |
-        Thanks for reporting this. Frotzlens never uploads your story file, and this form doesn't either: describe the file instead (or link to it, if it's public).
+        Thanks for reporting this. frotzlens never uploads your story file, and this form doesn't either: describe the file instead (or link to it, if it's public).
         For a security problem, don't open a public issue: see [SECURITY.md](https://github.com/cschweda/frotzlens/blob/main/SECURITY.md).
   - type: textarea
     id: what-happened
     attributes:
       label: What happened
-      description: What you did, and what Frotzlens did.
+      description: What you did, and what frotzlens did.
     validations:
       required: true
   - type: textarea
@@ -35,7 +35,7 @@ body:
     id: version
     attributes:
       label: Technical details
-      description: About → Report a problem… adds them for you (Frotzlens's version and build, the browser).
+      description: About → Report a problem… adds them for you (frotzlens's version and build, the browser).
       render: text
     validations:
       required: false

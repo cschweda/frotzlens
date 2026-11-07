@@ -1,12 +1,12 @@
 # @frotzinc/zmachine-oracle (private, test-only)
 
-The ZVM oracle for [`@frotzinc/zmachine`](../zmachine)'s differential tests: Frotzsmith's headless ZVM replay (`runReplay`), vendored. Every sample's walkthrough must give the same normalized transcript here and in `@frotzinc/zmachine`.
+The ZVM oracle for [`@frotzinc/zmachine`](../zmachine)'s differential tests: frotzsmith's headless ZVM replay (`runReplay`), vendored. Every sample's walkthrough must give the same normalized transcript here and in `@frotzinc/zmachine`.
 
 **GPL-3.0-or-later, `private`, never published, never bundled.** It is a dev dependency of `@frotzinc/zmachine`'s tests only; nothing it contains reaches an MIT package's `dist`. ZVM (`ifvms`) and GlkOte (`glkote-term`) themselves are MIT.
 
 ## Vendored from
 
-[Frotzsmith](https://github.com/cschweda/frotzsmith) `app/modules/inform6/engine/` at commit `cf87b65` (2026-11-07). Each file says what changed:
+[frotzsmith](https://github.com/cschweda/frotzsmith) `app/modules/inform6/engine/` at commit `cf87b65` (2026-11-07). Each file says what changed:
 
 | File | Changed |
 |---|---|

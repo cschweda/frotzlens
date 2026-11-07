@@ -4,7 +4,7 @@ A design for review before any code. It turns an Inform-compiled story file back
 
 ## 1. Goal, and what "done" means
 
-**Goal.** From a story file made by Inform 6 (versions 5 and 8 with the Standard Library, which can't target 3 or 4; versions 3, 4, 5 and 8 with PunyInform or no library: every version Frotzlens reads), produce one `.inf` file. It should read like something a person wrote, and recompile, with the same Inform and the same library, to an *equivalent* story.
+**Goal.** From a story file made by Inform 6 (versions 5 and 8 with the Standard Library, which can't target 3 or 4; versions 3, 4, 5 and 8 with PunyInform or no library: every version frotzlens reads), produce one `.inf` file. It should read like something a person wrote, and recompile, with the same Inform and the same library, to an *equivalent* story.
 
 **Equivalent** is defined in §4, and it's what makes this checkable rather than a matter of taste:
 - the same object tree, properties, attributes, dictionary, grammar and strings;
@@ -21,14 +21,14 @@ Byte-identical output isn't the bar. Addresses and the order of routines can mov
 
 **Reform** (Ben Rudiak-Gould, 2004, Haskell; [IF Archive](https://ifarchive.org/indexes/if-archive/infocom/tools/reform)) decompiles Z-code to Inform 6. It comes with symbol files for Infocom's games, made by Allen Garvin, Ben Rudiak-Gould and Ethan Dicks. People who've used it describe the output as low-level Inform, impractical to keep working on ([intfiction.org](https://intfiction.org/t/inform-6-to-inform-7/13363)). The [IFWiki list of decompilers](https://ifwiki.org/Decompiler) has Reform's siblings for other systems: Mrifk (Glulx), Scads (TADS) and Victor (Hugo).
 
-**What Frotzlens would add:**
+**What frotzlens would add:**
 - structured control flow instead of jumps;
 - library code recognised and left out, as an `Include`;
 - the game's real names from `gameinfo.dbg` when there is one;
 - **proof by recompiling**, which Reform has no way to do;
 - all of it in the browser, beside the disassembly.
 
-The proof is possible because Frotzlens already has Inform 6.44 in WebAssembly (`@frotzinc/inform6-wasm`) and a parser to compare stories with.
+The proof is possible because frotzlens already has Inform 6.44 in WebAssembly (`@frotzinc/inform6-wasm`) and a parser to compare stories with.
 
 ## 3. The pipeline
 
@@ -118,7 +118,7 @@ This is the part that makes the output trustworthy, and the main test:
 **Proof** (`test/decompile.test.ts`): each of the 16 debug fixtures (Standard Library, PunyInform and library-free; versions 3, 4, 5 and 8; one in economy mode, with abbreviations) is decompiled, compiled again with `inform6-wasm`, and compared part by part. All 16 are equivalent; 15 are the same bytes after the header (the first 64 bytes, which interpreters change, aren't compared). mingus-1 lists one property name in a different place in Inform's identifier table, which nothing reads.
 
 **Without a debug file** (`inferSymbols`, `src/inform/infer.ts`): the symbols the debug file would have given are worked out by comparing the story with its library compiled alone.
-1. **The reference.** `findReference` compiles an empty game with the story's library and switches (`referenceSource`), and tries each extension `inform6-wasm` has (Frotzsmith's `Exits`, PunyInform's `ext_*.h`) and each library switch a game can set (`TASKS_PROVIDED`, `NO_SCORE`, …), keeping what makes more routines line up. Numbers a game can set (`MAX_SCORE`, `NUMBER_TASKS`, …) are found by compiling with two unusual values, seeing which operands change, and reading the story's there. The caller passes the compiler in, so `@frotzinc/zcode` doesn't depend on it.
+1. **The reference.** `findReference` compiles an empty game with the story's library and switches (`referenceSource`), and tries each extension `inform6-wasm` has (frotzsmith's `Exits`, PunyInform's `ext_*.h`) and each library switch a game can set (`TASKS_PROVIDED`, `NO_SCORE`, …), keeping what makes more routines line up. Numbers a game can set (`MAX_SCORE`, `NUMBER_TASKS`, …) are found by compiling with two unusual values, seeing which operands change, and reading the story's there. The caller passes the compiler in, so `@frotzinc/zcode` doesn't depend on it.
 2. **Lining up.** The story's routines are aligned with the reference's by shape (locals and opcodes); the library's come in the same order in both.
 3. **Votes.** Each aligned pair is walked operand by operand: what the reference's operand names (a routine it calls, a global, an array, a string), the story's is. This names the library's routines (entry points and stubs too: the library's call to `NewRoom` is to the game's), globals, arrays, and constants the library prints (`Story`, `Headline`) or starts a global with (PunyInform's `INITIAL_LOCATION_VALUE`). A routine named by the votes but shaped differently is the game's own version.
 4. **The rest is the game's,** named from what the story says: a class or a nameless object by its short name (Inform gives `"(lamp)"` to an object with none), an object by its short name, an embedded routine `obj.prop` or `Class::prop`, an action by its first verb, the rest by address or number. The game's arrays are the gaps in the array space, split where code points into them. Routines and objects are put in the order the compiler met them, from the strings and code each holds.
@@ -194,7 +194,7 @@ The inlined checks are taken out before the statements are written (`desugar`), 
 ## 7. Decisions (2026-11-07)
 
 1. **Scope:** Inform 6 first. ZIL output (to ZIL source) comes later, as its own phase.
-2. **Output style:** the Inform 6 style of Frotzsmith's samples:
+2. **Output style:** the Inform 6 style of frotzsmith's samples:
    - spaces, never tabs: four to indent a routine's body, two before `with` and `has`;
    - `Object -> name "short name"`, then `  with ` and the properties one to a line, lined up under the first, ending `,`; then `  has  ` and the attributes, ending `;`;
    - routines as `[ Name local1 local2;`, the body indented four spaces, closed by `];`;

@@ -1,4 +1,4 @@
-// Vendored from Frotzsmith (app/modules/inform6/engine/headless-glkote.ts @ cf87b65), GPL-3.0-or-later.
+// Vendored from frotzsmith (app/modules/inform6/engine/headless-glkote.ts @ cf87b65), GPL-3.0-or-later.
 // Changed: with `answerFilePrompts`, a save/restore prompt is answered with the file 'save' (the
 // dialog's in-memory store) instead of "cancelled".
 /**

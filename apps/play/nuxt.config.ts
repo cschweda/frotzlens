@@ -24,7 +24,7 @@ const about = {
 export default defineNuxtConfig({
   compatibilityDate: '2025-06-01',
 
-  // The shared Frotz, Inc. layer: ssr:false (a static, client-side site), dark-default colour mode,
+  // The shared frotz, inc. layer: ssr:false (a static, client-side site), dark-default colour mode,
   // the Nuxt UI colour roles, the family shell (header, footer, About), and the build:manifest hook.
   extends: ['@frotzinc/nuxt-base'],
   modules: ['@nuxt/ui', '@vite-pwa/nuxt'],

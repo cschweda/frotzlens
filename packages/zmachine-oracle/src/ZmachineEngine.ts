@@ -1,4 +1,4 @@
-// Vendored from Frotzsmith (app/modules/inform6/engine/ZmachineEngine.ts @ cf87b65), GPL-3.0-or-later.
+// Vendored from frotzsmith (app/modules/inform6/engine/ZmachineEngine.ts @ cf87b65), GPL-3.0-or-later.
 // Changed: boot() keeps the VM so header() can read back what ZVM wrote into the header, and takes a
 // Map of save files for the dialog.
 import type { EngineTarget, TurnRecord } from './StoryEngine.js'

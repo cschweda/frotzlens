@@ -13,7 +13,7 @@
 | Package | Licence | What |
 |---|---|---|
 | `packages/zmachine` (`@frotzinc/zmachine`) | MIT | The interpreter. Depends on `@frotzinc/zcode` only. Runs in Node, a worker, or the main thread. |
-| `packages/zmachine-oracle` | GPL-3.0-or-later, `"private": true`, never published | **Test-only.** The ZVM harness, vendored from Frotzsmith (`replayCore`, `ZmachineEngine`, `glk`, `headless-glkote`, `headless-dialog`, `normalizeTurnOutput`, `parseScript`, `StoryEngine`) at a named commit, with `ifvms` 1.1.6 and `glkote-term` 0.4.4 (both MIT) as its dependencies. `zmachine`'s differential tests import it as a dev dependency. |
+| `packages/zmachine-oracle` | GPL-3.0-or-later, `"private": true`, never published | **Test-only.** The ZVM harness, vendored from frotzsmith (`replayCore`, `ZmachineEngine`, `glk`, `headless-glkote`, `headless-dialog`, `normalizeTurnOutput`, `parseScript`, `StoryEngine`) at a named commit, with `ifvms` 1.1.6 and `glkote-term` 0.4.4 (both MIT) as its dependencies. `zmachine`'s differential tests import it as a dev dependency. |
 
 **Why a separate oracle package, not the sibling checkout.** CI checks out only this repo, so `../frotzsmith` isn't there. Vendoring into `zmachine/test/` would put GPL files inside an MIT package's directory. A private GPL workspace package keeps the line clean: it is an app-side, test-only dependency, never bundled, never published. Noted in `LICENSING.md`.
 
@@ -188,8 +188,8 @@ ZVM sets no interpreter number or version and reports an 80 × 25 screen (headle
 
 - **The exit criteria hold.** `pnpm -r test` green (zmachine: 210 tests). Every sample, every version built (v3, v4, v5, v8: 36 story files), played through with its walkthrough under two seeds, gives the same normalized transcript as ZVM turn by turn; the long games (*Architect Legacy*, *Mingus I* and *II*) reach their endings. The header bytes an interpreter sets match ZVM's on every sample. No `eval` in `src/`; the build's `lib` is `ES2023` only.
 - **Every opcode of every version has run**, checked by a coverage test over the opcode tests and the walkthroughs. Every rule-6 item has a named opcode test citing the Standard.
-- **Walkthroughs** weren't written from scratch: Frotzsmith already had one for every sample game (its Solutions), so they are copied into `samples/walkthroughs/` with their commit.
+- **Walkthroughs** weren't written from scratch: frotzsmith already had one for every sample game (its Solutions), so they are copied into `samples/walkthroughs/` with their commit.
 - **Timed input** is tested with `test/fixtures/timed.inf`, compiled by the test with `@frotzinc/inform6-wasm` (not a sample: it's a test of a mechanism). Command scripts gained two non-typed commands: `[timeout]` (the timer fired: the recorded timer event of design §6) and `[key x]` (a key press for `@read_char`).
 - **Header profiles.** `header.profile: 'zvm'` writes what ZVM writes (for the tests); the default, `'standard'`, writes what frotzplay is (Standard 1.1, timed input, interpreter number 6).
-- **Found on the way:** ZVM runs inside the story buffer it's given (its dynamic memory *is* that buffer), so the oracle is always handed a copy; the interpreter keeps its own copy of the original too. And a turn is normalized with its command echo in place, then the echo dropped, as a screen and Frotzsmith's transcripts do, so a centred title keeps its leading spaces.
+- **Found on the way:** ZVM runs inside the story buffer it's given (its dynamic memory *is* that buffer), so the oracle is always handed a copy; the interpreter keeps its own copy of the original too. And a turn is normalized with its command echo in place, then the echo dropped, as a screen and frotzsmith's transcripts do, so a centred title keeps its leading spaces.
 - **Not yet:** save and restore to files (Phase 2: Quetzal) fail as the Standard allows; `save_undo`/`restore_undo` work.

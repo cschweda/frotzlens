@@ -1,5 +1,5 @@
 /**
- * frotzplay — identity and the one canonical URL, in one place (as Frotzlens's site.config.ts).
+ * frotzplay — identity and the one canonical URL, in one place (as frotzlens's site.config.ts).
  * To move the site, change `siteUrl` here and nowhere else.
  */
 export const site = {

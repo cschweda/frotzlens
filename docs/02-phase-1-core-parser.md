@@ -1,4 +1,4 @@
-# Frotzlens — Phase 1: Core Parser
+# frotzlens — Phase 1: Core Parser
 
 **Document 02 · Phase 1**
 **Deliverable:** `@frotzinc/zcode` parses the static, non-code half of a story file — header, memory map, text and abbreviations, dictionary, object table, globals — for versions 3, 4, 5 and 8. The `frotzlens` CLI prints it in `infodump`'s format.
@@ -178,7 +178,7 @@ packages/zcode/
 │   └── format/           infodump-format text (used by the CLI, and "copy as text" later)
 │       ├── header.ts  abbreviations.ts  objects.ts  tree.ts  dictionary.ts
 ├── test/
-│   ├── fixtures/src/     .inf sources (copied from Frotzsmith; Chris's own)
+│   ├── fixtures/src/     .inf sources (copied from frotzsmith; Chris's own)
 │   ├── fixtures.ts       compiles them with @frotzinc/inform6-wasm at test time (cached per run)
 │   ├── golden/           infodump output per fixture + PROVENANCE.md
 │   └── *.test.ts

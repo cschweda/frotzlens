@@ -1,4 +1,4 @@
-// Vendored from Frotzsmith (app/modules/inform6/engine/parseScript.ts @ cf87b65), GPL-3.0-or-later. Unchanged but for .js on relative imports.
+// Vendored from frotzsmith (app/modules/inform6/engine/parseScript.ts @ cf87b65), GPL-3.0-or-later. Unchanged but for .js on relative imports.
 /**
  * Parse author script text into a command list (doc 04 §2.1). Lenient on
  * purpose so a long test reads naturally:

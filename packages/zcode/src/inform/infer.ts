@@ -30,8 +30,8 @@ export interface Reference {
 
 const includes = (names: string[]) => names.map(n => `Include "${n}";\n`).join('')
 const constants = (cs: { name: string; value?: number }[]) => cs.map(c => `Constant ${c.name}${c.value === undefined ? '' : ` = ${c.value}`};\n`).join('')
-const STD_SKELETON = (strict: boolean, debug: boolean, extensions: string[], cs: { name: string; value?: number }[]) => `${strict ? '' : '!% -~S\n'}${debug ? 'Constant DEBUG;\n' : ''}${constants(cs)}Constant Story "Frotzlens reference story";
-Constant Headline "^Frotzlens reference headline^";
+const STD_SKELETON = (strict: boolean, debug: boolean, extensions: string[], cs: { name: string; value?: number }[]) => `${strict ? '' : '!% -~S\n'}${debug ? 'Constant DEBUG;\n' : ''}${constants(cs)}Constant Story "frotzlens reference story";
+Constant Headline "^frotzlens reference headline^";
 Include "Parser";
 Include "VerbLib";
 Object Room "Room" has light;
@@ -39,8 +39,8 @@ Object Room "Room" has light;
 ${includes(extensions)}Include "Grammar";
 `
 const PUNY_SKELETON = (debug: boolean, extensions: string[], cs: { name: string; value?: number }[]) => `!% -~S
-${debug ? 'Constant DEBUG;\n' : ''}${constants(cs)}Constant Story "Frotzlens reference story";
-Constant Headline "^Frotzlens reference headline^";
+${debug ? 'Constant DEBUG;\n' : ''}${constants(cs)}Constant Story "frotzlens reference story";
+Constant Headline "^frotzlens reference headline^";
 Constant INITIAL_LOCATION_VALUE = Room;
 Include "globals.h";
 ${includes(extensions.filter(e => e === 'ext_flags.h'))}Include "puny.h";

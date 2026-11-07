@@ -599,7 +599,7 @@ export function decompileInform(story: StoryFile, opts: DecompileOptions): Decom
   const banner = (title: string) => out.push('', '! ' + '-'.repeat(75), `!  ${title}`, '! ' + '-'.repeat(75))
   const h = story.header
   out.push('! ' + '='.repeat(75))
-  out.push('!  Decompiled by Frotzlens. The library is left out as Includes.')
+  out.push('!  Decompiled by frotzlens. The library is left out as Includes.')
   if (opts.statements) {
     out.push('!  A routine still in Inform assembly (@) is one whose statements')
     out.push('!  didn\'t compile back the same.')

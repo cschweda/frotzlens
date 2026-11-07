@@ -1,11 +1,11 @@
-// Frotzlens's player page. It runs in a sandboxed iframe with no allow-same-origin: an opaque origin,
+// frotzlens's player page. It runs in a sandboxed iframe with no allow-same-origin: an opaque origin,
 // cut off from the app, its storage and everything else on the site. A story is anyone's file, and
 // ZVM compiles it to JavaScript as it runs, so even a story that broke out of the interpreter would be
 // stuck in here.
 //
 // The story arrives by postMessage from the parent (the only window that may send it), as bytes and
 // its Z-machine version. It's turned into a blob URL in this page's own origin, and Parchment is
-// started on it. One story per page load: Frotzlens reloads the frame to play another.
+// started on it. One story per page load: frotzlens reloads the frame to play another.
 (function () {
   'use strict'
   var params = new URLSearchParams(location.search)

@@ -56,7 +56,7 @@ The shapes are in `src/veneer-signatures.generated.ts`, built from the debug fix
 
 The start is found when it is a constant: the Standard Library's `location = Room;` in `Initialise`, PunyInform's `Constant INITIAL_LOCATION_VALUE`, or the `location` global's starting value. A start the game works out as it runs isn't found.
 
-`toMapGraph` gives the shape Frotzsmith's map draws: rooms by name, an edge for every exit that reaches a room (candidates included), and the start first. Rooms that share a name get their object number. On Mingus I, 19 rooms come out, all connected from the start. Every routine exit resolves to at least one room. One of them, the ending's room (The River's Edge), is reached only by a routine exit.
+`toMapGraph` gives the shape frotzsmith's map draws: rooms by name, an edge for every exit that reaches a room (candidates included), and the start first. Rooms that share a name get their object number. On Mingus I, 19 rooms come out, all connected from the start. Every routine exit resolves to at least one room. One of them, the ending's room (The River's Edge), is reached only by a routine exit.
 
 ## 5. ZIL
 
@@ -71,9 +71,9 @@ ZILF-compiled stories were checked against Ztools before this phase (PR #8): eve
 - **Overview.** "What is this file" adds the library, how many veneer routines were recognised, a Blorb's contents (pictures, sounds, cover, title, author), and whether symbols are loaded.
 - **Globals** (`#globals`, `#global/12`): each global's starting value and the routines that use it. Globals are now links everywhere.
 - **Abbreviations** (`#abbreviations`): the table, copied in infodump's format.
-- **Map** (`#map`, with symbols): the room graph laid out on a grid by Trizbort's rule, ported from Frotzsmith's map. Exits a routine decides are dashed.
+- **Map** (`#map`, with symbols): the room graph laid out on a grid by Trizbort's rule, ported from frotzsmith's map. Exits a routine decides are dashed.
   - Each room links to its object. The SVG is a labelled group, because a `role="img"` can't contain links.
   - Below the picture, the same map as a list: each room and its exits. That list is the map for anyone who can't see the picture.
-  - "Copy the map" gives Frotzsmith's shape.
+  - "Copy the map" gives frotzsmith's shape.
 - **Smoke test.** A new Playwright test opens the `mingus-1` fixture, refuses `demo.dbg`, loads `mingus-1.dbg`, finds `Initialise` and `location`, checks the map (19 rooms, starting in Wind-Scoured Mesa), and runs axe on the Symbols view (before and after loading), a global, the Map and Abbreviations. Then it switches names off. The existing tests cover the other views.
   - axe caught two problems along the way, both fixed: links in the exit sentences needed underlines (link-in-text-block), and the map's SVG had `role="img"` around links (nested-interactive).

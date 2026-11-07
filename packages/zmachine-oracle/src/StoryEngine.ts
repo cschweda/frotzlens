@@ -1,4 +1,4 @@
-// Vendored from Frotzsmith (app/modules/inform6/engine/StoryEngine.ts @ cf87b65), GPL-3.0-or-later.
+// Vendored from frotzsmith (app/modules/inform6/engine/StoryEngine.ts @ cf87b65), GPL-3.0-or-later.
 // Changed: Z-machine only (no Glulx engine, no createEngine), and boot() takes options.
 
 export type EngineTarget = 'zmachine' | 'glulx'

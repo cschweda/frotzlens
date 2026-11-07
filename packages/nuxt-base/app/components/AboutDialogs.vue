@@ -86,7 +86,7 @@ async function openIssue() {
           </ul>
         </section>
         <p class="text-muted">
-          From <a :href="product.familyUrl" class="text-lamp underline decoration-dotted underline-offset-4">Frotz, Inc.</a>, a fiction: the Frotz interpreter is the work of its own authors and is not affiliated.
+          From <a :href="product.familyUrl" class="text-lamp underline decoration-dotted underline-offset-4">frotz, inc.</a>, a fiction: the Frotz interpreter is the work of its own authors and is not affiliated.
         </p>
         <p v-if="copied" role="status" class="text-muted">{{ copied }}</p>
       </div>

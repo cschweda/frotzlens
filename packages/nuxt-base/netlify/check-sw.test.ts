@@ -1,6 +1,6 @@
 /**
  * check-sw — tests against a temp public dir (node env).
- * (Ported from Frotzsmith; "desktop" mode is the generic no-worker mode.)
+ * (Ported from frotzsmith; "desktop" mode is the generic no-worker mode.)
  *
  * The postgenerate step runs the CLI on the real build; these pin what a
  * broken service worker looks like, so a config slip (ZILF precached, the
@@ -13,7 +13,7 @@ import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import * as sw from './check-sw.mjs'
 
-// The fixture is Frotzsmith's real config: the package is held to every case
+// The fixture is frotzsmith's real config: the package is held to every case
 // the app's own check covers.
 const CONFIG = {
   required: ['index.html', 'zil/index.html', 'technical/index.html', 'play/index.html', 'play/web/zvm.js', 'play/web/main.js'],

@@ -22,7 +22,7 @@ export interface LoadedStory {
   sample?: string
 }
 
-/** Where a story may be posted from (the Frotzlens Play view), besides this page's own origin. */
+/** Where a story may be posted from (the frotzlens Play view), besides this page's own origin. */
 const POST_ORIGINS = ['https://frotzlens.frotzinc.com']
 
 const PARCHMENT = 'For Glulx, TADS, Hugo and other formats, use Parchment (iplayif.com).'
@@ -143,7 +143,7 @@ export function useStorySource() {
   }
 
   /**
-   * A story handed over by the window that opened this one (the Frotzlens Play view): say we're
+   * A story handed over by the window that opened this one (the frotzlens Play view): say we're
    * ready, then take one story, from that window only, from an allowed origin.
    */
   function listenForOpener() {

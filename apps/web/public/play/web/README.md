@@ -1,7 +1,7 @@
 # Bundled interpreter (Parchment)
 
 These files are the **Parchment** web interpreter, which plays a story in the Play view. They are
-vendored, not written for Frotzlens: copied byte for byte from [Frotzsmith](https://frotzsmith.com)
+vendored, not written for frotzlens: copied byte for byte from [frotzsmith](https://frotzsmith.com)
 (`public/play/web/`), which vendored them on 2026-06-28 and patched `zvm.js`.
 
 | Component | Source | License |
@@ -13,7 +13,7 @@ vendored, not written for Frotzlens: copied byte for byte from [Frotzsmith](http
 `main.js` also bundles [GlkOte](https://github.com/erkyrath/glkote) (MIT, Andrew Plotkin). Each
 project's copyright and permission notice is in [`THIRD-PARTY-NOTICES.txt`](THIRD-PARTY-NOTICES.txt).
 
-## How Frotzlens runs it
+## How frotzlens runs it
 
 `../index.html` and `../play.js` run in a **sandboxed iframe with no `allow-same-origin`**: an opaque
 origin, cut off from the app, its storage and the rest of the site, because a story is anyone's
@@ -28,7 +28,7 @@ Each file's source and the sha256 of the committed bytes are in `apps/web/vendor
 being updated on purpose. `jquery.min.js` is the official jQuery 3.5.1 minified file, less its
 trailing newline.
 
-## Local patch: `zvm.js` (Frotzsmith's audit 2026-11-04, F2)
+## Local patch: `zvm.js` (frotzsmith's audit 2026-11-04, F2)
 
 `zvm.js` carries two small in-place edits, described in its header comment: a story's
 Unicode-table entry of U+E000 (ZVM's abbreviation placeholder) or a C0 control other than 13

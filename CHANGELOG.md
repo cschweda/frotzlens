@@ -1,20 +1,26 @@
 # Changelog
 
-All notable changes to Frotzlens: the web app at [frotzlens.frotzinc.com](https://frotzlens.frotzinc.com), and this repository. The packages keep their own changelogs: [`@frotzinc/zcode`](packages/zcode/CHANGELOG.md), [`frotzlens`](packages/cli/CHANGELOG.md) (the CLI), [`@frotzinc/worker-rpc`](packages/worker-rpc/CHANGELOG.md), [`@frotzinc/nuxt-base`](packages/nuxt-base/CHANGELOG.md), [`@frotzinc/inform6-wasm`](packages/inform6-wasm/CHANGELOG.md). Versions follow [Semantic Versioning](https://semver.org/). Part of [Frotz, Inc.](https://frotzinc.com).
+All notable changes to frotzlens: the web app at [frotzlens.frotzinc.com](https://frotzlens.frotzinc.com), and this repository. The packages keep their own changelogs: [`@frotzinc/zcode`](packages/zcode/CHANGELOG.md), [`frotzlens`](packages/cli/CHANGELOG.md) (the CLI), [`@frotzinc/worker-rpc`](packages/worker-rpc/CHANGELOG.md), [`@frotzinc/nuxt-base`](packages/nuxt-base/CHANGELOG.md), [`@frotzinc/inform6-wasm`](packages/inform6-wasm/CHANGELOG.md). Versions follow [Semantic Versioning](https://semver.org/). Part of [frotz, inc.](https://frotzinc.com).
+
+## [0.3.5] - 2026-11-07
+
+### Changed
+- The family's names are lower case everywhere: frotzlens, frotzsmith, frotzplay, and frotz, inc. (the README, comments and any text shown).
+- The og:image and logo say frotzlens; the og:image is re-rendered.
 
 ## [0.3.4] - 2026-11-07
 
 ### Changed
-- [docs/16](docs/16-frotzsmith-on-frotzplay.md) records what's done: `@frotzinc/player` 0.2.0 is on npm, and Frotzsmith 0.2.0 plays in frotzplay, with Parchment as a choice.
+- [docs/16](docs/16-frotzsmith-on-frotzplay.md) records what's done: `@frotzinc/player` 0.2.0 is on npm, and frotzsmith 0.2.0 plays in frotzplay, with Parchment as a choice.
 
 ## [0.3.3] - 2026-11-07
 
 ### Added
-- [docs/16](docs/16-frotzsmith-on-frotzplay.md): a plan for moving Frotzsmith from Parchment to frotzplay. Play, Send-to-Play, the transcript, auto-map and Skein go through `ZPlayer`; *Export* uses frotzplay's single file; Parchment stays behind a setting for a release or two, and is then retired.
+- [docs/16](docs/16-frotzsmith-on-frotzplay.md): a plan for moving frotzsmith from Parchment to frotzplay. Play, Send-to-Play, the transcript, auto-map and Skein go through `ZPlayer`; *Export* uses frotzplay's single file; Parchment stays behind a setting for a release or two, and is then retired.
 
 ## [0.3.2] - 2026-11-07
 
-Frotzlens itself is unchanged; this release gets frotzplay's packages ready for npm.
+frotzlens itself is unchanged; this release gets frotzplay's packages ready for npm.
 
 ### Changed
 - **`publish.sh` publishes `@frotzinc/zmachine` and `@frotzinc/player`.** A library may now depend at run time on the `@frotzinc` package it's built on (zmachine on zcode, player on zmachine), at an exact version already on npm, as the CLI does. Each has a smoke test in `scripts/smoke/` that installs the packed tarball on its own: zmachine plays a 72-byte story made in the test, and the player (with Vue, its peer) exports one as a single file and as a `.zip`.
@@ -22,7 +28,7 @@ Frotzlens itself is unchanged; this release gets frotzplay's packages ready for 
 
 ## [0.3.1] - 2026-11-07
 
-Frotzlens itself looks and works the same; this release moves its shell into `@frotzinc/nuxt-base` and brings frotzplay into the repository.
+frotzlens itself looks and works the same; this release moves its shell into `@frotzinc/nuxt-base` and brings frotzplay into the repository.
 
 - **frotzplay 0.1.0** is live at [frotzplay.netlify.app](https://frotzplay.netlify.app): the site, `@frotzinc/zmachine` 0.1.0 and `@frotzinc/player` 0.1.0 ([its changelog](apps/play/CHANGELOG.md)). The player now sits on its own warm "paper" page.
 
@@ -31,7 +37,7 @@ Frotzlens itself looks and works the same; this release moves its shell into `@f
 - `samples/`: v4 builds of *The Dark Cellar* and *The Locked Chest* (PunyInform), and a walkthrough for every sample game (`samples/walkthroughs/`).
 
 ### Changed
-- The header, footer and About menu moved into `@frotzinc/nuxt-base`, to share with frotzplay. Frotzlens looks and works the same. Its identity is now `product` in `app/app.config.ts` (built from `site.config.ts`), and its own header buttons are `HeaderActions`.
+- The header, footer and About menu moved into `@frotzinc/nuxt-base`, to share with frotzplay. frotzlens looks and works the same. Its identity is now `product` in `app/app.config.ts` (built from `site.config.ts`), and its own header buttons are `HeaderActions`.
 
 ## [0.3.0] - 2026-11-07
 
@@ -59,13 +65,13 @@ Phase 6: decompiling to Inform 6. `@frotzinc/zcode` 0.3.0 and the `frotzlens` 0.
 
 ### Added
 - **An About menu** in the header, as in Drafter:
-  - **About Frotzlens:** every version (the site's, with its commit and date, and each package the site is built from) and every licence, with "Copy technical details".
+  - **About frotzlens:** every version (the site's, with its commit and date, and each package the site is built from) and every licence, with "Copy technical details".
   - **What's new:** this changelog.
-  - **Report a problem…** and **Suggest a feature…**: GitHub's issue form, filled in with what you write and the technical details, for you to review and submit there. Frotzlens sends nothing, and never the story file.
+  - **Report a problem…** and **Suggest a feature…**: GitHub's issue form, filled in with what you write and the technical details, for you to review and submit there. frotzlens sends nothing, and never the story file.
   - **Check for updates:** whether the site has been updated since the page opened.
 - The footer links the changelog and shows the version.
 - `SECURITY.md`, and GitHub issue forms for problems and features.
-- The README has screenshots, who Frotzlens is for, and what it does that nothing else does.
+- The README has screenshots, who frotzlens is for, and what it does that nothing else does.
 - **ZIL grammar.** A ZILF-compiled story's syntax tables are decoded: every verb, its words and syntax lines (shown as each `SYNTAX` form reads), its action and pre-action routines, and the prepositions. They appear in the Grammar view and in `frotzlens -g`, and dictionary words link to their verbs. They're checked against the `<SYNTAX>` forms in zillib and four ZILF games ([details](docs/08-zil-grammar.md)).
 
 ## [0.1.0] - 2026-11-07
@@ -73,7 +79,7 @@ Phase 6: decompiling to Inform 6. `@frotzinc/zcode` 0.3.0 and the `frotzlens` 0.
 The first release. `@frotzinc/zcode` 0.1.0 and the `frotzlens` 0.1.0 CLI are on npm.
 
 ### Play (#14)
-- A Play view runs the open story in Parchment, the interpreter Frotzsmith uses. It's sandboxed in an opaque-origin iframe with its own Content-Security-Policy, so a story can't reach the app ([details](docs/07-play.md)).
+- A Play view runs the open story in Parchment, the interpreter frotzsmith uses. It's sandboxed in an opaque-origin iframe with its own Content-Security-Policy, so a story can't reach the app ([details](docs/07-play.md)).
 
 ### SEO (#13)
 - `robots.txt` and `sitemap.xml`, schema.org structured data, the social card's alt text, and a current description.
@@ -105,4 +111,4 @@ The first release. `@frotzinc/zcode` 0.1.0 and the `frotzlens` 0.1.0 CLI are on 
 - The `frotzlens` CLI.
 
 ### Phase 0: the shared libraries
-- `@frotzinc/worker-rpc`, `@frotzinc/nuxt-base` and `@frotzinc/inform6-wasm` 0.1.0 were extracted from Frotzsmith and published to npm.
+- `@frotzinc/worker-rpc`, `@frotzinc/nuxt-base` and `@frotzinc/inform6-wasm` 0.1.0 were extracted from frotzsmith and published to npm.

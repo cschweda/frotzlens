@@ -1,31 +1,31 @@
-# Frotzlens — Kickoff Prompt
+# frotzlens — Kickoff Prompt
 
 ## Before you paste (setup checklist for Chris)
 
 Phase 0 edits two repos, so set up both before starting Claude Code:
 
-1. **Clone Frotzsmith as a sibling** of the new repo, so the layout is `…/frotzlens/` and `…/frotzsmith/`. The prompt refers to it as `../frotzsmith`.
-2. **Create the Frotzsmith branch yourself** so nothing lands on `main`:
+1. **Clone frotzsmith as a sibling** of the new repo, so the layout is `…/frotzlens/` and `…/frotzsmith/`. The prompt refers to it as `../frotzsmith`.
+2. **Create the frotzsmith branch yourself** so nothing lands on `main`:
    `git -C ../frotzsmith checkout -b frotzinc-packages`
 3. **Start Claude Code inside `frotzlens/`.** That's its primary directory. It can read `../frotzsmith` freely and will ask permission the first time it edits a file there — say yes; that's correct behavior.
-4. **Be logged in to `gh`** (`gh auth status`) so it can open the Phase 0 PR against Frotzsmith.
+4. **Be logged in to `gh`** (`gh auth status`) so it can open the Phase 0 PR against frotzsmith.
 5. **npm publish will prompt for your 2FA code** (org enforcement is on). Claude runs the command; you type the code.
-6. **Review gate:** the pre-code checklist makes Claude list every file it intends to move out of Frotzsmith before moving anything. Read that list with one question: *does any of this import from Frotzsmith's app code?* If yes, it belongs on the other side of the GPL/MIT line.
-7. **Ask for the Frotzsmith change as a single commit on the branch, and to show the diff before pushing.** The extraction is mechanical, but it's the one step that can break a working app.
+6. **Review gate:** the pre-code checklist makes Claude list every file it intends to move out of frotzsmith before moving anything. Read that list with one question: *does any of this import from frotzsmith's app code?* If yes, it belongs on the other side of the GPL/MIT line.
+7. **Ask for the frotzsmith change as a single commit on the branch, and to show the diff before pushing.** The extraction is mechanical, but it's the one step that can break a working app.
 8. **Phase 3 needs you in the Netlify UI** to connect the repo (base directory `apps/web`); Claude can't do that part.
-9. **Expect two licensing questions from Claude:** the Ztools (`txd`/`infodump`) license before it vendors them, and authorship of each Frotzsmith sample before it becomes a fixture.
+9. **Expect two licensing questions from Claude:** the Ztools (`txd`/`infodump`) license before it vendors them, and authorship of each frotzsmith sample before it becomes a fixture.
 
 Then paste everything below the line into the session.
 
 ---
 
-You are the lead engineer on **Frotzlens**, a browser-based disassembler and inspector for Z-machine story files. I'm Chris Schweda (GitHub `cschweda`), a senior web developer and interactive-fiction author. You and I are building this together; you write the code, I review and direct. Work in phases, stop at each checkpoint for my review, and ask before making any architectural decision not already settled below.
+You are the lead engineer on **frotzlens**, a browser-based disassembler and inspector for Z-machine story files. I'm Chris Schweda (GitHub `cschweda`), a senior web developer and interactive-fiction author. You and I are building this together; you write the code, I review and direct. Work in phases, stop at each checkpoint for my review, and ask before making any architectural decision not already settled below.
 
-## What Frotzlens is
+## What frotzlens is
 
 Drop a `.z3`/`.z4`/`.z5`/`.z8` or `.zblorb` file into a browser tab and get a navigable, visual model of everything inside it: header, memory map, abbreviations, dictionary, object tree with attributes and properties, globals, grammar table, every routine as cross-referenced disassembly, and the string table. When given Inform 6's `gameinfo.dbg` debug file alongside the story, every address becomes symbolic (routine names, object names, property names, source line references).
 
-It is the browser-native successor to `txd` and `infodump` from the Ztools suite, with an Inform 6 focus. Everything runs client-side. Nothing is uploaded. It is the companion product to **Frotzsmith** (frotzsmith.com, repo `cschweda/frotzsmith`), a browser IDE for Inform 6 and ZIL, and part of the **Frotz, Inc.** family ([frotzinc.com](https://frotzinc.com)).
+It is the browser-native successor to `txd` and `infodump` from the Ztools suite, with an Inform 6 focus. Everything runs client-side. Nothing is uploaded. It is the companion product to **frotzsmith** (frotzsmith.com, repo `cschweda/frotzsmith`), a browser IDE for Inform 6 and ZIL, and part of the **frotz, inc.** family ([frotzinc.com](https://frotzinc.com)).
 
 **Audience:** Inform 6 authors inspecting their own builds; IF archivists and reviewers poking at 1980s story files; people who lost their source. They are technical but not necessarily compiler people. The UI must make a binary file *legible*, not just dump it.
 
@@ -33,29 +33,29 @@ It is the browser-native successor to `txd` and `infodump` from the Ztools suite
 
 ## Licensing (settled)
 
-**Apps are GPL-3.0-or-later. Libraries are MIT.** This is Frotz, Inc. policy across every product.
+**Apps are GPL-3.0-or-later. Libraries are MIT.** This is frotz, inc. policy across every product.
 
-- `apps/web` and `packages/cli` (the `frotzlens` npm package, an app) → **GPL-3.0-or-later**. Frotzsmith is GPL because it bundles the GPLv3 ZILF compiler; Frotzlens matches it so the two apps can share code freely.
+- `apps/web` and `packages/cli` (the `frotzlens` npm package, an app) → **GPL-3.0-or-later**. frotzsmith is GPL because it bundles the GPLv3 ZILF compiler; frotzlens matches it so the two apps can share code freely.
 - Every `@frotzinc/*` package → **MIT**. These are infrastructure for other people's tools and must be usable without a license review.
 - **Dependencies point one way: apps → libraries.** A library never imports from an app. If a library needs something that lives in an app, move it into a library first.
-- **A library never bundles GPL code.** ZILF stays in the Frotzsmith app. The Inform 6 compiler (Artistic 2.0) may be wrapped in a library.
+- **A library never bundles GPL code.** ZILF stays in the frotzsmith app. The Inform 6 compiler (Artistic 2.0) may be wrapped in a library.
 - Each package gets its own `LICENSE` file and a correct `"license"` field. The repo root carries `LICENSE` (GPL) for the apps and `LICENSING.md` stating the policy in two sentences.
 - I retain copyright and may relicense my own code; nothing here changes that.
 
 ## Stack (settled — do not revisit)
 
-- **Nuxt 4** with **Nuxt UI v4**, TypeScript strict, **pnpm** workspaces. Frotzsmith is on Yarn 1 and Nuxt 4.6 / Nuxt UI 4.12 as of November 2026; match or exceed those versions. Nuxt 5 if stable at build time; flag it, don't switch silently.
+- **Nuxt 4** with **Nuxt UI v4**, TypeScript strict, **pnpm** workspaces. frotzsmith is on Yarn 1 and Nuxt 4.6 / Nuxt UI 4.12 as of November 2026; match or exceed those versions. Nuxt 5 if stable at build time; flag it, don't switch silently.
 - **Monorepo:**
   - `packages/zcode` — `@frotzinc/zcode` (MIT): parser, disassembler, symbol loader. Pure TypeScript, zero DOM, zero Nuxt. `Uint8Array` in, typed model out. This is the asset; the app is a consumer.
-  - `packages/worker-rpc` — `@frotzinc/worker-rpc` (MIT): extracted from Frotzsmith's `app/composables/worker-rpc.ts` and its tests. Long-lived worker, request IDs, timeouts, dead-worker recovery.
-  - `packages/nuxt-base` — `@frotzinc/nuxt-base` (MIT): the shared Frotz, Inc. look and deploy kit, extracted from Frotzsmith: `main.css` (the `--frotz-amber` token, `.frotz-glow`, `.frotz-grid`, the reduced-motion block), color tokens for Nuxt UI, a base `nuxt.config` fragment (`ssr: false`, color mode defaulting to dark, preload hints; PWA as an opt-in), `safe-storage.ts`, `shortcut.ts`, `slug.ts`, and the **generic** Netlify tools: `inject-preloads.mjs`, `check-sw.mjs`, `version.mjs`, and a parameterized `redirects` test. **Leave behind** anything Frotzsmith-specific: `vendored-files.json` and its test, `supply-chain.test.ts`, `netlify-headers.test.ts` (they encode Frotzsmith's Parchment hashes and its `netlify.toml`). Do not generalize them in Phase 0. `nuxt`, `@nuxt/ui`, and `vue` are **peerDependencies**, never dependencies.
-  - `packages/inform6-wasm` — `@frotzinc/inform6-wasm` (MIT wrapper; upstream Artistic 2.0): Frotzsmith's pinned Inform 6.44 Emscripten build (`inform6.mjs`, `inform6.wasm`) with its README, **plus the library texts the compiler needs** — Frotzsmith's `PROFILE_FILES` (Inform Standard Library, Artistic 2.0; PunyInform, MIT) from `app/modules/inform6/lib/`. Without them nothing that says `Include "Parser"` compiles. Expose `compile(source, { version, library: 'std' | 'puny', debug })` returning `{ story, dbg?, diagnostics }`; `debug: true` passes `-k` and reads `gameinfo.dbg` back out of Emscripten's virtual FS after the run.
+  - `packages/worker-rpc` — `@frotzinc/worker-rpc` (MIT): extracted from frotzsmith's `app/composables/worker-rpc.ts` and its tests. Long-lived worker, request IDs, timeouts, dead-worker recovery.
+  - `packages/nuxt-base` — `@frotzinc/nuxt-base` (MIT): the shared frotz, inc. look and deploy kit, extracted from frotzsmith: `main.css` (the `--frotz-amber` token, `.frotz-glow`, `.frotz-grid`, the reduced-motion block), color tokens for Nuxt UI, a base `nuxt.config` fragment (`ssr: false`, color mode defaulting to dark, preload hints; PWA as an opt-in), `safe-storage.ts`, `shortcut.ts`, `slug.ts`, and the **generic** Netlify tools: `inject-preloads.mjs`, `check-sw.mjs`, `version.mjs`, and a parameterized `redirects` test. **Leave behind** anything frotzsmith-specific: `vendored-files.json` and its test, `supply-chain.test.ts`, `netlify-headers.test.ts` (they encode frotzsmith's Parchment hashes and its `netlify.toml`). Do not generalize them in Phase 0. `nuxt`, `@nuxt/ui`, and `vue` are **peerDependencies**, never dependencies.
+  - `packages/inform6-wasm` — `@frotzinc/inform6-wasm` (MIT wrapper; upstream Artistic 2.0): frotzsmith's pinned Inform 6.44 Emscripten build (`inform6.mjs`, `inform6.wasm`) with its README, **plus the library texts the compiler needs** — frotzsmith's `PROFILE_FILES` (Inform Standard Library, Artistic 2.0; PunyInform, MIT) from `app/modules/inform6/lib/`. Without them nothing that says `Include "Parser"` compiles. Expose `compile(source, { version, library: 'std' | 'puny', debug })` returning `{ story, dbg?, diagnostics }`; `debug: true` passes `-k` and reads `gameinfo.dbg` back out of Emscripten's virtual FS after the run.
   - `packages/cli` — `frotzlens` (GPL, unscoped, already reserved on npm as `0.0.1`): `npx frotzlens game.z5` prints a `txd`-style dump; `--strings`, `--objects`, `--dict`, `--routine 1b22`, `--json`. Wraps `@frotzinc/zcode`.
   - `apps/web` — the Nuxt app (GPL). Static (`nuxt generate`), deployed to Netlify. No server routes in v1; a user's story file never leaves their machine. If something later needs a server (shared links, heavy jobs), flag it and we'll use a DigitalOcean droplet, but default to "no server."
-- **Web Workers** for parsing, via `@frotzinc/worker-rpc`, with the same worker-primary / main-thread-fallback shape as Frotzsmith's `useI6Wasm.ts`, so the core also runs in Node for tests.
+- **Web Workers** for parsing, via `@frotzinc/worker-rpc`, with the same worker-primary / main-thread-fallback shape as frotzsmith's `useI6Wasm.ts`, so the core also runs in Node for tests.
 - **Storage:** none required. OPFS or IndexedDB may cache recently opened files for convenience, wrapped in try/catch, never load-bearing.
-- **Testing:** Vitest for packages, fixture-driven (see below); golden tests in Frotzsmith's `*.golden.test.ts` style. Playwright for one smoke test of the web app (drop a file, assert the object tree renders).
-- **Tooling:** ESLint (Nuxt config), Prettier, Husky pre-commit running lint + package tests. GitHub Actions on push: lint, test, build, Netlify deploy preview. axe-core CLI in CI as Frotzsmith does.
+- **Testing:** Vitest for packages, fixture-driven (see below); golden tests in frotzsmith's `*.golden.test.ts` style. Playwright for one smoke test of the web app (drop a file, assert the object tree renders).
+- **Tooling:** ESLint (Nuxt config), Prettier, Husky pre-commit running lint + package tests. GitHub Actions on push: lint, test, build, Netlify deploy preview. axe-core CLI in CI as frotzsmith does.
 
 ## Architecture rules
 
@@ -71,8 +71,8 @@ It is the browser-native successor to `txd` and `infodump` from the Ztools suite
 
 Compiled at test time with `@frotzinc/inform6-wasm`, so tests are deterministic, no story-file binaries are vendored, and the test suite has no dependency on `../frotzsmith` being present:
 
-- Copy the `.inf` sources from Frotzsmith's `app/modules/inform6/samples/` into `packages/zcode/test/fixtures/src/`: `dark-cellar`, `haunted-house`, `locked-chest`, `hermit`, `mingus-1`, `architect-legacy`, and `demo`. For each, check the header comment for authorship (they must be Chris's own) and confirm it compiles standalone; `grammar`, `list-exits`, and `magic-8-ball` may be snippets rather than games — include them only if they compile on their own. Build each as v5 with `debug: true`, so every fixture has a `.dbg` for symbolic tests. Build `dark-cellar` additionally as v3 and v8 (packed-address scaling) and once against PunyInform (a second library veneer).
-- **No ZIL fixtures in v1.** ZILF is GPL, Frotzsmith's ZIL samples come from the ZILF repository under GPL, and running ZILF at test time would make this repo depend on Frotzsmith's build. Z-code is Z-code; the parser doesn't care which compiler produced it.
+- Copy the `.inf` sources from frotzsmith's `app/modules/inform6/samples/` into `packages/zcode/test/fixtures/src/`: `dark-cellar`, `haunted-house`, `locked-chest`, `hermit`, `mingus-1`, `architect-legacy`, and `demo`. For each, check the header comment for authorship (they must be Chris's own) and confirm it compiles standalone; `grammar`, `list-exits`, and `magic-8-ball` may be snippets rather than games — include them only if they compile on their own. Build each as v5 with `debug: true`, so every fixture has a `.dbg` for symbolic tests. Build `dark-cellar` additionally as v3 and v8 (packed-address scaling) and once against PunyInform (a second library veneer).
+- **No ZIL fixtures in v1.** ZILF is GPL, frotzsmith's ZIL samples come from the ZILF repository under GPL, and running ZILF at test time would make this repo depend on frotzsmith's build. Z-code is Z-code; the parser doesn't care which compiler produced it.
 - `minimal.z5` — an empty `Main`, no library, the smallest valid file. This is also the "no veneer at all" case.
 - `dark-cellar.zblorb` — the v5 build wrapped in Blorb with a small PNG cover. Nothing in the stack writes Blorb; add a ~40-line IFF/Blorb writer to the test helpers (and keep it — frotzpack will want it).
 - `corrupt-truncated.z5`, `corrupt-badheader.z5` — generated in the test from `dark-cellar.z5`.
@@ -87,7 +87,7 @@ Dark mode by default, light mode via Nuxt UI color mode. Modern and sleek; the r
 - **Views** (left nav, each a route):
   - **Overview** — the dashboard.
   - **Memory** — the map, zoomable; clicking a segment opens a hex view with structures highlighted and annotated in the gutter.
-  - **Objects** — collapsible, keyboard-navigable tree with a detail pane: attributes as a flag row, properties as a decoded table, parent/sibling/child as links. (Phase 5, symbolic mode only: derive a `RoomGraph` — rooms and direction edges — from the `n_to`/`s_to`/… properties. Define that type in `@frotzinc/zcode`; Frotzsmith's `app/composables/map-graph.ts` has the shape to match, but the type must live in the MIT library, never be imported from the GPL app.)
+  - **Objects** — collapsible, keyboard-navigable tree with a detail pane: attributes as a flag row, properties as a decoded table, parent/sibling/child as links. (Phase 5, symbolic mode only: derive a `RoomGraph` — rooms and direction edges — from the `n_to`/`s_to`/… properties. Define that type in `@frotzinc/zcode`; frotzsmith's `app/composables/map-graph.ts` has the shape to match, but the type must live in the MIT library, never be imported from the GPL app.)
   - **Dictionary** — searchable list with entry bytes decoded; verbs link to their grammar.
   - **Grammar** — verb → action table, each action linking to its routine.
   - **Routines** — list with call counts; detail is disassembly with operands as links, branch targets as gutter arrows, and "called from" / "calls" panels. Strings referenced inline.
@@ -100,21 +100,21 @@ Dark mode by default, light mode via Nuxt UI color mode. Modern and sleek; the r
 ## Branding
 
 - Favicon and app icon: the amber rounded badge with a loupe over a row of bytes (I'll supply the SVG).
-- Footer on every page: the Frotz, Inc. lantern mark + "From Frotz, Inc." linking to [frotzinc.com](https://frotzinc.com), GitHub and npm links, and: "Frotz, Inc. is a fiction. The Frotz interpreter is the work of its own authors and is not affiliated."
+- Footer on every page: the frotz, inc. lantern mark + "From frotz, inc." linking to [frotzinc.com](https://frotzinc.com), GitHub and npm links, and: "frotz, inc. is a fiction. The Frotz interpreter is the work of its own authors and is not affiliated."
 - `og:image` 1200×630 (I'll supply), full OpenGraph/Twitter meta, canonical URL `https://frotzlens.com/` (may later become `frotzlens.frotzinc.com`; keep it one config value).
 
 ## Phases
 
-Each phase ends with a working, deployable state and a checkpoint for my review. Write the phase doc (Frotzsmith's `docs/` numbering: `00-master-design.md`, `01-phase-1-…`) before writing the code.
+Each phase ends with a working, deployable state and a checkpoint for my review. Write the phase doc (frotzsmith's `docs/` numbering: `00-master-design.md`, `01-phase-1-…`) before writing the code.
 
-**Phase 0 — Extract the shared libraries from Frotzsmith.** Read `../frotzsmith` (already on branch `frotzinc-packages`; never touch its `main`; do not convert it to pnpm — it stays on Yarn 1). In this order:
+**Phase 0 — Extract the shared libraries from frotzsmith.** Read `../frotzsmith` (already on branch `frotzinc-packages`; never touch its `main`; do not convert it to pnpm — it stays on Yarn 1). In this order:
 1. Create `@frotzinc/worker-rpc`, `@frotzinc/nuxt-base`, and `@frotzinc/inform6-wasm` as MIT packages with their tests passing.
-2. Validate against Frotzsmith with `yarn link` (or `file:` paths): swap its copies for the packages locally and get its build and tests green. Do not commit yet.
+2. Validate against frotzsmith with `yarn link` (or `file:` paths): swap its copies for the packages locally and get its build and tests green. Do not commit yet.
 3. Publish the three packages as `0.1.0` with `npm publish --access public`. Each publish prompts me for a 2FA code; run the command and wait.
-4. Now make the Frotzsmith change for real, pinned to the published versions, as **one commit on that branch**. Show me the full diff and wait for my approval before pushing or opening the PR.
-Deliverable: the three packages are on npm; Frotzsmith builds and tests green on the PR branch importing them.
+4. Now make the frotzsmith change for real, pinned to the published versions, as **one commit on that branch**. Show me the full diff and wait for my approval before pushing or opening the PR.
+Deliverable: the three packages are on npm; frotzsmith builds and tests green on the PR branch importing them.
 
-**Phase 1 — Core parser.** Header, memory map, ZSCII/abbreviations, dictionary, object table, globals. Fixtures compiled from Frotzsmith samples. CLI prints `infodump`-equivalent output. Differential tests against `infodump` (rule 5). Deliverable: `npx frotzlens --objects dark-cellar.z5` matches `infodump`.
+**Phase 1 — Core parser.** Header, memory map, ZSCII/abbreviations, dictionary, object table, globals. Fixtures compiled from frotzsmith samples. CLI prints `infodump`-equivalent output. Differential tests against `infodump` (rule 5). Deliverable: `npx frotzlens --objects dark-cellar.z5` matches `infodump`.
 
 **Phase 2 — Disassembler.** Opcode decoding for all forms (short/long/variable/extended), branch and store handling, routine discovery from the initial PC via the call graph followed by a conservative linear sweep of high memory for routines reachable only through computed calls (Inform `.call` property values, grammar action routines), string discovery including a heuristic scan for unreferenced strings, cross-reference index. Differential tests against `txd`. Deliverable: `npx frotzlens --routine <addr> dark-cellar.z5` matches txd.
 
@@ -126,9 +126,9 @@ Deliverable: the three packages are on npm; Frotzsmith builds and tests green on
 
 ## Before you write any code
 
-1. Run `git -C ../frotzsmith branch --show-current`. If it is not `frotzinc-packages`, stop and tell me. Then confirm the Nuxt 4 / Nuxt UI v4 versions you'll pin, whether Nuxt 5 is stable, and what Frotzsmith is currently on.
+1. Run `git -C ../frotzsmith branch --show-current`. If it is not `frotzinc-packages`, stop and tell me. Then confirm the Nuxt 4 / Nuxt UI v4 versions you'll pin, whether Nuxt 5 is stable, and what frotzsmith is currently on.
 2. Propose the monorepo file tree now. Propose the core model's top-level TypeScript types (`StoryFile`, `Header`, `MemoryMap`, `ZObject`, `Routine`, `Instruction`, `Operand`, `ZString`, `DictEntry`, `GrammarEntry`, `RoomGraph`, `Symbols`, `ParseError`) at the start of Phase 1, not before Phase 0.
-3. List what you will extract from Frotzsmith in Phase 0, file by file, and what you will leave behind, so I can see the GPL/MIT line is drawn correctly.
+3. List what you will extract from frotzsmith in Phase 0, file by file, and what you will leave behind, so I can see the GPL/MIT line is drawn correctly.
 4. List the Standard 1.1 sections you'll implement in Phase 1.
 
 Ask me anything that's ambiguous. Don't guess on architecture; do guess on naming and layout details and tell me what you picked.
