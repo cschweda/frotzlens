@@ -1,19 +1,19 @@
 # Changelog
 
-All notable changes to `@frotzinc/nuxt-base`. Versions follow [Semantic Versioning](https://semver.org/). Part of [frotz, inc.](https://frotzinc.com).
+All notable changes to `@frotzinc/nuxt-base`. Versions follow [Semantic Versioning](https://semver.org/). Part of [frotz, Inc.](https://frotzinc.com).
 
 ## [0.2.1] - 2026-11-07
 
 ### Changed
-- The family's names are lower case everywhere: frotzlens, frotzsmith, frotzplay, and frotz, inc. (the README, comments and any text shown).
-- The footer and About dialog say frotz, inc.
+- The family's names are lower case everywhere: frotzlens, frotzsmith, frotzplay, and frotz, Inc. (the README, comments and any text shown).
+- The footer and About dialog say frotz, Inc.
 
 ## [0.2.0] - 2026-11-07
 
 The family shell, shared by frotzlens and frotzplay.
 
 ### Added
-- **The family shell**, moved from frotzlens (and relicensed MIT by its author) so every frotz, inc. app shares one header, footer and About menu:
+- **The family shell**, moved from frotzlens (and relicensed MIT by its author) so every frotz, Inc. app shares one header, footer and About menu:
   - Components: `AppHeader` (with `#context` and `#actions` slots for the app's own parts), `AppFooter`, `AboutMenu`, `AboutDialogs` (takes the app's `changelog` as a prop).
   - Composables: `useAbout` (`technicalDetails()`), `useProduct`.
   - Utils: `report` (the GitHub issue-form links, now taking the repository URL), `markdown` (`markdownToHtml`, for the changelog), `product` (the `Product` type, `securityUrl`).

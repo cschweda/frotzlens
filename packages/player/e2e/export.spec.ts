@@ -30,7 +30,7 @@ async function playsATurn(page: Page) {
   await expect(page.locator('header svg.fp-logo')).toBeVisible()
   const nav = page.getByRole('navigation', { name: 'frotzplay' })
   await expect(nav.getByRole('link', { name: 'Source on GitHub' })).toHaveAttribute('href', 'https://github.com/cschweda/frotzlens/tree/main/apps/play')
-  await expect(nav.getByRole('link', { name: 'From frotz, inc.' })).toHaveAttribute('href', 'https://frotzinc.com')
+  await expect(nav.getByRole('link', { name: 'From frotz, Inc.' })).toHaveAttribute('href', 'https://frotzinc.com')
   await input.fill('take lantern')
   await input.press('Enter')
   await expect(page.locator('frotz-play .zp-turn').last()).toContainText('Taken.')

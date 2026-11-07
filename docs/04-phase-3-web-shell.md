@@ -20,7 +20,7 @@ apps/web/                         frotzlens-web (private, GPL-3.0-or-later)
 │   ├── composables/useStory.ts   load a file: worker first (worker-rpc), main thread if workers fail
 │   ├── composables/useHashRoute.ts  the hash route: #overview, #routine/1b22, #object/47, …
 │   └── components/               DropZone, OverviewView, ItemView, MemoryMap, StatTile, StoryFacts, SearchPalette, AppHeader, AppFooter
-└── public/                       badge, card, icons, the frotz, inc. mark; samples/dark-cellar.z5 (copied at build)
+└── public/                       badge, card, icons, the frotz, Inc. mark; samples/dark-cellar.z5 (copied at build)
 ```
 
 ## 2. Decisions (inside what's settled)

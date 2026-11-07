@@ -1,6 +1,6 @@
 # @frotzinc/nuxt-base
 
-The shared Nuxt layer for [frotz, inc.](https://frotzinc.com) apps ([frotzsmith](https://frotzsmith.com), [frotzlens](https://frotzlens.frotzinc.com)).
+The shared Nuxt layer for [frotz, Inc.](https://frotzinc.com) apps ([frotzsmith](https://frotzsmith.com), [frotzlens](https://frotzlens.frotzinc.com)).
 
 ```ts
 // nuxt.config.ts
@@ -33,7 +33,7 @@ export default defineNuxtConfig({
 
 ## The family shell
 
-The header, footer and About menu every frotz, inc. app shares. Say who the app is in its own `app.config.ts` (typed; a missing or misspelled field is a type error):
+The header, footer and About menu every frotz, Inc. app shares. Say who the app is in its own `app.config.ts` (typed; a missing or misspelled field is a type error):
 
 ```ts
 // app/app.config.ts
@@ -71,7 +71,7 @@ import changelog from '../../../CHANGELOG.md?raw'
 ```
 
 - **`AppHeader`**: the logo (`/logo.svg`, the app's) and name linking to `homeHref`, the `#context` and `#actions` slots, the About menu, the color-mode switch.
-- **`AppFooter`**: frotz, inc. (`/frotzinc-mark.svg`), Changelog, GitHub, npm, and the version.
+- **`AppFooter`**: frotz, Inc. (`/frotzinc-mark.svg`), Changelog, GitHub, npm, and the version.
 - **`AboutMenu`** and **`AboutDialogs`**: About (versions and licences), What's new, Report a problem, Suggest a feature (they open GitHub's issue form filled in; nothing is sent), Check for updates, Source.
 - The versions come from `runtimeConfig.public.about` (`{ version, commit, date, packages }`), which the app builds with `netlify/version` below.
 - The report forms expect `.github/ISSUE_TEMPLATE/bug.yml` and `idea.yml` in the app's repository, and a `SECURITY.md`.
@@ -89,4 +89,4 @@ Plain Node ES modules, run from your own `postgenerate` scripts:
 | `netlify/version` | `packageVersion(pkgJson)` and `buildCommit(cwd)` give the version and the commit's short hash and date, for an About panel. |
 | `netlify/redirects` | `parseRedirects`, `readRedirects`, `scriptProxies` and `externalRules`, for writing tests against a `_redirects` file. |
 
-`nuxt`, `@nuxt/ui` and `vue` are peer dependencies. MIT. From [frotz, inc.](https://frotzinc.com).
+`nuxt`, `@nuxt/ui` and `vue` are peer dependencies. MIT. From [frotz, Inc.](https://frotzinc.com).

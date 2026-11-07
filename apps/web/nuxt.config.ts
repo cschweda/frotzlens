@@ -42,13 +42,13 @@ const jsonLd = {
   license: 'https://spdx.org/licenses/GPL-3.0-or-later.html',
   codeRepository: site.repoUrl,
   author: { '@type': 'Person', name: 'Christopher Schweda' },
-  publisher: { '@type': 'Organization', name: 'frotz, inc.', url: site.familyUrl },
+  publisher: { '@type': 'Organization', name: 'frotz, Inc.', url: site.familyUrl },
 }
 
 export default defineNuxtConfig({
   compatibilityDate: '2025-06-01',
 
-  // The shared frotz, inc. layer: ssr:false (a pure client-side, static site), dark-default color
+  // The shared frotz, Inc. layer: ssr:false (a pure client-side, static site), dark-default color
   // mode, the Nuxt UI color roles, safe-storage/slug/shortcut, and the build:manifest hook.
   extends: ['@frotzinc/nuxt-base'],
   modules: ['@nuxt/ui'],

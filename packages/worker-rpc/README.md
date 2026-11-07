@@ -28,4 +28,4 @@ The worker replies with `{ requestId, result }` or `{ requestId, error }`; messa
 
 `@frotzinc/worker-rpc/testing` exports `makeWorkerSpy(behavior)`, a Vitest Worker mock (`reply-result`, `reply-error`, `error-event`, `messageerror-event`, `silent`).
 
-Extracted from [frotzsmith](https://frotzsmith.com). MIT. From [frotz, inc.](https://frotzinc.com).
+Extracted from [frotzsmith](https://frotzsmith.com). MIT. From [frotz, Inc.](https://frotzinc.com).

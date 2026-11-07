@@ -15,7 +15,7 @@ export interface Product {
   repoUrl: string
   /** The app's packages on npm, for the footer. */
   npmUrl: string
-  /** frotz, inc.'s home. */
+  /** frotz, Inc.'s home. */
   familyUrl: string
   /** The About dialog's licences, in order: what, its licence, and a link to the licence text. */
   licences: ProductLicence[]

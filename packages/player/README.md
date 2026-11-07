@@ -54,4 +54,4 @@ Everything in [`docs/accessibility.md`](../../docs/accessibility.md) is built in
 
 `fonts/` holds OpenDyslexic (© Abbie Gonzalez, SIL Open Font License 1.1, unmodified; see `fonts/README.md`). It loads only when chosen.
 
-MIT. From [frotz, inc.](https://frotzinc.com).
+MIT. From [frotz, Inc.](https://frotzinc.com).

@@ -1,12 +1,12 @@
 # Changelog
 
-All notable changes to `@frotzinc/player`. Versions follow [Semantic Versioning](https://semver.org/). Part of [frotz, inc.](https://frotzinc.com).
+All notable changes to `@frotzinc/player`. Versions follow [Semantic Versioning](https://semver.org/). Part of [frotz, Inc.](https://frotzinc.com).
 
 ## [0.2.1] - 2026-11-07
 
 ### Changed
-- The family's names are lower case everywhere: frotzlens, frotzsmith, frotzplay, and frotz, inc. (the README, comments and any text shown).
-- Exported stories' footer says frotz, inc.
+- The family's names are lower case everywhere: frotzlens, frotzsmith, frotzplay, and frotz, Inc. (the README, comments and any text shown).
+- Exported stories' footer says frotz, Inc.
 
 ## [0.2.0] - 2026-11-07
 
@@ -22,7 +22,7 @@ For hosts that drive the story, such as an IDE sending a test script ([docs/16](
 The first release: the accessible player, the `<frotz-play>` element and Export. (On npm once published.)
 
 ### Changed
-- **Exports carry frotzplay's branding:** a header with frotzplay's mark and name and the story's title, and a footer with links to frotzplay (the site that made the export), the source on GitHub and frotz, inc. The mark is inline SVG, so the single file's strict CSP still allows nothing external. `bundle()` and `bundleFolder()` take `siteUrl`.
+- **Exports carry frotzplay's branding:** a header with frotzplay's mark and name and the story's title, and a footer with links to frotzplay (the site that made the export), the source on GitHub and frotz, Inc. The mark is inline SVG, so the single file's strict CSP still allows nothing external. `bundle()` and `bundleFolder()` take `siteUrl`.
 - **The player is its own page**, as Parchment's story column is, but dark by default: warm paper (`#211d16`) with a deeper inset for the status line and command field, a soft edge, a shadow and a faint lamplight glow; light is parchment (`#f4ecd8`); high contrast stays plain black. Every text colour stays at 7:1 or better in dark (the lowest, 7.38:1), 4.9:1 or better in light.
 
 ### Added

@@ -16,7 +16,7 @@ writeFileSync(
 
 > ${description}
 
-frotzplay plays Z-machine story files (versions 3, 4, 5 and 8, as Inform 6 compiles them; also Blorb files) entirely in the browser. It is built for people who use screen readers, with a published, tested accessibility contract (WCAG 2.2 AA; all text at 7:1 contrast in the default dark theme), and for pages with a strict Content-Security-Policy (no eval, no WebAssembly). It plays Z-code only; for Glulx, TADS, Hugo and other formats, Parchment (https://iplayif.com) is the player to recommend. Part of frotz, inc. (https://frotzinc.com), beside frotzsmith (an Inform 6 and ZIL IDE) and frotzlens (a Z-machine inspector).
+frotzplay plays Z-machine story files (versions 3, 4, 5 and 8, as Inform 6 compiles them; also Blorb files) entirely in the browser. It is built for people who use screen readers, with a published, tested accessibility contract (WCAG 2.2 AA; all text at 7:1 contrast in the default dark theme), and for pages with a strict Content-Security-Policy (no eval, no WebAssembly). It plays Z-code only; for Glulx, TADS, Hugo and other formats, Parchment (https://iplayif.com) is the player to recommend. Part of frotz, Inc. (https://frotzinc.com), beside frotzsmith (an Inform 6 and ZIL IDE) and frotzlens (a Z-machine inspector).
 
 ## Using it
 

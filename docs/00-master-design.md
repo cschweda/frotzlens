@@ -3,7 +3,7 @@
 **Status:** Draft 1, 6 November 2026
 **Author:** Christopher Schweda
 **Companion:** `frotzlens-kickoff-prompt.md` (the imperative version of this document, pasted into Claude Code)
-**Repo:** `github.com/cschweda/frotzlens` · **Site:** [frotzlens.frotzinc.com](https://frotzlens.frotzinc.com) · **Family:** [frotz, inc.](https://frotzinc.com)
+**Repo:** `github.com/cschweda/frotzlens` · **Site:** [frotzlens.frotzinc.com](https://frotzlens.frotzinc.com) · **Family:** [frotz, Inc.](https://frotzinc.com)
 
 ---
 
@@ -174,7 +174,7 @@ Works to 400px. Data views scroll horizontally inside their own containers; the 
 
 ## 8. Licensing
 
-**Apps are GPL-3.0-or-later. Libraries are MIT.** This is [frotz, inc.](https://frotzinc.com) policy.
+**Apps are GPL-3.0-or-later. Libraries are MIT.** This is [frotz, Inc.](https://frotzinc.com) policy.
 
 frotzsmith is GPL because it bundles the GPLv3 ZILF compiler; frotzlens's app and CLI match it so the two can share code freely. Every `@frotzinc/*` package is MIT so that other people's tools — editor extensions, interpreters, archive bots — can depend on the parser without a license review. Two rules keep the line clean: dependencies point only from apps to libraries, and no library ever bundles GPL code. The Inform 6 compiler (Artistic 2.0), the Standard Library (Artistic 2.0), and PunyInform (MIT) are all fine to wrap in a library; ZILF stays in the frotzsmith app.
 
@@ -183,7 +183,7 @@ I hold copyright on all of it and can relicense my own code at any time; the pol
 ## 9. Branding and deployment
 
 - Icon: the amber rounded badge with a loupe over a row of bytes. Same badge shape as frotzsmith's hammer; the family rule is "same badge, different instrument."
-- Every page's footer: the frotz, inc. lantern mark + "From frotz, inc." → [frotzinc.com](https://frotzinc.com); GitHub and npm; "frotz, inc. is a fiction. The Frotz interpreter is the work of its own authors and is not affiliated."
+- Every page's footer: the frotz, Inc. lantern mark + "From frotz, Inc." → [frotzinc.com](https://frotzinc.com); GitHub and npm; "frotz, Inc. is a fiction. The Frotz interpreter is the work of its own authors and is not affiliated."
 - Social card 1200×630 in the house style (already made). Full OpenGraph/Twitter meta.
 - Canonical URL `https://frotzlens.frotzinc.com/` (the family's subdomain, decided 2026-11-06), as one config value (`apps/web/site.config.ts`).
 - Netlify, static, pnpm monorepo with base `apps/web`. I connect the repo in the Netlify UI; the kickoff prompt tells Claude it can't. **The site goes in Chris's personal Netlify account, not the ICJIA (work) team.**

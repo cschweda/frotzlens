@@ -11,7 +11,7 @@
 
 A browser-based disassembler and inspector for Z-machine story files. Drop a `.z3`, `.z4`, `.z5`, `.z8` or `.zblorb` into a tab and see what's inside: the header, the memory map, the object tree, the dictionary and grammar, every routine as cross-referenced disassembly, and every string. Everything runs in your browser; nothing is uploaded.
 
-It's the browser-native successor to Ztools' `txd` and `infodump`, with an Inform 6 focus, and the companion to [frotzsmith](https://frotzsmith.com), the browser IDE for Inform 6 and ZIL. Both are part of [frotz, inc.](https://frotzinc.com), home of the Frotz family of interactive-fiction tools.
+It's the browser-native successor to Ztools' `txd` and `infodump`, with an Inform 6 focus, and the companion to [frotzsmith](https://frotzsmith.com), the browser IDE for Inform 6 and ZIL. Both are part of [frotz, Inc.](https://frotzinc.com), home of the Frotz family of interactive-fiction tools.
 
 Then **play it**, in the same Parchment interpreter frotzsmith uses, walled off in a sandbox ([details](docs/07-play.md)). What changed, version by version: the [changelog](CHANGELOG.md), also under **About → What's new** on the site.
 
@@ -34,7 +34,7 @@ Then **play it**, in the same Parchment interpreter frotzsmith uses, walled off 
 | | |
 |---|---|
 | ![frotzplay's start page: the drop zone and four sample stories](docs/screenshots/frotzplay/start.png) **The start page.** Drop a story, choose a file, or try a sample. | ![The Dark Cellar playing on frotzplay, on its own warm dark page](docs/screenshots/frotzplay/site-playing.png) **Playing.** The story on its own page, dark by default, every piece of text at 7:1 contrast or better. |
-| ![The player's Settings: theme, font, text size and spacing, what the screen reader says, motion and timers](docs/screenshots/frotzplay/settings.png) **Settings.** Three themes, OpenDyslexic, text size and spacing, screen-reader verbosity, the story's timers off. | ![An exported story: frotzplay's header, the player, and links to frotzplay, GitHub and frotz, inc.](docs/screenshots/frotzplay/export.png) **Export.** One HTML file that plays from a double-click, or a folder for any web host. |
+| ![The player's Settings: theme, font, text size and spacing, what the screen reader says, motion and timers](docs/screenshots/frotzplay/settings.png) **Settings.** Three themes, OpenDyslexic, text size and spacing, screen-reader verbosity, the story's timers off. | ![An exported story: frotzplay's header, the player, and links to frotzplay, GitHub and frotz, Inc.](docs/screenshots/frotzplay/export.png) **Export.** One HTML file that plays from a double-click, or a folder for any web host. |
 | ![The same story on parchment, the light theme](docs/screenshots/frotzplay/play-light.png) **Light: parchment.** | ![The upper window shown as text, with a status row and a map](docs/screenshots/frotzplay/upper-window.png) **The upper window as text**, read aloud on demand. |
 
 ## Who it's for
@@ -101,7 +101,7 @@ The plan and its decisions are in [`docs/`](docs/), starting with [`00-master-de
 | [`@frotzinc/zcode`](packages/zcode) | MIT | The parser and disassembler: `Uint8Array` in, typed model out, plus `txd`- and `infodump`-format text, Blorb, debug symbols, fingerprinting, the room graph, ZIL grammar and the Inform 6 decompiler | [0.4.1](https://www.npmjs.com/package/@frotzinc/zcode) |
 | [`frotzlens`](packages/cli) | GPL-3.0-or-later | The CLI: `frotzlens game.z5`; also `--inform`, `--symbols`, `--info`, `--rooms`, `--json` | [0.3.1](https://www.npmjs.com/package/frotzlens) |
 | [`@frotzinc/worker-rpc`](packages/worker-rpc) | MIT | Long-lived Web Worker request/response client | [0.1.1](https://www.npmjs.com/package/@frotzinc/worker-rpc) |
-| [`@frotzinc/nuxt-base`](packages/nuxt-base) | MIT | Shared frotz, inc. Nuxt layer (with the family's header, footer and About menu) and Netlify tools | [0.2.1](https://www.npmjs.com/package/@frotzinc/nuxt-base) |
+| [`@frotzinc/nuxt-base`](packages/nuxt-base) | MIT | Shared frotz, Inc. Nuxt layer (with the family's header, footer and About menu) and Netlify tools | [0.2.1](https://www.npmjs.com/package/@frotzinc/nuxt-base) |
 | [`@frotzinc/inform6-wasm`](packages/inform6-wasm) | MIT (wrapper) | Inform 6.44 in WebAssembly, with the Standard Library and PunyInform | [0.1.1](https://www.npmjs.com/package/@frotzinc/inform6-wasm) |
 | [`@frotzinc/zmachine`](packages/zmachine) | MIT | A Z-machine interpreter (v3, 4, 5, 8): no `eval`, all state plain data, input supplied by the host. frotzplay's engine | [0.1.1](https://www.npmjs.com/package/@frotzinc/zmachine) |
 | [`@frotzinc/player`](packages/player) | MIT | frotzplay's accessible player as Vue components ([its contract](docs/accessibility.md)), the `<frotz-play>` web component, and Export | [0.2.1](https://www.npmjs.com/package/@frotzinc/player) |
@@ -152,4 +152,4 @@ Each `@frotzinc/*` package, and the `frotzlens` CLI, is released on its own, fro
 
 The script never commits, tags or pushes.
 
-From [frotz, inc.](https://frotzinc.com) — frotz, inc. is a fiction. The Frotz interpreter is the work of its own authors and is not affiliated.
+From [frotz, Inc.](https://frotzinc.com) — frotz, Inc. is a fiction. The Frotz interpreter is the work of its own authors and is not affiliated.

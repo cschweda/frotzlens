@@ -25,7 +25,7 @@ You are the lead engineer on **frotzlens**, a browser-based disassembler and ins
 
 Drop a `.z3`/`.z4`/`.z5`/`.z8` or `.zblorb` file into a browser tab and get a navigable, visual model of everything inside it: header, memory map, abbreviations, dictionary, object tree with attributes and properties, globals, grammar table, every routine as cross-referenced disassembly, and the string table. When given Inform 6's `gameinfo.dbg` debug file alongside the story, every address becomes symbolic (routine names, object names, property names, source line references).
 
-It is the browser-native successor to `txd` and `infodump` from the Ztools suite, with an Inform 6 focus. Everything runs client-side. Nothing is uploaded. It is the companion product to **frotzsmith** (frotzsmith.com, repo `cschweda/frotzsmith`), a browser IDE for Inform 6 and ZIL, and part of the **frotz, inc.** family ([frotzinc.com](https://frotzinc.com)).
+It is the browser-native successor to `txd` and `infodump` from the Ztools suite, with an Inform 6 focus. Everything runs client-side. Nothing is uploaded. It is the companion product to **frotzsmith** (frotzsmith.com, repo `cschweda/frotzsmith`), a browser IDE for Inform 6 and ZIL, and part of the **frotz, Inc.** family ([frotzinc.com](https://frotzinc.com)).
 
 **Audience:** Inform 6 authors inspecting their own builds; IF archivists and reviewers poking at 1980s story files; people who lost their source. They are technical but not necessarily compiler people. The UI must make a binary file *legible*, not just dump it.
 
@@ -33,7 +33,7 @@ It is the browser-native successor to `txd` and `infodump` from the Ztools suite
 
 ## Licensing (settled)
 
-**Apps are GPL-3.0-or-later. Libraries are MIT.** This is frotz, inc. policy across every product.
+**Apps are GPL-3.0-or-later. Libraries are MIT.** This is frotz, Inc. policy across every product.
 
 - `apps/web` and `packages/cli` (the `frotzlens` npm package, an app) → **GPL-3.0-or-later**. frotzsmith is GPL because it bundles the GPLv3 ZILF compiler; frotzlens matches it so the two apps can share code freely.
 - Every `@frotzinc/*` package → **MIT**. These are infrastructure for other people's tools and must be usable without a license review.
@@ -48,7 +48,7 @@ It is the browser-native successor to `txd` and `infodump` from the Ztools suite
 - **Monorepo:**
   - `packages/zcode` — `@frotzinc/zcode` (MIT): parser, disassembler, symbol loader. Pure TypeScript, zero DOM, zero Nuxt. `Uint8Array` in, typed model out. This is the asset; the app is a consumer.
   - `packages/worker-rpc` — `@frotzinc/worker-rpc` (MIT): extracted from frotzsmith's `app/composables/worker-rpc.ts` and its tests. Long-lived worker, request IDs, timeouts, dead-worker recovery.
-  - `packages/nuxt-base` — `@frotzinc/nuxt-base` (MIT): the shared frotz, inc. look and deploy kit, extracted from frotzsmith: `main.css` (the `--frotz-amber` token, `.frotz-glow`, `.frotz-grid`, the reduced-motion block), color tokens for Nuxt UI, a base `nuxt.config` fragment (`ssr: false`, color mode defaulting to dark, preload hints; PWA as an opt-in), `safe-storage.ts`, `shortcut.ts`, `slug.ts`, and the **generic** Netlify tools: `inject-preloads.mjs`, `check-sw.mjs`, `version.mjs`, and a parameterized `redirects` test. **Leave behind** anything frotzsmith-specific: `vendored-files.json` and its test, `supply-chain.test.ts`, `netlify-headers.test.ts` (they encode frotzsmith's Parchment hashes and its `netlify.toml`). Do not generalize them in Phase 0. `nuxt`, `@nuxt/ui`, and `vue` are **peerDependencies**, never dependencies.
+  - `packages/nuxt-base` — `@frotzinc/nuxt-base` (MIT): the shared frotz, Inc. look and deploy kit, extracted from frotzsmith: `main.css` (the `--frotz-amber` token, `.frotz-glow`, `.frotz-grid`, the reduced-motion block), color tokens for Nuxt UI, a base `nuxt.config` fragment (`ssr: false`, color mode defaulting to dark, preload hints; PWA as an opt-in), `safe-storage.ts`, `shortcut.ts`, `slug.ts`, and the **generic** Netlify tools: `inject-preloads.mjs`, `check-sw.mjs`, `version.mjs`, and a parameterized `redirects` test. **Leave behind** anything frotzsmith-specific: `vendored-files.json` and its test, `supply-chain.test.ts`, `netlify-headers.test.ts` (they encode frotzsmith's Parchment hashes and its `netlify.toml`). Do not generalize them in Phase 0. `nuxt`, `@nuxt/ui`, and `vue` are **peerDependencies**, never dependencies.
   - `packages/inform6-wasm` — `@frotzinc/inform6-wasm` (MIT wrapper; upstream Artistic 2.0): frotzsmith's pinned Inform 6.44 Emscripten build (`inform6.mjs`, `inform6.wasm`) with its README, **plus the library texts the compiler needs** — frotzsmith's `PROFILE_FILES` (Inform Standard Library, Artistic 2.0; PunyInform, MIT) from `app/modules/inform6/lib/`. Without them nothing that says `Include "Parser"` compiles. Expose `compile(source, { version, library: 'std' | 'puny', debug })` returning `{ story, dbg?, diagnostics }`; `debug: true` passes `-k` and reads `gameinfo.dbg` back out of Emscripten's virtual FS after the run.
   - `packages/cli` — `frotzlens` (GPL, unscoped, already reserved on npm as `0.0.1`): `npx frotzlens game.z5` prints a `txd`-style dump; `--strings`, `--objects`, `--dict`, `--routine 1b22`, `--json`. Wraps `@frotzinc/zcode`.
   - `apps/web` — the Nuxt app (GPL). Static (`nuxt generate`), deployed to Netlify. No server routes in v1; a user's story file never leaves their machine. If something later needs a server (shared links, heavy jobs), flag it and we'll use a DigitalOcean droplet, but default to "no server."
@@ -100,7 +100,7 @@ Dark mode by default, light mode via Nuxt UI color mode. Modern and sleek; the r
 ## Branding
 
 - Favicon and app icon: the amber rounded badge with a loupe over a row of bytes (I'll supply the SVG).
-- Footer on every page: the frotz, inc. lantern mark + "From frotz, inc." linking to [frotzinc.com](https://frotzinc.com), GitHub and npm links, and: "frotz, inc. is a fiction. The Frotz interpreter is the work of its own authors and is not affiliated."
+- Footer on every page: the frotz, Inc. lantern mark + "From frotz, Inc." linking to [frotzinc.com](https://frotzinc.com), GitHub and npm links, and: "frotz, Inc. is a fiction. The Frotz interpreter is the work of its own authors and is not affiliated."
 - `og:image` 1200×630 (I'll supply), full OpenGraph/Twitter meta, canonical URL `https://frotzlens.com/` (may later become `frotzlens.frotzinc.com`; keep it one config value).
 
 ## Phases

@@ -1,6 +1,6 @@
 /**
  * Report a problem and Suggest a feature (the About menu): the GitHub new-issue link, built from what
- * the person typed, as Drafter does it. A frotz, inc. app has no server and keeps no token, so it
+ * the person typed, as Drafter does it. A frotz, Inc. app has no server and keeps no token, so it
  * posts nothing: it opens GitHub's issue form with the text filled in, and the person reviews it and
  * submits it there. A story file never goes in, only what they choose to write about it.
  *

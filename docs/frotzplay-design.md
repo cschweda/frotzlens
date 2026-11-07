@@ -3,7 +3,7 @@
 **Status:** Draft 2, 7 November 2026 (review fixes: oracle limits, RNG, CSP scope, contract corrections)
 **Author:** Christopher Schweda
 **Companion:** `frotzplay-kickoff-prompt.md`
-**Lives in:** the `cschweda/frotzlens` monorepo, as `packages/zmachine`, `packages/player`, `apps/play` · **Site:** frotzplay.frotzinc.com · **Family:** frotz, inc.
+**Lives in:** the `cschweda/frotzlens` monorepo, as `packages/zmachine`, `packages/player`, `apps/play` · **Site:** frotzplay.frotzinc.com · **Family:** frotz, Inc.
 
 ---
 
@@ -65,7 +65,7 @@ Because this is a sibling, not a rival, the credit is designed in:
 2. **No `eval`, ever.** The whole reason it can go where Parchment can't.
 3. **Independent, and honest about it.** The Standard is the specification. Other interpreters may be read for understanding; anything copied is attributed per its license, and nothing GPL enters an MIT package. ZVM is the test oracle through frotzsmith's `runReplay`; it is not shipped.
 4. **Z-code only.** See §4.
-5. **The family look.** Dark by default, the `@frotzinc/nuxt-base` tokens, the frotzlens shell. All frotz, inc. apps share one look and feel.
+5. **The family look.** Dark by default, the `@frotzinc/nuxt-base` tokens, the frotzlens shell. All frotz, Inc. apps share one look and feel.
 6. **Nothing leaves the machine.** No upload, no analytics on play, saves local.
 7. **Generous about Parchment.** §3.
 
@@ -192,7 +192,7 @@ This is a deliberate choice against the Standard 1.1 §2.4 *recommendation* (a p
 
 ## 10. Licensing
 
-frotz, inc. policy: apps GPL-3.0-or-later, libraries MIT. `@frotzinc/zmachine` and `@frotzinc/player` are MIT, which is deliberate: an embeddable player under GPL would keep most sites from using it. `apps/play` is GPL. Because the libraries are MIT, no code from GPL interpreters (Frotz, and anything derived from it) may be used in them; Parchment and ZVM are MIT and may be learned from, with attribution for anything copied. ZVM is a test-only oracle through frotzsmith's engine and ships in nothing.
+frotz, Inc. policy: apps GPL-3.0-or-later, libraries MIT. `@frotzinc/zmachine` and `@frotzinc/player` are MIT, which is deliberate: an embeddable player under GPL would keep most sites from using it. `apps/play` is GPL. Because the libraries are MIT, no code from GPL interpreters (Frotz, and anything derived from it) may be used in them; Parchment and ZVM are MIT and may be learned from, with attribution for anything copied. ZVM is a test-only oracle through frotzsmith's engine and ships in nothing.
 
 ## 11. Branding and deployment
 

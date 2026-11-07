@@ -44,7 +44,7 @@ export const jsonLd = {
   accessibilitySummary:
     'Built for screen readers: one announcement per turn, the status line announced only when it changes, verbosity settings, timed input that can be paused, everything operable from the keyboard. Designed to meet WCAG 2.2 AA, with a published, tested accessibility contract.',
   author: { '@type': 'Person', name: 'Christopher Schweda' },
-  publisher: { '@type': 'Organization', name: 'frotz, inc.', url: site.familyUrl },
+  publisher: { '@type': 'Organization', name: 'frotz, Inc.', url: site.familyUrl },
 }
 
 export const seoHead: AppHeadMetaObject = {

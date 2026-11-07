@@ -7,7 +7,7 @@
 [![WCAG 2.2 AA](https://img.shields.io/badge/WCAG-2.2%20AA%20(target)-0b7285.svg)](../../docs/frotzplay-design.md#6-the-accessibility-contract)
 [![Status](https://img.shields.io/badge/status-v0.1.0-brightgreen.svg)](./CHANGELOG.md)
 
-A Z-machine player for the web, built for two things: **people who use screen readers**, and **pages with a strict Content-Security-Policy**. It plays version 3, 4, 5 and 8 story files, bare or in a Blorb, in the browser, with nothing uploaded. It's live at **[frotzplay.frotzinc.com](https://frotzplay.frotzinc.com)**. Part of [frotz, inc.](https://frotzinc.com), beside [frotzsmith](https://frotzsmith.com) and [frotzlens](https://frotzlens.frotzinc.com).
+A Z-machine player for the web, built for two things: **people who use screen readers**, and **pages with a strict Content-Security-Policy**. It plays version 3, 4, 5 and 8 story files, bare or in a Blorb, in the browser, with nothing uploaded. It's live at **[frotzplay.frotzinc.com](https://frotzplay.frotzinc.com)**. Part of [frotz, Inc.](https://frotzinc.com), beside [frotzsmith](https://frotzsmith.com) and [frotzlens](https://frotzlens.frotzinc.com).
 
 > **Status: in development.** The interpreter ([Phases 1](../../docs/11-frotzplay-phase-1-interpreter.md)–[2](../../docs/12-frotzplay-phase-2-state.md)), the player ([Phase 3](../../docs/13-frotzplay-phase-3-player.md)) and this site ([Phase 4](../../docs/14-frotzplay-phase-4-site.md)) are built and tested; it goes live when its Netlify site is connected. Built in this monorepo: the interpreter in [`packages/zmachine`](../../packages/zmachine), the player in `packages/player`, this app in `apps/play`.
 
@@ -60,7 +60,7 @@ frotzplay is a sibling of [Parchment](https://github.com/curiousdannii/parchment
 | ![The same story in the light theme](../../docs/screenshots/frotzplay/play-light.png) **Light.** | ![The same story in the high-contrast theme, white on black](../../docs/screenshots/frotzplay/play-high-contrast.png) **High contrast.** |
 | ![A story using the upper window: a status row and a two-line map above the story](../../docs/screenshots/frotzplay/upper-window.png) **The upper window as text**, with *Read upper window*. | ![The keyboard shortcuts dialog: every shortcut, changeable or off](../../docs/screenshots/frotzplay/shortcuts.png) **Keyboard shortcuts**, each changeable or off. |
 
-| ![An exported story: frotzplay's header, the player, and a footer linking to frotzplay, GitHub and frotz, inc.](../../docs/screenshots/frotzplay/export.png) **Export**: one HTML file that plays from a double-click, with frotzplay's branding. | ![The player at 390 pixels wide](../../docs/screenshots/frotzplay/phone.png) **On a phone.** |
+| ![An exported story: frotzplay's header, the player, and a footer linking to frotzplay, GitHub and frotz, Inc.](../../docs/screenshots/frotzplay/export.png) **Export**: one HTML file that plays from a double-click, with frotzplay's branding. | ![The player at 390 pixels wide](../../docs/screenshots/frotzplay/phone.png) **On a phone.** |
 
 The interpreter also plays from a terminal (`zmachine-run`):
 
@@ -119,4 +119,4 @@ A static Nuxt site on Netlify at frotzplay.frotzinc.com: a second Netlify site o
 
 ## Licensing
 
-frotz, inc. policy: apps GPL-3.0-or-later, libraries MIT. This app is GPL-3.0-or-later ([`LICENSE`](../../LICENSE)). The libraries, `@frotzinc/zmachine` and `@frotzinc/player`, are MIT and carry their own `LICENSE`, so any site can embed the player. No code from GPL interpreters goes into them.
+frotz, Inc. policy: apps GPL-3.0-or-later, libraries MIT. This app is GPL-3.0-or-later ([`LICENSE`](../../LICENSE)). The libraries, `@frotzinc/zmachine` and `@frotzinc/player`, are MIT and carry their own `LICENSE`, so any site can embed the player. No code from GPL interpreters goes into them.

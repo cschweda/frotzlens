@@ -1,11 +1,11 @@
 # Changelog
 
-All notable changes to frotzplay: the web player at frotzplay.frotzinc.com, and this repository. Versions follow [Semantic Versioning](https://semver.org/). Part of [frotz, inc.](https://frotzinc.com).
+All notable changes to frotzplay: the web player at frotzplay.frotzinc.com, and this repository. Versions follow [Semantic Versioning](https://semver.org/). Part of [frotz, Inc.](https://frotzinc.com).
 
 ## [0.1.5] - 2026-11-07
 
 ### Changed
-- The family's names are lower case everywhere: frotzlens, frotzsmith, frotzplay, and frotz, inc. (the README, comments and any text shown).
+- The family's names are lower case everywhere: frotzlens, frotzsmith, frotzplay, and frotz, Inc. (the README, comments and any text shown).
 - Its og:image needed no change (it already said frotzplay).
 
 ## [0.1.4] - 2026-11-07
@@ -40,7 +40,7 @@ All notable changes to frotzplay: the web player at frotzplay.frotzinc.com, and 
 The first release of frotzplay, live at [frotzplay.netlify.app](https://frotzplay.netlify.app) (and frotzplay.frotzinc.com once its DNS is set).
 
 ### Changed
-- Exported stories carry frotzplay's branding: the mark, the name, and links back to frotzplay, its source on GitHub and frotz, inc.
+- Exported stories carry frotzplay's branding: the mark, the name, and links back to frotzplay, its source on GitHub and frotz, Inc.
 - The story plays on its own page: warm dark paper, like Parchment's story column but dark by default; parchment in the light theme.
 - The web app manifest is served as `application/manifest+json`.
 

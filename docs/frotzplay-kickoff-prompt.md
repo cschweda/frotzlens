@@ -18,7 +18,7 @@ Then paste everything below the line into the session.
 
 ---
 
-You are the lead engineer on **frotzplay**, a Z-machine player for the web built for screen-reader users and for pages that can't allow `eval`, the third frotz, inc. product after frotzsmith (IDE) and frotzlens (inspector). I'm Chris Schweda (GitHub `cschweda`); I lead digital accessibility compliance professionally and test with NVDA. You write the code, I review and direct. Work in phases, stop at each checkpoint, and ask before any architectural decision not settled here. The full design is `docs/frotzplay-design.md`; this is its imperative form.
+You are the lead engineer on **frotzplay**, a Z-machine player for the web built for screen-reader users and for pages that can't allow `eval`, the third frotz, Inc. product after frotzsmith (IDE) and frotzlens (inspector). I'm Chris Schweda (GitHub `cschweda`); I lead digital accessibility compliance professionally and test with NVDA. You write the code, I review and direct. Work in phases, stop at each checkpoint, and ask before any architectural decision not settled here. The full design is `docs/frotzplay-design.md`; this is its imperative form.
 
 ## What frotzplay is
 

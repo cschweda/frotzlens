@@ -52,7 +52,7 @@ async function sha256(text: string): Promise<string> {
 
 /**
  * The page around the player: frotzplay's header (mark, name, the story's title) and a footer with
- * links to frotzplay, its source and frotz, inc. Contrast in the family's dark palette: text 14.25:1,
+ * links to frotzplay, its source and frotz, Inc. Contrast in the family's dark palette: text 14.25:1,
  * quieter text 8.32:1, links (amber) 9.32:1.
  */
 const PAGE_CSS = [
@@ -90,7 +90,7 @@ ${element(o)}
 <ul>
 <li><a href="${escapeHtml(site)}">frotzplay</a></li>
 <li><a href="${REPO_URL}">Source on GitHub</a></li>
-<li><a href="${FAMILY_URL}">From frotz, inc.</a></li>
+<li><a href="${FAMILY_URL}">From frotz, Inc.</a></li>
 </ul>
 </nav>
 </footer>`
