@@ -11,7 +11,7 @@ export const DECOMPILER_STEPS: { id: string; title: string; detail: string; stat
   { id: '6b', title: 'Expressions', detail: 'The stack followed through each routine, so pushes and pulls become expressions, calls and prints.', state: 'planned' },
   { id: '6c', title: 'Control flow', detail: 'if, while, for and switch rebuilt from the branches; a jump only where nothing fits.', state: 'planned' },
   { id: '6d', title: 'Idioms and names', detail: 'obj.prop(), ofclass and the rest turned back from veneer calls; the source’s names from a debug file, or names made up from the story.', state: 'planned' },
-  { id: '6e', title: 'In the app', detail: 'Download .inf, and this view polished, per routine and for the whole game (it shows the source from 6c); and frotzlens --inform in the CLI.', state: 'planned' },
+  { id: '6e', title: 'In the app', detail: 'A Download .inf button; this view finished, for one routine or the whole game (it starts showing source at 6c); and frotzlens --inform in the CLI.', state: 'planned' },
 ]
 
 export const STEP_LABEL: Record<StepState, string> = { done: 'Done', working: 'In progress', planned: 'Planned' }
