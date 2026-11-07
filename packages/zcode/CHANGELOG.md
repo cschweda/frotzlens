@@ -4,7 +4,7 @@ All notable changes to `@frotzinc/zcode`. Versions follow [Semantic Versioning](
 
 ## [Unreleased]
 
-- `decompileInform(story, { symbols })`: an Inform story back to Inform 6 source (Phase 6a, with a debug file). The library as `Include`s; the game's constants, globals, arrays, attributes, properties, classes (read from the prototype Inform keeps after each class object), objects and grammar (`Verb`, `Extend`, synonyms) as Inform declares them; routines as Inform assembly with names for what they refer to. Every debug fixture recompiles to an equivalent story, 11 of 12 to the same bytes (`test/decompile.test.ts`).
+- `decompileInform(story, { symbols })`: an Inform story back to Inform 6 source (Phase 6a, with a debug file). The library as `Include`s; the game's constants, globals, arrays, attributes, properties, classes (read from the prototype Inform keeps after each class object), objects and grammar (`Verb`, `Extend`, synonyms) as Inform declares them; routines as Inform assembly with names for what they refer to. Every debug fixture (all version 5) recompiles to an equivalent story, 11 of 12 to the same bytes after the header (`test/decompile.test.ts`).
 - `readSymbols` keeps every declaration's place in the source (`symbols.declarations`, and `position` in a location).
 
 ## [0.2.0] - 2026-11-07

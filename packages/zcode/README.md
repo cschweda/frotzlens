@@ -41,7 +41,7 @@ import { parseStory, readSymbols, decompileInform } from '@frotzinc/zcode'
 const { source, problems } = decompileInform(parseStory(bytes), { symbols: readSymbols(gameinfoDbg) })
 ```
 
-Turns an Inform-compiled story back into one `.inf` (Phase 6, [design](../../docs/09-decompiler.md)). So far: with the story's debug file, the library left out as `Include`s, the game's declarations, classes, objects and grammar as Inform writes them, and its routines as Inform assembly. Every debug fixture recompiles to an equivalent story, and all but one to the same bytes.
+Turns an Inform-compiled story back into one `.inf` (Phase 6, [design](../../docs/09-decompiler.md)). So far: with the story's debug file, the library left out as `Include`s, the game's declarations, classes, objects and grammar as Inform writes them, and its routines as Inform assembly. Every debug fixture (all version 5 so far) recompiles to an equivalent story, and all but one to the same bytes after the header.
 
 ## infodump-format text
 

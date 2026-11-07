@@ -19,7 +19,9 @@ export interface GrammarNames {
 function tokenText(story: StoryFile, t: GrammarToken, n: GrammarNames): string | undefined {
   const g = story.grammar!
   const routine = (packedOrIndex: number) => {
-    // GV1 and GV3 tokens hold an index into the parsing-routine table; GV2's, a packed address.
+    // GV1 tokens hold an index into the parsing-routine table, GV2's a packed address. GV3's
+    // (PunyInform's compact grammar) aren't read yet: zcode finds no table for them, so the line
+    // can't be written, and the decompiler leaves it out and says so.
     const address = g.version === 2 ? undefined : g.parsingRoutines[packedOrIndex]
     if (address !== undefined) return n.routine(address)
     if (g.version !== 2) return undefined

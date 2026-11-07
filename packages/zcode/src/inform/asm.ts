@@ -31,7 +31,7 @@ const VARIABLE_REFERENCE = new Set(['INC', 'DEC', 'INC_CHK', 'DEC_CHK', 'STORE',
 
 /** The Standard's names where Inform's assembler spells them differently. */
 function opcodeName(i: Instruction, version: Version): string {
-  if (i.name === 'READ') return version <= 3 ? 'sread' : 'aread'
+  if (i.name === 'READ') return version <= 4 ? 'sread' : 'aread' // v5's stores a result; v1-4's doesn't
   if (i.name === 'CALL') return 'call_vs'
   return i.name.toLowerCase()
 }

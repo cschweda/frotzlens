@@ -12,7 +12,7 @@ export interface SourceLocation {
   file: number
   line: number
   character: number
-  /** The character offset in the file, which orders declarations within it. */
+  /** The byte offset in the file (Inform's file-position), which orders declarations within it. */
   position?: number
   endLine?: number
 }
@@ -224,7 +224,8 @@ export function readSymbols(xml: string): Symbols {
         }
         if (el.name === 'object') s.objects[value] = name
         else if (el.name === 'property') {
-          if (child(el, 'identifier')?.attrs.artificial !== 'true') s.properties[value] = name
+          if (child(el, 'identifier')?.attrs.artificial === 'true') break // made up by the compiler, never declared
+          s.properties[value] = name
         } else if (el.name === 'attribute') s.attributes[value] = name
         else if (el.name === 'constant') s.constants[name] = value
         else s.actions[value] = name.replace(/^##/, '')

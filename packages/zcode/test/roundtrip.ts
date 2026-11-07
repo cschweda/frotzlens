@@ -126,14 +126,18 @@ export async function roundTrip(bytes: Uint8Array, dbg: string): Promise<RoundTr
   const out = await compile(source, { version: `z${story.header.version}` as 'z5', library, debug: true })
   const errors = out.diagnostics.filter(d => d.severity !== 'warning').map(d => `${d.line}: ${d.message}`)
   const result: RoundTrip = { source, problems, compiled: !!out.story && out.ok, errors, identical: false, parts: {} }
-  if (!out.story || !out.dbg) return result
+  if (!out.story) return result
+  if (!out.dbg) {
+    result.errors.push('The compiler wrote no debug file, so the stories can\'t be compared.')
+    return result
+  }
   const b = out.story
   result.identical = bytes.length === b.length && bytes.subarray(0x40).every((x, i) => x === b[0x40 + i])
   const A = canon(story, symbols)
   const B = canon(parseStory(b), readSymbols(out.dbg))
   for (const part of Object.keys(A) as (keyof typeof A)[]) {
     const { same, differences } = comparePart(A[part], B[part])
-    result.parts[part] = { result: result.identical ? 'identical' : same ? 'equivalent' : 'different', differences }
+    result.parts[part] = { result: !same ? 'different' : result.identical ? 'identical' : 'equivalent', differences }
   }
   return result
 }

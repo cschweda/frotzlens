@@ -1,6 +1,6 @@
 // Phase 6a's proof: every debug fixture decompiles to Inform 6 that compiles again, to a story
 // equivalent to the original part by part (docs/09-decompiler.md §4), and most to the same bytes.
-import { readFileSync } from 'node:fs'
+import { existsSync, readFileSync } from 'node:fs'
 import { describe, expect, it } from 'vitest'
 import { FIXTURES_DIR, storyFiles } from './fixtures.js'
 import { roundTrip } from './roundtrip.js'
@@ -13,16 +13,11 @@ import { roundTrip } from './roundtrip.js'
  */
 const NOT_IDENTICAL = new Set(['mingus-1.z5'])
 
-const withSymbols = storyFiles().filter(f => {
-  try {
-    readFileSync(FIXTURES_DIR + f.replace(/\.z\d$/, '.dbg'))
-    return true
-  } catch {
-    return false
-  }
-})
+const withSymbols = storyFiles().filter(f => existsSync(FIXTURES_DIR + f.replace(/\.z\d$/, '.dbg')))
 
 describe('decompiling to Inform 6 (6a)', () => {
+  it('has every debug fixture to check', () => expect(withSymbols).toHaveLength(12))
+
   for (const file of withSymbols) {
     it(`${file} recompiles to an equivalent story`, async () => {
       const r = await roundTrip(new Uint8Array(readFileSync(FIXTURES_DIR + file)), readFileSync(FIXTURES_DIR + file.replace(/\.z\d$/, '.dbg'), 'utf8'))

@@ -34,6 +34,11 @@ const NESTED: Record<string, string> = {
   version: 'parser', infglk: 'parser', linklpa: 'parser', english: 'parser', infix: 'grammar',
   'messages.h': 'puny.h', 'grammar.h': 'puny.h', 'scope.h': 'puny.h', 'parser.h': 'puny.h',
 }
+/** The files of each library (and the extensions inform6-wasm has), as Include names them: only these become Includes. */
+const LIBRARY_FILES = {
+  std: new Set(['parser', 'verblib', 'grammar', 'version', 'infglk', 'linklpa', 'english', 'infix', 'exits']),
+  puny: new Set(['globals.h', 'puny.h', 'messages.h', 'grammar.h', 'scope.h', 'parser.h', 'ext_cheap_scenery.h', 'ext_flags.h', 'ext_menu.h', 'ext_quote_box.h', 'ext_talk_menu.h', 'ext_waittime.h']),
+}
 /** Routines the compiler always writes itself. */
 const COMPILER_ROUTINES = new Set(['Main__', 'Symb__Tab'])
 /** The library's globals that hold an action: what an object's before routine switches on, and the action. */
@@ -407,9 +412,16 @@ export function decompileInform(story: StoryFile, opts: DecompileOptions): Decom
     const p = sources.findIndex(s => s.toLowerCase() === parent)
     return p >= 0 ? (sources[p] ?? parent) : parent
   }
+  // Only a library's own files become Includes; anything else the story included (the game's own
+  // files, an extension this compiler doesn't have) is written out here, as the game's.
+  const known = libraryId ? LIBRARY_FILES[libraryId] : new Set<string>()
+  const isLibraryFile = (file: number) => file !== MAIN_FILE && known.has((sources[file] ?? '').toLowerCase().replace(/^.*[\\/]/, '').replace(/\.(h|inf)$/, libraryId === 'puny' ? '.h' : ''))
+  for (const f of new Set(sym.declarations.map(d => d.location.file))) {
+    if (f !== MAIN_FILE && !isLibraryFile(f)) problems.push(`"${sources[f] ?? `file ${f}`}" isn't a file of the library this compiler has, so what it declared is written out as the game's.`)
+  }
   const decls = sym.declarations
-  const game = decls.filter(d => d.location.file === MAIN_FILE)
-  const library = decls.filter(d => d.location.file !== MAIN_FILE)
+  const game = decls.filter(d => !isLibraryFile(d.location.file))
+  const library = decls.filter(d => isLibraryFile(d.location.file))
   /** Each top-level include, in the order the compiler read them, with its declarations' keys by kind. */
   const blocks: { name: string; first: number; min: Record<string, number> }[] = []
   for (const d of library) {
@@ -426,7 +438,8 @@ export function decompileInform(story: StoryFile, opts: DecompileOptions): Decom
   blocks.sort((a, b) => a.first - b.first)
 
   // The game's declarations in source order, each turned into text.
-  game.sort((a, b) => (a.location.position ?? a.location.line * 1000) - (b.location.position ?? b.location.line * 1000))
+  // (Declarations from another file come where that file's first one would; within a file, in order.)
+  game.sort((a, b) => a.location.file - b.location.file || (a.location.position ?? a.location.line * 1000) - (b.location.position ?? b.location.line * 1000))
   const items: Item[] = []
   const declaredHere = new Set<string>()
   for (const d of game) {
@@ -516,15 +529,23 @@ export function decompileInform(story: StoryFile, opts: DecompileOptions): Decom
   const libVerbNumbers: number[] = []
   const gameVerbs: { number: number; text: string[] }[] = []
   const linesText = (lines: string[]) => lines.map((l, i) => `    ${l}${i === lines.length - 1 ? ';' : ''}`)
+  /** A directive and its lines; with none, the directive ends at once (a verb the game emptied). */
+  const directive = (head: string, lines: string[]) => (lines.length ? [head, ...linesText(lines)] : [`${head};`])
+  /** Lines that can't be written (a token the grammar reader can't name) are left out, and said. */
+  const writable = (verb: string, lines: string[]) => {
+    const bad = lines.filter(l => l === '?').length
+    if (bad) problems.push(`${bad} grammar line${bad === 1 ? '' : 's'} of '${verb}' ha${bad === 1 ? 's' : 've'} a token that can't be written yet (PunyInform's compact grammar keeps routine tokens in a way not read yet); left out.`)
+    return lines.filter(l => l !== '?')
+  }
   const words = (ws: string[]) => ws.map(w => informWord(w)).join(' ')
   for (const verb of story.grammar?.verbs ?? []) {
     const lines = verb.lines.map(l => informLine(story, l, grammarNames) ?? '?')
-    if (lines.includes('?') && !lib) problems.push(`A line of the verb '${verb.words[0]}' has a token that can't be written.`)
     const match: LibraryVerb | undefined = lib?.verbs.find(lv => verb.words.some(w => lv.words.some(x => sameWord(w, x))))
     if (!match) {
       const meta = verb.words.some(w => story.dictionary.entries.find(e => e.word === w)?.inform?.meta)
-      if (!lines.length) continue
-      gameVerbs.push({ number: verb.number, text: [`Verb ${meta ? 'meta ' : ''}${words(verb.words)}`, ...linesText(lines)] })
+      const ok = writable(verb.words[0] ?? '', lines)
+      if (!ok.length) continue
+      gameVerbs.push({ number: verb.number, text: directive(`Verb ${meta ? 'meta ' : ''}${words(verb.words)}`, ok) })
       continue
     }
     libVerbNumbers.push(verb.number)
@@ -535,9 +556,9 @@ export function decompileInform(story: StoryFile, opts: DecompileOptions): Decom
     if (!same) {
       const startsWith = R.every((l, i) => lines[i] === l)
       const endsWith = R.every((l, i) => lines[lines.length - R.length + i] === l)
-      if (startsWith && lines.length > R.length) afterGrammar.push([`Extend ${informWord(anchor)}`, ...linesText(lines.slice(R.length))])
-      else if (endsWith && lines.length > R.length) afterGrammar.push([`Extend ${informWord(anchor)} first`, ...linesText(lines.slice(0, lines.length - R.length))])
-      else afterGrammar.push([`Extend ${informWord(anchor)} replace`, ...linesText(lines)])
+      if (startsWith && lines.length > R.length) afterGrammar.push(directive(`Extend ${informWord(anchor)}`, writable(anchor, lines.slice(R.length))))
+      else if (endsWith && lines.length > R.length) afterGrammar.push(directive(`Extend ${informWord(anchor)} first`, writable(anchor, lines.slice(0, lines.length - R.length))))
+      else afterGrammar.push(directive(`Extend ${informWord(anchor)} replace`, writable(anchor, lines)))
     }
     for (const w of added) afterGrammar.push([`Verb ${informWord(w)} = ${informWord(anchor)};`])
   }
