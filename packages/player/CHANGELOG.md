@@ -2,6 +2,15 @@
 
 All notable changes to `@frotzinc/player`. Versions follow [Semantic Versioning](https://semver.org/). Part of [Frotz, Inc.](https://frotzinc.com).
 
+## [0.2.0] - 2026-11-07
+
+For hosts that drive the story, such as an IDE sending a test script ([docs/16](../../docs/16-frotzsmith-on-frotzplay.md) §3).
+
+### Added
+- **`send(line)` and `press(key)`** on `ZPlayer` (exposed) and on `<frotz-play>` (methods): type a command or press a key as the player would. Each resolves when the turn is done, or `false` when the story isn't waiting for that kind of input. Their turns carry **`fed: true`**.
+- **`started`** (the story booted, or started again) and **`status`** (`{ left, right, sentence }`, when the status line changes) events, on both.
+- `restart()` on both; the **`theme`** attribute on `<frotz-play>`.
+
 ## [0.1.0] - 2026-11-07
 
 The first release: the accessible player, the `<frotz-play>` element and Export. (On npm once published.)

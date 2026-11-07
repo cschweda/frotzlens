@@ -7,6 +7,10 @@
  *
  * The host page supplies a <main> and a skip link (it can call `focusCommand()`), sets the page
  * title from `title` (or the `title` event), and serves the fonts folder at `fontBase`.
+ *
+ * A host that drives the story (an IDE's "send this script") calls `send(line)` and `press(key)`,
+ * which act as the player typing, and resolve when the turn is done. Their turns carry `fed: true`.
+ * `started` fires when the story boots (or starts again); `status` when the status line changes.
  */
 import { computed, onBeforeUnmount, onMounted, reactive, ref, useTemplateRef, watch } from 'vue'
 import { timedNotice, turnAnnouncement } from '../announce.js'
@@ -47,6 +51,8 @@ const emit = defineEmits<{
   quit: []
   save: [data: Uint8Array]
   error: [message: string]
+  started: []
+  status: [status: { left: string; right: string; sentence: string }]
 }>()
 
 const store = props.storage ?? (typeof localStorage !== 'undefined' ? safeStorage() : undefined)
@@ -309,8 +315,44 @@ function onKeydown(e: KeyboardEvent) {
 async function restart() {
   info.value = null
   error.value = null
-  await machine.start()
+  await boot()
   commandLine.value?.focus()
+}
+
+/** Start the story, and tell the host. */
+async function boot() {
+  lastStatus = ''
+  await machine.start()
+  emit('started')
+  emitStatus()
+}
+
+// The status line, to the host, when it changes.
+let lastStatus = ''
+function emitStatus() {
+  const { left, right, sentence } = s.status
+  const k = `${left}\u0000${right}`
+  if (k === lastStatus) return
+  lastStatus = k
+  emit('status', { left, right, sentence })
+}
+watch(() => [s.status.left, s.status.right], emitStatus)
+
+// ── the host's input (send, press) ────────────────────────────────────────
+/** Type a command as the player would. False when the story isn't waiting for a line. */
+async function hostSend(line: string): Promise<boolean> {
+  if (s.phase !== 'line') return false
+  error.value = null
+  await machine.submitLine(line, true)
+  return true
+}
+
+/** Press a key ("Enter", " ", or one character). False when the story isn't waiting for a key. */
+async function hostPress(key: string): Promise<boolean> {
+  if (s.phase !== 'char' || !key) return false
+  const code = key === 'Enter' ? 13 : key === 'Escape' ? 27 : key.charCodeAt(0)
+  await machine.pressKey(code, key === ' ' ? 'Space' : key, true)
+  return true
 }
 
 async function goBack() {
@@ -352,13 +394,20 @@ watch(settings, applySettings, { deep: true })
 
 onMounted(async () => {
   applySettings()
-  await machine.start()
+  await boot()
   commandLine.value?.focus()
   offerContinue()
 })
 onBeforeUnmount(clearTimer)
 
-defineExpose({ focusCommand: () => commandLine.value?.focus(), state: s, seed })
+defineExpose({
+  focusCommand: () => commandLine.value?.focus(),
+  state: s,
+  seed,
+  send: hostSend,
+  press: hostPress,
+  restart,
+})
 </script>
 
 <template>

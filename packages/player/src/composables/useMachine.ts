@@ -17,6 +17,8 @@ export interface TurnBlock {
   runs: StyledRun[]
   /** The turn's text, unstyled (for the announcer and the transcript export). */
   text: string
+  /** True when the host typed the command (`send()`), not the player. */
+  fed?: boolean
 }
 
 export type Phase = 'running' | 'line' | 'char' | 'save' | 'restore' | 'quit' | 'fault'
@@ -173,20 +175,22 @@ export function useMachine(story: Uint8Array, options: MachineOptions) {
     await go()
   }
 
-  async function submitLine(line: string) {
+  async function submitLine(line: string, fed = false) {
     if (state.phase !== 'line') return
     previous = machine.snapshot()
     state.script.push(line)
     begin('line', line)
+    if (fed) current!.fed = true
     machine.resume({ line })
     await go()
   }
 
-  async function pressKey(code: number, label: string) {
+  async function pressKey(code: number, label: string, fed = false) {
     if (state.phase !== 'char') return
     previous = machine.snapshot()
     state.script.push(code === 13 ? '[key]' : `[key ${String.fromCharCode(code)}]`)
     begin('key', label)
+    if (fed) current!.fed = true
     machine.resume({ char: code })
     await go()
   }

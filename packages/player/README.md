@@ -21,7 +21,9 @@ const story: Uint8Array = /* the story file's bytes */
 </template>
 ```
 
-**Props:** `story` (bytes), `title`, `seed` (random when not given), `fontBase` (where the `fonts/` folder is served, default `/fonts/`), `autosave` (default on), `storage`. **Events:** `turn`, `input-wanted`, `quit`, `save`, `error`. **Exposed:** `focusCommand()` (for the host's skip link), `state`, `seed`.
+**Props:** `story` (bytes), `title`, `seed` (random when not given), `fontBase` (where the `fonts/` folder is served, default `/fonts/`), `autosave` (default on), `storage`; `v-model:theme`. **Events:** `turn`, `input-wanted`, `quit`, `save`, `error`, `started` (the story booted, or started again), `status` (`{ left, right, sentence }`, when the status line changes). **Exposed:** `focusCommand()` (for the host's skip link), `state`, `seed`, `restart()`, and `send(line)` and `press(key)`.
+
+**A host that drives the story** (an IDE sending a test script, say) calls `send(line)` or `press(key)` (`'Enter'`, `' '` or one character). Each acts as the player typing and resolves when the turn is done. It resolves `false` when the story isn't waiting for that kind of input, so a script can press through a "press any key" first. Those turns carry `fed: true`, so a host can tell them from the player's own.
 
 **The host's part:** one `<main>` around it, a skip link that calls `focusCommand()`, a definite height, the page title from the story's title, and the `fonts/` folder served at `fontBase`.
 
@@ -34,7 +36,7 @@ One script, nothing else to host, and it embeds under `script-src 'self'; style-
 <frotz-play src="/stories/dark-cellar.z5" title="The Dark Cellar"></frotz-play>
 ```
 
-`dist/frotz-play.js` (also exported as `@frotzinc/player/frotz-play.js`). Attributes: `src`, `title`, `seed`, `font-base` (empty turns off OpenDyslexic), `autosave` (`off`). Property: `story` (bytes). Events: `turn`, `input-wanted`, `quit`, `save`, `error`. Give it a height.
+`dist/frotz-play.js` (also exported as `@frotzinc/player/frotz-play.js`). Attributes: `src`, `title`, `seed`, `font-base` (empty turns off OpenDyslexic), `autosave` (`off`), `theme` (`dark`, `light`, `high-contrast`). Property: `story` (bytes). Methods: `send(line)`, `press(key)`, `restart()`, `focusCommand()`. Events: `turn`, `input-wanted`, `quit`, `save`, `error`, `started`, `status` (as `CustomEvent`s, the values in `detail`). Give it a height.
 
 ## Export
 
