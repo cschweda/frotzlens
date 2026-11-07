@@ -59,7 +59,7 @@ function meanings(data: number[]): string[] {
       </div>
 
       <div v-if="object" class="order-1 flex min-w-0 flex-col gap-6 lg:order-2">
-        <dl class="grid grid-cols-[max-content_1fr] gap-x-6 gap-y-2 rounded-xl border border-default bg-muted p-5">
+        <dl class="grid grid-cols-[max-content_minmax(0,1fr)] [&_dd]:[overflow-wrap:anywhere] gap-x-6 gap-y-2 rounded-xl border border-default bg-muted p-5">
           <dt class="text-muted">Parent</dt>
           <dd><RefLink v-if="object.parent" :story="story" :id="`object:${object.parent}`" /><span v-else>—</span></dd>
           <dt class="text-muted">First child</dt>

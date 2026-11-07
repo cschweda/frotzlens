@@ -94,6 +94,7 @@ function skipToMain(e: MouseEvent) {
       </div>
       <AppFooter />
       <SearchPalette v-if="story" v-model:open="searching" :story="story" />
+      <AboutDialogs />
     </div>
   </UApp>
 </template>

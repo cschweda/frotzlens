@@ -1,6 +1,6 @@
 {
   "name": "frotzlens",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Inspect Z-machine story files from the terminal: the disassembly as Ztools' txd prints it, every infodump section, names from Inform's debug file, what made the story, its map, or the whole model as JSON. The CLI of Frotzlens.",
   "license": "GPL-3.0-or-later",
   "author": "Christopher Schweda",

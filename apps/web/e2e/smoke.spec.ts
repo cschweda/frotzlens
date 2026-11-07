@@ -21,6 +21,8 @@ function watchConsole(page: Page): string[] {
 }
 
 async function axe(page: Page, what: string) {
+  // Contrast is measured on the settled page, not mid-way through a dialog's fade-in.
+  await page.evaluate(() => document.getAnimations().forEach(a => a.finish()))
   const { violations } = await new AxeBuilder({ page }).withTags(WCAG).analyze()
   expect(violations.map(v => `${what}: ${v.id} (${v.nodes.map(n => n.target.join(' ')).slice(0, 3).join(' | ')})`)).toEqual([])
 }
@@ -176,6 +178,58 @@ test('play: the sample runs in the sandboxed player, and a command gets an answe
   expect(errors).toEqual([])
 })
 
+test('the About menu: versions and licences, the changelog, reports, updates', async ({ page }) => {
+  const errors = watchConsole(page)
+  await page.goto('/')
+  const menu = page.getByRole('button', { name: 'About', exact: true })
+
+  await menu.click()
+  await page.getByRole('menuitem', { name: 'About Frotzlens' }).click()
+  const about = page.getByRole('dialog', { name: 'About Frotzlens' })
+  await expect(about).toContainText(/Frotzlens\s*0\.\d+\.\d+/)
+  await expect(about).toContainText('@frotzinc/zcode')
+  await expect(about.getByRole('link', { name: 'GPL-3.0-or-later' })).toBeVisible()
+  await axe(page, 'about')
+  await page.keyboard.press('Escape')
+
+  // The footer's Changelog opens the changelog.
+  await page.getByRole('button', { name: 'Changelog' }).click()
+  const log = page.getByRole('dialog', { name: 'What’s new' })
+  await expect(log.getByRole('heading', { name: /0\.1\.0/ })).toBeVisible()
+  await axe(page, 'changelog')
+  await page.keyboard.press('Escape')
+
+  // A problem report opens GitHub's form, filled in; nothing is sent from the page.
+  await menu.click()
+  await page.getByRole('menuitem', { name: 'Report a problem…' }).click()
+  const report = page.getByRole('dialog', { name: 'Report a problem' })
+  await report.getByLabel('Title').fill('A title')
+  await report.getByLabel('What happened').fill('It broke')
+  await axe(page, 'report')
+  // The link the page opens, caught before it goes anywhere (the test never visits GitHub).
+  await page.evaluate(() => {
+    window.open = (u?: string | URL) => {
+      ;(window as unknown as { opened: string }).opened = String(u)
+      return null
+    }
+  })
+  await report.getByRole('button', { name: 'Open on GitHub' }).click()
+  // After the report is copied to the clipboard, the link opens.
+  const opened = await page.waitForFunction(() => (window as unknown as { opened?: string }).opened)
+  const url = new URL(String(await opened.jsonValue()))
+  expect(url.origin + url.pathname).toBe('https://github.com/cschweda/frotzlens/issues/new')
+  expect(url.searchParams.get('template')).toBe('bug.yml')
+  expect(url.searchParams.get('what-happened')).toBe('It broke')
+  expect(url.searchParams.get('version')).toMatch(/^Frotzlens 0\.\d+\.\d+/)
+  await page.keyboard.press('Escape')
+
+  // Check for updates: this build is the live one.
+  await menu.click()
+  await page.getByRole('menuitem', { name: 'Check for updates' }).click()
+  await expect(page.getByText(/is the latest/).first()).toBeVisible()
+  expect(errors).toEqual([])
+})
+
 test('works at 400px', async ({ page }) => {
   const errors = watchConsole(page)
   await page.setViewportSize({ width: 400, height: 860 })
@@ -185,6 +239,10 @@ test('works at 400px', async ({ page }) => {
     expect(await page.evaluate(() => document.documentElement.scrollWidth - innerWidth), hash).toBe(0)
     await axe(page, `${hash} at 400px`)
   }
+  // The narrowest common phone: the header's buttons still fit.
+  await page.setViewportSize({ width: 320, height: 700 })
+  await visit(page, '#overview')
+  expect(await page.evaluate(() => document.documentElement.scrollWidth - innerWidth), 'at 320px').toBe(0)
   expect(errors).toEqual([])
 })
 

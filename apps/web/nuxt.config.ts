@@ -1,5 +1,25 @@
 // https://nuxt.com/docs/api/configuration/nuxt-config
+import { buildCommit, packageVersion } from '@frotzinc/nuxt-base/netlify/version'
 import { site } from './site.config'
+
+/**
+ * What the About menu says: this app's version and build, and the version of each package it's made
+ * of (read from their package.json at build time). The commit is the one being built (Netlify sets
+ * COMMIT_REF; git is asked otherwise).
+ */
+const pkg = (path: string) => packageVersion(new URL(path, import.meta.url))
+const commit = buildCommit(new URL('../../', import.meta.url))
+const about = {
+  version: pkg('./package.json'),
+  commit: (process.env.COMMIT_REF ?? commit?.commit ?? '').slice(0, 7),
+  date: commit?.date ?? '',
+  packages: {
+    '@frotzinc/zcode': pkg('../../packages/zcode/package.json'),
+    frotzlens: pkg('../../packages/cli/package.json'),
+    '@frotzinc/worker-rpc': pkg('../../packages/worker-rpc/package.json'),
+    '@frotzinc/nuxt-base': pkg('../../packages/nuxt-base/package.json'),
+  },
+}
 
 const title = `${site.name} — ${site.tagline}`
 
@@ -50,6 +70,8 @@ export default defineNuxtConfig({
   vite: { worker: { format: 'es' } },
 
   devtools: { enabled: false },
+
+  runtimeConfig: { public: { about } },
 
   app: {
     head: {

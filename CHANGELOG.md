@@ -4,7 +4,19 @@ All notable changes to Frotzlens: the web app at [frotzlens.frotzinc.com](https:
 
 ## [Unreleased]
 
+## [0.2.0] - 2026-11-07
+
+`@frotzinc/zcode` 0.2.0 and the `frotzlens` 0.2.0 CLI carry the ZIL grammar.
+
 ### Added
+- **An About menu** in the header, as in Drafter:
+  - **About Frotzlens:** every version (the site's, with its commit and date, and each package the site is built from) and every licence, with "Copy technical details".
+  - **What's new:** this changelog.
+  - **Report a problem…** and **Suggest a feature…**: GitHub's issue form, filled in with what you write and the technical details, for you to review and submit there. Frotzlens sends nothing, and never the story file.
+  - **Check for updates:** whether the site has been updated since the page opened.
+- The footer links the changelog and shows the version.
+- `SECURITY.md`, and GitHub issue forms for problems and features.
+- The README has screenshots, who Frotzlens is for, and what it does that nothing else does.
 - **ZIL grammar.** A ZILF-compiled story's syntax tables are decoded: every verb, its words and syntax lines (shown as each `SYNTAX` form reads), its action and pre-action routines, and the prepositions. They appear in the Grammar view and in `frotzlens -g`, and dictionary words link to their verbs. They're checked against the `<SYNTAX>` forms in zillib and four ZILF games ([details](docs/08-zil-grammar.md)).
 
 ## [0.1.0] - 2026-11-07

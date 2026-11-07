@@ -69,7 +69,7 @@ const sep = computed(() => props.story.dictionary.separators.map(c => (c === ' '
 
   <div v-else-if="word" class="flex flex-col gap-6">
     <ViewHeader :title="`“${word.word}”`" :eyebrow="`Entry ${word.index} · ${hex(word.address)}`" :back="{ to: '#dictionary', label: 'Dictionary' }" />
-    <dl class="grid grid-cols-[max-content_1fr] gap-x-6 gap-y-2 rounded-xl border border-default bg-muted p-5">
+    <dl class="grid grid-cols-[max-content_minmax(0,1fr)] [&_dd]:[overflow-wrap:anywhere] gap-x-6 gap-y-2 rounded-xl border border-default bg-muted p-5">
       <dt class="text-muted">Flags</dt>
       <dd>{{ word.inform ? flags(word).join(', ') || 'none' : 'not an Inform dictionary' }}</dd>
       <dt class="text-muted">Data bytes</dt>
