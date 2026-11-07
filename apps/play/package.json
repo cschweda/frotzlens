@@ -1,11 +1,11 @@
 {
   "name": "frotzplay-web",
-  "version": "0.0.0",
+  "version": "0.1.0",
   "private": true,
   "license": "GPL-3.0-or-later",
   "type": "module",
   "scripts": {
-    "assets": "node scripts/copy-assets.mjs && node scripts/seo-files.mjs",
+    "assets": "node scripts/copy-assets.mjs && node scripts/seo-files.mjs && node scripts/llms-txt.mjs",
     "dev": "pnpm run assets && nuxt dev --port 3001",
     "generate": "pnpm run assets && nuxt generate",
     "preview": "node scripts/serve.mjs",

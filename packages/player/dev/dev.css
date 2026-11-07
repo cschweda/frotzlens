@@ -8,4 +8,5 @@ html, body, #app { margin: 0; height: 100%; background: #0e1116; color: #e6dfcf;
 .dev main { flex: 1 1 auto; min-height: 0; }
 .skip { position: absolute; left: -9999px; top: 0.5rem; }
 .skip:focus { left: 0.5rem; z-index: 10; padding: 0.5rem 0.75rem; background: #151a21; color: #f0a830; border-radius: 6px; outline: 3px solid #f0a830; }
-.dev :focus-visible { outline: 3px solid #f0a830; outline-offset: 2px; }
+/* The page's own controls; the player has its own focus ring, right for each theme. */
+.dev > header :focus-visible { outline: 3px solid #f0a830; outline-offset: 2px; }

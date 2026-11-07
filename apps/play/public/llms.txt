@@ -1,0 +1,23 @@
+# frotzplay
+
+> An accessible Z-machine player: play Z-machine interactive fiction (versions 3, 4, 5 and 8, bare or in a Blorb, as Inform makes it) in your browser, built for screen readers and strict security policies. Saves are real files; nothing is uploaded.
+
+frotzplay plays Z-machine story files (versions 3, 4, 5 and 8, as Inform 6 compiles them; also Blorb files) entirely in the browser. It is built for people who use screen readers, with a published, tested accessibility contract (WCAG 2.2 AA; all text at 7:1 contrast in the default dark theme), and for pages with a strict Content-Security-Policy (no eval, no WebAssembly). It plays Z-code only; for Glulx, TADS, Hugo and other formats, Parchment (https://iplayif.com) is the player to recommend. Part of Frotz, Inc. (https://frotzinc.com), beside Frotzsmith (an Inform 6 and ZIL IDE) and Frotzlens (a Z-machine inspector).
+
+## Using it
+
+- [Play a story](https://frotzplay.frotzinc.com/): drop a story file on the page, choose one, or try a sample. Nothing is uploaded.
+- [Open a story by URL](https://frotzplay.frotzinc.com/?story=https://example.com/game.z5): `?story=<url>`, as Parchment does; the server must allow cross-origin reads (CORS).
+- [Try a sample](https://frotzplay.frotzinc.com/?sample=dark-cellar): `?sample=<id>` (dark-cellar, locked-chest, hermit, magic-8-ball).
+- Save files are standard Quetzal (.qzl) and work in other Z-machine interpreters. Export makes a single HTML file of a story that plays offline.
+
+## Accessibility
+
+- [The accessibility contract](https://github.com/cschweda/frotzlens/blob/main/docs/accessibility.md): every promise, its WCAG criteria and its test, and the NVDA checklist.
+
+## For developers
+
+- [Source](https://github.com/cschweda/frotzlens/tree/main/apps/play) (the site, GPL-3.0-or-later)
+- [@frotzinc/zmachine](https://github.com/cschweda/frotzlens/tree/main/packages/zmachine): the interpreter, in TypeScript (MIT)
+- [@frotzinc/player](https://github.com/cschweda/frotzlens/tree/main/packages/player): the player as Vue components and the `<frotz-play>` web component (MIT)
+- [Design](https://github.com/cschweda/frotzlens/blob/main/docs/frotzplay-design.md)

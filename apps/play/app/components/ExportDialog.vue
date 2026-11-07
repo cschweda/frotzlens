@@ -29,7 +29,7 @@ async function run(kind: 'file' | 'folder') {
   busy.value = true
   message.value = ''
   try {
-    const options = { title: props.story.title, storyName: props.story.name, elementJs: await elementJs() }
+    const options = { title: props.story.title, storyName: props.story.name, elementJs: await elementJs(), siteUrl: location.origin }
     if (kind === 'file') {
       const { filename, html } = await bundle(props.story.bytes, options)
       save(html, filename, 'text/html')

@@ -4,14 +4,22 @@
  * (@frotzinc/nuxt-base css/palette.css; a test checks they agree), set on the player's root so the
  * player looks right on any page. Settings arrive as data attributes and custom properties.
  *
- * Contrast (WCAG 2.x, measured): dark — text 14.25:1, muted 8.32:1, amber 9.32:1, every game colour
- * ≥ 7.69:1; light — text 14.56:1, muted 8.41:1, amber 5.65:1, game colours ≥ 6.41:1; high contrast —
- * every text colour ≥ 9.75:1.
+ * The player is its own "page" on the site, as Parchment's story column is, but dark by default: warm
+ * paper (--zp-page) with a deeper inset (--zp-inset) for the status line and command field, a soft
+ * edge and a shadow. Light is actual parchment. High contrast stays plain black.
+ *
+ * Contrast (WCAG 2.x, measured on both the page and the inset, the worse of the two): dark — every
+ * text colour, game colours included, ≥ 7.38:1; light — ≥ 4.90:1; high contrast — ≥ 9.75:1.
  */
 
 .zp {
   --zp-ground: #0e1116;
   --zp-panel: #151a21;
+  --zp-page: #211d16;
+  --zp-inset: #171410;
+  --zp-edge: #3a3326;
+  --zp-glow: rgb(255 214 150 / 0.05);
+  --zp-shadow: 0 14px 40px rgb(0 0 0 / 0.55);
   --zp-ink: #e6dfcf;
   --zp-muted: #b0ac9e;
   --zp-rule: #2a2f38;
@@ -40,7 +48,13 @@
   gap: 0.75rem;
   min-height: 0;
   height: 100%;
-  background: var(--zp-ground);
+  padding: clamp(0.75rem, 2vw, 1.5rem);
+  /* The page: warm paper, a faint glow at the top like lamplight, an edge and a shadow. */
+  background-color: var(--zp-page);
+  background-image: radial-gradient(ellipse at 50% 0%, var(--zp-glow), transparent 70%);
+  border: 1px solid var(--zp-edge);
+  border-radius: 14px;
+  box-shadow: var(--zp-shadow);
   color: var(--zp-ink);
   font-family: var(--zp-font);
   font-size: var(--zp-size);
@@ -52,6 +66,11 @@
 .zp[data-theme='light'] {
   --zp-ground: #f3f1ea;
   --zp-panel: #e8e5da;
+  --zp-page: #f4ecd8;
+  --zp-inset: #ebe1c8;
+  --zp-edge: #d3c5a3;
+  --zp-glow: rgb(150 110 40 / 0.06);
+  --zp-shadow: 0 10px 28px rgb(70 50 20 / 0.18);
   --zp-ink: #17202a;
   --zp-muted: #3f4652;
   --zp-rule: #c9c6bb;
@@ -72,6 +91,11 @@
 .zp[data-theme='high-contrast'] {
   --zp-ground: #000000;
   --zp-panel: #0a0a0a;
+  --zp-page: #000000;
+  --zp-inset: #0a0a0a;
+  --zp-edge: #8a8a8a;
+  --zp-glow: transparent;
+  --zp-shadow: none;
   --zp-ink: #ffffff;
   --zp-muted: #d9d9d9;
   --zp-rule: #8a8a8a;
@@ -112,7 +136,7 @@
 .zp[data-font='dyslexic'] { --zp-font: 'OpenDyslexic', 'Segoe UI', system-ui, sans-serif; }
 .zp[data-font='mono'] { --zp-font: var(--zp-mono); }
 
-.zp *, .zp *::before, .zp *::after { box-sizing: border-box; }
+.zp, .zp *, .zp *::before, .zp *::after { box-sizing: border-box; }
 
 /* Visually hidden, still read (the announcers, labels). */
 .zp-sr { position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0; overflow: hidden; clip-path: inset(50%); white-space: nowrap; border: 0; }
@@ -127,7 +151,7 @@
   justify-content: space-between;
   gap: 0.25rem 1.5rem;
   padding: 0.5rem 0.875rem;
-  background: var(--zp-panel);
+  background: var(--zp-inset);
   border: 1px solid var(--zp-rule);
   border-radius: 8px;
   font-family: var(--zp-mono);
@@ -138,7 +162,7 @@
 .zp-upper {
   margin: 0;
   padding: 0.75rem 0.875rem;
-  background: var(--zp-panel);
+  background: var(--zp-inset);
   border: 1px solid var(--zp-rule);
   border-radius: 8px;
   font-family: var(--zp-mono);
@@ -162,14 +186,14 @@
 .zp-echo { margin: 0 0 0.4em; color: var(--zp-lamp-text); font-family: var(--zp-mono); font-weight: 600; }
 .zp-out { margin: 0; white-space: pre-wrap; overflow-wrap: anywhere; }
 .zp-run--fixed { font-family: var(--zp-mono); }
-.zp-run--reverse { background: var(--zp-ink); color: var(--zp-ground); }
+.zp-run--reverse { background: var(--zp-ink); color: var(--zp-page); }
 .zp-fixedblock {
   margin: 0.5em 0;
   padding: 0.5em 0.75em;
   font-family: var(--zp-mono);
   white-space: pre;
   overflow-x: auto;
-  background: var(--zp-panel);
+  background: var(--zp-inset);
   border-radius: 6px;
 }
 .zp-c2 { color: var(--zp-c2); } .zp-c3 { color: var(--zp-c3); } .zp-c4 { color: var(--zp-c4); }
@@ -188,7 +212,7 @@
   border: 1px solid var(--zp-rule);
   border-left: 4px solid var(--zp-lamp);
   border-radius: 6px;
-  background: var(--zp-panel);
+  background: var(--zp-inset);
 }
 .zp-message--error { border-left-color: var(--zp-c3); }
 
@@ -204,7 +228,7 @@
   font: inherit;
   font-family: var(--zp-mono);
   color: var(--zp-ink);
-  background: var(--zp-panel);
+  background: var(--zp-inset);
   border: 2px solid var(--zp-rule);
   border-radius: 8px;
 }
@@ -221,7 +245,7 @@
   font: inherit;
   font-size: 0.95em;
   color: var(--zp-ink);
-  background: var(--zp-panel);
+  background: var(--zp-inset);
   border: 1px solid var(--zp-rule);
   border-radius: 8px;
   cursor: pointer;
@@ -237,8 +261,8 @@
   max-height: calc(100vh - 2rem);
   padding: 1.25rem 1.5rem;
   color: var(--zp-ink);
-  background: var(--zp-ground);
-  border: 1px solid var(--zp-rule);
+  background: var(--zp-page);
+  border: 1px solid var(--zp-edge);
   border-radius: 12px;
 }
 .zp-dialog::backdrop { background: rgb(0 0 0 / 0.6); }
@@ -246,7 +270,7 @@
 .zp-dialog fieldset { margin: 0 0 1rem; padding: 0.5rem 0.75rem 0.75rem; border: 1px solid var(--zp-rule); border-radius: 8px; }
 .zp-dialog legend { padding: 0 0.25rem; font-weight: 600; }
 .zp-dialog label { display: inline-flex; align-items: center; gap: 0.4rem; min-height: 2rem; margin-right: 1rem; }
-.zp-dialog input[type='file'] { font: inherit; color: var(--zp-ink); background: var(--zp-panel); border: 1px solid var(--zp-rule); border-radius: 6px; min-height: 2.5rem; padding: 0.25rem 0.5rem; }
+.zp-dialog input[type='file'] { font: inherit; color: var(--zp-ink); background: var(--zp-inset); border: 1px solid var(--zp-rule); border-radius: 6px; min-height: 2.5rem; padding: 0.25rem 0.5rem; }
 .zp-dialog input[type='radio'], .zp-dialog input[type='checkbox'] { width: 1.625rem; height: 1.625rem; accent-color: var(--zp-lamp); }
 .zp-dialog__actions { display: flex; flex-wrap: wrap; gap: 0.5rem; justify-content: flex-end; margin-top: 1rem; }
 .zp-dialog table { width: 100%; border-collapse: collapse; }

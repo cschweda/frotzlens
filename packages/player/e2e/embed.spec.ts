@@ -17,9 +17,9 @@ test('<frotz-play> plays under script-src \'self\'; style-src \'self\', with no 
 
   const input = page.getByRole('textbox', { name: 'Command' })
   await expect(input).toBeVisible()
-  // Its styles are applied (adopted, not injected): the dark ground, the amber Enter button.
+  // Its styles are applied (adopted, not injected): the dark paper page.
   const ground = await page.locator('frotz-play').evaluate(el => getComputedStyle(el.shadowRoot!.querySelector('.zp')!).backgroundColor)
-  expect(ground).toBe('rgb(14, 17, 22)')
+  expect(ground).toBe('rgb(33, 29, 22)')
   expect(await page.locator('frotz-play').evaluate(el => el.shadowRoot!.querySelectorAll('style').length)).toBe(0)
 
   await input.fill('take lantern')
@@ -30,7 +30,7 @@ test('<frotz-play> plays under script-src \'self\'; style-src \'self\', with no 
   await expect(page.getByRole('dialog', { name: 'Settings' })).toBeVisible()
   await page.getByRole('radio', { name: 'Light' }).check()
   await page.keyboard.press('Escape')
-  expect(await page.locator('frotz-play').evaluate(el => getComputedStyle(el.shadowRoot!.querySelector('.zp')!).backgroundColor)).toBe('rgb(243, 241, 234)')
+  expect(await page.locator('frotz-play').evaluate(el => getComputedStyle(el.shadowRoot!.querySelector('.zp')!).backgroundColor)).toBe('rgb(244, 236, 216)')
 
   expect(violations).toEqual([])
 })

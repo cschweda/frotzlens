@@ -13,7 +13,16 @@ export interface BundleOptions {
   elementJs: string
   /** A fixed seed, or none for a random one each play. */
   seed?: number
+  /** Where "Made with frotzplay" links to (the site that made the export). */
+  siteUrl?: string
 }
+
+const REPO_URL = 'https://github.com/cschweda/frotzlens/tree/main/apps/play'
+const FAMILY_URL = 'https://frotzinc.com'
+const DEFAULT_SITE = 'https://frotzplay.frotzinc.com'
+
+/** frotzplay's mark (public/logo.svg), inline: an export's CSP allows no images from anywhere. */
+const LOGO = '<svg class="fp-logo" width="32" height="32" viewBox="0 0 512 512" aria-hidden="true" focusable="false"><defs><linearGradient id="fp-a" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#fcd34d"/><stop offset="100%" stop-color="#f59e0b"/></linearGradient></defs><rect width="512" height="512" rx="112" fill="url(#fp-a)"/><g transform="translate(106,106) scale(12.5)" fill="#0b0b0e"><path d="M3.2 4.2 Q3.2 2.6 4.6 3.4 L14.4 10.6 Q15.6 11.5 14.4 12.4 L4.6 19.6 Q3.2 20.4 3.2 18.8 Z"/><rect x="16.8" y="16.6" width="5.2" height="2.6" rx="0.6"/></g></svg>'
 
 export interface ExportedFile {
   name: string
@@ -41,10 +50,51 @@ async function sha256(text: string): Promise<string> {
   return `'sha256-${base64(new Uint8Array(digest))}'`
 }
 
-const PAGE_CSS = 'html,body{margin:0;height:100%;background:#0e1116;color:#e6dfcf;font-family:system-ui,sans-serif}main{height:100%;max-width:64rem;margin:0 auto;padding:1rem;box-sizing:border-box}frotz-play{height:100%}'
+/**
+ * The page around the player: frotzplay's header (mark, name, the story's title) and a footer with
+ * links to frotzplay, its source and Frotz, Inc. Contrast in the family's dark palette: text 14.25:1,
+ * quieter text 8.32:1, links (amber) 9.32:1.
+ */
+const PAGE_CSS = [
+  '*{box-sizing:border-box}',
+  'html,body{margin:0;height:100%;background:#0e1116;color:#e6dfcf;font-family:"Segoe UI",system-ui,sans-serif;line-height:1.5}',
+  'body{display:flex;flex-direction:column}',
+  '.fp-header,.fp-footer{display:flex;flex-wrap:wrap;align-items:center;gap:.5rem 1rem;max-width:64rem;width:100%;margin:0 auto;padding:.75rem 1rem}',
+  '.fp-header{border-bottom:1px solid #2a2f38}',
+  '.fp-brand{display:inline-flex;align-items:center;gap:.6rem;color:#e6dfcf;text-decoration:none;font-weight:700;font-size:1.15rem}',
+  '.fp-title{color:#b0ac9e}',
+  'main{flex:1 1 auto;min-height:24rem;max-width:64rem;width:100%;margin:0 auto;padding:1rem}',
+  'frotz-play{height:100%}',
+  '.fp-footer{border-top:1px solid #2a2f38;font-size:.9rem;color:#b0ac9e;justify-content:space-between}',
+  '.fp-footer ul{display:flex;flex-wrap:wrap;gap:.5rem 1.25rem;margin:0;padding:0;list-style:none}',
+  '.fp-footer a,.fp-made a{color:#f0a830;text-decoration:underline;text-decoration-style:dotted;text-underline-offset:4px}',
+  'a:focus-visible{outline:3px solid #f0a830;outline-offset:2px;border-radius:4px}',
+].join('')
 
 /** Reads the story from the page (the folder's story.js, or the single file's data block) and hands it to the element. */
 const BOOT = `(function(){var d=document.getElementById('frotzplay-story');var t=(window.FROTZPLAY_STORY||(d&&d.textContent)||'').trim();var b=atob(t);var u=new Uint8Array(b.length);for(var i=0;i<b.length;i++)u[i]=b.charCodeAt(i);document.querySelector('frotz-play').story=u})();`
+
+/** The page: the header, the player in <main>, and the footer's links. */
+function page(o: BundleOptions): string {
+  const site = o.siteUrl ?? DEFAULT_SITE
+  return `<header class="fp-header">
+<a class="fp-brand" href="${escapeHtml(site)}">${LOGO}<span>frotzplay</span></a>
+<span class="fp-title">${escapeHtml(o.title)}</span>
+</header>
+<main>
+${element(o)}
+</main>
+<footer class="fp-footer">
+<p class="fp-made">Played with <a href="${escapeHtml(site)}">frotzplay</a>, an accessible Z-machine player.</p>
+<nav aria-label="frotzplay">
+<ul>
+<li><a href="${escapeHtml(site)}">frotzplay</a></li>
+<li><a href="${REPO_URL}">Source on GitHub</a></li>
+<li><a href="${FAMILY_URL}">From Frotz, Inc.</a></li>
+</ul>
+</nav>
+</footer>`
+}
 
 function element(o: BundleOptions): string {
   const seed = o.seed !== undefined ? ` seed="${o.seed}"` : ''
@@ -67,13 +117,11 @@ export async function bundle(story: Uint8Array, o: BundleOptions): Promise<{ fil
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta http-equiv="Content-Security-Policy" content="${csp}">
 <meta name="generator" content="frotzplay">
-<title>${escapeHtml(o.title)}</title>
+<title>${escapeHtml(o.title)} — frotzplay</title>
 <style>${PAGE_CSS}</style>
 </head>
 <body>
-<main>
-${element(o)}
-</main>
+${page(o)}
 <script type="application/octet-stream" id="frotzplay-story">${base64(story)}</script>
 <script>${js}</script>
 <script>${BOOT}</script>
@@ -95,13 +143,11 @@ export function bundleFolder(story: Uint8Array, o: BundleOptions): ExportedFile[
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="generator" content="frotzplay">
-<title>${escapeHtml(o.title)}</title>
+<title>${escapeHtml(o.title)} — frotzplay</title>
 <link rel="stylesheet" href="frotzplay.css">
 </head>
 <body>
-<main>
-${element(o)}
-</main>
+${page(o)}
 <script src="frotzplay.js"></script>
 <script src="story.js"></script>
 <script src="boot.js"></script>

@@ -2,7 +2,9 @@
 
 All notable changes to `@frotzinc/zmachine`. Versions follow [Semantic Versioning](https://semver.org/). Part of [Frotz, Inc.](https://frotzinc.com).
 
-## [Unreleased]
+## [0.1.0] - 2026-11-07
+
+The first release: the interpreter behind frotzplay. (On npm once published.)
 
 ### Added
 - **Saves (Phase 2, [docs/12](../../docs/12-frotzplay-phase-2-state.md)):** `@save` and `@restore` stop for the host (`save` with a Quetzal 1.4 file, `restore`), finished with `resume({ saved })` / `resume({ restore })`. Saves are byte-compatible with ZVM's; a bad file is a `bad-save` notice in words and a failed restore. `readQuetzal`/`writeQuetzal` exported. `play()` takes `files`.

@@ -1,8 +1,18 @@
 # Changelog
 
-All notable changes to frotzplay: the web player at frotzplay.frotzinc.com, and this repository. Versions will follow [Semantic Versioning](https://semver.org/). Part of [Frotz, Inc.](https://frotzinc.com).
+All notable changes to frotzplay: the web player at frotzplay.frotzinc.com, and this repository. Versions follow [Semantic Versioning](https://semver.org/). Part of [Frotz, Inc.](https://frotzinc.com).
 
-## [Unreleased]
+## [0.1.0] - 2026-11-07
+
+The first release of frotzplay, live at [frotzplay.netlify.app](https://frotzplay.netlify.app) (and frotzplay.frotzinc.com once its DNS is set).
+
+### Changed
+- Exported stories carry frotzplay's branding: the mark, the name, and links back to frotzplay, its source on GitHub and Frotz, Inc.
+- The story plays on its own page: warm dark paper, like Parchment's story column but dark by default; parchment in the light theme.
+- The web app manifest is served as `application/manifest+json`.
+
+### Added
+- `llms.txt` ([llmstxt.org](https://llmstxt.org)): a plain-text summary of frotzplay for AI assistants, from `site.config.ts`.
 
 ### Added
 - **Export** (Phase 5): the story you're playing, as one HTML file that plays from a double-click, or a folder (.zip) for any web host; made in the browser.
