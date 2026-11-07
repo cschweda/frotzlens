@@ -4,7 +4,7 @@
   "license": "GPL-3.0-or-later",
   "type": "module",
   "scripts": {
-    "sample": "node scripts/copy-sample.mjs",
+    "sample": "node scripts/copy-sample.mjs && node scripts/seo-files.mjs",
     "dev": "pnpm run sample && nuxt dev",
     "generate": "pnpm run sample && nuxt generate",
     "preview": "nuxt preview",

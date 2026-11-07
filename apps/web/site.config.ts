@@ -7,10 +7,12 @@ export const site = {
   name: 'Frotzlens',
   tagline: 'See inside a Z-machine story file',
   description:
-    'A browser-based disassembler and inspector for Z-machine story files: header, memory map, objects, dictionary, grammar, every routine and every string. Everything runs in your browser; nothing is uploaded.',
+    'Disassemble and explore Z-machine story files in your browser: objects, dictionary, grammar, every routine and string, Inform debug symbols, and the map. Nothing is uploaded.',
+  /** What the social card (public/og-image.png) shows, for its alt text. */
+  imageAlt: 'The Frotzlens logo, an amber magnifying glass, beside the words "See inside a Z-machine story file", over a faded disassembly listing.',
   siteUrl: 'https://frotzlens.frotzinc.com',
   repoUrl: 'https://github.com/cschweda/frotzlens',
-  /** The published @frotzinc libraries (the frotzlens CLI follows in Phase 5). */
+  /** The published @frotzinc packages (the frotzlens CLI is on npm too, unscoped). */
   npmUrl: 'https://www.npmjs.com/org/frotzinc',
   familyUrl: 'https://frotzinc.com',
   sample: { file: 'dark-cellar.z5', title: 'The Dark Cellar' },
