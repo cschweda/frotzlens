@@ -2,6 +2,25 @@
 
 All notable changes to frotztrace, the site at [frotztrace.frotzinc.com](https://frotztrace.frotzinc.com). Versions follow [Semantic Versioning](https://semver.org/). Part of [frotz, Inc.](https://frotzinc.com).
 
+## [0.2.1] - 2026-11-08
+
+### Fixed
+- An e2e check of the Timeline read the command from the game's transcript too; it looks in the Timeline only.
+
+## [0.2.0] - 2026-11-08
+
+Source, time, polish (frotztrace Phase 5, docs/22).
+
+### Added
+- **Source**: the game's own file, the machine's line marked, and a gutter to set a breakpoint on a line.
+- **Watches**, **Timeline** (every turn, "Go here", a scrubber over every instruction) and a **live Map** (the room you're in, the rooms visited).
+- **F8**, **F9** and **?** (the shortcuts dialog).
+- **From frotzlens**: its Debug button hands frotztrace the story it has open (and the debug file), with nothing uploaded.
+
+### Fixed
+- Watches and the "changed" marks compare stop to stop (they compared with the last slice of the run).
+- "Go here" says which turn to a screen reader, in words that contain what's shown.
+
 ## [0.1.0] - 2026-11-08
 
 The debugger (frotztrace Phase 4, docs/21).

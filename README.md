@@ -7,7 +7,7 @@
 [![Netlify Status](https://api.netlify.com/api/v1/badges/ff4e0b7c-4eed-4fb8-8d7e-25dd7e1f8e69/deploy-status)](https://app.netlify.com/projects/frotzlens/deploys)
 [![TypeScript](https://img.shields.io/badge/TypeScript-strict-3178C6.svg)](https://www.typescriptlang.org)
 [![Z-machine](https://img.shields.io/badge/Z--machine-v3%20%C2%B7%20v4%20%C2%B7%20v5%20%C2%B7%20v8-f59e0b.svg)](https://inform-fiction.org/zmachine/standards/)
-[![Status](https://img.shields.io/badge/status-v0.4.0-brightgreen.svg)](./CHANGELOG.md)
+[![Status](https://img.shields.io/badge/status-v0.5.0-brightgreen.svg)](./CHANGELOG.md)
 
 **This repository holds three apps (one still in development) and the libraries they share:**
 
@@ -51,7 +51,12 @@ Then **play it**, in Parchment, walled off in a sandbox ([details](docs/07-play.
 
 [![frotztrace — step through a Z-machine story, backwards too](apps/trace/public/og-image.png)](https://frotztrace.frotzinc.com)
 
-**[frotztrace](apps/trace)** is the family's debugger, being built in this repository: open a story file (and, if you have them, its `gameinfo.dbg` and Inform 6 source), press Run, and the game plays while everything frotzlens shows (objects, globals, memory, routines) is live, with what just changed lit. Breakpoints on routines, actions, printed text and property changes; watches; a call stack with named locals; and **step backwards**, because every run is deterministic and can be replayed. It's built on frotzplay's interpreter, [`@frotzinc/zmachine`](packages/zmachine), and frotzlens's views, [`@frotzinc/zcode-ui`](packages/zcode-ui). Try it on one of frotzsmith's sample games, each with its debug file and source, at [frotztrace.frotzinc.com](https://frotztrace.frotzinc.com): stop on `action:Take`, look at the named stack and the live object tree, step back. [The design](docs/frotztrace-design.md) has the plan; the Source, Watches and Timeline views come next.
+**[frotztrace](apps/trace)** is the family's debugger, being built in this repository: open a story file (and, if you have them, its `gameinfo.dbg` and Inform 6 source), press Run, and the game plays while everything frotzlens shows (objects, globals, memory, routines) is live, with what just changed lit. Breakpoints on routines, actions, printed text and property changes; watches; a call stack with named locals; and **step backwards**, because every run is deterministic and can be replayed. It's built on frotzplay's interpreter, [`@frotzinc/zmachine`](packages/zmachine), and frotzlens's views, [`@frotzinc/zcode-ui`](packages/zcode-ui). Try it on one of frotzsmith's sample games, each with its debug file and source, at [frotztrace.frotzinc.com](https://frotztrace.frotzinc.com): stop on `action:Take`, look at the named stack and the live object tree, step through the source, step back. In frotzlens, **Debug** opens the story you have open in it. [The design](docs/frotztrace-design.md) has the plan.
+
+| | |
+|---|---|
+| ![frotztrace stopped on action Take in the Dark Cellar: the game, the toolbar, and the named stack](docs/screenshots/frotztrace/breakpoint.png) **A breakpoint on an action.** Stopped as the library begins Take, with the lantern as its noun; every frame and local named. | ![The object tree as it is now, with what changed marked](docs/screenshots/frotztrace/objects.png) **Live views.** The objects, globals and memory as they are now; what the last stretch changed is marked. |
+| ![The timeline: every turn with what was typed, and a scrubber over every instruction](docs/screenshots/frotztrace/timeline.png) **Time runs both ways.** Go back to any turn or instruction; going forward replays what happened. | ![frotztrace's start page: frotzsmith's sample games and a drop zone](docs/screenshots/frotztrace/start.png) **Start here.** Five sample games with their debug files and sources, or your own story. |
 
 ## Who it's for
 

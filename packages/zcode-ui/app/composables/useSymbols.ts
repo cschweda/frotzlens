@@ -8,6 +8,8 @@ import { MAX_DEBUG_FILE, type StoryFile, type Symbols } from '@frotzinc/zcode'
  */
 const symbols = shallowRef<Symbols | null>(null)
 const symbolsFile = ref('')
+/** The debug file's text as read (frotzlens hands it to frotztrace with the story). */
+const symbolsText = shallowRef('')
 const symbolsStatus = ref<'none' | 'loading' | 'ready' | 'failed'>('none')
 const symbolsMessage = ref('')
 /** The last file chosen was refused (whatever is loaded stays). */
@@ -40,6 +42,7 @@ export function useSymbols() {
       const match = symbolsMatch(story.bytes, s)
       if (match === false) throw new Error(`${file.name} was written for another story file, so its names would be wrong here.`)
       symbols.value = markRaw(s)
+      symbolsText.value = text
       symbolsFile.value = file.name
       symbolsStatus.value = 'ready'
       symbolsVerified.value = match === true
@@ -57,6 +60,7 @@ export function useSymbols() {
   function clearSymbols() {
     generation++
     symbols.value = null
+    symbolsText.value = ''
     symbolsFile.value = ''
     symbolsStatus.value = 'none'
     symbolsMessage.value = ''
@@ -65,5 +69,5 @@ export function useSymbols() {
     names.value = true
   }
 
-  return { symbols, symbolsFile, symbolsStatus, symbolsMessage, symbolsError, symbolsVerified, names, loadSymbols, clearSymbols }
+  return { symbols, symbolsFile, symbolsText, symbolsStatus, symbolsMessage, symbolsError, symbolsVerified, names, loadSymbols, clearSymbols }
 }

@@ -58,6 +58,27 @@ const exitIndex = computed(() => {
 })
 const exitsFrom = (n: number) => exitIndex.value.get(n) ?? []
 const LINK = 'text-lamp underline decoration-dotted underline-offset-4 hover:decoration-solid'
+
+/**
+ * Live (frotztrace): the player's room and the rooms visited (the `visited` attribute), as they are
+ * now. The room is `real_location` when the library has it: in the dark, `location` is the
+ * darkness object, not a room.
+ */
+const here = computed(() => {
+  const s = symbols.value
+  if (!props.live || !s) return undefined
+  const named = (name: string) => Object.entries(s.globals).find(([, n]) => n === name)?.[0]
+  const g = named('real_location') ?? named('location')
+  if (g === undefined) return undefined
+  const a = props.story.header.globals + Number(g) * 2
+  return (props.live.memory[a]! << 8) | props.live.memory[a + 1]!
+})
+const visited = computed(() => {
+  const s = symbols.value
+  const attr = s && Object.entries(s.attributes).find(([, n]) => n === 'visited')?.[0]
+  if (!props.live || attr === undefined) return new Set<number>()
+  return new Set(props.story.objects.objects.filter(o => o.attributes.includes(Number(attr))).map(o => o.number))
+})
 const copy = () => JSON.stringify(toMapGraph(graph.value!), null, 2) + '\n'
 </script>
 
@@ -109,11 +130,11 @@ const copy = () => JSON.stringify(toMapGraph(graph.value!), null, 2) + '\n'
               :width="W"
               :height="H"
               rx="8"
-              fill="var(--ui-bg-elevated)"
-              :stroke="r.number === graph.start ? 'var(--frotz-lamp-text)' : 'var(--ui-border-accented)'"
-              :stroke-width="r.number === graph.start ? 3 : 1.5"
+              :fill="r.number === here ? 'var(--frotz-lamp)' : visited.has(r.number) ? 'var(--ui-bg-accented)' : 'var(--ui-bg-elevated)'"
+              :stroke="r.number === here || r.number === graph.start ? 'var(--frotz-lamp-text)' : 'var(--ui-border-accented)'"
+              :stroke-width="r.number === here ? 4 : r.number === graph.start ? 3 : 1.5"
             />
-            <text :x="r.col * CELL" :y="r.row * CELL + 5" text-anchor="middle" font-size="14" fill="var(--ui-text-highlighted)">{{ short(name(r.number)) }}</text>
+            <text :x="r.col * CELL" :y="r.row * CELL + 5" text-anchor="middle" font-size="14" :fill="r.number === here ? 'var(--frotz-ground)' : 'var(--ui-text-highlighted)'">{{ short(name(r.number)) }}</text>
           </a>
         </svg>
       </div>
@@ -124,6 +145,8 @@ const copy = () => JSON.stringify(toMapGraph(graph.value!), null, 2) + '\n'
           <li v-for="r in graph.rooms" :key="r.number">
             <a :href="`#object/${r.number}`" class="font-semibold text-lamp hover:underline">{{ name(r.number) }}</a>
             <span v-if="r.number === graph.start" class="ml-2 text-xs text-muted">where the game starts</span>
+            <span v-if="r.number === here" class="ml-2 rounded-full border border-default px-1.5 text-xs text-lamp">you are here</span>
+            <span v-else-if="visited.has(r.number)" class="ml-2 text-xs text-muted">visited</span>
             <ul v-if="exitsFrom(r.number).length" class="mt-1 flex flex-col gap-0.5 pl-4">
               <li v-for="(e, i) in exitsFrom(r.number)" :key="i">
                 <span class="data inline-block w-24 text-muted">{{ DIRS[e.dir] }}</span>

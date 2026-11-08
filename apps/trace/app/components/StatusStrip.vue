@@ -11,8 +11,12 @@ const line = computed(() => {
   const where = top?.routine !== undefined ? l.name(top.routine) : 'the main routine'
   const counts = `turn ${l.debugger.machine.state.counters.turns} · ${l.debugger.machine.state.counters.instructions.toLocaleString('en-US')} instructions`
   const src = l.where ? ` · ${l.where.file}:${l.where.line}` : ''
+  // What it's waiting for, asked of the machine (after going back in time, the last stop was the jump).
+  const pending = l.debugger.machine.state.input.pending?.kind
   const why =
-    st?.kind === 'breakpoint' ? ` · breakpoint ${session.describe(st.breakpoint)}${st.detail ? `: ${st.detail}` : ''}`
+    st?.kind !== 'breakpoint' && pending === 'line' ? ' · waiting for a command'
+    : st?.kind !== 'breakpoint' && pending === 'char' ? ' · waiting for a key'
+    : st?.kind === 'breakpoint' ? ` · breakpoint ${session.describe(st.breakpoint)}${st.detail ? `: ${st.detail}` : ''}`
     : st?.kind === 'input-line' ? ' · waiting for a command'
     : st?.kind === 'input-char' ? ' · waiting for a key'
     : st?.kind === 'quit' ? ' · the story has ended'
