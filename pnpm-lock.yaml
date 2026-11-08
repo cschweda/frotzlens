@@ -228,6 +228,25 @@ importers:
         specifier: ^3.3.14
         version: 3.3.14(typescript@5.9.3)
 
+  packages/trace-cli:
+    dependencies:
+      '@frotzinc/zcode':
+        specifier: workspace:*
+        version: link:../zcode
+      '@frotzinc/zmachine':
+        specifier: workspace:*
+        version: link:../zmachine
+    devDependencies:
+      '@types/node':
+        specifier: ^22.20.5
+        version: 22.20.5
+      typescript:
+        specifier: 5.9.3
+        version: 5.9.3
+      vitest:
+        specifier: ^5.1.0
+        version: 5.1.0(@types/node@22.20.5)(happy-dom@20.14.6)(vite@8.3.6(@types/node@22.20.5)(esbuild@0.28.2)(jiti@2.7.0)(terser@5.51.2))
+
   packages/worker-rpc:
     devDependencies:
       typescript:

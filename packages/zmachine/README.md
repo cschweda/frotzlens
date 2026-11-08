@@ -2,7 +2,6 @@
 
 A Z-machine interpreter for versions 3, 4, 5 and 8, in TypeScript. It runs decoded instructions one at a time (no `eval`, no JIT, so it runs under a strict Content-Security-Policy), keeps all its state as plain data, and stops whenever it needs input, so the host decides how input arrives. No DOM: it runs in a browser, a Web Worker, or Node. The interpreter behind [frotzplay](../../apps/play).
 
-> **Status: in development** (frotzplay Phase 1). Not yet on npm.
 
 ```ts
 import { Machine } from '@frotzinc/zmachine'
@@ -18,6 +17,28 @@ stop = m.run(100_000)
 ```
 
 Or from a terminal: `zmachine-run story.z5 script.txt [--seed N]` prints each turn's text. A script is one command per line (`!` starts a comment); `[timeout]` means a timed read's interval ran out, and `[key x]` presses a key for `@read_char` (`[key]` is Return), so a recorded session with its timer events replays exactly.
+
+## Debugging
+
+`Debugger` (since 0.2.0) runs a machine under observation, for [frotztrace](https://frotztrace.frotzinc.com): breakpoints, stepping, the call stack and a trace. It owns the machine and runs its own loop over `step()`, so it stops between any two instructions; with nothing set, a story plays exactly as it does on a plain `Machine`.
+
+```ts
+import { Debugger } from '@frotzinc/zmachine'
+
+const d = Debugger.create(storyBytes, { seed: 1, trace: { kinds: ['call', 'return'] } })
+if (!(d instanceof Debugger)) throw new Error(d.fault.message)
+
+d.addBreakpoint({ kind: 'routine', routine: 0x27f8 }) // or { kind: 'address', address }
+let stop = d.run()            // 'breakpoint' | 'input-line' | … | 'budget' | 'paused'
+d.stack()                     // [{ routine, pc, locals, evalStack, argCount }, …], innermost last
+d.stepOver(); d.stepOut(); d.stepInstruction(); d.continueTo(0x2810)
+d.resume({ line: 'look' })    // as Machine.resume, and logged in d.inputLog
+d.trace.events()              // [{ kind: 'call', at, routine, args, depth }, …]
+d.stepBack()                  // and goToInstruction(n), goToTurn(t): back (or forward) in time
+d.timeline()                  // { current, head, turns: [{ turn, instruction, line }], checkpoints }
+```
+
+**Time runs both ways.** The debugger keeps checkpoints (at every prompt, and every 100 000 instructions) and the log of every input with when it was given; going back restores the nearest checkpoint and replays, exactly, since random is seeded. Behind the furthest point reached, running forward replays the logged future; giving a new input there starts a new timeline. Every stop is before the instruction at the PC runs; a breakpoint the debugger is resting on doesn't fire again until the machine moves. Each frame now records its routine (`Frame.routine`), so a stack can be named; a 0.1.x snapshot, whose frames lack it, still restores. The design: [docs/18](../../docs/18-frotztrace-phase-1-debugger.md).
 
 ## Conformance
 

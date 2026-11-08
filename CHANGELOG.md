@@ -2,6 +2,37 @@
 
 All notable changes to frotzlens: the web app at [frotzlens.frotzinc.com](https://frotzlens.frotzinc.com), and this repository. The packages keep their own changelogs: [`@frotzinc/zcode`](packages/zcode/CHANGELOG.md), [`@frotzinc/zcode-ui`](packages/zcode-ui/CHANGELOG.md), [`frotzlens`](packages/cli/CHANGELOG.md) (the CLI), [`@frotzinc/worker-rpc`](packages/worker-rpc/CHANGELOG.md), [`@frotzinc/nuxt-base`](packages/nuxt-base/CHANGELOG.md), [`@frotzinc/inform6-wasm`](packages/inform6-wasm/CHANGELOG.md). Versions follow [Semantic Versioning](https://semver.org/). Part of [frotz, Inc.](https://frotzinc.com).
 
+## [0.3.16] - 2026-11-08
+
+### Changed
+- **Changes now go through a `staging` branch** (README, "Branches and deploys"): pull requests merge into `staging`, which Netlify deploys for free at `staging--<site>.netlify.app`, and `staging` merges into `main`, the production deploy, when it looks right. CI also runs on pushes to `staging`.
+
+## [0.3.15] - 2026-11-08
+
+frotztrace Phase 2 ([docs/19](docs/19-frotztrace-phase-2-time.md)): time runs both ways. frotzlens and frotzplay work as before.
+
+### Added
+- **Rewind in `@frotzinc/zmachine`'s `Debugger`** (still 0.2.0, unpublished): step back an instruction, or go to any instruction or turn, and see the machine exactly as it was there. Checkpoints at every prompt and every 100 000 instructions, the input log replayed exactly; behind the furthest point reached, running forward replays what happened, and typing something new starts a new timeline. On the largest sample games (2 million instructions), any jump takes a few milliseconds and the history under 1 MB. 13 new tests: determinism with random in play, every turn of a walkthrough rewound to its exact state, step back one instruction at a time, the future replayed or replaced, checkpoints thinned.
+
+## [0.3.14] - 2026-11-08
+
+frotztrace Phase 1 ([docs/18](docs/18-frotztrace-phase-1-debugger.md)): the debugger's foundations. frotzlens and frotzplay work as before.
+
+### Added
+- **`@frotzinc/zmachine` 0.2.0: the `Debugger`**, beside the interpreter: run, step (into, over, out), run to input, continue to an address and pause, in slices; address and routine breakpoints; the call stack, each frame named; a trace of calls, returns, writes, prints, input and branches; the input log. One addition to the interpreter, `Frame.routine`, so a stack can be named; save files and 0.1.x snapshots are unaffected. Every existing interpreter suite passes (246 tests), and frotzplay's (player, contract in three browsers, site).
+- **`frotztrace`, the CLI** ([packages/trace-cli](packages/trace-cli), GPL, not yet published): plays a script under the debugger, `--trace calls`, `--break <routine>` with the stack printed, exit codes for CI. `frotztrace dark-cellar.z5 --script walk.txt --break R0097` stops in turn 1 and prints a nine-frame stack.
+
+## [0.3.13] - 2026-11-08
+
+### Changed
+- **frotzlens's Netlify build is skipped when nothing it's built from changed**, as frotzplay's and frotztrace's already are: a README-, docs-, frotzplay- or frotztrace-only merge no longer redeploys frotzlens (production deploys cost credits). The root `netlify.toml`'s `ignore` lists `apps/web`, the libraries it is built from, the samples, the root `CHANGELOG.md` (What's new), the `netlify.toml` itself, the CLI's `package.json` (About's versions) and the workspace files. Checked against past commits: a README-only commit skips; one that also changed the changelog builds.
+
+## [0.3.12] - 2026-11-08
+
+### Changed
+- **A report you send says it went.** After Send, the form gives way to a confirmation (a check mark, **Sent**, where it went, and whether a reply will come), which takes the focus so a screen reader says it too, and a "Report sent" toast stays after the dialog closes. **Send another** brings back an empty form. A send that fails says so in an alert: nothing was sent, and GitHub is the way. (`@frotzinc/nuxt-base` 0.3.1.)
+- The README links frotztrace.frotzinc.com, now live, and lists `@frotzinc/zcode-ui` 0.1.0 and `@frotzinc/nuxt-base` on npm.
+
 ## [0.3.11] - 2026-11-08
 
 ### Added

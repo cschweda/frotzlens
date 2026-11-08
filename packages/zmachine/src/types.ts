@@ -56,6 +56,12 @@ export interface Frame {
   argCount: number
   /** A timed-input interrupt routine's frame: its result decides whether the read ends. */
   interrupt?: boolean
+  /**
+   * The routine's address (its header), set by every call since 0.2.0, so a debugger can name the
+   * frame. Undefined for the main routine's frame (v1–5 start it without a header), and in frames
+   * from a 0.1.x snapshot, which still restore.
+   */
+  routine?: number
 }
 
 export interface RandomState {
