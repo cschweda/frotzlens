@@ -21,7 +21,7 @@ frotzplay exists for two differences that come from how Parchment is built, not 
 
 **Embedding under a strict CSP.** Parchment's engines are WebAssembly, so a page embedding it must allow `'wasm-unsafe-eval'` (and its older Z-code engine, ZVM, a JIT, needed `'unsafe-eval'`: frotzlens's sandboxed Play view vendors that older Parchment). `@frotzinc/zmachine` is plain TypeScript and interprets decoded instructions one at a time and never calls `eval`, so the `<frotz-play>` element and the exported bundle run under `script-src 'self'; style-src 'self'` with no `'unsafe-eval'`, no `'wasm-unsafe-eval'` and no `'unsafe-inline'`: inside frotzlens's own origin without a sandbox, in frotzpack's generated game pages, on sites with security policies, and in a browser extension. (The hosted Nuxt page, `apps/play`, still needs the same `'unsafe-inline'` for Nuxt's inline payload that frotzlens's `netlify.toml` has; the strict-CSP promise is about the player, not about a Nuxt app hosting it.)
 
-Everything else frotzplay does better is a consequence of owning the whole stack: deterministic play with a seed, Quetzal saves as real files, autosave, transcript export, typography controls, and the Frotz family look.
+Everything else frotzplay does better is a consequence of owning the whole stack: deterministic play with a seed, Quetzal saves as real files, autosave, transcript export, typography controls, and the frotz family look.
 
 ## 3. Hat tips to Parchment
 

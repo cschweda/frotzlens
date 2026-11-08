@@ -2,6 +2,13 @@
 
 All notable changes to frotzlens: the web app at [frotzlens.frotzinc.com](https://frotzlens.frotzinc.com), and this repository. The packages keep their own changelogs: [`@frotzinc/zcode`](packages/zcode/CHANGELOG.md), [`frotzlens`](packages/cli/CHANGELOG.md) (the CLI), [`@frotzinc/worker-rpc`](packages/worker-rpc/CHANGELOG.md), [`@frotzinc/nuxt-base`](packages/nuxt-base/CHANGELOG.md), [`@frotzinc/inform6-wasm`](packages/inform6-wasm/CHANGELOG.md). Versions follow [Semantic Versioning](https://semver.org/). Part of [frotz, Inc.](https://frotzinc.com).
 
+## [0.3.6] - 2026-11-08
+
+### Changed
+- The README opens by saying what this repository holds: two apps, **frotzlens** (`apps/web`, frotzlens.frotzinc.com) and **frotzplay** (`apps/play`, frotzplay.frotzinc.com), and the `@frotzinc/` libraries and `frotzlens` CLI they share. Its status badge says v0.3.6.
+- "the frotz family", lower case, in the README and two frotzplay design docs.
+- [docs/16](docs/16-frotzsmith-on-frotzplay.md): the folder (.zip) export is done, in frotzsmith 0.2.2.
+
 ## [0.3.5] - 2026-11-07
 
 ### Changed

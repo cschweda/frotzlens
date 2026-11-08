@@ -7,13 +7,22 @@
 [![Netlify Status](https://api.netlify.com/api/v1/badges/ff4e0b7c-4eed-4fb8-8d7e-25dd7e1f8e69/deploy-status)](https://app.netlify.com/projects/frotzlens/deploys)
 [![TypeScript](https://img.shields.io/badge/TypeScript-strict-3178C6.svg)](https://www.typescriptlang.org)
 [![Z-machine](https://img.shields.io/badge/Z--machine-v3%20%C2%B7%20v4%20%C2%B7%20v5%20%C2%B7%20v8-f59e0b.svg)](https://inform-fiction.org/zmachine/standards/)
-[![Status](https://img.shields.io/badge/status-v0.3.0-brightgreen.svg)](./CHANGELOG.md)
+[![Status](https://img.shields.io/badge/status-v0.3.6-brightgreen.svg)](./CHANGELOG.md)
 
-A browser-based disassembler and inspector for Z-machine story files. Drop a `.z3`, `.z4`, `.z5`, `.z8` or `.zblorb` into a tab and see what's inside: the header, the memory map, the object tree, the dictionary and grammar, every routine as cross-referenced disassembly, and every string. Everything runs in your browser; nothing is uploaded.
+**This repository holds two apps, and the libraries they share:**
 
-It's the browser-native successor to Ztools' `txd` and `infodump`, with an Inform 6 focus, and the companion to [frotzsmith](https://frotzsmith.com), the browser IDE for Inform 6 and ZIL. Both are part of [frotz, Inc.](https://frotzinc.com), home of the Frotz family of interactive-fiction tools.
+| App | What it does | Live at |
+|---|---|---|
+| **frotzlens** | Look inside a Z-machine story file: disassembly, objects, grammar, the map, and Inform 6 source. | [frotzlens.frotzinc.com](https://frotzlens.frotzinc.com) |
+| **[frotzplay](#frotzplay)** | Play a Z-machine story: an accessible player that embeds under a strict CSP and exports to a single HTML file or a folder. | [frotzplay.frotzinc.com](https://frotzplay.frotzinc.com) |
 
-Then **play it**, in the same Parchment interpreter frotzsmith uses, walled off in a sandbox ([details](docs/07-play.md)). What changed, version by version: the [changelog](CHANGELOG.md), also under **About → What's new** on the site.
+frotzlens lives in [`apps/web`](apps/web) and frotzplay in [`apps/play`](apps/play). The libraries in [`packages/`](packages) are published to npm under `@frotzinc/`, and the `frotzlens` command-line tool is in [`packages/cli`](packages/cli). The rest of this page is frotzlens first, then [frotzplay](#frotzplay).
+
+frotzlens is a browser-based disassembler and inspector for Z-machine story files. Drop a `.z3`, `.z4`, `.z5`, `.z8` or `.zblorb` into a tab and see what's inside: the header, the memory map, the object tree, the dictionary and grammar, every routine as cross-referenced disassembly, and every string. Everything runs in your browser; nothing is uploaded.
+
+It's the browser-native successor to Ztools' `txd` and `infodump`, with an Inform 6 focus, and the companion to [frotzsmith](https://frotzsmith.com), the browser IDE for Inform 6 and ZIL. Both are part of [frotz, Inc.](https://frotzinc.com), home of the frotz family of interactive-fiction tools.
+
+Then **play it**, in Parchment, walled off in a sandbox ([details](docs/07-play.md)). What changed, version by version: the [changelog](CHANGELOG.md), also under **About → What's new** on the site.
 
 ## Screenshots
 

@@ -1,7 +1,7 @@
 # frotzsmith on frotzplay
 
 **Document 16 · a plan** (frotzplay: [design](frotzplay-design.md), [Phase 5](15-frotzplay-phase-5-embed-export.md); frotzsmith: its `docs/03-phase-3-play-parchment.md`, `docs/05-phase-5-export-bundles.md`, `docs/06-security.md`)
-**Status:** §2–§5 done 2026-11-07 and live: `@frotzinc/player` 0.2.0 on npm, and frotzsmith 0.2.0 ([frotzsmith#13](https://github.com/cschweda/frotzsmith/pull/13)) plays in frotzplay with Parchment as a choice. Still to do: the folder (.zip) export, §6 (optional), and §7 (later).
+**Status:** §2–§5 done 2026-11-07 and live: `@frotzinc/player` 0.2.0 on npm, and frotzsmith 0.2.0 ([frotzsmith#13](https://github.com/cschweda/frotzsmith/pull/13)) plays in frotzplay with Parchment as a choice. The folder (.zip) export followed on 2026-11-08 in frotzsmith 0.2.2. Still to do: §6 (optional) and §7 (later).
 **Deliverable:** frotzsmith plays, exports and replays with frotzplay. For a release or two, a setting can switch Play back to Parchment, and then Parchment is retired.
 
 > **Exit criteria:** with frotzplay as the player, frotzsmith's transcript, auto-map, Skein, solution recorder and Send-to-Play work as they do on Parchment, and its tests pass; *Export → HTML* makes a frotzplay single file; switching the setting to Parchment brings the old player back unchanged. At retirement: no `public/play/`, and the CSP without `'unsafe-eval'` or `connect-src blob:`.
@@ -80,7 +80,7 @@ After a release or two with no reason to switch back:
 
 - **§2:** `ZPlayer` used directly; it looks the same inside frotzsmith's Nuxt UI page as on frotzplay, in light and dark, so no shadow root is needed.
 - **§4:** `usePlaySink`, `FrotzplayPlayer.vue`, `ParchmentPlayer.vue` (the iframe moved over unchanged), `usePlayerChoice`. The choice is offered before Play (*Play in*) and while playing (a bar above the game: *Playing in frotzplay · Switch to Parchment*, which starts the game again there). Send to Play is `frotzplay-feed.ts` (unit-tested). Fed commands stay out of the typed transcript, and the map catches up when a feed ends.
-- **§5:** *Export playable HTML* follows the choice: frotzplay's `bundle()`, its element loaded as a lazy chunk so export works offline. Not yet: the folder (.zip) export.
+- **§5:** *Export playable HTML* follows the choice: frotzplay's `bundle()`, its element loaded as a lazy chunk so export works offline. *Export folder (.zip)* (frotzsmith 0.2.2, 2026-11-08) is always frotzplay: `bundleFolder()` and `zip()`, the folder named after the story.
 - The fonts are served at `/frotzplay-fonts/` (Nitro `publicAssets` from the installed package), outside the precache.
 - **Checked** on a production build with frotzsmith's CSP, and on the live site: play, transcript, a two-room map, Send to Play, light mode, the switch to Parchment mid-game, and the export played from `file://`.
 
