@@ -87,7 +87,7 @@ import { createReportHandler } from '@frotzinc/nuxt-base/netlify/report'
 export default createReportHandler({ app: 'frotzlens' })
 ```
 
-Then give the Netlify site three environment variables: `RESEND_API_KEY` (secret), `REPORT_TO` (where reports go: always this address, never one from the form) and `REPORT_FROM` (`'frotzlens <reports@mail.frotzinc.com>'`, on a domain verified in Resend). The dialog gains **Send** and an optional reply address; **Open on GitHub** stays. Without the variables the function answers 503 and the dialog says to use GitHub. Against abuse: a fixed recipient, a hidden honeypot field, forms filled in under three seconds refused, size limits on every field, and five reports a minute per address per function instance. The page posts to its own site, so a CSP of `connect-src 'self'` covers it.
+Then give the Netlify site three environment variables: `RESEND_API_KEY` (secret), `REPORT_TO` (where reports go: always this address, never one from the form) and `REPORT_FROM` (`'frotzlens <reports@mail.frotzinc.com>'`, on a domain verified in Resend). The dialog gains **Send email** and an optional reply address; **Open on GitHub** stays. Without the variables the function answers 503 and the dialog says to use GitHub. Against abuse: a fixed recipient, a hidden honeypot field, forms filled in under three seconds refused, size limits on every field, and five reports a minute per address per function instance. The page posts to its own site, so a CSP of `connect-src 'self'` covers it.
 
 The layer does **not** add `@nuxt/ui` (list it in your own `modules`), any CSS (import it yourself, as shown above, so Tailwind has one entry), or a PWA.
 

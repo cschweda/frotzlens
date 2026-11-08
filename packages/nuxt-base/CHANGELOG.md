@@ -2,6 +2,11 @@
 
 All notable changes to `@frotzinc/nuxt-base`. Versions follow [Semantic Versioning](https://semver.org/). Part of [frotz, Inc.](https://frotzinc.com).
 
+## [0.3.3] - 2026-11-08
+
+### Changed
+- The report dialog's **Send** is now **Send email**, and **Send another** is **Send another email**, so it's clear the report goes by email (and **Open on GitHub** is the other way).
+
 ## [0.3.2] - 2026-11-08
 
 ### Fixed
