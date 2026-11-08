@@ -7,7 +7,7 @@
 [![Netlify Status](https://api.netlify.com/api/v1/badges/ff4e0b7c-4eed-4fb8-8d7e-25dd7e1f8e69/deploy-status)](https://app.netlify.com/projects/frotzlens/deploys)
 [![TypeScript](https://img.shields.io/badge/TypeScript-strict-3178C6.svg)](https://www.typescriptlang.org)
 [![Z-machine](https://img.shields.io/badge/Z--machine-v3%20%C2%B7%20v4%20%C2%B7%20v5%20%C2%B7%20v8-f59e0b.svg)](https://inform-fiction.org/zmachine/standards/)
-[![Status](https://img.shields.io/badge/status-v0.3.18-brightgreen.svg)](./CHANGELOG.md)
+[![Status](https://img.shields.io/badge/status-v0.4.0-brightgreen.svg)](./CHANGELOG.md)
 
 **This repository holds three apps (one still in development) and the libraries they share:**
 
@@ -15,7 +15,7 @@
 |---|---|---|
 | **frotzlens** | Look inside a Z-machine story file: disassembly, objects, grammar, the map, and Inform 6 source. | [frotzlens.frotzinc.com](https://frotzlens.frotzinc.com) |
 | **[frotzplay](#frotzplay)** | Play a Z-machine story: an accessible player that embeds under a strict CSP and exports to a single HTML file or a folder. | [frotzplay.frotzinc.com](https://frotzplay.frotzinc.com) |
-| **[frotztrace](#frotztrace)** *(in development)* | Debug a Z-machine story: run it under observation, set breakpoints, watch the objects and globals change, and step backwards. Built on frotzplay's interpreter. | [frotztrace.frotzinc.com](https://frotztrace.frotzinc.com) (what's coming) |
+| **[frotztrace](#frotztrace)** *(in development)* | Debug a Z-machine story: run it under observation, set breakpoints, watch the objects and globals change, and step backwards. Built on frotzplay's interpreter. | [frotztrace.frotzinc.com](https://frotztrace.frotzinc.com) |
 
 frotzlens lives in [`apps/web`](apps/web), frotzplay in [`apps/play`](apps/play), and frotztrace in [`apps/trace`](apps/trace). The libraries in [`packages/`](packages) are published to npm under `@frotzinc/`, and the `frotzlens` command-line tool is in [`packages/cli`](packages/cli). The rest of this page is frotzlens first, then [frotzplay](#frotzplay) and [frotztrace](#frotztrace).
 
@@ -51,7 +51,7 @@ Then **play it**, in Parchment, walled off in a sandbox ([details](docs/07-play.
 
 [![frotztrace — step through a Z-machine story, backwards too](apps/trace/public/og-image.png)](https://frotztrace.frotzinc.com)
 
-**[frotztrace](apps/trace)** is the family's debugger, being built in this repository: open a story file (and, if you have them, its `gameinfo.dbg` and Inform 6 source), press Run, and the game plays while everything frotzlens shows (objects, globals, memory, routines) is live, with what just changed lit. Breakpoints on routines, actions, printed text and property changes; watches; a call stack with named locals; and **step backwards**, because every run is deterministic and can be replayed. It's built on frotzplay's interpreter, [`@frotzinc/zmachine`](packages/zmachine), and frotzlens's views, [`@frotzinc/zcode-ui`](packages/zcode-ui). [The design](docs/frotztrace-design.md) has the plan and the phases; the site at [frotztrace.frotzinc.com](https://frotztrace.frotzinc.com) says what's coming until the debugger is ready.
+**[frotztrace](apps/trace)** is the family's debugger, being built in this repository: open a story file (and, if you have them, its `gameinfo.dbg` and Inform 6 source), press Run, and the game plays while everything frotzlens shows (objects, globals, memory, routines) is live, with what just changed lit. Breakpoints on routines, actions, printed text and property changes; watches; a call stack with named locals; and **step backwards**, because every run is deterministic and can be replayed. It's built on frotzplay's interpreter, [`@frotzinc/zmachine`](packages/zmachine), and frotzlens's views, [`@frotzinc/zcode-ui`](packages/zcode-ui). Try it on one of frotzsmith's sample games, each with its debug file and source, at [frotztrace.frotzinc.com](https://frotztrace.frotzinc.com): stop on `action:Take`, look at the named stack and the live object tree, step back. [The design](docs/frotztrace-design.md) has the plan; the Source, Watches and Timeline views come next.
 
 ## Who it's for
 

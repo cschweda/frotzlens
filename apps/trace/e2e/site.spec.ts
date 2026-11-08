@@ -17,7 +17,7 @@ async function axe(page: Page) {
 test('the page loads in the family shell, dark, with no errors and no axe violations', async ({ page }) => {
   const errors = errorsOf(page)
   await page.goto('/')
-  await expect(page.getByRole('heading', { level: 1, name: 'A debugger for Z-machine stories' })).toBeVisible()
+  await expect(page.getByRole('heading', { level: 1, name: 'Debug a Z-machine story' })).toBeVisible()
   await expect(page.locator('html')).toHaveClass(/dark/)
   await expect(page.getByRole('banner').getByRole('link', { name: /frotztrace/ })).toBeVisible()
   await expect(page.getByRole('contentinfo')).toBeVisible()
@@ -60,6 +60,8 @@ test('robots.txt, sitemap.xml and the social card are served', async ({ request 
 
 test('About → Report a problem sends by email through the site’s report function', async ({ page }) => {
   const errors = errorsOf(page)
+  // No fades: axe measures contrast, and a menu fading out (or a dialog fading in) is half transparent.
+  await page.emulateMedia({ reducedMotion: 'reduce' })
   let posted: Record<string, unknown> | undefined
   // The static test server has no functions: stand in for netlify/functions/report.mjs.
   await page.route('**/.netlify/functions/report', async (route) => {
@@ -73,6 +75,7 @@ test('About → Report a problem sends by email through the site’s report func
   await dialog.getByLabel('Title').fill('A test')
   await dialog.getByLabel('What happened').fill('Nothing, this is a test.')
   await dialog.getByLabel('Your email, for a reply (optional)').fill('reader@example.org')
+  await page.evaluate(() => document.getAnimations().forEach(a => a.finish()))
   await axe(page)
   await page.waitForTimeout(3100) // the function refuses a form filled in under three seconds
   await dialog.getByRole('button', { name: 'Send' }).click()

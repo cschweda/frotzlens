@@ -2,6 +2,15 @@
 
 All notable changes to `@frotzinc/zcode-ui`. Versions follow [Semantic Versioning](https://semver.org/). Part of [frotz, Inc.](https://frotzinc.com).
 
+## [0.2.0] - 2026-11-08
+
+The views light a running machine (frotztrace Phase 4). Without `live` or `breakpoints`, each renders exactly as before.
+
+### Added
+- **`Disassembly`**: with `live`, the PC's line is marked (with "current instruction" for screen readers); with `breakpoints`, a gutter button per line (`aria-pressed`) emits `toggleBreakpoint`.
+- **`GlobalsView`**: with `live`, a "Now" column read from the running machine's memory, and the globals changed since the last stop marked "changed".
+- **`ObjectTree`** and **`HexPane`**: with `live`, what changed is lit, with a "changed" badge or count as its text equivalent. Give `ObjectTree` a story whose objects are read live (`zcode`'s `liveTables`) to show the tree as it is now.
+
 ## [0.1.1] - 2026-11-08
 
 ### Changed

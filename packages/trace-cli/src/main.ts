@@ -8,7 +8,7 @@
  */
 import { findReference, inferSymbols, parseStory, readSymbols, type StoryFile, type Symbols } from '@frotzinc/zcode'
 import { txdRoutineName } from '@frotzinc/zcode/format'
-import { Debugger, normalizeTurn, readQuetzal, type BreakpointSpec, type DebugStop, type InputValue, type StackFrame, type TraceEvent } from '@frotzinc/zmachine'
+import { Debugger, describeBreakpoint, normalizeTurn, parseBreakpoint, readQuetzal, type DebugStop, type InputValue, type StackFrame, type TraceEvent } from '@frotzinc/zmachine'
 
 export interface Io {
   stdout: (s: string) => void
@@ -182,7 +182,7 @@ export async function main(argv: string[], io: Io): Promise<number> {
 
   // Each --break.
   for (const b of breaks) {
-    const spec = resolveBreak(b.text, story, symbols, name)
+    const spec = parseBreakpoint(b.text, story, symbols)
     if (typeof spec === 'string') {
       io.stderr(`frotztrace: ${spec}\n`)
       return EXIT.error
@@ -231,7 +231,7 @@ export async function main(argv: string[], io: Io): Promise<number> {
         flushText()
         const s = d.machine.state
         const where = d.sourceLine()
-        io.stdout(`\n[breakpoint] ${describeBreak(stop.breakpoint, name, symbols)} · turn ${s.counters.turns} · instruction ${s.counters.instructions} · pc ${hex(s.pc)}${where ? ` · ${where.file}:${where.line}` : ''}\n`)
+        io.stdout(`\n[breakpoint] ${describeBreakpoint(stop.breakpoint, story, symbols)} · turn ${s.counters.turns} · instruction ${s.counters.instructions} · pc ${hex(s.pc)}${where ? ` · ${where.file}:${where.line}` : ''}\n`)
         if (stop.detail) io.stdout(`  ${stop.detail}\n`)
         const inform = d.inform()
         if (inform) {
@@ -302,36 +302,6 @@ function traceKinds(trace: 'calls' | 'all' | undefined): ('call' | 'return' | 'w
   return trace === 'all' ? ['call', 'return', 'write', 'branch', 'input'] : trace === 'calls' ? ['call', 'return'] : []
 }
 
-/** A --break, as a breakpoint, or why it can't be one. */
-function resolveBreak(text: string, story: StoryFile, symbols: Symbols | undefined, name: (a: number) => string): BreakpointSpec | string {
-  const action = /^action:(.+)$/i.exec(text)
-  if (action) {
-    const want = action[1]!.replace(/^##/, '').toLowerCase()
-    const found = Object.entries(symbols?.actions ?? {}).find(([, n]) => n.toLowerCase() === want)
-    if (!found) return symbols ? `there's no action called ${action[1]}` : `--break ${text} needs names (--symbols, or a story frotztrace can work them out for)`
-    return { kind: 'action', action: Number(found[0]) }
-  }
-  const line = /^line:(.+):(\d+)$/i.exec(text)
-  if (line) return symbols?.lines?.length ? { kind: 'line', file: line[1]!, line: Number(line[2]) } : `--break ${text} needs the debug file: --symbols gameinfo.dbg`
-  const printed = /^text:(.+)$/i.exec(text)
-  if (printed) return { kind: 'text', text: printed[1]!.replace(/^"(.*)"$/, '$1') }
-  const routine = resolveRoutine(text, story, symbols, name)
-  return routine !== undefined ? { kind: 'routine', routine } : `there's no routine '${text}' in this story${symbols ? '' : ' (names from the source need --symbols)'}`
-}
-
-function describeBreak(b: BreakpointSpec, name: (a: number) => string, symbols: Symbols | undefined): string {
-  switch (b.kind) {
-    case 'routine': return name(b.routine)
-    case 'address': return hex(b.address)
-    case 'action': return `action ${symbols?.actions[b.action] ?? b.action}`
-    case 'line': return `line ${b.file}:${b.line}`
-    case 'text': return `text "${b.text}"`
-    case 'write': return `write ${hex(b.address)}`
-    case 'property': return `property ${b.property} of object ${b.object}`
-    case 'attribute': return `attribute ${b.attribute} of object ${b.object}`
-  }
-}
-
 /** Read a save: where it stopped, its stack and its globals, by name. */
 function readSave(file: string, d: Debugger, story: StoryFile, symbols: Symbols | undefined, name: (a: number) => string, io: Io): number {
   let q
@@ -383,17 +353,6 @@ function inputFor(command: string, stop: DebugStop): InputValue | undefined {
     return { char: k === '' ? 13 : k.codePointAt(0)! }
   }
   return { line: command }
-}
-
-/** A routine by name (from the debug file, or txd's R0012), or by address (0x27f8). */
-function resolveRoutine(text: string, story: StoryFile, symbols: Symbols | undefined, name: (a: number) => string): number | undefined {
-  if (/^0x[0-9a-f]+$/i.test(text)) {
-    const a = parseInt(text.slice(2), 16)
-    return story.code.routines.some(r => r.address === a) ? a : undefined
-  }
-  const want = text.toLowerCase()
-  for (const r of Object.values(symbols?.routines ?? {})) if (r.name.toLowerCase() === want) return r.address
-  return story.code.routines.find(r => name(r.address).toLowerCase() === want || txdRoutineName(story, r.address).toLowerCase() === want)?.address
 }
 
 function traceLine(e: TraceEvent, name: (a: number) => string): string {

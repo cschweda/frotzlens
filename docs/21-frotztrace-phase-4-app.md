@@ -3,7 +3,7 @@
 **Document 21 · frotztrace Phase 4** (frotztrace's design: [`frotztrace-design.md`](frotztrace-design.md) §5.4, §5.5, §6)
 **Deliverable:** at frotztrace.frotzinc.com (first on the staging deploy): pick a sample or drop a story, play it, hit a breakpoint, inspect the stack, routines, objects, globals and memory, live, and continue. The rest of the views (Source, Watches, Timeline, Map live) are Phase 5.
 
-> **Status: approved** (2026-11-08): Chris approved both decisions below (A, the main thread; B, `useScreen` from `@frotzinc/player`).
+> **Status: built** (2026-11-08), on Chris's approval of both decisions below (A, the main thread; B, `useScreen` from `@frotzinc/player`). Found while building: an action breakpoint fired a second time when `begin_action` restored the previous action (also Take) at its end; it now fires once per call. Not in this phase: the Source, Watches and Timeline views and the Map (Phase 5); names without a debug file in the browser (inferring them needs WebAssembly, which frotztrace's CSP doesn't allow; a decision for Phase 5).
 
 ---
 

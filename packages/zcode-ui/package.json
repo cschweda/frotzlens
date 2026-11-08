@@ -1,6 +1,6 @@
 {
   "name": "@frotzinc/zcode-ui",
-  "version": "0.1.1",
+  "version": "0.2.0",
   "description": "The Z-machine story views of frotzlens as a Nuxt layer: object tree, globals, map, disassembly, hex, go-to palette and the pieces they share, for frotzlens and frotztrace.",
   "license": "MIT",
   "author": "Christopher Schweda",

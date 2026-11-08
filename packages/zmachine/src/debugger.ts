@@ -139,6 +139,8 @@ interface Armed {
   /** action: the library routine that begins an action, and the `second` global it sets last. */
   begin?: number
   second?: number
+  /** action: the begin-action call already reported (its frame): the routine sets `second` again at its end, restoring the previous action. */
+  seen?: Frame
 }
 
 /**
@@ -445,7 +447,11 @@ export class Debugger {
         // With the library's begin-action routine: when it sets `second`. Without: when `action` is set.
         const at = a.second !== undefined ? a.second : a.from!
         if (address >= at + 2 || end <= at) continue
-        if (a.second !== undefined && this.m.state.frames.at(-1)?.routine !== a.begin) continue
+        const frame = this.m.state.frames.at(-1)
+        if (a.second !== undefined && frame?.routine !== a.begin) continue
+        // Once per call: the first write to `second` there sets up the action; a later one restores the previous.
+        if (a.second !== undefined && frame === a.seen) continue
+        if (a.second !== undefined) a.seen = frame
         if (this.world().mem.word(a.from!) === b.action) this.pending.push({ bp: b, detail: this.actionDetail() })
       } else if (b.kind === 'property' && address < a.to! && end > a.from!) {
         const w = this.world()

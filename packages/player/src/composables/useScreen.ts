@@ -154,7 +154,10 @@ export function useScreen(version: number) {
     runs = lower.map(r => ({ ...r }))
   }
 
-  return { state, print, begin, finish, waitFor, running, clear, fail, continued, readScreen }
+  /** The open turn's text so far (a host that stops mid-turn, as a debugger does, shows it). */
+  const pending = (): StyledRun[] => runs.map(r => ({ ...r }))
+
+  return { state, print, begin, finish, waitFor, running, clear, fail, continued, readScreen, pending }
 }
 
 export type ScreenHandle = ReturnType<typeof useScreen>

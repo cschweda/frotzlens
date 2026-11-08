@@ -13,6 +13,10 @@ const about = {
   commit: (process.env.COMMIT_REF ?? commit?.commit ?? '').slice(0, 7),
   date: commit?.date ?? '',
   packages: {
+    '@frotzinc/zmachine': pkg('../../packages/zmachine/package.json'),
+    '@frotzinc/zcode': pkg('../../packages/zcode/package.json'),
+    '@frotzinc/zcode-ui': pkg('../../packages/zcode-ui/package.json'),
+    '@frotzinc/player': pkg('../../packages/player/package.json'),
     '@frotzinc/nuxt-base': pkg('../../packages/nuxt-base/package.json'),
   },
 }
@@ -23,8 +27,9 @@ export default defineNuxtConfig({
   // The shared frotz, Inc. layer: ssr:false (a static, client-side site), dark-default colour mode,
   // the Nuxt UI colour roles, the family shell (header, footer, About), and the build:manifest hook.
   // frotztrace defines no colours, fonts or chrome of its own: it looks exactly like frotzsmith,
-  // frotzlens and frotzplay. The debugger's views will come from @frotzinc/zcode-ui (Phase 4).
-  extends: ['@frotzinc/nuxt-base'],
+  // frotzlens and frotzplay. The debugger's views come from @frotzinc/zcode-ui, the game's screen
+  // from @frotzinc/player.
+  extends: ['@frotzinc/nuxt-base', '@frotzinc/zcode-ui'],
   modules: ['@nuxt/ui'],
   css: ['~/assets/css/main.css'],
 
