@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import type { StoryFile } from '@frotzinc/zcode'
+import type { MachineView } from '../utils/live'
 
 /**
  * The object tree, as an ARIA tree (WAI-ARIA APG "tree view"): one tab stop;
@@ -8,7 +9,7 @@ import type { StoryFile } from '@frotzinc/zcode'
  * jumps to the next object whose name starts with it. Rendered flat, with
  * aria-level, so only open branches are in the DOM.
  */
-const props = defineProps<{ story: StoryFile; selected?: number }>()
+const props = defineProps<{ story: StoryFile; selected?: number; live?: MachineView }>()
 
 const objects = computed(() => props.story.objects.objects)
 const count = computed(() => objects.value.length)

@@ -1,22 +1,23 @@
 <script setup lang="ts">
 import type { StoryFile } from '@frotzinc/zcode'
+import type { NavView } from '@frotzinc/zcode-ui/utils/nav'
 
-/** The views, left of the content on wide screens and a scrolling row above it on narrow ones. */
+/**
+ * frotzlens's views, in the shared AppNav: which ones this story has, with their counts. (A .vue
+ * file, not a composable, on purpose: Nuxt Icon bundles only the icons it finds in .vue files, and
+ * the CSP blocks fetching any it missed.)
+ */
 const props = defineProps<{ story: StoryFile; view: string }>()
 
 /** A detail route belongs to its list's entry. */
 const SECTION: Record<string, string> = { object: 'objects', dict: 'dictionary', routine: 'routines', string: 'strings', global: 'globals' }
 const active = computed(() => SECTION[props.view] ?? props.view)
 
-// On a narrow screen the nav is a scrolling row: keep the current view in sight.
-const nav = useTemplateRef<HTMLElement>('nav')
-watch(active, () => nextTick(() => nav.value?.querySelector('[aria-current="page"]')?.scrollIntoView({ block: 'nearest', inline: 'nearest' })), { immediate: true })
-
 const { symbols } = useSymbols()
-const views = computed(() => {
+const views = computed<NavView[]>(() => {
   const s = props.story
   const inform = s.fingerprint?.compiler === 'inform6'
-  const list: { key: string; label: string; icon: string; count?: number; tag?: string }[] = [
+  return [
     { key: 'overview', label: 'Overview', icon: 'i-lucide-layout-dashboard' },
     { key: 'play', label: 'Play', icon: 'i-lucide-gamepad-2' },
     { key: 'memory', label: 'Memory', icon: 'i-lucide-binary' },
@@ -33,26 +34,9 @@ const views = computed(() => {
     // Source: an Inform story decompiled to Inform 6 (Phase 6).
     ...(inform ? [{ key: 'source', label: 'Source', icon: 'i-lucide-file-code' }] : []),
   ]
-  return list
 })
 </script>
 
 <template>
-  <nav ref="nav" aria-label="Views" class="lg:sticky lg:top-20 lg:self-start">
-    <ul class="-mx-1 flex gap-1 overflow-x-auto pb-1 lg:mx-0 lg:w-52 lg:flex-col lg:overflow-visible">
-      <li v-for="v in views" :key="v.key">
-        <a
-          :href="`#${v.key}`"
-          :aria-current="active === v.key ? 'page' : undefined"
-          class="flex items-center gap-2 whitespace-nowrap rounded-md px-3 py-2 text-sm transition-colors hover:bg-elevated"
-          :class="active === v.key ? 'bg-elevated font-semibold text-highlighted' : 'text-muted'"
-        >
-          <UIcon :name="v.icon" class="size-4 shrink-0" :class="active === v.key ? 'text-lamp' : ''" aria-hidden="true" />
-          {{ v.label }}
-          <span v-if="v.count !== undefined" class="data ml-auto pl-2 text-xs text-muted">{{ v.count }}</span>
-          <span v-else-if="v.tag" class="ml-auto rounded-full border border-default px-1.5 text-xs text-muted">{{ v.tag }}</span>
-        </a>
-      </li>
-    </ul>
-  </nav>
+  <AppNav :views="views" :active="active" />
 </template>

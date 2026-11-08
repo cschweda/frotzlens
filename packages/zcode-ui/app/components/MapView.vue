@@ -1,12 +1,13 @@
 <script setup lang="ts">
 import { roomGraph, toMapGraph, type RoomExit, type StoryFile } from '@frotzinc/zcode'
+import type { MachineView } from '../utils/live'
 
 /**
  * The map of an Inform game, from its rooms' exits (which need the debug file
  * to be found). Drawn on a grid, as frotzsmith's map is, and listed as text
  * below — the list is the map for anyone who can't see the picture.
  */
-const props = defineProps<{ story: StoryFile; fileName: string }>()
+const props = defineProps<{ story: StoryFile; fileName: string; live?: MachineView }>()
 const { symbols } = useSymbols()
 
 const graph = computed(() => (symbols.value ? roomGraph(props.story, symbols.value) : undefined))

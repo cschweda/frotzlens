@@ -1,10 +1,14 @@
 # Changelog
 
-All notable changes to frotzlens: the web app at [frotzlens.frotzinc.com](https://frotzlens.frotzinc.com), and this repository. The packages keep their own changelogs: [`@frotzinc/zcode`](packages/zcode/CHANGELOG.md), [`frotzlens`](packages/cli/CHANGELOG.md) (the CLI), [`@frotzinc/worker-rpc`](packages/worker-rpc/CHANGELOG.md), [`@frotzinc/nuxt-base`](packages/nuxt-base/CHANGELOG.md), [`@frotzinc/inform6-wasm`](packages/inform6-wasm/CHANGELOG.md). Versions follow [Semantic Versioning](https://semver.org/). Part of [frotz, Inc.](https://frotzinc.com).
+All notable changes to frotzlens: the web app at [frotzlens.frotzinc.com](https://frotzlens.frotzinc.com), and this repository. The packages keep their own changelogs: [`@frotzinc/zcode`](packages/zcode/CHANGELOG.md), [`@frotzinc/zcode-ui`](packages/zcode-ui/CHANGELOG.md), [`frotzlens`](packages/cli/CHANGELOG.md) (the CLI), [`@frotzinc/worker-rpc`](packages/worker-rpc/CHANGELOG.md), [`@frotzinc/nuxt-base`](packages/nuxt-base/CHANGELOG.md), [`@frotzinc/inform6-wasm`](packages/inform6-wasm/CHANGELOG.md). Versions follow [Semantic Versioning](https://semver.org/). Part of [frotz, Inc.](https://frotzinc.com).
 
-## [Unreleased]
+## [0.3.7] - 2026-11-08
+
+frotztrace begins. frotzlens looks and works as before.
 
 ### Added
+- **`@frotzinc/zcode-ui`** ([packages/zcode-ui](packages/zcode-ui), MIT, 0.1.0): frotzlens's story views as a Nuxt layer, so frotztrace can show a running story with the same components and the same look (frotztrace Phase 0, [docs/17](docs/17-frotztrace-phase-0-zcode-ui.md)). `ObjectTree`, `GlobalsView`, `MapView`, `SearchPalette`, `AppNav`, the links and headers they use, `useHashRoute`, `useSymbols` and the naming utils move out of `apps/web`; the hex pane and the disassembly are split out of the Memory and Routines views as `HexPane` and `Disassembly`. The views take an optional `live` prop, unused until frotztrace has a machine to show. frotzlens extends the layer; its Playwright and axe suite passes unchanged.
+- `publish.sh` publishes `zcode-ui`, with a smoke test (`scripts/smoke/zcode-ui.mjs`) that also fails if the layer ever ships CSS: the look stays in `@frotzinc/nuxt-base`.
 - **frotztrace's design, Draft 2** ([docs/frotztrace-design.md](docs/frotztrace-design.md)) and its kickoff prompt ([docs/frotztrace-kickoff-prompt.md](docs/frotztrace-kickoff-prompt.md)), revised for what frotzplay built: the debugger goes into the existing `@frotzinc/zmachine` as an additive `Debugger`, the Screen pane reuses `@frotzinc/player`, the ZVM oracle and the conformance licences are settled, and the phases are re-cut (§10, §13). Its social card is drafted in `docs/frotztrace/`.
 - The README lists frotztrace as in development.
 

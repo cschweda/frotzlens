@@ -84,7 +84,7 @@ function skipToMain(e: MouseEvent) {
         <DropZone />
       </main>
       <div v-else class="mx-auto flex w-full max-w-7xl flex-1 flex-col gap-6 px-4 py-6 lg:flex-row lg:gap-10 lg:py-8">
-        <AppNav :story="story" :view="route.view" />
+        <LensNav :story="story" :view="route.view" />
         <main id="main" ref="main" tabindex="-1" class="min-w-0 flex-1 focus:outline-none">
           <OverviewView v-if="route.view === 'overview'" :story="story" :file-name="fileName" />
           <PlayView v-else-if="route.view === 'play'" :story="story" :file-name="fileName" />
