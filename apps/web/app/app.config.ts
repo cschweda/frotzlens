@@ -8,6 +8,7 @@ export default defineAppConfig({
   product: {
     name: site.name,
     tagline: site.tagline,
+    summary: 'See inside a Z-machine story file: disassemble it, explore it and play it, in your browser. Nothing is uploaded.',
     homeHref: '#overview',
     repoUrl: site.repoUrl,
     npmUrl: site.npmUrl,

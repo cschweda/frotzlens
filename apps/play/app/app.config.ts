@@ -9,6 +9,7 @@ export default defineAppConfig({
   product: {
     name: site.name,
     tagline: site.tagline,
+    summary: 'Play Z-machine stories in your browser, built for screen readers and strict security policies. Nothing is uploaded.',
     homeHref: '/',
     repoUrl: site.repoUrl,
     npmUrl: site.npmUrl,

@@ -12,6 +12,11 @@ frotztrace Phase 3 ([docs/20](docs/20-frotztrace-phase-3-inform.md)): the Inform
 - **`frotztrace`** gains `--break action:Take`, `line:`, `text:`, `--if`, `--watch`, `--save-at` and `--quetzal`. Without a debug file it works out names itself: `frotztrace dark-cellar.z5 --script walk.txt --break action:Take` stops in turn 3 inside `InformLibrary.begin_action` with a named stack.
 - `@frotzinc/zcode-ui` 0.1.1 re-exports the Debugger's `MachineView`.
 
+## [0.3.17] - 2026-11-08
+
+### Fixed
+- **The About dialog says what each app is.** It opened with frotzlens's sentence in frotzplay and frotztrace too ("disassemble it, explore it and play it"); each app now gives its own (`product.summary`, `@frotzinc/nuxt-base` 0.3.2). Found while bringing frotzsmith onto the shared header.
+
 ## [0.3.16] - 2026-11-08
 
 ### Changed

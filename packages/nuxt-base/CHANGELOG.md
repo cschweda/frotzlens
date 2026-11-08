@@ -2,6 +2,11 @@
 
 All notable changes to `@frotzinc/nuxt-base`. Versions follow [Semantic Versioning](https://semver.org/). Part of [frotz, Inc.](https://frotzinc.com).
 
+## [0.3.2] - 2026-11-08
+
+### Fixed
+- The About dialog opened with frotzlens's own sentence ("…: disassemble it, explore it and play it…") in every app. It now says `product.summary`, each app's own, or the tagline when there's none.
+
 ## [0.3.1] - 2026-11-08
 
 ### Changed

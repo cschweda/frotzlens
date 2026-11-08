@@ -9,6 +9,8 @@ export interface Product {
   name: string
   /** One line on what it is, for the About dialog: 'See inside a Z-machine story file'. */
   tagline: string
+  /** The About dialog's opening sentence. Default: the tagline, as a sentence. */
+  summary?: string
   /** Where the logo and name in the header link to: '#overview' in a hash-routed app, or '/'. */
   homeHref: string
   /** The GitHub repository, with no trailing slash: report links, the changelog's file links, Source. */
