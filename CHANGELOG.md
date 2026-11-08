@@ -2,6 +2,12 @@
 
 All notable changes to frotzlens: the web app at [frotzlens.frotzinc.com](https://frotzlens.frotzinc.com), and this repository. The packages keep their own changelogs: [`@frotzinc/zcode`](packages/zcode/CHANGELOG.md), [`@frotzinc/zcode-ui`](packages/zcode-ui/CHANGELOG.md), [`frotzlens`](packages/cli/CHANGELOG.md) (the CLI), [`@frotzinc/worker-rpc`](packages/worker-rpc/CHANGELOG.md), [`@frotzinc/nuxt-base`](packages/nuxt-base/CHANGELOG.md), [`@frotzinc/inform6-wasm`](packages/inform6-wasm/CHANGELOG.md). Versions follow [Semantic Versioning](https://semver.org/). Part of [frotz, Inc.](https://frotzinc.com).
 
+## [0.3.12] - 2026-11-08
+
+### Changed
+- **A report you send says it went.** After Send, the form gives way to a confirmation (a check mark, **Sent**, where it went, and whether a reply will come), which takes the focus so a screen reader says it too, and a "Report sent" toast stays after the dialog closes. **Send another** brings back an empty form. A send that fails says so in an alert: nothing was sent, and GitHub is the way. (`@frotzinc/nuxt-base` 0.3.1.)
+- The README links frotztrace.frotzinc.com, now live, and lists `@frotzinc/zcode-ui` 0.1.0 and `@frotzinc/nuxt-base` on npm.
+
 ## [0.3.11] - 2026-11-08
 
 ### Added

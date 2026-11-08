@@ -76,9 +76,17 @@ test('About → Report a problem sends by email through the site’s report func
   await axe(page)
   await page.waitForTimeout(3100) // the function refuses a form filled in under three seconds
   await dialog.getByRole('button', { name: 'Send' }).click()
-  await expect(dialog.getByRole('status')).toContainText('Sent. Thank you')
+  // The form gives way to a confirmation, with the focus on it, and a toast says so too.
+  await expect(dialog.getByRole('heading', { name: 'Sent' })).toBeFocused()
+  await expect(dialog.getByRole('status')).toContainText('Your report went to frotztrace’s maker by email. Thank you.')
+  await expect(dialog.getByRole('status')).toContainText('A reply, if one’s needed, will go to reader@example.org.')
+  await expect(page.getByText('Report sent')).toBeVisible()
+  await axe(page)
   expect(posted).toMatchObject({ kind: 'problem', title: 'A test', happened: 'Nothing, this is a test.', replyTo: 'reader@example.org', website: '' })
   expect(Number(posted?.elapsed)).toBeGreaterThanOrEqual(3000)
+  // Send another brings back an empty form.
+  await dialog.getByRole('button', { name: 'Send another' }).click()
+  await expect(dialog.getByLabel('What happened')).toHaveValue('')
   expect(errors).toEqual([])
 })
 
@@ -91,6 +99,7 @@ test('a report the site can’t send says so, and GitHub stays the way', async (
   const dialog = page.getByRole('dialog', { name: 'Suggest a feature' })
   await dialog.getByLabel('What you’d like').fill('An idea.')
   await dialog.getByRole('button', { name: 'Send' }).click()
-  await expect(dialog.getByRole('status')).toContainText('aren’t set up on this site. You can open it on GitHub instead.')
+  await expect(dialog.getByRole('alert')).toContainText('aren’t set up on this site. Nothing was sent. You can open it on GitHub instead.')
+  await expect(dialog.getByRole('heading', { name: 'Sent' })).toHaveCount(0)
   await expect(dialog.getByRole('button', { name: 'Open on GitHub' })).toBeEnabled()
 })
