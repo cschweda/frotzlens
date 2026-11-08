@@ -2,6 +2,13 @@
 
 All notable changes to `frotztrace`, the command line. Versions follow [Semantic Versioning](https://semver.org/). Part of [frotz, Inc.](https://frotzinc.com).
 
+## [0.1.0] - 2026-11-08
+
+The first release on npm: `npm install -g frotztrace`. Everything from 0.0.2 and 0.0.3, built on `@frotzinc/zcode` 0.5.0, `@frotzinc/zmachine` 0.2.0 and `@frotzinc/inform6-wasm` 0.1.1.
+
+### Changed
+- No longer private; `publish.sh trace-cli` releases it, with a smoke test that compiles a game and stops at an action breakpoint, with the debug file and without.
+
 ## [0.0.3] - 2026-11-08
 
 The Inform layer (frotztrace Phase 3).
