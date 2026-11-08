@@ -2,6 +2,14 @@
 
 All notable changes to `@frotzinc/nuxt-base`. Versions follow [Semantic Versioning](https://semver.org/). Part of [frotz, Inc.](https://frotzinc.com).
 
+## [0.3.0] - 2026-11-08
+
+So frotzsmith can wear the family header and About menu too.
+
+### Added
+- **`useAbout().setUpdateCheck(fn)`.** An app with its own update check (frotzsmith's goes through its service worker, and its desktop build has no web manifest to ask) hands it to the About menu, whose "Check for updates" then calls it. Unset, the menu asks the site's Nuxt build manifest, as before.
+- **`<AppHeader wide>`.** Full width, wrapping onto a second row when the actions don't fit, for a header that is a toolbar (frotzsmith's IDE). Without it, nothing changes.
+
 ## [0.2.1] - 2026-11-07
 
 ### Changed

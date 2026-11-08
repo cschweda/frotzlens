@@ -3,10 +3,11 @@ import type { DropdownMenuItem } from '@nuxt/ui'
 
 /**
  * The About menu in the header, as Drafter's Help menu: about the app (versions, licences), what's
- * new (the changelog), report a problem, suggest a feature, check for updates, and the source.
+ * new (the changelog), report a problem, suggest a feature, check for updates (the app's own check,
+ * if it set one with useAbout().setUpdateCheck), and the source.
  */
 const product = useProduct()
-const { show } = useAbout()
+const { show, updateCheck } = useAbout()
 const toast = useToast()
 const config = useRuntimeConfig()
 
@@ -16,6 +17,8 @@ const config = useRuntimeConfig()
  * version was published since the page opened.
  */
 async function checkForUpdates() {
+  // An app with its own check (a service worker, a desktop build) has set it: that one decides.
+  if (updateCheck.value) return updateCheck.value()
   const mine = config.app.buildId
   const version = (config.public.about as { version: string }).version
   try {

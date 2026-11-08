@@ -2,6 +2,11 @@
 
 All notable changes to frotzlens: the web app at [frotzlens.frotzinc.com](https://frotzlens.frotzinc.com), and this repository. The packages keep their own changelogs: [`@frotzinc/zcode`](packages/zcode/CHANGELOG.md), [`@frotzinc/zcode-ui`](packages/zcode-ui/CHANGELOG.md), [`frotzlens`](packages/cli/CHANGELOG.md) (the CLI), [`@frotzinc/worker-rpc`](packages/worker-rpc/CHANGELOG.md), [`@frotzinc/nuxt-base`](packages/nuxt-base/CHANGELOG.md), [`@frotzinc/inform6-wasm`](packages/inform6-wasm/CHANGELOG.md). Versions follow [Semantic Versioning](https://semver.org/). Part of [frotz, Inc.](https://frotzinc.com).
 
+## [0.3.10] - 2026-11-08
+
+### Added
+- **`@frotzinc/nuxt-base` 0.3.0**, so frotzsmith can wear the family header and About menu too: `useAbout().setUpdateCheck(fn)` lets an app supply its own "Check for updates" (frotzsmith's goes through its service worker), and `<AppHeader wide>` is a full-width header that wraps, for an IDE toolbar. frotzlens, frotzplay and frotztrace are unchanged; their e2e suites pass.
+
 ## [0.3.9] - 2026-11-08
 
 ### Added
