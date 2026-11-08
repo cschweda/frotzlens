@@ -116,7 +116,7 @@ async function openIssue() {
   <UModal v-model:open="openAbout" :title="`About ${product.name}`" :description="`Version ${about.version}`">
     <template #body>
       <div class="flex flex-col gap-5 text-sm">
-        <p>{{ product.tagline }}: disassemble it, explore it and play it, in your browser. Nothing is uploaded.</p>
+        <p>{{ product.summary ?? `${product.tagline}.` }}</p>
         <section aria-labelledby="about-versions" class="flex flex-col gap-2">
           <h3 id="about-versions" class="font-semibold text-highlighted">Versions</h3>
           <dl class="data grid grid-cols-[max-content_minmax(0,1fr)] [&_dd]:[overflow-wrap:anywhere] gap-x-6 gap-y-1">

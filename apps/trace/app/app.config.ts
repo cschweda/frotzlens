@@ -5,6 +5,7 @@ export default defineAppConfig({
   product: {
     name: site.name,
     tagline: site.tagline,
+    summary: 'A debugger for Z-machine stories, in your browser: breakpoints, a live view of everything inside the story, and stepping backwards. Nothing is uploaded.',
     homeHref: '/',
     repoUrl: site.repoUrl,
     npmUrl: site.npmUrl,
