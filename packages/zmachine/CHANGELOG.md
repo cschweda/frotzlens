@@ -2,6 +2,14 @@
 
 All notable changes to `@frotzinc/zmachine`. Versions follow [Semantic Versioning](https://semver.org/). Part of [frotz, Inc.](https://frotzinc.com).
 
+## [0.2.0] - 2026-11-08
+
+frotztrace's debugger, added beside the interpreter; nothing that was there changes.
+
+### Added
+- **`Debugger`**: a machine run under observation. `run`, `stepInstruction`, `stepOver`, `stepOut`, `runToInput`, `runToTurn`, `continueTo` and `pause`, each in slices (a budget) so a host stays responsive; address and routine breakpoints, with hit counts, that can be disabled or removed; `stack()`, each frame named by its routine; a ring-buffer trace of calls, returns, writes, prints, input and branches, each stamped with the instruction count; and the log of every input it passes on. With nothing set, a story plays exactly as on a plain `Machine` (tested on the Dark Cellar walkthrough: the same text and the same memory at the end).
+- **`Frame.routine`**: each frame a call makes records the routine's address, so a debugger can name it and it survives `snapshot()`. Undefined for the main routine's frame, for frames restored from a Quetzal save (Quetzal has no such field), and in a 0.1.x snapshot, which still restores. Save files are unchanged, byte for byte.
+
 ## [0.1.1] - 2026-11-07
 
 ### Changed

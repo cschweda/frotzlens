@@ -372,7 +372,7 @@ export class Machine {
       } else locals.push(0)
     }
     for (let i = 0; i < Math.min(args.length, count); i++) locals[i] = args[i]! & 0xffff
-    const frame: Frame = { returnPC: this.state.pc, locals, evalStack: [], storeVariable: store, argCount: args.length }
+    const frame: Frame = { returnPC: this.state.pc, locals, evalStack: [], storeVariable: store, argCount: args.length, routine: address }
     if (interrupt) frame.interrupt = true
     this.state.frames.push(frame)
     this.state.pc = pc

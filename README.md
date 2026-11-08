@@ -7,7 +7,7 @@
 [![Netlify Status](https://api.netlify.com/api/v1/badges/ff4e0b7c-4eed-4fb8-8d7e-25dd7e1f8e69/deploy-status)](https://app.netlify.com/projects/frotzlens/deploys)
 [![TypeScript](https://img.shields.io/badge/TypeScript-strict-3178C6.svg)](https://www.typescriptlang.org)
 [![Z-machine](https://img.shields.io/badge/Z--machine-v3%20%C2%B7%20v4%20%C2%B7%20v5%20%C2%B7%20v8-f59e0b.svg)](https://inform-fiction.org/zmachine/standards/)
-[![Status](https://img.shields.io/badge/status-v0.3.13-brightgreen.svg)](./CHANGELOG.md)
+[![Status](https://img.shields.io/badge/status-v0.3.14-brightgreen.svg)](./CHANGELOG.md)
 
 **This repository holds three apps (one still in development) and the libraries they share:**
 
@@ -116,11 +116,12 @@ The plan and its decisions are in [`docs/`](docs/), starting with [`00-master-de
 |---|---|---|---|
 | [`@frotzinc/zcode`](packages/zcode) | MIT | The parser and disassembler: `Uint8Array` in, typed model out, plus `txd`- and `infodump`-format text, Blorb, debug symbols, fingerprinting, the room graph, ZIL grammar and the Inform 6 decompiler | [0.4.1](https://www.npmjs.com/package/@frotzinc/zcode) |
 | [`frotzlens`](packages/cli) | GPL-3.0-or-later | The CLI: `frotzlens game.z5`; also `--inform`, `--symbols`, `--info`, `--rooms`, `--json` | [0.3.1](https://www.npmjs.com/package/frotzlens) |
+| [`frotztrace`](packages/trace-cli) | GPL-3.0-or-later | The debugger's CLI: `frotztrace game.z5 --script walk.txt --trace calls --break R0097` | in development |
 | [`@frotzinc/worker-rpc`](packages/worker-rpc) | MIT | Long-lived Web Worker request/response client | [0.1.1](https://www.npmjs.com/package/@frotzinc/worker-rpc) |
 | [`@frotzinc/nuxt-base`](packages/nuxt-base) | MIT | Shared frotz, Inc. Nuxt layer (with the family's header, footer and About menu) and Netlify tools | [0.3.1](https://www.npmjs.com/package/@frotzinc/nuxt-base) |
 | [`@frotzinc/zcode-ui`](packages/zcode-ui) | MIT | The story views (object tree, globals, map, disassembly, hex, go-to palette) as a Nuxt layer, shared by frotzlens and frotztrace | [0.1.0](https://www.npmjs.com/package/@frotzinc/zcode-ui) |
 | [`@frotzinc/inform6-wasm`](packages/inform6-wasm) | MIT (wrapper) | Inform 6.44 in WebAssembly, with the Standard Library and PunyInform | [0.1.1](https://www.npmjs.com/package/@frotzinc/inform6-wasm) |
-| [`@frotzinc/zmachine`](packages/zmachine) | MIT | A Z-machine interpreter (v3, 4, 5, 8): no `eval`, all state plain data, input supplied by the host. frotzplay's engine | [0.1.1](https://www.npmjs.com/package/@frotzinc/zmachine) |
+| [`@frotzinc/zmachine`](packages/zmachine) | MIT | A Z-machine interpreter (v3, 4, 5, 8): no `eval`, all state plain data, input supplied by the host. frotzplay's engine, and frotztrace's `Debugger` | [0.1.1](https://www.npmjs.com/package/@frotzinc/zmachine) (0.2.0 next) |
 | [`@frotzinc/player`](packages/player) | MIT | frotzplay's accessible player as Vue components ([its contract](docs/accessibility.md)), the `<frotz-play>` web component, and Export | [0.2.1](https://www.npmjs.com/package/@frotzinc/player) |
 | `apps/web` | GPL-3.0-or-later | [frotzlens.frotzinc.com](https://frotzlens.frotzinc.com) | |
 | `apps/play` | GPL-3.0-or-later | [frotzplay.frotzinc.com](https://frotzplay.frotzinc.com), the accessible Z-machine player ([design](docs/frotzplay-design.md)) | |

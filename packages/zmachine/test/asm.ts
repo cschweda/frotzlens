@@ -132,6 +132,13 @@ export class Asm {
     return this
   }
 
+  /** A label's or routine's address in the story (a routine's is its header, as the call hook reports it). */
+  addressOf(name: string): number {
+    const a = this.labels.get(name) ?? this.routines.get(name)
+    if (a === undefined) throw new Error(`no label or routine '${name}'`)
+    return a
+  }
+
   /** Start a routine with `locals` locals (v1–4: their initial values, default 0). */
   routine(name: string, locals: number | number[] = 0): this {
     while (this.here % this.scale) this.code.push(0)

@@ -1,6 +1,6 @@
 {
   "name": "@frotzinc/zmachine",
-  "version": "0.1.1",
+  "version": "0.2.0",
   "description": "A Z-machine interpreter (versions 3, 4, 5 and 8) in TypeScript: decoded instructions run one at a time, no eval, all state plain data, input supplied by the host. Runs in a browser, a Web Worker, or Node.",
   "license": "MIT",
   "author": "Christopher Schweda",

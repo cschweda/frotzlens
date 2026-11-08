@@ -2,6 +2,14 @@
 
 All notable changes to frotzlens: the web app at [frotzlens.frotzinc.com](https://frotzlens.frotzinc.com), and this repository. The packages keep their own changelogs: [`@frotzinc/zcode`](packages/zcode/CHANGELOG.md), [`@frotzinc/zcode-ui`](packages/zcode-ui/CHANGELOG.md), [`frotzlens`](packages/cli/CHANGELOG.md) (the CLI), [`@frotzinc/worker-rpc`](packages/worker-rpc/CHANGELOG.md), [`@frotzinc/nuxt-base`](packages/nuxt-base/CHANGELOG.md), [`@frotzinc/inform6-wasm`](packages/inform6-wasm/CHANGELOG.md). Versions follow [Semantic Versioning](https://semver.org/). Part of [frotz, Inc.](https://frotzinc.com).
 
+## [0.3.14] - 2026-11-08
+
+frotztrace Phase 1 ([docs/18](docs/18-frotztrace-phase-1-debugger.md)): the debugger's foundations. frotzlens and frotzplay work as before.
+
+### Added
+- **`@frotzinc/zmachine` 0.2.0: the `Debugger`**, beside the interpreter: run, step (into, over, out), run to input, continue to an address and pause, in slices; address and routine breakpoints; the call stack, each frame named; a trace of calls, returns, writes, prints, input and branches; the input log. One addition to the interpreter, `Frame.routine`, so a stack can be named; save files and 0.1.x snapshots are unaffected. Every existing interpreter suite passes (246 tests), and frotzplay's (player, contract in three browsers, site).
+- **`frotztrace`, the CLI** ([packages/trace-cli](packages/trace-cli), GPL, not yet published): plays a script under the debugger, `--trace calls`, `--break <routine>` with the stack printed, exit codes for CI. `frotztrace dark-cellar.z5 --script walk.txt --break R0097` stops in turn 1 and prints a nine-frame stack.
+
 ## [0.3.13] - 2026-11-08
 
 ### Changed
