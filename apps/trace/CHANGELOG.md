@@ -2,6 +2,11 @@
 
 All notable changes to frotztrace, the site at [frotztrace.frotzinc.com](https://frotztrace.frotzinc.com). Versions follow [Semantic Versioning](https://semver.org/). Part of [frotz, Inc.](https://frotzinc.com).
 
+## [0.0.6] - 2026-11-08
+
+### Fixed
+- The e2e test of the sent-report toast: Nuxt UI repeats a toast's title for screen readers, so the test takes the first of the two (it passed or failed on timing).
+
 ## [0.0.5] - 2026-11-08
 
 ### Added
