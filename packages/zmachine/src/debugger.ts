@@ -52,6 +52,8 @@ export interface Watch {
 
 /** What the UI lights (docs/20 §2): where the machine is, and what changed since the previous stop. */
 export interface MachineView {
+  /** The machine's memory now (the whole story, dynamic memory live): for live values. Read it; don't write it. */
+  memory: Uint8Array
   pc: number
   /** The innermost frame's index (0 is the main routine's). */
   frame: number
@@ -823,7 +825,7 @@ export class Debugger {
         if (o !== undefined) objects.add(o)
       }
     }
-    return { pc: this.m.state.pc, frame: this.m.state.frames.length - 1, changed: { addresses: new Set(this.written), objects, globals } }
+    return { memory: this.m.state.memory, pc: this.m.state.pc, frame: this.m.state.frames.length - 1, changed: { addresses: new Set(this.written), objects, globals } }
   }
 
   // ── Inform ────────────────────────────────────────────────────────────────
