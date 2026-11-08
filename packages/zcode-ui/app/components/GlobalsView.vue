@@ -9,12 +9,15 @@ const number = computed(() => (props.id && /^\d+$/.test(props.id) ? Number(props
 const global = computed(() => (number.value === undefined ? undefined : props.story.globals[number.value]))
 
 const filter = ref('')
+/** Live (frotztrace): the value now, from the running machine's memory. */
+const nowOf = (address: number) => (props.live ? (props.live.memory[address]! << 8) | props.live.memory[address + 1]! : undefined)
+
 const rows = computed(() => {
   const s = props.story
   const q = filter.value.trim().toLowerCase()
   return s.globals
     // Uses: each place an instruction reads or writes it, as the detail's "Used by" counts them.
-    .map(g => ({ g, name: globalName(g.number), txd: `G${hex(g.number, 2)}`, uses: s.xrefs[g.id]?.from.length ?? 0 }))
+    .map(g => ({ g, name: globalName(g.number), txd: `G${hex(g.number, 2)}`, uses: s.xrefs[g.id]?.from.length ?? 0, now: nowOf(g.address), changed: !!props.live?.changed.globals.has(g.number) }))
     .filter(r => !q || r.name.toLowerCase().includes(q) || r.txd.toLowerCase() === q || hex(r.g.value).includes(q.replace(/^#|0x/, '')))
 })
 
@@ -41,15 +44,20 @@ const asText = () =>
             <th v-if="activeSymbols" scope="col" class="px-4 py-2 font-semibold">Number</th>
             <th scope="col" class="px-4 py-2 font-semibold">Address</th>
             <th scope="col" class="px-4 py-2 font-semibold">Starts as</th>
+            <th v-if="live" scope="col" class="px-4 py-2 font-semibold">Now</th>
             <th scope="col" class="px-4 py-2 text-right font-semibold">Used by</th>
           </tr>
         </thead>
         <tbody>
-          <tr v-for="r in rows" :key="r.g.number" class="border-t border-default">
+          <tr v-for="r in rows" :key="r.g.number" class="border-t border-default" :class="r.changed ? 'bg-elevated' : ''">
             <td class="data px-4 py-1.5"><a :href="`#global/${r.g.number}`" class="text-lamp hover:underline">{{ r.name }}</a></td>
             <td v-if="activeSymbols" class="data px-4 py-1.5 text-muted">{{ r.txd }}</td>
             <td class="data px-4 py-1.5 text-muted">{{ hex(r.g.address) }}</td>
             <td class="data px-4 py-1.5">{{ hex(r.g.value) }} <span class="text-muted">({{ r.g.value }})</span></td>
+            <td v-if="live" class="data px-4 py-1.5" :class="r.changed ? 'font-semibold text-lamp' : ''">
+              {{ hex(r.now!) }} <span class="text-muted">({{ r.now }})</span>
+              <span v-if="r.changed" class="ml-2 rounded-full border border-default px-1.5 font-sans text-xs text-lamp">changed</span>
+            </td>
             <td class="data px-4 py-1.5 text-right">{{ r.uses }}</td>
           </tr>
         </tbody>

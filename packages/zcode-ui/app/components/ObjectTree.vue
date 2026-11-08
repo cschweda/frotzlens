@@ -169,7 +169,8 @@ function onKey(e: KeyboardEvent) {
       >
         <UIcon v-if="hasChildren(r.n)" :name="open.has(r.n) ? 'i-lucide-chevron-down' : 'i-lucide-chevron-right'" class="size-4" />
       </span>
-      <span class="truncate">{{ name(r.n) }}</span>
+      <span class="truncate" :class="live?.changed.objects.has(r.n) ? 'font-semibold text-lamp' : ''">{{ name(r.n) }}</span>
+      <span v-if="live?.changed.objects.has(r.n)" class="rounded-full border border-default px-1.5 text-xs text-lamp">changed</span>
       <span class="data ml-auto pl-2 text-xs text-muted">{{ r.n }}</span>
     </li>
   </ul>

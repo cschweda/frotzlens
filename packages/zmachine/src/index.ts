@@ -4,8 +4,11 @@
  * stops for the host to supply input. No DOM; runs in a browser, a worker, or Node.
  */
 export { Machine } from './machine.js'
+export { Debugger, type Breakpoint, type BreakpointSpec, type DebugStop, type DebuggerOptions, type InformState, type LoggedInput, type MachineView, type Named, type SourceLine, type Watch, type StackFrame, type Timeline, type TraceBuffer, type TraceEvent, type TraceKind } from './debugger.js'
 export { play, type PlayOptions, type PlayResult, type Turn } from './play.js'
 export { normalizeTurn } from './normalize.js'
 export { readQuetzal, writeQuetzal, type QuetzalState } from './quetzal.js'
 export { mulberry32, mulberry32Step, random } from './random.js'
 export type * from './types.js'
+export { parseExpr, evaluateExpr, ExprError, type Expr, type ExprContext } from './expr.js'
+export { parseBreakpoint, describeBreakpoint, routineLabel } from './breakpoint-text.js'

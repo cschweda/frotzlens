@@ -17,7 +17,7 @@ async function axe(page: Page) {
 test('the page loads in the family shell, dark, with no errors and no axe violations', async ({ page }) => {
   const errors = errorsOf(page)
   await page.goto('/')
-  await expect(page.getByRole('heading', { level: 1, name: 'A debugger for Z-machine stories' })).toBeVisible()
+  await expect(page.getByRole('heading', { level: 1, name: 'Debug a Z-machine story' })).toBeVisible()
   await expect(page.locator('html')).toHaveClass(/dark/)
   await expect(page.getByRole('banner').getByRole('link', { name: /frotztrace/ })).toBeVisible()
   await expect(page.getByRole('contentinfo')).toBeVisible()
@@ -60,6 +60,8 @@ test('robots.txt, sitemap.xml and the social card are served', async ({ request 
 
 test('About → Report a problem sends by email through the site’s report function', async ({ page }) => {
   const errors = errorsOf(page)
+  // No fades: axe measures contrast, and a menu fading out (or a dialog fading in) is half transparent.
+  await page.emulateMedia({ reducedMotion: 'reduce' })
   let posted: Record<string, unknown> | undefined
   // The static test server has no functions: stand in for netlify/functions/report.mjs.
   await page.route('**/.netlify/functions/report', async (route) => {
@@ -73,12 +75,22 @@ test('About → Report a problem sends by email through the site’s report func
   await dialog.getByLabel('Title').fill('A test')
   await dialog.getByLabel('What happened').fill('Nothing, this is a test.')
   await dialog.getByLabel('Your email, for a reply (optional)').fill('reader@example.org')
+  await page.evaluate(() => document.getAnimations().forEach(a => a.finish()))
   await axe(page)
   await page.waitForTimeout(3100) // the function refuses a form filled in under three seconds
   await dialog.getByRole('button', { name: 'Send' }).click()
-  await expect(dialog.getByRole('status')).toContainText('Sent. Thank you')
+  // The form gives way to a confirmation, with the focus on it, and a toast says so too.
+  await expect(dialog.getByRole('heading', { name: 'Sent' })).toBeFocused()
+  await expect(dialog.getByRole('status')).toContainText('Your report went to frotztrace’s maker by email. Thank you.')
+  await expect(dialog.getByRole('status')).toContainText('A reply, if one’s needed, will go to reader@example.org.')
+  // The toast (Nuxt UI also repeats its title in a screen-reader announcement, so take the first).
+  await expect(page.getByText('Report sent').first()).toBeVisible()
+  await axe(page)
   expect(posted).toMatchObject({ kind: 'problem', title: 'A test', happened: 'Nothing, this is a test.', replyTo: 'reader@example.org', website: '' })
   expect(Number(posted?.elapsed)).toBeGreaterThanOrEqual(3000)
+  // Send another brings back an empty form.
+  await dialog.getByRole('button', { name: 'Send another' }).click()
+  await expect(dialog.getByLabel('What happened')).toHaveValue('')
   expect(errors).toEqual([])
 })
 
@@ -91,6 +103,7 @@ test('a report the site can’t send says so, and GitHub stays the way', async (
   const dialog = page.getByRole('dialog', { name: 'Suggest a feature' })
   await dialog.getByLabel('What you’d like').fill('An idea.')
   await dialog.getByRole('button', { name: 'Send' }).click()
-  await expect(dialog.getByRole('status')).toContainText('aren’t set up on this site. You can open it on GitHub instead.')
+  await expect(dialog.getByRole('alert')).toContainText('aren’t set up on this site. Nothing was sent. You can open it on GitHub instead.')
+  await expect(dialog.getByRole('heading', { name: 'Sent' })).toHaveCount(0)
   await expect(dialog.getByRole('button', { name: 'Open on GitHub' })).toBeEnabled()
 })

@@ -1,66 +1,108 @@
 <script setup lang="ts">
 /**
- * frotztrace's page, for now: the family shell around what frotztrace will be. The debugger itself
- * arrives in Phase 4 (docs/frotztrace-design.md §10); this page holds the site, its domain and its
- * Netlify settings in place until then.
+ * frotztrace (docs/21): the family shell around the start page, or around a story being debugged.
+ * `?sample=<id>` opens a sample.
  */
 import changelog from '../CHANGELOG.md?raw'
 import { site } from '~~/site.config'
 
+const session = useSession()
+const s = session.state
+const loading = ref('')
+const start = useTemplateRef<{ take: (files: FileList | File[]) => Promise<void> }>('start')
 const main = useTemplateRef<HTMLElement>('main')
+
+async function openSample(id: string) {
+  const sample = site.samples.find(x => x.id === id)
+  if (!sample) return
+  loading.value = `Opening ${sample.title}…`
+  try {
+    const get = async (ext: string) => {
+      const r = await fetch(`/samples/${id}.${ext}`)
+      if (!r.ok) throw new Error(`/samples/${id}.${ext}: ${r.status}`)
+      return r
+    }
+    const [story, dbg, inf, walk] = await Promise.all([get('z5'), get('dbg'), get('inf'), get('txt').catch(() => null)])
+    const lines = walk ? (await walk.text()).split('\n').map(l => l.trim()).filter(l => l && !l.startsWith('!')).flatMap(l => l.split('.')).map(c => c.trim()).filter(Boolean) : []
+    await session.open({ name: `${id}.z5`, bytes: new Uint8Array(await story.arrayBuffer()), dbg: await dbg.text(), sources: [{ name: 'story.inf', text: await inf.text() }], walkthrough: lines })
+    if (!location.hash) history.replaceState(null, '', '#stack')
+  } catch (e) {
+    s.error = `The sample couldn't be opened: ${(e as Error).message}`
+  } finally {
+    loading.value = ''
+  }
+}
+
+/**
+ * A story handed over by frotzlens's "Debug this story" (?from=frotzlens): say ready to the tab that
+ * opened this one, then take the story it sends, only from frotzlens's own origins. Nothing is
+ * uploaded: the bytes come from that tab.
+ */
+const FROM_FROTZLENS = [/^https:\/\/frotzlens\.frotzinc\.com$/, /^https:\/\/(staging|deploy-preview-\d+)--frotzlens\.netlify\.app$/, /^http:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/]
+function trusted(origin: string) {
+  if (/^http:\/\/(localhost|127\.0\.0\.1)/.test(origin) && !/^(localhost|127\.0\.0\.1)$/.test(location.hostname)) return false
+  return FROM_FROTZLENS.some(r => r.test(origin))
+}
+function onHandover(e: MessageEvent) {
+  const d = e.data as { type?: string; name?: string; bytes?: Uint8Array; dbg?: string }
+  if (!trusted(e.origin) || d?.type !== 'frotztrace:open' || !(d.bytes instanceof Uint8Array)) return
+  window.removeEventListener('message', onHandover)
+  void session.open({ name: String(d.name ?? 'story'), bytes: d.bytes, ...(typeof d.dbg === 'string' ? { dbg: d.dbg } : {}), sources: [] }).then(() => {
+    if (!location.hash) history.replaceState(null, '', `${location.pathname}#stack`)
+  })
+}
+
+onMounted(() => {
+  const q = new URLSearchParams(location.search)
+  if (q.get('from') === 'frotzlens') {
+    window.addEventListener('message', onHandover)
+    window.opener?.postMessage({ type: 'frotztrace:ready' }, '*')
+  } else if (q.has('sample')) void openSample(q.get('sample') || site.samples[0]!.id)
+  window.addEventListener('dragover', onDragOver)
+  window.addEventListener('drop', onWindowDrop)
+})
+onBeforeUnmount(() => {
+  window.removeEventListener('message', onHandover)
+  window.removeEventListener('dragover', onDragOver)
+  window.removeEventListener('drop', onWindowDrop)
+})
+function onDragOver(e: DragEvent) {
+  if (e.dataTransfer?.types.includes('Files')) e.preventDefault()
+}
+// Files dropped anywhere on the start page go to its slots (never navigating away to the raw file).
+function onWindowDrop(e: DragEvent) {
+  if (!e.dataTransfer?.types.includes('Files')) return
+  e.preventDefault()
+  if (!s.open && e.dataTransfer.files.length) void start.value?.take(e.dataTransfer.files)
+}
+function closeStory() {
+  session.close()
+  history.replaceState(null, '', location.pathname)
+  nextTick(() => main.value?.focus())
+}
 function skip(e: MouseEvent) {
   e.preventDefault()
   main.value?.focus()
 }
-
-const LINK = 'underline decoration-dotted underline-offset-4 hover:decoration-solid'
-const features = [
-  { icon: 'i-lucide-play', title: 'Run it under observation', text: 'Play the story while the object tree, globals, memory and disassembly change in front of you, with what just changed lit.' },
-  { icon: 'i-lucide-octagon-pause', title: 'Breakpoints', text: 'On a routine, an address, a source line, an Inform action, printed text, or a change to an object’s property or attribute.' },
-  { icon: 'i-lucide-layers', title: 'A call stack with names', text: 'Who called whom, with every local’s value; Inform names from the story’s debug file.' },
-  { icon: 'i-lucide-undo-2', title: 'Step backwards', text: 'Step into, over, out, and back: every run is deterministic, so any earlier instruction can be replayed exactly.' },
-]
 </script>
 
 <template>
   <UApp>
     <div class="flex min-h-dvh flex-col">
       <a href="#main" class="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-20 focus:rounded focus:bg-elevated focus:px-3 focus:py-2" @click="skip">Skip to content</a>
-      <AppHeader />
-      <main id="main" ref="main" tabindex="-1" class="flex-1 focus:outline-none">
-        <div class="mx-auto flex w-full max-w-4xl flex-col gap-10 px-4 py-8">
-          <div class="flex flex-col gap-3">
-            <p class="data text-sm text-lamp">Coming soon</p>
-            <h1 class="font-display text-3xl font-bold text-highlighted sm:text-4xl">A debugger for Z-machine stories</h1>
-            <p class="max-w-2xl text-lg">
-              Open a story file, press Run, and watch it work. frotztrace runs any version 3, 4, 5 or 8 story in your
-              browser, with breakpoints, watches and a live view of everything inside it. With Inform’s debug file and
-              source, it’s a source-level debugger for Inform 6. Nothing is uploaded.
-            </p>
-          </div>
-
-          <section aria-labelledby="what-title" class="flex flex-col gap-4">
-            <h2 id="what-title" class="font-display text-2xl font-semibold text-highlighted">What it will do</h2>
-            <ul class="grid gap-3 sm:grid-cols-2">
-              <li v-for="f in features" :key="f.title" class="flex flex-col gap-2 rounded-xl border border-default bg-muted px-5 py-4">
-                <span class="flex items-center gap-2 font-semibold text-highlighted">
-                  <UIcon :name="f.icon" class="size-5 shrink-0 text-lamp" aria-hidden="true" />{{ f.title }}
-                </span>
-                <span class="text-sm text-muted">{{ f.text }}</span>
-              </li>
-            </ul>
-          </section>
-
-          <section aria-labelledby="now-title" class="flex flex-col gap-3">
-            <h2 id="now-title" class="font-display text-2xl font-semibold text-highlighted">Until then</h2>
-            <p class="max-w-2xl">
-              <a href="https://frotzlens.frotzinc.com" :class="LINK">frotzlens</a> shows everything inside a story file at rest,
-              <a href="https://frotzplay.frotzinc.com" :class="LINK">frotzplay</a> plays it, and
-              <a href="https://frotzsmith.com" :class="LINK">frotzsmith</a> writes it. frotztrace is built on the same
-              code, and is being made in the open: read <a :href="site.designUrl" :class="LINK">its design</a>.
-            </p>
-          </section>
-        </div>
+      <AppHeader>
+        <template #context>
+          <span v-if="s.open" class="hidden truncate text-sm text-muted sm:inline">/ {{ s.name }}</span>
+        </template>
+        <template #actions>
+          <UButton v-if="s.open" color="neutral" variant="outline" icon="i-lucide-file-plus" @click="closeStory">
+            <span class="hidden sm:inline">Another story</span><span class="sr-only sm:hidden">Open another story</span>
+          </UButton>
+        </template>
+      </AppHeader>
+      <main id="main" ref="main" tabindex="-1" class="flex flex-1 flex-col focus:outline-none">
+        <DebugLayout v-if="s.open" />
+        <StartPage v-else ref="start" :error="s.error" :loading="loading" @open="o => session.open(o)" @sample="openSample" />
       </main>
       <AppFooter />
       <AboutDialogs :changelog="changelog" />

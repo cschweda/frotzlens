@@ -2,6 +2,17 @@
 
 All notable changes to `@frotzinc/nuxt-base`. Versions follow [Semantic Versioning](https://semver.org/). Part of [frotz, Inc.](https://frotzinc.com).
 
+## [0.3.2] - 2026-11-08
+
+### Fixed
+- The About dialog opened with frotzlens's own sentence ("…: disassemble it, explore it and play it…") in every app. It now says `product.summary`, each app's own, or the tagline when there's none.
+
+## [0.3.1] - 2026-11-08
+
+### Changed
+- **A sent report says it went.** After **Send**, the report dialog replaces the form with a confirmation: a check mark, **Sent**, where it went, and whether a reply will come. It takes the focus (and is a status region), so a screen reader announces it. A "Report sent" (or "Idea sent") toast stays after the dialog closes. **Send another** brings back an empty form; **Close** closes it.
+- A send that fails shows an alert, apart from the copy notices, saying nothing was sent and that GitHub is the way.
+
 ## [0.3.0] - 2026-11-08
 
 So frotzsmith can wear the family header and About menu too.

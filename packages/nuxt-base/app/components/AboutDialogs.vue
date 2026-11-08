@@ -53,17 +53,28 @@ const replyTo = ref('')
 const website = ref('')
 let openedAt = 0
 const sending = ref(false)
-const sent = ref(false)
+/** After a successful send the form gives way to a confirmation, so no one wonders whether it went. */
+const sent = ref<{ kind: IssueKind; replyTo: string } | null>(null)
+const sendError = ref('')
+const sentHeading = useTemplateRef<HTMLElement>('sentHeading')
+const toast = useToast()
 watch(dialog, (d) => {
   if (d === 'problem' || d === 'idea') {
     openedAt = Date.now()
-    sent.value = false
+    sent.value = null
+    sendError.value = ''
   }
 })
+function sendAnother() {
+  sent.value = null
+  sendError.value = ''
+  openedAt = Date.now()
+}
 async function sendReport() {
   if (!product.reportEndpoint || !required.value || sending.value) return
   sending.value = true
   copied.value = ''
+  sendError.value = ''
   try {
     const res = await fetch(product.reportEndpoint, {
       method: 'POST',
@@ -72,14 +83,16 @@ async function sendReport() {
     })
     const answer = (await res.json().catch(() => ({}))) as { ok?: boolean; error?: string }
     if (res.ok && answer.ok) {
-      sent.value = true
-      copied.value = `Sent. Thank you${replyTo.value.trim() ? ': a reply, if one’s needed, goes to the address you gave' : ''}.`
+      sent.value = { kind: draft.kind, replyTo: replyTo.value.trim() }
       draft.title = draft.happened = draft.expected = draft.story = draft.idea = ''
+      toast.add({ title: draft.kind === 'idea' ? 'Idea sent' : 'Report sent', description: `It went to ${product.name}’s maker by email. Thank you.`, icon: 'i-lucide-circle-check', color: 'success' })
+      // The confirmation replaces the form: put the focus on it, so a screen reader says so too.
+      nextTick(() => sentHeading.value?.focus())
     } else {
-      copied.value = `${answer.error ?? 'It couldn’t be sent just now.'} You can open it on GitHub instead.`
+      sendError.value = `${answer.error ?? 'It couldn’t be sent just now.'} Nothing was sent. You can open it on GitHub instead.`
     }
   } catch {
-    copied.value = 'It couldn’t be sent: the site didn’t answer. You can open it on GitHub instead.'
+    sendError.value = 'It couldn’t be sent: the site didn’t answer. Nothing was sent. You can open it on GitHub instead.'
   } finally {
     sending.value = false
   }
@@ -103,7 +116,7 @@ async function openIssue() {
   <UModal v-model:open="openAbout" :title="`About ${product.name}`" :description="`Version ${about.version}`">
     <template #body>
       <div class="flex flex-col gap-5 text-sm">
-        <p>{{ product.tagline }}: disassemble it, explore it and play it, in your browser. Nothing is uploaded.</p>
+        <p>{{ product.summary ?? `${product.tagline}.` }}</p>
         <section aria-labelledby="about-versions" class="flex flex-col gap-2">
           <h3 id="about-versions" class="font-semibold text-highlighted">Versions</h3>
           <dl class="data grid grid-cols-[max-content_minmax(0,1fr)] [&_dd]:[overflow-wrap:anywhere] gap-x-6 gap-y-1">
@@ -149,7 +162,21 @@ async function openIssue() {
   <!-- Report a problem / Suggest a feature -->
   <UModal v-model:open="openReport" :title="KINDS[kind].name" :description="product.reportEndpoint ? `Send it to ${product.name}’s maker by email, or open it as a GitHub issue. Only what you write here is sent, never a story file.` : `This opens GitHub’s issue form with what you write filled in. You review it and submit it there; ${product.name} sends nothing.`">
     <template #body>
-      <form class="flex flex-col gap-4 text-sm" @submit.prevent="product.reportEndpoint ? sendReport() : openIssue()">
+      <div v-if="sent" role="status" class="flex flex-col items-center gap-3 py-6 text-center" data-report-sent>
+        <UIcon name="i-lucide-circle-check" class="size-14 text-success" aria-hidden="true" />
+        <h3 ref="sentHeading" tabindex="-1" class="font-display text-2xl font-semibold text-highlighted focus:outline-none">Sent</h3>
+        <p class="max-w-md">
+          Your {{ sent.kind === 'idea' ? 'idea' : 'report' }} went to {{ product.name }}’s maker by email. Thank you.
+        </p>
+        <p class="max-w-md text-sm text-muted">
+          {{ sent.replyTo ? `A reply, if one’s needed, will go to ${sent.replyTo}.` : 'You didn’t leave an address, so there won’t be a reply, but it will be read.' }}
+        </p>
+        <div class="mt-2 flex flex-wrap justify-center gap-2">
+          <UButton color="neutral" variant="outline" icon="i-lucide-rotate-ccw" @click="sendAnother">Send another</UButton>
+          <UButton icon="i-lucide-check" @click="close">Close</UButton>
+        </div>
+      </div>
+      <form v-else class="flex flex-col gap-4 text-sm" @submit.prevent="product.reportEndpoint ? sendReport() : openIssue()">
         <UFormField label="Title" name="title">
           <UInput v-model="draft.title" class="w-full" :placeholder="kind === 'problem' ? 'In a few words' : 'Your idea, in a few words'" />
         </UFormField>
@@ -184,6 +211,7 @@ async function openIssue() {
           A security problem? Please don’t open a public issue: see
           <a :href="SECURITY_URL" target="_blank" rel="noopener noreferrer" class="text-lamp underline decoration-dotted underline-offset-4">SECURITY.md</a>.
         </p>
+        <p v-if="sendError" role="alert" class="rounded-md border border-default border-l-4 border-l-[var(--ui-error)] bg-elevated p-3 text-highlighted">{{ sendError }}</p>
         <p v-if="copied" role="status" class="text-muted">{{ copied }}</p>
         <div class="flex flex-wrap gap-2">
           <UButton v-if="product.reportEndpoint" type="submit" icon="i-lucide-send" :loading="sending" :disabled="!required || sending">Send</UButton>

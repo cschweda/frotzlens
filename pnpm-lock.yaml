@@ -69,6 +69,18 @@ importers:
       '@frotzinc/nuxt-base':
         specifier: workspace:*
         version: link:../../packages/nuxt-base
+      '@frotzinc/player':
+        specifier: workspace:*
+        version: link:../../packages/player
+      '@frotzinc/zcode':
+        specifier: workspace:*
+        version: link:../../packages/zcode
+      '@frotzinc/zcode-ui':
+        specifier: workspace:*
+        version: link:../../packages/zcode-ui
+      '@frotzinc/zmachine':
+        specifier: workspace:*
+        version: link:../../packages/zmachine
       '@nuxt/ui':
         specifier: 4.12.0
         version: 4.12.0(716f4b80cc7414e37038f5f7a3a96b5b)
@@ -82,6 +94,9 @@ importers:
       '@axe-core/playwright':
         specifier: 4.14.0
         version: 4.14.0(playwright-core@1.64.1)
+      '@frotzinc/inform6-wasm':
+        specifier: workspace:*
+        version: link:../../packages/inform6-wasm
       '@iconify-json/lucide':
         specifier: ^1.2.148
         version: 1.2.151
@@ -228,6 +243,28 @@ importers:
         specifier: ^3.3.14
         version: 3.3.14(typescript@5.9.3)
 
+  packages/trace-cli:
+    dependencies:
+      '@frotzinc/inform6-wasm':
+        specifier: workspace:*
+        version: link:../inform6-wasm
+      '@frotzinc/zcode':
+        specifier: workspace:*
+        version: link:../zcode
+      '@frotzinc/zmachine':
+        specifier: workspace:*
+        version: link:../zmachine
+    devDependencies:
+      '@types/node':
+        specifier: ^22.20.5
+        version: 22.20.5
+      typescript:
+        specifier: 5.9.3
+        version: 5.9.3
+      vitest:
+        specifier: ^5.1.0
+        version: 5.1.0(@types/node@22.20.5)(happy-dom@20.14.6)(vite@8.3.6(@types/node@22.20.5)(esbuild@0.28.2)(jiti@2.7.0)(terser@5.51.2))
+
   packages/worker-rpc:
     devDependencies:
       typescript:
@@ -254,6 +291,9 @@ importers:
       '@frotzinc/zcode':
         specifier: workspace:*
         version: link:../zcode
+      '@frotzinc/zmachine':
+        specifier: workspace:*
+        version: link:../zmachine
       '@nuxt/ui':
         specifier: ^4.12.0
         version: 4.12.0(716f4b80cc7414e37038f5f7a3a96b5b)

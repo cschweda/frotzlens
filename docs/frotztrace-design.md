@@ -144,7 +144,7 @@ What's new is the **debugger chrome**, kept small: a toolbar under the header (R
 
 ### 6.2 First load
 
-The Frotzlens drop zone, with three slots instead of one: **story** (required), **debug file** (optional, "for names and source lines"), **source** (optional, one or more `.inf`, "for the Source view"). A "try the sample" button loads Dark Cellar with its `.dbg` and `.inf`. One sentence under it. Nothing else.
+The Frotzlens drop zone, with three slots instead of one: **story** (required), **debug file** (optional, "for names and source lines"), **source** (optional, one or more `.inf`, "for the Source view"). **Samples, so no one needs a story of their own** (Chris, 2026-11-08): a row of frotzsmith's sample games, as frotzplay's start page has (Dark Cellar first, then the Locked Chest, the Hermit, Magic 8-Ball and a PunyInform one), each loaded with its `.dbg` and `.inf` so breakpoints on actions and lines, source stepping and rewind all work at once. They're compiled at build time from `samples/src` with `@frotzinc/inform6-wasm` (with `-k`, so each has its debug file), as frotzplay copies its samples, and `?sample=<id>` opens one. One sentence under it. Nothing else.
 
 ### 6.3 Layout after load
 

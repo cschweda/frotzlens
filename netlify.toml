@@ -11,6 +11,16 @@
 
 [build]
   base = "apps/web"
+  # Skip the build when a push changes nothing frotzlens is built from, so a README-, docs-,
+  # frotzplay- or frotztrace-only merge doesn't redeploy frotzlens (each production deploy costs
+  # credits). Netlify skips when this exits 0 and builds otherwise. The paths, relative to `base`:
+  # this app; the libraries it is built from (zcode, zcode-ui, worker-rpc, nuxt-base, inform6-wasm);
+  # what it reads from the repository (the samples, the root CHANGELOG.md for What's new, this
+  # file's headers, and the CLI's package.json for the About menu's versions); and the workspace
+  # files that decide how they build. Add a path here when apps/web starts depending on another.
+  # The first test always builds when there is no previous deploy to compare with (Netlify sets
+  # CACHED_COMMIT_REF to COMMIT_REF then).
+  ignore = "test \"$CACHED_COMMIT_REF\" = \"$COMMIT_REF\" && exit 1; git diff --quiet \"$CACHED_COMMIT_REF\" \"$COMMIT_REF\" -- . ../../packages/zcode ../../packages/zcode-ui ../../packages/worker-rpc ../../packages/nuxt-base ../../packages/inform6-wasm ../../packages/cli/package.json ../../samples ../../CHANGELOG.md ../../netlify.toml ../../package.json ../../pnpm-lock.yaml ../../pnpm-workspace.yaml ../../tsconfig.base.json"
   # Netlify runs its own `pnpm install` first; the frozen install keeps a
   # drifted lockfile from being rewritten (and passing). Then build the
   # libraries the app depends on (`^...` = its workspace dependencies, not

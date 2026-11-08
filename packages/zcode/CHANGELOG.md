@@ -2,6 +2,12 @@
 
 All notable changes to `@frotzinc/zcode`. Versions follow [Semantic Versioning](https://semver.org/). Part of [frotz, Inc.](https://frotzinc.com).
 
+
+## [0.5.0] - 2026-11-08
+
+### Added
+- **Sequence points**: `readSymbols` reads each statement's start from Inform's debug file into `Symbols.lines` (`{ address, location }`, sorted by address), so a debugger can map the PC to a source line and set a breakpoint on one (frotztrace Phase 3).
+- **`liveTables(story, memory)`**: the object table and globals re-read from a running machine's memory, with the story's own text settings, for a debugger's live views (frotztrace Phase 4). A file without them, and inferred symbols, have none. Tested on every debug fixture: each point is an instruction's start, or a routine's end where a closing `]` follows a statement that returned.
 ## [0.4.1] - 2026-11-07
 
 ### Changed
