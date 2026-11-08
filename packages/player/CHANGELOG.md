@@ -2,6 +2,14 @@
 
 All notable changes to `@frotzinc/player`. Versions follow [Semantic Versioning](https://semver.org/). Part of [frotz, Inc.](https://frotzinc.com).
 
+
+## [0.3.0] - 2026-11-08
+
+For a host that drives the machine itself (frotztrace's debugger). Nothing changes for `ZPlayer` or `useMachine`.
+
+### Added
+- **`useScreen(version)`**: the screen without a machine of its own. It records what `ZPlayer` draws (one block per turn, styled runs, the status line, the upper window, what the story waits for) from a print hook and each stop, and `useMachine` is now built on it. Behaviour is unchanged: the contract suite (99 checks, three browsers) and frotzplay's site tests pass as before.
+- **The screen components are exported**: `ZTranscript`, `ZUpperWindow`, `ZStatusBar`, `ZCommandLine`, `ZRuns`, `ZAnnouncer`, `ZMessages`, to compose a screen with `useScreen`.
 ## [0.2.1] - 2026-11-07
 
 ### Changed

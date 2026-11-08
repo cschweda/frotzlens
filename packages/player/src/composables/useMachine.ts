@@ -3,40 +3,11 @@
  * thread (yielding between them, so the page stays responsive), turn its stops into state, and keep
  * the story as one block per turn.
  */
-import { Machine, type Fault, type MachineSnapshot, type StopReason, type StyledRun } from '@frotzinc/zmachine'
-import { markRaw, reactive, shallowReactive } from 'vue'
-import { statusSentence } from '../announce.js'
+import { Machine, type MachineSnapshot, type StopReason } from '@frotzinc/zmachine'
+import { markRaw } from 'vue'
+import { useScreen, type MachineState, type TurnBlock } from './useScreen.js'
 
-export type TurnKind = 'banner' | 'line' | 'key' | 'timer' | 'continued'
-
-export interface TurnBlock {
-  id: number
-  kind: TurnKind
-  /** What the player typed (or the key they pressed); null for the banner and timer turns. */
-  command: string | null
-  runs: StyledRun[]
-  /** The turn's text, unstyled (for the announcer and the transcript export). */
-  text: string
-  /** True when the host typed the command (`send()`), not the player. */
-  fed?: boolean
-}
-
-export type Phase = 'running' | 'line' | 'char' | 'save' | 'restore' | 'quit' | 'fault'
-
-export interface MachineState {
-  phase: Phase
-  version: number
-  turns: TurnBlock[]
-  /** The status line as a sentence (announced on change), and as drawn. */
-  status: { sentence: string; left: string; right: string }
-  /** The upper window's rows (v4+), as text. */
-  upper: string[]
-  /** What the machine is waiting on, when it is. */
-  waiting: StopReason | null
-  fault: Fault | null
-  /** The commands so far, `[timeout]` and `[key x]` included: a script zmachine-run replays. */
-  script: string[]
-}
+export type { MachineState, Phase, TurnBlock, TurnKind } from './useScreen.js'
 
 export interface MachineOptions {
   seed: number
@@ -48,104 +19,36 @@ export interface MachineOptions {
 
 const yieldToPage = () => new Promise<void>(r => setTimeout(r, 0))
 
-/**
- * The runs as the transcript shows them: leading blank lines dropped, and, when the story now waits
- * for a command, its trailing prompt ("> ") too, since the next turn starts with the command after
- * its own "> ". The turn's `text` keeps everything (the "full" announcement, the export).
- */
-function forDisplay(runs: StyledRun[], stop: StopReason): StyledRun[] {
-  const out = runs.map(r => ({ ...r }))
-  while (out.length && /^\s*$/.test(out[0]!.text)) out.shift()
-  if (out.length) out[0]!.text = out[0]!.text.replace(/^\n+/, '')
-  if (stop.kind === 'input-line') {
-    while (out.length && /^\s*>?\s*$/.test(out.at(-1)!.text)) out.pop()
-    if (out.length) out.at(-1)!.text = out.at(-1)!.text.replace(/\n*>?[ \t]*$/, '').replace(/\s+$/, '')
-  }
-  return out
-}
-
 export function useMachine(story: Uint8Array, options: MachineOptions) {
   let machine: Machine
-  let nextId = 1
-  /** Runs printed in this turn (window 0), gathered by the print hook. */
-  let runs: StyledRun[] = []
-  let current: TurnBlock | null = null
   /** The snapshot as the last turn began: "go back one turn" after a fault. */
   let previous: MachineSnapshot | null = null
-
-  const state: MachineState = reactive({
-    phase: 'running',
-    version: story[0] ?? 0,
-    turns: shallowReactive([]) as TurnBlock[],
-    status: { sentence: '', left: '', right: '' },
-    upper: [],
-    waiting: null,
-    fault: null,
-    script: [],
-  })
+  const screenState = useScreen(story[0] ?? 0)
+  const state = screenState.state
 
   const hooks = {
     print(text: string, window: 0 | 1) {
-      if (window !== 0) return
-      const s = machine.state.screen
-      const last = runs.at(-1)
-      if (last && last.style === s.style && last.fg === s.colours.fg && last.bg === s.colours.bg && last.font === s.font) last.text += text
-      else runs.push({ text, style: s.style, fg: s.colours.fg, bg: s.colours.bg, font: s.font })
+      screenState.print(text, window, machine.state.screen)
     },
   }
 
   function create(): Machine | null {
     const m = Machine.create(story, { seed: options.seed, hooks })
     if (!(m instanceof Machine)) {
-      state.phase = 'fault'
-      state.fault = m.fault
+      screenState.fail(m.fault)
       return null
     }
     return markRaw(m)
   }
 
-  function begin(kind: TurnKind, command: string | null) {
-    runs = []
-    current = { id: nextId++, kind, command, runs: [], text: '' }
-  }
-
-  function readScreen() {
-    const s = machine.state.screen
-    const rows = s.upper.grid.map(row => row.map(c => c.ch).join('').replace(/\s+$/, ''))
-    state.upper = rows
-    if (state.version === 3) {
-      const line = s.statusLine
-      state.status = {
-        sentence: statusSentence(3, line, undefined),
-        left: line?.location ?? '',
-        right: !line ? '' : line.hours !== undefined ? `${line.hours % 24}:${String(line.minutes ?? 0).padStart(2, '0')}` : `Score: ${line.score ?? 0}  Moves: ${line.moves ?? 0}`,
-      }
-    } else {
-      // The game spaces its own fields across the row: split at the first wide gap, as v3's bar.
-      const first = rows[0] ?? ''
-      const m = /^\s*(.*?\S)\s{3,}(\S.*?)\s*$/.exec(first)
-      state.status = { sentence: statusSentence(state.version, undefined, first), left: m ? m[1]! : first.trim(), right: m ? m[2]! : '' }
-    }
-  }
-
   function finish(stop: StopReason) {
-    if (current) {
-      current.runs = forDisplay(runs, stop)
-      current.text = runs.map(r => r.text).join('')
-      state.turns.push(current)
-      const block = current
-      current = null
-      readScreen()
-      state.waiting = stop
-      state.phase = stop.kind === 'input-line' ? 'line' : stop.kind === 'input-char' ? 'char' : stop.kind === 'quit' ? 'quit' : 'fault'
-      if (stop.kind === 'fault') state.fault = stop.fault
-      options.onTurn?.(block, state)
-    }
+    const block = screenState.finish(stop, machine.state.screen)
+    if (block) options.onTurn?.(block, state)
   }
 
   /** Run until the machine stops for something the player must give (or it quits, or faults). */
   async function go() {
-    state.phase = 'running'
+    screenState.running()
     for (;;) {
       const stop = machine.run(options.slice ?? 20_000)
       if (stop.kind === 'budget') {
@@ -155,8 +58,7 @@ export function useMachine(story: Uint8Array, options: MachineOptions) {
       machine.flushText() // the runs are kept by the hook; the plain buffer isn't needed
       if (stop.kind === 'save' || stop.kind === 'restore') {
         // Mid-turn: the player answers, and the turn goes on (answerSave, answerRestore).
-        state.waiting = stop
-        state.phase = stop.kind
+        screenState.waitFor(stop)
         return
       }
       finish(stop)
@@ -168,10 +70,8 @@ export function useMachine(story: Uint8Array, options: MachineOptions) {
     const m = create()
     if (!m) return
     machine = m
-    state.turns.splice(0)
-    state.script = []
-    state.fault = null
-    begin('banner', null)
+    screenState.clear()
+    screenState.begin('banner', null)
     await go()
   }
 
@@ -179,8 +79,7 @@ export function useMachine(story: Uint8Array, options: MachineOptions) {
     if (state.phase !== 'line') return
     previous = machine.snapshot()
     state.script.push(line)
-    begin('line', line)
-    if (fed) current!.fed = true
+    screenState.begin('line', line, fed)
     machine.resume({ line })
     await go()
   }
@@ -189,8 +88,7 @@ export function useMachine(story: Uint8Array, options: MachineOptions) {
     if (state.phase !== 'char') return
     previous = machine.snapshot()
     state.script.push(code === 13 ? '[key]' : `[key ${String.fromCharCode(code)}]`)
-    begin('key', label)
-    if (fed) current!.fed = true
+    screenState.begin('key', label, fed)
     machine.resume({ char: code })
     await go()
   }
@@ -199,7 +97,7 @@ export function useMachine(story: Uint8Array, options: MachineOptions) {
   async function timeout() {
     if (state.phase !== 'line' && state.phase !== 'char') return
     state.script.push('[timeout]')
-    begin('timer', null)
+    screenState.begin('timer', null)
     machine.resume({ timeout: true })
     await go()
   }
@@ -229,8 +127,7 @@ export function useMachine(story: Uint8Array, options: MachineOptions) {
     machine = markRaw(m)
     state.fault = null
     // The story so far, as one block: the lower window as the snapshot has it.
-    begin('continued', null)
-    runs = snap.screen.lower.runs.map(r => ({ ...r }))
+    screenState.continued(snap.screen.lower.runs)
     await go()
     return true
   }
