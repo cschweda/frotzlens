@@ -7,7 +7,7 @@
 [![Netlify Status](https://api.netlify.com/api/v1/badges/ff4e0b7c-4eed-4fb8-8d7e-25dd7e1f8e69/deploy-status)](https://app.netlify.com/projects/frotzlens/deploys)
 [![TypeScript](https://img.shields.io/badge/TypeScript-strict-3178C6.svg)](https://www.typescriptlang.org)
 [![Z-machine](https://img.shields.io/badge/Z--machine-v3%20%C2%B7%20v4%20%C2%B7%20v5%20%C2%B7%20v8-f59e0b.svg)](https://inform-fiction.org/zmachine/standards/)
-[![Status](https://img.shields.io/badge/status-v0.3.15-brightgreen.svg)](./CHANGELOG.md)
+[![Status](https://img.shields.io/badge/status-v0.3.16-brightgreen.svg)](./CHANGELOG.md)
 
 **This repository holds three apps (one still in development) and the libraries they share:**
 
@@ -159,6 +159,16 @@ pnpm test
 With `INFODUMP=/path/to/infodump TXD=/path/to/txd pnpm test`, the tests also compare every hand-observed header case, and every story in `samples/`, against the real tools.
 
 CI (`.github/workflows/ci.yml`) runs install, build, typecheck and test on every push to `main`, every pull request and every release tag.
+
+## Branches and deploys
+
+Netlify builds frotzlens, frotzplay and frotztrace from this repository, and **every production deploy costs credits**, while Deploy Previews and branch deploys are free. So changes go through a `staging` branch:
+
+1. **A branch per change**, and a pull request into **`staging`**. CI runs on it, and Netlify builds a free Deploy Preview for each site it touches.
+2. **Merge into `staging`** freely. Netlify deploys it, free, at `staging--frotzlens.netlify.app`, `staging--frotzplay.netlify.app` and `staging--frotztrace.netlify.app`: everything waiting, together.
+3. **When staging looks right, one pull request from `staging` into `main`**, merged with a merge commit (never squashed, so the two branches stay one history). That's the production deploy: one per site whose files changed, thanks to each site's `ignore` rule.
+
+A fix made straight on `main` is merged back into `staging`. Releases to npm are made from `main` (below).
 
 ## Releasing a package
 

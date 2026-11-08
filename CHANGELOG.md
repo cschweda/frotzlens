@@ -2,6 +2,11 @@
 
 All notable changes to frotzlens: the web app at [frotzlens.frotzinc.com](https://frotzlens.frotzinc.com), and this repository. The packages keep their own changelogs: [`@frotzinc/zcode`](packages/zcode/CHANGELOG.md), [`@frotzinc/zcode-ui`](packages/zcode-ui/CHANGELOG.md), [`frotzlens`](packages/cli/CHANGELOG.md) (the CLI), [`@frotzinc/worker-rpc`](packages/worker-rpc/CHANGELOG.md), [`@frotzinc/nuxt-base`](packages/nuxt-base/CHANGELOG.md), [`@frotzinc/inform6-wasm`](packages/inform6-wasm/CHANGELOG.md). Versions follow [Semantic Versioning](https://semver.org/). Part of [frotz, Inc.](https://frotzinc.com).
 
+## [0.3.16] - 2026-11-08
+
+### Changed
+- **Changes now go through a `staging` branch** (README, "Branches and deploys"): pull requests merge into `staging`, which Netlify deploys for free at `staging--<site>.netlify.app`, and `staging` merges into `main`, the production deploy, when it looks right. CI also runs on pushes to `staging`.
+
 ## [0.3.15] - 2026-11-08
 
 frotztrace Phase 2 ([docs/19](docs/19-frotztrace-phase-2-time.md)): time runs both ways. frotzlens and frotzplay work as before.
