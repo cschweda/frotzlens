@@ -26,6 +26,12 @@ export interface SymbolDeclaration {
   location: SourceLocation
 }
 
+/** One statement's start: its code's address and where it is in the source. */
+export interface SequencePoint {
+  address: number
+  location: SourceLocation
+}
+
 export interface SymbolRoutine {
   name: string
   /** Made up by the compiler (e.g. `SelfClass::description`, an embedded routine), not a source name. */
@@ -71,6 +77,12 @@ export interface Symbols {
   constants: Record<string, number>
   /** Everything with a source location, in the file's order. */
   declarations: SymbolDeclaration[]
+  /**
+   * Inform's sequence points: the address where each statement's code starts, and its source
+   * location, sorted by address. A debugger maps the PC to a source line with these. Absent when
+   * the file has none (and in inferred symbols).
+   */
+  lines?: SequencePoint[]
   /** The first 64 bytes of the story this was written with: its header. */
   prefix?: Uint8Array
   /** Problems reading the file: a malformed document, entries with no usable value. */
@@ -171,6 +183,12 @@ export function readSymbols(xml: string): Symbols {
           const n = childText(l, 'identifier')
           if (i !== undefined && i >= 1 && i <= 15 && n) locals[i - 1] = n
         }
+        for (const sp of el.children) {
+          if (sp.name !== 'sequence-point') continue
+          const at = num(childText(sp, 'address'))
+          const where = location(sp)
+          if (at !== undefined && where) (s.lines ??= []).push({ address: at, location: where })
+        }
         const byteCount = num(childText(el, 'byte-count'))
         const loc = location(el)
         s.routines[address] = {
@@ -244,6 +262,7 @@ export function readSymbols(xml: string): Symbols {
     }
   }
   if (skipped) s.problems.push(`${skipped} entr${skipped === 1 ? 'y' : 'ies'} had no usable name or value and were left out.`)
+  s.lines?.sort((a, b) => a.address - b.address)
   return s
 }
 

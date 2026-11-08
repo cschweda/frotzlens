@@ -11,8 +11,8 @@ set -euo pipefail
 #   ./publish.sh --help                print this
 #   <package> is worker-rpc, nuxt-base, inform6-wasm, zcode, zcode-ui, zmachine, player (or the
 #   full @frotzinc/<name>), or cli (the unscoped frotzlens CLI; `frotzlens` works too). Publish a
-#   package before what depends on it: zcode before the CLI, zcode-ui and zmachine, zmachine before
-#   player.
+#   package before what depends on it: zcode before the CLI and zmachine, zmachine before player
+#   and zcode-ui.
 #
 # A release comes first, and this script never makes one: bump the package's version, add its
 # CHANGELOG.md section, merge to main, and push the tag <package name>@<version> (e.g.
@@ -318,8 +318,8 @@ EXTRA=$(grep -E "$FORBIDDEN_RE" <<<"$FILES" || true)
 [[ -z "$EXTRA" ]] || die "The package holds files it mustn't:"$'\n'"$EXTRA"
 
 # The packed manifest: its license, and nothing that runs on install. A library has no runtime
-# dependencies (peers are fine), except the @frotzinc packages it's built on: zmachine and zcode-ui
-# have @frotzinc/zcode, player has @frotzinc/zmachine. The CLI has @frotzinc/zcode and, for --inform,
+# dependencies (peers are fine), except the @frotzinc packages it's built on: zmachine has
+# @frotzinc/zcode, zcode-ui has zcode and zmachine, player has @frotzinc/zmachine. The CLI has @frotzinc/zcode and, for --inform,
 # @frotzinc/inform6-wasm. Each at an exact version that is already on npm (so publish those first).
 tar -xzf "$TARBALL" -C "$WORK" package/package.json
 node --input-type=commonjs -e '
@@ -332,7 +332,7 @@ node --input-type=commonjs -e '
   const ALLOWED = {
     "frotzlens": [["@frotzinc/zcode"], ["@frotzinc/inform6-wasm"]],
     "@frotzinc/zmachine": [["@frotzinc/zcode"], []],
-    "@frotzinc/zcode-ui": [["@frotzinc/zcode"], []],
+    "@frotzinc/zcode-ui": [["@frotzinc/zcode", "@frotzinc/zmachine"], []],
     "@frotzinc/player": [["@frotzinc/zmachine"], []],
   };
   const keys = Object.keys(deps);

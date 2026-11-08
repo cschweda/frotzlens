@@ -230,6 +230,9 @@ importers:
 
   packages/trace-cli:
     dependencies:
+      '@frotzinc/inform6-wasm':
+        specifier: workspace:*
+        version: link:../inform6-wasm
       '@frotzinc/zcode':
         specifier: workspace:*
         version: link:../zcode
@@ -273,6 +276,9 @@ importers:
       '@frotzinc/zcode':
         specifier: workspace:*
         version: link:../zcode
+      '@frotzinc/zmachine':
+        specifier: workspace:*
+        version: link:../zmachine
       '@nuxt/ui':
         specifier: ^4.12.0
         version: 4.12.0(716f4b80cc7414e37038f5f7a3a96b5b)

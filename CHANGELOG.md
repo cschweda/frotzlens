@@ -2,6 +2,16 @@
 
 All notable changes to frotzlens: the web app at [frotzlens.frotzinc.com](https://frotzlens.frotzinc.com), and this repository. The packages keep their own changelogs: [`@frotzinc/zcode`](packages/zcode/CHANGELOG.md), [`@frotzinc/zcode-ui`](packages/zcode-ui/CHANGELOG.md), [`frotzlens`](packages/cli/CHANGELOG.md) (the CLI), [`@frotzinc/worker-rpc`](packages/worker-rpc/CHANGELOG.md), [`@frotzinc/nuxt-base`](packages/nuxt-base/CHANGELOG.md), [`@frotzinc/inform6-wasm`](packages/inform6-wasm/CHANGELOG.md). Versions follow [Semantic Versioning](https://semver.org/). Part of [frotz, Inc.](https://frotzinc.com).
 
+## [0.3.18] - 2026-11-08
+
+frotztrace Phase 3 ([docs/20](docs/20-frotztrace-phase-3-inform.md)): the Inform layer.
+
+### Added
+- **The Debugger knows Inform** (`@frotzinc/zmachine` 0.2.0, unpublished): names, source lines, and `action`/`noun`/`second`; breakpoints on a source line, an action, printed text, a memory write, a property or an attribute, each with an optional condition; watches; an expression language (`score > 10 && lantern has light`), with no side effects; and `view()`, what changed since the last stop, for the app. The action breakpoint stops when the library begins the action, with noun and second already set.
+- **Sequence points** in `@frotzinc/zcode` 0.5.0: `readSymbols` maps every statement's start to its source line.
+- **`frotztrace`** gains `--break action:Take`, `line:`, `text:`, `--if`, `--watch`, `--save-at` and `--quetzal`. Without a debug file it works out names itself: `frotztrace dark-cellar.z5 --script walk.txt --break action:Take` stops in turn 3 inside `InformLibrary.begin_action` with a named stack.
+- `@frotzinc/zcode-ui` 0.1.1 re-exports the Debugger's `MachineView`.
+
 ## [0.3.16] - 2026-11-08
 
 ### Changed

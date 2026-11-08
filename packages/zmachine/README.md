@@ -36,6 +36,13 @@ d.resume({ line: 'look' })    // as Machine.resume, and logged in d.inputLog
 d.trace.events()              // [{ kind: 'call', at, routine, args, depth }, …]
 d.stepBack()                  // and goToInstruction(n), goToTurn(t): back (or forward) in time
 d.timeline()                  // { current, head, turns: [{ turn, instruction, line }], checkpoints }
+
+// With symbols (zcode's readSymbols(gameinfo.dbg), or inferSymbols without one):
+d.addBreakpoint({ kind: 'action', action: 4, condition: 'noun == lantern' })
+d.inform()                    // { action: { value: 4, name: 'Take' }, noun: { value: 27, name: 'lantern' }, … }
+d.sourceLine(); d.stepLine()  // story.inf:106
+d.addWatch('lantern in player'); d.evaluate('score > 10')
+d.view()                      // { pc, frame, changed: { addresses, globals, objects } }
 ```
 
 **Time runs both ways.** The debugger keeps checkpoints (at every prompt, and every 100 000 instructions) and the log of every input with when it was given; going back restores the nearest checkpoint and replays, exactly, since random is seeded. Behind the furthest point reached, running forward replays the logged future; giving a new input there starts a new timeline. Every stop is before the instruction at the PC runs; a breakpoint the debugger is resting on doesn't fire again until the machine moves. Each frame now records its routine (`Frame.routine`), so a stack can be named; a 0.1.x snapshot, whose frames lack it, still restores. The design: [docs/18](../../docs/18-frotztrace-phase-1-debugger.md).

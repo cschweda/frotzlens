@@ -4,11 +4,13 @@ All notable changes to `@frotzinc/zmachine`. Versions follow [Semantic Versionin
 
 ## [0.2.0] - 2026-11-08
 
-frotztrace's debugger, added beside the interpreter, with rewind; nothing that was there changes.
+frotztrace's debugger, added beside the interpreter, with rewind and the Inform layer; nothing that was there changes.
 
 ### Added
 - **`Debugger`**: a machine run under observation. `run`, `stepInstruction`, `stepOver`, `stepOut`, `runToInput`, `runToTurn`, `continueTo` and `pause`, each in slices (a budget) so a host stays responsive; address and routine breakpoints, with hit counts, that can be disabled or removed; `stack()`, each frame named by its routine; a ring-buffer trace of calls, returns, writes, prints, input and branches, each stamped with the instruction count; and the log of every input it passes on. With nothing set, a story plays exactly as on a plain `Machine` (tested on the Dark Cellar walkthrough: the same text and the same memory at the end).
 - **Rewind** (frotztrace Phase 2): `stepBack(n)`, `goToInstruction(n)`, `goToTurn(t)` and `timeline()`. Checkpoints at every prompt and every `checkpointEvery` instructions (default 100 000), sharing the transcript and undo ring instead of copying them, and the input log (each input with the instruction count it was given at) replayed exactly. Behind the furthest point reached, running forward replays the logged future; a new input there starts a new timeline. Going to any point of a 2-million-instruction game takes a few milliseconds. `inputLog` entries are `{ at, input }`.
+- **The Inform layer** (frotztrace Phase 3): give the Debugger `symbols` (zcode's `readSymbols`, or `inferSymbols` without a debug file) and it names things. `inform()` gives `action`/`actor`/`noun`/`second` by name; `sourceLine()` and `stepLine()` work from the sequence points. New breakpoints: `line`, `action` (stops when the library begins the action, with noun and second set), `text`, `write`, `property` and `attribute`, each with an optional `condition`; a breakpoint that can't fire says why in `error`. Watches (`addWatch`), `evaluate()`, and `view()`, the `MachineView` the UI lights: the PC, the frame, and the addresses, globals and objects written since the last stop.
+- **The expression language** (`parseExpr`, `evaluateExpr`): globals, locals and objects by name, `obj.prop`, `has`/`hasnt`/`in`, `parent()`/`child()`/`sibling()`, `##Action`, arithmetic and comparisons (16-bit, signed), `&&`/`||`/`!`. No side effects: no assignment, no calls.
 - **`Frame.routine`**: each frame a call makes records the routine's address, so a debugger can name it and it survives `snapshot()`. Undefined for the main routine's frame, for frames restored from a Quetzal save (Quetzal has no such field), and in a 0.1.x snapshot, which still restores. Save files are unchanged, byte for byte.
 
 ## [0.1.1] - 2026-11-07
