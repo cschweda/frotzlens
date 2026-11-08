@@ -172,7 +172,7 @@ async function openIssue() {
           {{ sent.replyTo ? `A reply, if one’s needed, will go to ${sent.replyTo}.` : 'You didn’t leave an address, so there won’t be a reply, but it will be read.' }}
         </p>
         <div class="mt-2 flex flex-wrap justify-center gap-2">
-          <UButton color="neutral" variant="outline" icon="i-lucide-rotate-ccw" @click="sendAnother">Send another</UButton>
+          <UButton color="neutral" variant="outline" icon="i-lucide-rotate-ccw" @click="sendAnother">Send another email</UButton>
           <UButton icon="i-lucide-check" @click="close">Close</UButton>
         </div>
       </div>
@@ -214,7 +214,7 @@ async function openIssue() {
         <p v-if="sendError" role="alert" class="rounded-md border border-default border-l-4 border-l-[var(--ui-error)] bg-elevated p-3 text-highlighted">{{ sendError }}</p>
         <p v-if="copied" role="status" class="text-muted">{{ copied }}</p>
         <div class="flex flex-wrap gap-2">
-          <UButton v-if="product.reportEndpoint" type="submit" icon="i-lucide-send" :loading="sending" :disabled="!required || sending">Send</UButton>
+          <UButton v-if="product.reportEndpoint" type="submit" icon="i-lucide-send" :loading="sending" :disabled="!required || sending">Send email</UButton>
           <UButton v-if="product.reportEndpoint" color="neutral" variant="outline" icon="i-lucide-external-link" :disabled="!required" @click="openIssue">Open on GitHub</UButton>
           <UButton v-else type="submit" icon="i-lucide-external-link" :disabled="!required">Open on GitHub</UButton>
           <UButton color="neutral" variant="outline" icon="i-lucide-clipboard" :disabled="!required" @click="copy(reportText(draft, details), 'The report')">Copy the report</UButton>

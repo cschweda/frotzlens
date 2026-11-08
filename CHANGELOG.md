@@ -2,6 +2,11 @@
 
 All notable changes to frotzlens: the web app at [frotzlens.frotzinc.com](https://frotzlens.frotzinc.com), and this repository. The packages keep their own changelogs: [`@frotzinc/zcode`](packages/zcode/CHANGELOG.md), [`@frotzinc/zcode-ui`](packages/zcode-ui/CHANGELOG.md), [`frotzlens`](packages/cli/CHANGELOG.md) (the CLI), [`@frotzinc/worker-rpc`](packages/worker-rpc/CHANGELOG.md), [`@frotzinc/nuxt-base`](packages/nuxt-base/CHANGELOG.md), [`@frotzinc/inform6-wasm`](packages/inform6-wasm/CHANGELOG.md). Versions follow [Semantic Versioning](https://semver.org/). Part of [frotz, Inc.](https://frotzinc.com).
 
+## [0.5.2] - 2026-11-08
+
+### Changed
+- Every frotz app's report dialog says **Send email** (not **Send**), from `@frotzinc/nuxt-base` 0.3.3. frotzlens 0.5.2, frotzplay 0.1.6, frotztrace 0.2.2.
+
 ## [0.5.1] - 2026-11-08
 
 The release of frotztrace's first phases to npm.
