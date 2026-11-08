@@ -4,8 +4,8 @@ import type { MachineView } from '../utils/live'
 /**
  * A hex view of bytes, a page of rows at a time so a large file stays quick, with "Go to address"
  * and paging. `top` (v-model) is the first row's address. `notes` labels what begins in a row;
- * `inRange` dims the bytes outside the part being shown. `live` is unused until frotztrace's
- * Phase 4, when it lights the bytes a running machine changed.
+ * `inRange` dims the bytes outside the part being shown. `live` (frotztrace) lights the bytes the
+ * running machine changed since it last stopped; pass the live memory as `bytes`.
  */
 const props = defineProps<{
   bytes: Uint8Array
@@ -38,6 +38,8 @@ const rows = computed(() => {
   return out
 })
 const inPart = (a: number) => props.inRange?.(a) ?? true
+/** Live: how many of the row's bytes changed (the text equivalent of their highlight). */
+const changedIn = (at: number) => { let n = 0; for (let i = 0; i < 16; i++) if (props.live?.changed.addresses.has(at + i)) n++; return n }
 
 const jump = ref('')
 const jumpError = ref('')
@@ -82,9 +84,9 @@ function onJump() {
         <tbody>
           <tr v-for="r in rows" :key="r.at">
             <th scope="row" class="px-4 text-left font-normal text-muted">{{ hex(r.at, 5) }}</th>
-            <td class="whitespace-pre px-2"><template v-for="(b, i) in r.bytes" :key="i"><span :class="inPart(r.at + i) ? 'text-highlighted' : 'text-muted'">{{ hex(b, 2) }}</span>{{ i === 7 ? '  ' : i < 15 ? ' ' : '' }}</template></td>
+            <td class="whitespace-pre px-2"><template v-for="(b, i) in r.bytes" :key="i"><span :class="live?.changed.addresses.has(r.at + i) ? 'rounded bg-[var(--frotz-lamp)] text-[var(--frotz-ground)]' : inPart(r.at + i) ? 'text-highlighted' : 'text-muted'">{{ hex(b, 2) }}</span>{{ i === 7 ? '  ' : i < 15 ? ' ' : '' }}</template></td>
             <td class="whitespace-pre px-4 text-muted">{{ r.text }}</td>
-            <td class="whitespace-nowrap px-4 font-sans text-xs text-lamp">{{ r.notes.join(' · ') }}</td>
+            <td class="whitespace-nowrap px-4 font-sans text-xs text-lamp">{{ [...r.notes, ...(changedIn(r.at) ? [`${changedIn(r.at)} changed`] : [])].join(' · ') }}</td>
           </tr>
         </tbody>
       </table>

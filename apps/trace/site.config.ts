@@ -16,4 +16,16 @@ export const site = {
   npmUrl: 'https://www.npmjs.com/org/frotzinc',
   familyUrl: 'https://frotzinc.com',
   designUrl: 'https://github.com/cschweda/frotzlens/blob/main/docs/frotztrace-design.md',
+  /**
+   * The start page's samples (docs/21 §3): frotzsmith's sample games, built with their debug files
+   * and sources from samples/src (scripts/build-samples.mjs), so breakpoints on actions and lines
+   * work at once. The first is featured (`?sample`).
+   */
+  samples: [
+    { id: 'dark-cellar', title: 'The Dark Cellar', blurb: 'Darkness and light: try a breakpoint on Take.', library: 'std' },
+    { id: 'locked-chest', title: 'The Locked Chest', blurb: 'A key, a chest, and the parser.', library: 'std' },
+    { id: 'hermit', title: 'The Hermit', blurb: 'Someone to talk to: conversation rules.', library: 'std' },
+    { id: 'magic-8-ball', title: 'Magic 8-Ball', blurb: 'Random answers, replayed exactly.', library: 'std' },
+    { id: 'puny-dark-cellar', title: 'The Dark Cellar (PunyInform)', blurb: 'The same game on the small library.', library: 'puny' },
+  ],
 } as const

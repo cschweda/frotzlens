@@ -159,7 +159,7 @@ describe('frotztrace, the Inform layer (docs/20)', () => {
   it('refuses what can’t work, in words (exit 1)', async () => {
     const line = await run([STORY, '--break', 'line:story.inf:10'])
     expect(line.code).toBe(EXIT.error)
-    expect(line.err).toContain('needs the debug file')
+    expect(line.err).toContain('line breakpoints need the debug file')
     const action = await run([FSTORY, '--symbols', DBG, '--break', 'action:Fly'])
     expect(action.err).toContain("there's no action called Fly")
     expect((await run([STORY, '--if', 'noun'])).code).toBe(EXIT.error)

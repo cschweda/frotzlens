@@ -1,4 +1,4 @@
-export { parseStory, isBlorb } from './story.js'
+export { parseStory, isBlorb, liveTables } from './story.js'
 export { readBlorb, blorbStory, type Blorb, type BlorbChunk, type BlorbResource } from './blorb.js'
 export { readSymbols, symbolsMatch, MAX_DEBUG_FILE, type Symbols, type SymbolRoutine, type SymbolArray, type SymbolDeclaration, type SourceLocation, type SequencePoint } from './debug.js'
 export { fingerprint, routineShape, shapeHash, type Fingerprint } from './fingerprint.js'

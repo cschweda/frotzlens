@@ -52,6 +52,8 @@ export interface Watch {
 
 /** What the UI lights (docs/20 §2): where the machine is, and what changed since the previous stop. */
 export interface MachineView {
+  /** The machine's memory now (the whole story, dynamic memory live): for live values. Read it; don't write it. */
+  memory: Uint8Array
   pc: number
   /** The innermost frame's index (0 is the main routine's). */
   frame: number
@@ -137,6 +139,8 @@ interface Armed {
   /** action: the library routine that begins an action, and the `second` global it sets last. */
   begin?: number
   second?: number
+  /** action: the begin-action call already reported (its frame): the routine sets `second` again at its end, restoring the previous action. */
+  seen?: Frame
 }
 
 /**
@@ -443,7 +447,11 @@ export class Debugger {
         // With the library's begin-action routine: when it sets `second`. Without: when `action` is set.
         const at = a.second !== undefined ? a.second : a.from!
         if (address >= at + 2 || end <= at) continue
-        if (a.second !== undefined && this.m.state.frames.at(-1)?.routine !== a.begin) continue
+        const frame = this.m.state.frames.at(-1)
+        if (a.second !== undefined && frame?.routine !== a.begin) continue
+        // Once per call: the first write to `second` there sets up the action; a later one restores the previous.
+        if (a.second !== undefined && frame === a.seen) continue
+        if (a.second !== undefined) a.seen = frame
         if (this.world().mem.word(a.from!) === b.action) this.pending.push({ bp: b, detail: this.actionDetail() })
       } else if (b.kind === 'property' && address < a.to! && end > a.from!) {
         const w = this.world()
@@ -823,7 +831,7 @@ export class Debugger {
         if (o !== undefined) objects.add(o)
       }
     }
-    return { pc: this.m.state.pc, frame: this.m.state.frames.length - 1, changed: { addresses: new Set(this.written), objects, globals } }
+    return { memory: this.m.state.memory, pc: this.m.state.pc, frame: this.m.state.frames.length - 1, changed: { addresses: new Set(this.written), objects, globals } }
   }
 
   // ── Inform ────────────────────────────────────────────────────────────────

@@ -2,6 +2,18 @@
 
 All notable changes to frotzlens: the web app at [frotzlens.frotzinc.com](https://frotzlens.frotzinc.com), and this repository. The packages keep their own changelogs: [`@frotzinc/zcode`](packages/zcode/CHANGELOG.md), [`@frotzinc/zcode-ui`](packages/zcode-ui/CHANGELOG.md), [`frotzlens`](packages/cli/CHANGELOG.md) (the CLI), [`@frotzinc/worker-rpc`](packages/worker-rpc/CHANGELOG.md), [`@frotzinc/nuxt-base`](packages/nuxt-base/CHANGELOG.md), [`@frotzinc/inform6-wasm`](packages/inform6-wasm/CHANGELOG.md). Versions follow [Semantic Versioning](https://semver.org/). Part of [frotz, Inc.](https://frotzinc.com).
 
+## [0.4.0] - 2026-11-08
+
+**frotztrace, the app** (Phase 4, [docs/21](docs/21-frotztrace-phase-4-app.md)): debug a Z-machine story in the browser.
+
+### Added
+- **frotztrace.frotzinc.com is the debugger**: pick one of five frotzsmith samples (each with its debug file and source, so action and line breakpoints work at once) or drop a story; play it, stop on a breakpoint (`action:Take`, a line, printed text, a routine), and look: the stack, named; the code with the PC; the objects, globals and memory as they are now, with what changed lit; step into, over, out and back. F5/F6/F10/F11 and their Shift forms.
+- **`@frotzinc/player` 0.3.0**: `useScreen` and the screen components, so the debugger's game looks and reads exactly as frotzplay's (frotzplay's contract and site tests unchanged).
+- **`@frotzinc/zcode-ui` 0.2.0**: the views light a running machine. **`@frotzinc/zcode`**: `liveTables`. **`@frotzinc/zmachine`**: breakpoints as text, shared by the CLI and the app.
+
+### Fixed
+- An action breakpoint fired twice for one action: the library's begin-action routine restores the previous action at its end, and when that was Take too, it looked like a new one.
+
 ## [0.3.18] - 2026-11-08
 
 frotztrace Phase 3 ([docs/20](docs/20-frotztrace-phase-3-inform.md)): the Inform layer.

@@ -4,6 +4,8 @@
 @import "@frotzinc/nuxt-base/css/base.css";
 /* The palette: ground, ink, panel, rule, lamp (dark and light), mapped onto Nuxt UI. */
 @import "@frotzinc/nuxt-base/css/palette.css";
+/* The game's screen: @frotzinc/player's own CSS (it needs nothing from Tailwind). */
+@import "@frotzinc/player/player.css";
 
 /* Type: Segoe UI where it's installed, Open Sans (self-hosted) elsewhere; data in a monospace face
    with tabular numerals. */

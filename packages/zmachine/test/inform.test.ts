@@ -52,6 +52,17 @@ describe('action breakpoints', () => {
     expect(d.evaluate('action == ##Take && noun == lantern')).toEqual({ value: 1 })
   })
 
+  it('fire once per action, not again when the library restores the previous action at the end', () => {
+    const d = make()
+    const bp = d.addBreakpoint({ kind: 'action', action: TAKE })
+    const { stop, command } = playUntilStop(d)
+    expect(command).toBe('take lantern')
+    expect(stop.kind).toBe('breakpoint')
+    // begin_action ends with `action = sa; noun = sn; second = ss`: the parser's Take, restored. Not a new action.
+    expect(d.run().kind).toBe('input-line')
+    expect(bp.hits).toBe(1)
+  })
+
   it('with a condition, stop only when it holds', () => {
     const d = make()
     d.addBreakpoint({ kind: 'action', action: TAKE, condition: 'noun == rusty_key' })

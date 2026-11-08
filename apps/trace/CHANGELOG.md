@@ -2,6 +2,18 @@
 
 All notable changes to frotztrace, the site at [frotztrace.frotzinc.com](https://frotztrace.frotzinc.com). Versions follow [Semantic Versioning](https://semver.org/). Part of [frotz, Inc.](https://frotzinc.com).
 
+## [0.1.0] - 2026-11-08
+
+The debugger (frotztrace Phase 4, docs/21).
+
+### Added
+- **Samples, so nothing of your own is needed**: five of frotzsmith's games (the Dark Cellar first, the Locked Chest, the Hermit, Magic 8-Ball, and the Dark Cellar on PunyInform), each built with its debug file and source, and its walkthrough, which "Type the next command" plays one step at a time. `?sample=<id>` opens one.
+- **Your own story**: drop or choose the story, and if you have them its debug file and source.
+- **The game**, drawn by `@frotzinc/player`'s own components, as frotzplay draws it; stopped mid-turn, the turn so far is shown.
+- **The toolbar**: Run (F5), Pause (F6), Step into (F11), Step over (F10), Step out (Shift+F11), Step back (Shift+F10); and a status line: where the machine is, the source line, the turn, why it stopped, and the action with its noun.
+- **The views**: Stack (named frames, locals, source lines), Code (the disassembly with the PC marked and a breakpoint gutter), Objects, Globals and Memory (live, with what changed lit), Breakpoints (add as text, with a condition; on, off, hits) and Trace.
+- The machine runs on the page, in slices, so it stays responsive (decision A); the screen comes from the player (decision B).
+
 ## [0.0.6] - 2026-11-08
 
 ### Fixed

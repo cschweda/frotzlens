@@ -12,7 +12,7 @@ import { MAX_SWEEP_WORK, sweepRoutines } from './routines.js'
 import { sweepStrings } from './strings.js'
 import { MAX_XREFS, buildXrefs } from './xrefs.js'
 import { MAX_TEXT, MAX_TOTAL_TEXT, defaultExtra, readAlphabetTable, readString, readUnicodeTable, type TextContext } from './text.js'
-import type { Code, Dictionary, Header, ParseError, ParseOptions, StoryFile, Version, ZString } from './types.js'
+import type { Code, Dictionary, Global, Header, ObjectTable, ParseError, ParseOptions, StoryFile, Version, ZString } from './types.js'
 
 /** Versions this package parses beyond the header. */
 const SUPPORTED: readonly Version[] = [3, 4, 5, 8]
@@ -241,4 +241,36 @@ function parse(data: Uint8Array, opts: ParseOptions): StoryFile {
   model.fingerprint = fingerprint(model)
   progress('fingerprint', 1)
   return model
+}
+
+/**
+ * The object table and globals as they are now, read from a running machine's memory (the whole
+ * story, dynamic memory live), with the story's own text settings: what a debugger's views show
+ * live (frotztrace). Everything else in a story file is static and stays as parseStory read it.
+ * Never throws: an unreadable table comes back empty, as in parseStory.
+ */
+export function liveTables(story: StoryFile, memory: Uint8Array): { objects: ObjectTable; globals: Global[] } {
+  const bytes = new Bytes(memory)
+  const { header } = story
+  const version = header.version as Version
+  const errors: ParseError[] = []
+  const text: TextContext = { bytes, version, abbreviations: [], alphabets: null, extra: defaultExtra(), budget: MAX_TOTAL_TEXT }
+  if (header.alphabetTable) text.alphabets = guarded(errors, 'bad-text', 'The alphabet table', null, () => readAlphabetTable(bytes, header.alphabetTable!))
+  if (header.headerExtension?.unicodeTable) {
+    const table = guarded(errors, 'bad-text', 'The Unicode translation table', null, () => readUnicodeTable(bytes, header.headerExtension!.unicodeTable!))
+    if (table) text.extra = table
+  }
+  if (story.abbreviations.length === 96) {
+    text.abbreviations = story.abbreviations.map(a => a.address)
+    text.abbreviationTexts = story.abbreviations.map(a => a.text)
+  }
+  const objects = guarded<ObjectsResult>(
+    errors,
+    'bad-object',
+    'The object table',
+    { table: { address: header.objects, propertyDefaults: [], objects: [] }, entriesEnd: header.objects, propertiesRange: null },
+    () => parseObjects(bytes, version, header.objects, text, errors),
+  ).table
+  const globals = guarded(errors, 'bad-address', 'The global variables', [], () => parseGlobals(bytes, header.globals, header.staticMemory, errors))
+  return { objects, globals }
 }

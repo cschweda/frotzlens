@@ -69,6 +69,18 @@ importers:
       '@frotzinc/nuxt-base':
         specifier: workspace:*
         version: link:../../packages/nuxt-base
+      '@frotzinc/player':
+        specifier: workspace:*
+        version: link:../../packages/player
+      '@frotzinc/zcode':
+        specifier: workspace:*
+        version: link:../../packages/zcode
+      '@frotzinc/zcode-ui':
+        specifier: workspace:*
+        version: link:../../packages/zcode-ui
+      '@frotzinc/zmachine':
+        specifier: workspace:*
+        version: link:../../packages/zmachine
       '@nuxt/ui':
         specifier: 4.12.0
         version: 4.12.0(716f4b80cc7414e37038f5f7a3a96b5b)
@@ -82,6 +94,9 @@ importers:
       '@axe-core/playwright':
         specifier: 4.14.0
         version: 4.14.0(playwright-core@1.64.1)
+      '@frotzinc/inform6-wasm':
+        specifier: workspace:*
+        version: link:../../packages/inform6-wasm
       '@iconify-json/lucide':
         specifier: ^1.2.148
         version: 1.2.151
