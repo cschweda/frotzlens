@@ -2,6 +2,13 @@
 
 All notable changes to frotzlens: the web app at [frotzlens.frotzinc.com](https://frotzlens.frotzinc.com), and this repository. The packages keep their own changelogs: [`@frotzinc/zcode`](packages/zcode/CHANGELOG.md), [`@frotzinc/zcode-ui`](packages/zcode-ui/CHANGELOG.md), [`frotzlens`](packages/cli/CHANGELOG.md) (the CLI), [`@frotzinc/worker-rpc`](packages/worker-rpc/CHANGELOG.md), [`@frotzinc/nuxt-base`](packages/nuxt-base/CHANGELOG.md), [`@frotzinc/inform6-wasm`](packages/inform6-wasm/CHANGELOG.md). Versions follow [Semantic Versioning](https://semver.org/). Part of [frotz, Inc.](https://frotzinc.com).
 
+## [0.3.15] - 2026-11-08
+
+frotztrace Phase 2 ([docs/19](docs/19-frotztrace-phase-2-time.md)): time runs both ways. frotzlens and frotzplay work as before.
+
+### Added
+- **Rewind in `@frotzinc/zmachine`'s `Debugger`** (still 0.2.0, unpublished): step back an instruction, or go to any instruction or turn, and see the machine exactly as it was there. Checkpoints at every prompt and every 100 000 instructions, the input log replayed exactly; behind the furthest point reached, running forward replays what happened, and typing something new starts a new timeline. On the largest sample games (2 million instructions), any jump takes a few milliseconds and the history under 1 MB. 13 new tests: determinism with random in play, every turn of a walkthrough rewound to its exact state, step back one instruction at a time, the future replayed or replaced, checkpoints thinned.
+
 ## [0.3.14] - 2026-11-08
 
 frotztrace Phase 1 ([docs/18](docs/18-frotztrace-phase-1-debugger.md)): the debugger's foundations. frotzlens and frotzplay work as before.

@@ -184,7 +184,7 @@ describe('Debugger', () => {
     const d = debuggerFor(bytes, { trace: { kinds: ['input'] } })
     d.run()
     expect(d.resume({ line: 'hello' })).toBeNull()
-    expect(d.inputLog).toEqual([{ line: 'hello' }])
+    expect(d.inputLog).toEqual([{ at: d.inputLog[0]!.at, input: { line: 'hello' } }])
     expect(kind(d.run())).toBe('quit')
     expect(d.trace.events()).toMatchObject([{ kind: 'input', value: 'hello' }])
   })
@@ -193,7 +193,9 @@ describe('Debugger', () => {
     const { bytes } = story()
     const d = debuggerFor(bytes)
     expect(kind(d.runToInput())).toBe('input-line')
-    expect(kind(d.runToTurn(0))).toBe('input-line')
+    // Turn 0 has been reached: runToTurn goes to its prompt (Phase 2), still waiting.
+    expect(kind(d.runToTurn(0))).toBe('step')
+    expect(d.machine.state.input.pending?.kind).toBe('line')
     expect(d.machine.state.counters.turns).toBe(0)
   })
 
