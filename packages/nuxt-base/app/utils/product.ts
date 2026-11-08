@@ -19,6 +19,11 @@ export interface Product {
   familyUrl: string
   /** The About dialog's licences, in order: what, its licence, and a link to the licence text. */
   licences: ProductLicence[]
+  /**
+   * Where Report a problem / Suggest a feature can send by email: the site's report function
+   * (netlify/report.mjs), usually '/.netlify/functions/report'. Unset, the dialog offers GitHub only.
+   */
+  reportEndpoint?: string
 }
 
 export interface ProductLicence {

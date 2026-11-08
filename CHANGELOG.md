@@ -2,10 +2,15 @@
 
 All notable changes to frotzlens: the web app at [frotzlens.frotzinc.com](https://frotzlens.frotzinc.com), and this repository. The packages keep their own changelogs: [`@frotzinc/zcode`](packages/zcode/CHANGELOG.md), [`@frotzinc/zcode-ui`](packages/zcode-ui/CHANGELOG.md), [`frotzlens`](packages/cli/CHANGELOG.md) (the CLI), [`@frotzinc/worker-rpc`](packages/worker-rpc/CHANGELOG.md), [`@frotzinc/nuxt-base`](packages/nuxt-base/CHANGELOG.md), [`@frotzinc/inform6-wasm`](packages/inform6-wasm/CHANGELOG.md). Versions follow [Semantic Versioning](https://semver.org/). Part of [frotz, Inc.](https://frotzinc.com).
 
+## [0.3.11] - 2026-11-08
+
+### Added
+- **Reports by email, through Resend**, in frotzlens, frotzplay and frotztrace. About → Report a problem / Suggest a feature can now **Send** what you write (with an optional address for a reply), as well as open it on GitHub. Each site has a small Netlify Function (`netlify/functions/report.mjs`, from `@frotzinc/nuxt-base` 0.3.0) that holds the Resend key and always sends to one fixed address. Until a site has its `RESEND_API_KEY`, `REPORT_TO` and `REPORT_FROM`, Send says it isn't set up and GitHub stays the way. frotztrace's e2e tests the dialog against a stand-in function.
+
 ## [0.3.10] - 2026-11-08
 
 ### Added
-- **`@frotzinc/nuxt-base` 0.3.0**, so frotzsmith can wear the family header and About menu too: `useAbout().setUpdateCheck(fn)` lets an app supply its own "Check for updates" (frotzsmith's goes through its service worker), and `<AppHeader wide>` is a full-width header that wraps, for an IDE toolbar. frotzlens, frotzplay and frotztrace are unchanged; their e2e suites pass.
+- **`@frotzinc/nuxt-base` 0.3.0** (with reports by email, below), so frotzsmith can wear the family header and About menu too: `useAbout().setUpdateCheck(fn)` lets an app supply its own "Check for updates" (frotzsmith's goes through its service worker), and `<AppHeader wide>` is a full-width header that wraps, for an IDE toolbar. frotzlens, frotzplay and frotztrace are unchanged; their e2e suites pass.
 
 ## [0.3.9] - 2026-11-08
 

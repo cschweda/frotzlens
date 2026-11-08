@@ -13,6 +13,8 @@ export default defineAppConfig({
     repoUrl: site.repoUrl,
     npmUrl: site.npmUrl,
     familyUrl: site.familyUrl,
+    // Report a problem / Suggest a feature can send by email (netlify/functions/report.mjs, Resend).
+    reportEndpoint: '/.netlify/functions/report',
     licences: [
       { what: 'frotzplay (this site)', licence: 'GPL-3.0-or-later', href: `${site.repoUrl}/blob/main/LICENSE` },
       { what: 'The @frotzinc libraries (zmachine, player, zcode, nuxt-base)', licence: 'MIT', href: `${site.repoUrl}/blob/main/LICENSING.md` },

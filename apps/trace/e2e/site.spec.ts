@@ -57,3 +57,40 @@ test('robots.txt, sitemap.xml and the social card are served', async ({ request 
   expect(await (await request.get('/sitemap.xml')).text()).toContain('<loc>https://frotztrace.frotzinc.com/</loc>')
   expect((await request.get('/og-image.png')).headers()['content-type']).toBe('image/png')
 })
+
+test('About → Report a problem sends by email through the site’s report function', async ({ page }) => {
+  const errors = errorsOf(page)
+  let posted: Record<string, unknown> | undefined
+  // The static test server has no functions: stand in for netlify/functions/report.mjs.
+  await page.route('**/.netlify/functions/report', async (route) => {
+    posted = route.request().postDataJSON()
+    await route.fulfill({ status: 200, contentType: 'application/json', body: '{"ok":true}' })
+  })
+  await page.goto('/')
+  await page.getByRole('banner').getByRole('button', { name: 'About' }).click()
+  await page.getByRole('menuitem', { name: 'Report a problem…' }).click()
+  const dialog = page.getByRole('dialog', { name: 'Report a problem' })
+  await dialog.getByLabel('Title').fill('A test')
+  await dialog.getByLabel('What happened').fill('Nothing, this is a test.')
+  await dialog.getByLabel('Your email, for a reply (optional)').fill('reader@example.org')
+  await axe(page)
+  await page.waitForTimeout(3100) // the function refuses a form filled in under three seconds
+  await dialog.getByRole('button', { name: 'Send' }).click()
+  await expect(dialog.getByRole('status')).toContainText('Sent. Thank you')
+  expect(posted).toMatchObject({ kind: 'problem', title: 'A test', happened: 'Nothing, this is a test.', replyTo: 'reader@example.org', website: '' })
+  expect(Number(posted?.elapsed)).toBeGreaterThanOrEqual(3000)
+  expect(errors).toEqual([])
+})
+
+test('a report the site can’t send says so, and GitHub stays the way', async ({ page }) => {
+  await page.route('**/.netlify/functions/report', route =>
+    route.fulfill({ status: 503, contentType: 'application/json', body: '{"error":"Reports by email aren’t set up on this site."}' }))
+  await page.goto('/')
+  await page.getByRole('banner').getByRole('button', { name: 'About' }).click()
+  await page.getByRole('menuitem', { name: 'Suggest a feature…' }).click()
+  const dialog = page.getByRole('dialog', { name: 'Suggest a feature' })
+  await dialog.getByLabel('What you’d like').fill('An idea.')
+  await dialog.getByRole('button', { name: 'Send' }).click()
+  await expect(dialog.getByRole('status')).toContainText('aren’t set up on this site. You can open it on GitHub instead.')
+  await expect(dialog.getByRole('button', { name: 'Open on GitHub' })).toBeEnabled()
+})

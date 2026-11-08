@@ -46,6 +46,44 @@ watch(dialog, (d) => {
   }
 })
 const required = computed(() => (kind.value === 'problem' ? draft.happened : draft.idea).trim().length > 0)
+
+// Sending by email (product.reportEndpoint: the site's report function, which holds the Resend key).
+const replyTo = ref('')
+/** The honeypot: hidden from people (and from screen readers), filled by bots. */
+const website = ref('')
+let openedAt = 0
+const sending = ref(false)
+const sent = ref(false)
+watch(dialog, (d) => {
+  if (d === 'problem' || d === 'idea') {
+    openedAt = Date.now()
+    sent.value = false
+  }
+})
+async function sendReport() {
+  if (!product.reportEndpoint || !required.value || sending.value) return
+  sending.value = true
+  copied.value = ''
+  try {
+    const res = await fetch(product.reportEndpoint, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(reportPayload(draft, details.value, { replyTo: replyTo.value, website: website.value, elapsed: Date.now() - openedAt })),
+    })
+    const answer = (await res.json().catch(() => ({}))) as { ok?: boolean; error?: string }
+    if (res.ok && answer.ok) {
+      sent.value = true
+      copied.value = `Sent. Thank you${replyTo.value.trim() ? ': a reply, if one’s needed, goes to the address you gave' : ''}.`
+      draft.title = draft.happened = draft.expected = draft.story = draft.idea = ''
+    } else {
+      copied.value = `${answer.error ?? 'It couldn’t be sent just now.'} You can open it on GitHub instead.`
+    }
+  } catch {
+    copied.value = 'It couldn’t be sent: the site didn’t answer. You can open it on GitHub instead.'
+  } finally {
+    sending.value = false
+  }
+}
 async function openIssue() {
   const { url, trimmed } = issueLink(product.repoUrl, draft, details.value)
   // The tab first, while the click still counts as the person's (a browser blocks a window opened
@@ -109,9 +147,9 @@ async function openIssue() {
   </UModal>
 
   <!-- Report a problem / Suggest a feature -->
-  <UModal v-model:open="openReport" :title="KINDS[kind].name" :description="`This opens GitHub’s issue form with what you write filled in. You review it and submit it there; ${product.name} sends nothing.`">
+  <UModal v-model:open="openReport" :title="KINDS[kind].name" :description="product.reportEndpoint ? `Send it to ${product.name}’s maker by email, or open it as a GitHub issue. Only what you write here is sent, never a story file.` : `This opens GitHub’s issue form with what you write filled in. You review it and submit it there; ${product.name} sends nothing.`">
     <template #body>
-      <form class="flex flex-col gap-4 text-sm" @submit.prevent="openIssue">
+      <form class="flex flex-col gap-4 text-sm" @submit.prevent="product.reportEndpoint ? sendReport() : openIssue()">
         <UFormField label="Title" name="title">
           <UInput v-model="draft.title" class="w-full" :placeholder="kind === 'problem' ? 'In a few words' : 'Your idea, in a few words'" />
         </UFormField>
@@ -129,6 +167,14 @@ async function openIssue() {
         <UFormField v-else label="What you’d like" name="idea" required>
           <UTextarea v-model="draft.idea" :rows="5" class="w-full" />
         </UFormField>
+        <UFormField v-if="product.reportEndpoint" label="Your email, for a reply (optional)" name="replyTo" help="Only to answer you. Leave it empty to send without one.">
+          <UInput v-model="replyTo" type="email" autocomplete="email" class="w-full" />
+        </UFormField>
+        <!-- The honeypot: no person sees or fills it. -->
+        <div aria-hidden="true" class="absolute -left-[10000px] size-px overflow-hidden">
+          <label for="report-website">Website</label>
+          <input id="report-website" v-model="website" type="text" name="website" tabindex="-1" autocomplete="off">
+        </div>
         <UCheckbox v-model="draft.includeDetails" :label="`Include technical details (${product.name}’s version, the browser)`" />
         <details v-if="draft.includeDetails" class="rounded-md border border-default p-3">
           <summary class="cursor-pointer text-muted">What the technical details say</summary>
@@ -140,7 +186,9 @@ async function openIssue() {
         </p>
         <p v-if="copied" role="status" class="text-muted">{{ copied }}</p>
         <div class="flex flex-wrap gap-2">
-          <UButton type="submit" icon="i-lucide-external-link" :disabled="!required">Open on GitHub</UButton>
+          <UButton v-if="product.reportEndpoint" type="submit" icon="i-lucide-send" :loading="sending" :disabled="!required || sending">Send</UButton>
+          <UButton v-if="product.reportEndpoint" color="neutral" variant="outline" icon="i-lucide-external-link" :disabled="!required" @click="openIssue">Open on GitHub</UButton>
+          <UButton v-else type="submit" icon="i-lucide-external-link" :disabled="!required">Open on GitHub</UButton>
           <UButton color="neutral" variant="outline" icon="i-lucide-clipboard" :disabled="!required" @click="copy(reportText(draft, details), 'The report')">Copy the report</UButton>
         </div>
       </form>

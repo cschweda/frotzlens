@@ -76,7 +76,7 @@ required_files() {
         app/utils/report.ts app/utils/markdown.ts app/composables/useAbout.ts app/composables/useProduct.ts \
         app/components/AppHeader.vue app/components/AppFooter.vue app/components/AboutMenu.vue \
         app/components/AboutDialogs.vue css/base.css css/palette.css \
-        netlify/check-sw.mjs netlify/inject-preloads.mjs netlify/redirects.mjs netlify/version.mjs
+        netlify/check-sw.mjs netlify/inject-preloads.mjs netlify/redirects.mjs netlify/report.mjs netlify/version.mjs
       ;;
     zcode-ui)
       echo package.json README.md CHANGELOG.md LICENSE nuxt.config.ts \

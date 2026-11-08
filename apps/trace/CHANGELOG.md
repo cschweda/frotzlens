@@ -2,6 +2,11 @@
 
 All notable changes to frotztrace, the site at [frotztrace.frotzinc.com](https://frotztrace.frotzinc.com). Versions follow [Semantic Versioning](https://semver.org/). Part of [frotz, Inc.](https://frotzinc.com).
 
+## [0.0.5] - 2026-11-08
+
+### Added
+- Report a problem / Suggest a feature can send by email (`netlify/functions/report.mjs`, Resend), once the site has its Resend settings.
+
 ## [0.0.4] - 2026-11-08
 
 ### Changed

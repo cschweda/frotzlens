@@ -105,3 +105,20 @@ export function reportText(draft: IssueDraft, details: string): string {
   const body = issueFields(draft, details).map(f => `### ${f.label}\n\n${f.value}`).join('\n\n')
   return [title && `Title: ${title}`, body].filter(Boolean).join('\n\n')
 }
+
+/** What the report function (netlify/report.mjs) takes: the fields, the details if included, and the anti-abuse fields. */
+export function reportPayload(draft: IssueDraft, details: string, extra: { replyTo: string; website: string; elapsed: number }) {
+  const included = draft.includeDetails ? clean(details).trim() : ''
+  return {
+    kind: draft.kind,
+    title: issueTitle(draft.title),
+    happened: clean(draft.happened).trim(),
+    expected: clean(draft.expected).trim(),
+    story: clean(draft.story).trim(),
+    idea: clean(draft.idea).trim(),
+    details: included,
+    replyTo: extra.replyTo.trim(),
+    website: extra.website,
+    elapsed: extra.elapsed,
+  }
+}
