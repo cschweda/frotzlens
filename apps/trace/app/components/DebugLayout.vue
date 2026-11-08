@@ -31,6 +31,10 @@ const view = computed(() => route.value.view)
             <ViewHeader title="Memory" eyebrow="Dynamic memory, live">The bytes the last stretch wrote are lit.</ViewHeader>
             <div class="mt-4"><HexPane v-model:top="top" :bytes="live.view.memory" :live="live.view" /></div>
           </template>
+          <MapView v-else-if="live && view === 'map'" :story="live.liveStory" :file-name="session.state.name" :live="live.view" />
+          <SourceCode v-else-if="view === 'source'" />
+          <WatchesView v-else-if="view === 'watches'" />
+          <TimelineView v-else-if="view === 'timeline'" />
           <BreakpointsView v-else-if="view === 'breakpoints'" />
           <TraceView v-else-if="view === 'trace'" />
           <StackView v-else />

@@ -10,10 +10,14 @@ const views = computed<NavView[]>(() => {
   const l = session.live()
   return [
     { key: 'stack', label: 'Stack', icon: 'i-lucide-layers', count: l?.stack.length },
+    { key: 'source', label: 'Source', icon: 'i-lucide-file-code' },
     { key: 'code', label: 'Code', icon: 'i-lucide-code' },
     { key: 'objects', label: 'Objects', icon: 'i-lucide-box' },
     { key: 'globals', label: 'Globals', icon: 'i-lucide-variable' },
     { key: 'memory', label: 'Memory', icon: 'i-lucide-binary' },
+    { key: 'map', label: 'Map', icon: 'i-lucide-map' },
+    { key: 'watches', label: 'Watches', icon: 'i-lucide-eye', count: l?.watches.length },
+    { key: 'timeline', label: 'Timeline', icon: 'i-lucide-history' },
     { key: 'breakpoints', label: 'Breakpoints', icon: 'i-lucide-octagon-pause', count: l?.breakpoints.length },
     { key: 'trace', label: 'Trace', icon: 'i-lucide-list-tree' },
   ]

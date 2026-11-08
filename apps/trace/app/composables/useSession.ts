@@ -1,6 +1,6 @@
 import { liveTables, parseStory, readSymbols, type StoryFile, type Symbols } from '@frotzinc/zcode'
 import { useScreen, type ScreenHandle } from '@frotzinc/player'
-import { Debugger, describeBreakpoint, parseBreakpoint, routineLabel, type Breakpoint, type DebugStop, type MachineView, type StopReason } from '@frotzinc/zmachine'
+import { Debugger, describeBreakpoint, parseBreakpoint, parseExpr, routineLabel, type Breakpoint, type DebugStop, type MachineView, type StopReason } from '@frotzinc/zmachine'
 
 /**
  * The debugging session (docs/21): one story under the Debugger, on the main thread in slices
@@ -189,6 +189,10 @@ export function useSession() {
       if (busy()) return
       redrawAfterRewind(ensure().goToTurn(t))
     },
+    goToInstruction: (n: number) => {
+      if (busy()) return
+      redrawAfterRewind(ensure().goToInstruction(n))
+    },
     /** The player typed a line (or the walkthrough did). */
     submitLine: async (line: string) => {
       if (busy() || waiting()?.kind !== 'input-line') return
@@ -224,6 +228,46 @@ export function useSession() {
       else d.addBreakpoint({ kind: 'address', address })
       state.tick++
     },
+    /** A source line's breakpoint, on or off (Source's gutter). */
+    toggleLineBreakpoint(file: string, line: number): string | null {
+      const d = ensure()
+      const there = d.breakpoints.find(b => b.kind === 'line' && b.file === file && b.line === line)
+      state.tick++
+      if (there) {
+        d.removeBreakpoint(there.id)
+        return null
+      }
+      const bp = d.addBreakpoint({ kind: 'line', file, line })
+      if (bp.error) {
+        d.removeBreakpoint(bp.id)
+        return bp.error
+      }
+      return null
+    },
+    /** A watch, or why the expression doesn't parse (one that can't be evaluated now is kept: it may later). */
+    addWatch(expression: string): string | null {
+      try {
+        parseExpr(expression)
+      } catch (e) {
+        return (e as Error).message
+      }
+      ensure().addWatch(expression)
+      state.tick++
+      return null
+    },
+    /** F9: a breakpoint on the line the machine is on (or, without lines, its instruction), on or off. */
+    toggleHere(): string | null {
+      const d = ensure()
+      const where = d.sourceLine()
+      const file = symbols?.sources[0]
+      if (where && file && file.endsWith(where.file)) return this.toggleLineBreakpoint(where.file, where.line)
+      this.toggleAddressBreakpoint(d.machine.state.pc)
+      return null
+    },
+    removeWatch(id: number) {
+      ensure().removeWatch(id)
+      state.tick++
+    },
     removeBreakpoint(id: number) {
       ensure().removeBreakpoint(id)
       state.tick++
@@ -253,6 +297,7 @@ export function useSession() {
         inform: d.inform(),
         where: d.sourceLine(),
         timeline: d.timeline(),
+        watches: d.watches(),
         name: (address: number) => routineLabel(story!, symbols, address),
       }
     },

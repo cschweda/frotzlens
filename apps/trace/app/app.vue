@@ -33,13 +33,36 @@ async function openSample(id: string) {
   }
 }
 
+/**
+ * A story handed over by frotzlens's "Debug this story" (?from=frotzlens): say ready to the tab that
+ * opened this one, then take the story it sends, only from frotzlens's own origins. Nothing is
+ * uploaded: the bytes come from that tab.
+ */
+const FROM_FROTZLENS = [/^https:\/\/frotzlens\.frotzinc\.com$/, /^https:\/\/(staging|deploy-preview-\d+)--frotzlens\.netlify\.app$/, /^http:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/]
+function trusted(origin: string) {
+  if (/^http:\/\/(localhost|127\.0\.0\.1)/.test(origin) && !/^(localhost|127\.0\.0\.1)$/.test(location.hostname)) return false
+  return FROM_FROTZLENS.some(r => r.test(origin))
+}
+function onHandover(e: MessageEvent) {
+  const d = e.data as { type?: string; name?: string; bytes?: Uint8Array; dbg?: string }
+  if (!trusted(e.origin) || d?.type !== 'frotztrace:open' || !(d.bytes instanceof Uint8Array)) return
+  window.removeEventListener('message', onHandover)
+  void session.open({ name: String(d.name ?? 'story'), bytes: d.bytes, ...(typeof d.dbg === 'string' ? { dbg: d.dbg } : {}), sources: [] }).then(() => {
+    if (!location.hash) history.replaceState(null, '', `${location.pathname}#stack`)
+  })
+}
+
 onMounted(() => {
   const q = new URLSearchParams(location.search)
-  if (q.has('sample')) void openSample(q.get('sample') || site.samples[0]!.id)
+  if (q.get('from') === 'frotzlens') {
+    window.addEventListener('message', onHandover)
+    window.opener?.postMessage({ type: 'frotztrace:ready' }, '*')
+  } else if (q.has('sample')) void openSample(q.get('sample') || site.samples[0]!.id)
   window.addEventListener('dragover', onDragOver)
   window.addEventListener('drop', onWindowDrop)
 })
 onBeforeUnmount(() => {
+  window.removeEventListener('message', onHandover)
   window.removeEventListener('dragover', onDragOver)
   window.removeEventListener('drop', onWindowDrop)
 })

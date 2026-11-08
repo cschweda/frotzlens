@@ -748,6 +748,9 @@ export class Debugger {
   }
 
   private stopped(s: DebugStop): DebugStop {
+    // A slice running out isn't a stop: the next call goes on as if it hadn't happened, so a
+    // breakpoint at this PC still fires, and watches and view() still compare with the last real stop.
+    if (s.kind === 'budget') return s
     this.restingAt = this.m.state.pc
     this.written = this.writing
     this.writing = new Set()

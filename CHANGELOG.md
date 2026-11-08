@@ -2,6 +2,18 @@
 
 All notable changes to frotzlens: the web app at [frotzlens.frotzinc.com](https://frotzlens.frotzinc.com), and this repository. The packages keep their own changelogs: [`@frotzinc/zcode`](packages/zcode/CHANGELOG.md), [`@frotzinc/zcode-ui`](packages/zcode-ui/CHANGELOG.md), [`frotzlens`](packages/cli/CHANGELOG.md) (the CLI), [`@frotzinc/worker-rpc`](packages/worker-rpc/CHANGELOG.md), [`@frotzinc/nuxt-base`](packages/nuxt-base/CHANGELOG.md), [`@frotzinc/inform6-wasm`](packages/inform6-wasm/CHANGELOG.md). Versions follow [Semantic Versioning](https://semver.org/). Part of [frotz, Inc.](https://frotzinc.com).
 
+## [0.5.0] - 2026-11-08
+
+frotztrace Phase 5 ([docs/22](docs/22-frotztrace-phase-5.md)): source, time and polish; and frotzlens can hand a story to it.
+
+### Added
+- **frotzlens: Debug.** With a story open, the header's **Debug** opens it in frotztrace in a new tab, with its debug file if one is loaded. The story goes from tab to tab; nothing is uploaded.
+- **frotztrace**: the Source view (the game's own file, the line marked, gutter breakpoints), Watches, the Timeline (every turn, a scrubber over every instruction), the Map live (the room you're in, the rooms visited), F8/F9, and a shortcuts dialog (`?`).
+- README: frotztrace's screenshots.
+
+### Fixed
+- The debugger compared watches and "changed" marks with the last slice of a run instead of the last stop, and could skip a breakpoint exactly where a slice ended (`@frotzinc/zmachine`).
+
 ## [0.4.0] - 2026-11-08
 
 **frotztrace, the app** (Phase 4, [docs/21](docs/21-frotztrace-phase-4-app.md)): debug a Z-machine story in the browser.

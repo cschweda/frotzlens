@@ -177,6 +177,36 @@ describe('source lines', () => {
 })
 
 describe('watches and the view', () => {
+  it('run in slices, as the app does: watches and the view compare stop to stop, not slice to slice', () => {
+    const d = make()
+    const w = d.addWatch('lantern in player')
+    const slices = (): DebugStop => {
+      for (;;) {
+        const s = d.run(1000)
+        if (s.kind !== 'budget') return s
+      }
+    }
+    slices()
+    for (const c of ['down', 'up', 'take lantern']) {
+      d.resume({ line: c })
+      slices()
+    }
+    expect(d.watches().find(x => x.id === w.id)).toMatchObject({ value: 1, changed: true })
+    expect(d.view().changed.objects.has(LANTERN)).toBe(true)
+  })
+
+  it('a breakpoint exactly where a slice ends still fires', () => {
+    const d = make()
+    expect(d.run(5000).kind).toBe('budget')
+    const pc = d.machine.state.pc
+    const at = d.machine.state.counters.instructions
+    d.addBreakpoint({ kind: 'address', address: pc })
+    // The next slice starts at that PC: the breakpoint fires before anything runs.
+    expect(d.run(1000).kind).toBe('breakpoint')
+    expect(d.machine.state.counters.instructions).toBe(at)
+  })
+
+
   it('watches change across stops, and say when they did', () => {
     const d = make()
     const where = d.addWatch('location')
