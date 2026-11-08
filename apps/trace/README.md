@@ -11,4 +11,4 @@ pnpm --filter frotztrace-web run generate       # the static site, in .output/pu
 pnpm --filter frotztrace-web run test:e2e       # the generated site, served with netlify.toml's headers
 ```
 
-**Netlify:** a third site on this repository, base directory `apps/trace`; everything else is in [`netlify.toml`](netlify.toml). Node is pinned by [`.nvmrc`](.nvmrc) (22).
+**Netlify:** the site `frotztrace` (frotztrace.netlify.app) on Chris's personal team, the third on this repository: base directory `apps/trace`, production branch `main`; everything else is in [`netlify.toml`](netlify.toml). Node is pinned by [`.nvmrc`](.nvmrc) (22). Production deploys cost credits and Deploy Previews are free, so changes go through pull requests. The domain frotztrace.frotzinc.com is added once the site first deploys.
