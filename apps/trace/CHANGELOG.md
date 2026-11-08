@@ -2,6 +2,11 @@
 
 All notable changes to frotztrace, the site at [frotztrace.frotzinc.com](https://frotztrace.frotzinc.com). Versions follow [Semantic Versioning](https://semver.org/). Part of [frotz, Inc.](https://frotzinc.com).
 
+## [0.0.3] - 2026-11-08
+
+### Fixed
+- The Netlify build: the library-build step runs with `--if-present`. frotztrace's only library so far, nuxt-base, has no build step, and pnpm fails a filtered `run` that finds no script, so the first Deploy Preview failed.
+
 ## [0.0.2] - 2026-11-08
 
 ### Changed

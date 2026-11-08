@@ -23,8 +23,10 @@
   ignore = "test \"$CACHED_COMMIT_REF\" = \"$COMMIT_REF\" && exit 1; git diff --quiet \"$CACHED_COMMIT_REF\" \"$COMMIT_REF\" -- . ../../packages/nuxt-base ../../package.json ../../pnpm-lock.yaml ../../pnpm-workspace.yaml ../../tsconfig.base.json"
   # Netlify runs its own `pnpm install` first; the frozen install keeps a drifted lockfile from
   # being rewritten (and passing). Then build the workspace libraries the app depends on (`^...` =
-  # its dependencies, not the app itself), then generate the static site.
-  command = "pnpm install --frozen-lockfile && pnpm --filter \"frotztrace-web^...\" run build && pnpm run generate"
+  # its dependencies, not the app itself), then generate the static site. --if-present: today its
+  # only library is nuxt-base, which has no build step, and pnpm fails a filtered `run` that finds no
+  # script at all (the first Deploy Preview failed on exactly that).
+  command = "pnpm install --frozen-lockfile && pnpm --filter \"frotztrace-web^...\" run --if-present build && pnpm run generate"
   publish = "dist"
 
 [build.environment]
