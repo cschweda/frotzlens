@@ -1,6 +1,6 @@
 # frotzlens
 
-![frotzlens — see inside a Z-machine story file](./apps/web/public/og-image.png)
+[![frotzlens — see inside a Z-machine story file](./apps/web/public/og-image.png)](https://frotzlens.frotzinc.com)
 
 [![License: GPLv3 (apps), MIT (libraries)](https://img.shields.io/badge/License-GPLv3%20%2B%20MIT-blue.svg)](./LICENSING.md)
 [![CI](https://github.com/cschweda/frotzlens/actions/workflows/ci.yml/badge.svg)](https://github.com/cschweda/frotzlens/actions/workflows/ci.yml)
@@ -36,7 +36,7 @@ Then **play it**, in Parchment, walled off in a sandbox ([details](docs/07-play.
 
 ## frotzplay
 
-![frotzplay — play Z-machine stories in your browser](apps/play/public/og-image.png)
+[![frotzplay — play Z-machine stories in your browser](apps/play/public/og-image.png)](https://frotzplay.frotzinc.com)
 
 **[frotzplay](apps/play)** is the family's player, built in this repository: an accessible Z-machine player for people who use screen readers and for pages with a strict Content-Security-Policy. It's live at **[frotzplay.frotzinc.com](https://frotzplay.frotzinc.com)**. Its own interpreter, [`@frotzinc/zmachine`](packages/zmachine), plays every sample exactly as ZVM does and passes the Czech and Praxix conformance suites; its player, [`@frotzinc/player`](packages/player), has a [published accessibility contract](docs/accessibility.md) tested in three browsers. [Its README](apps/play/README.md) has more, and how it compares with Parchment.
 
