@@ -2,6 +2,11 @@
 
 All notable changes to frotzlens: the web app at [frotzlens.frotzinc.com](https://frotzlens.frotzinc.com), and this repository. The packages keep their own changelogs: [`@frotzinc/zcode`](packages/zcode/CHANGELOG.md), [`@frotzinc/zcode-ui`](packages/zcode-ui/CHANGELOG.md), [`frotzlens`](packages/cli/CHANGELOG.md) (the CLI), [`@frotzinc/worker-rpc`](packages/worker-rpc/CHANGELOG.md), [`@frotzinc/nuxt-base`](packages/nuxt-base/CHANGELOG.md), [`@frotzinc/inform6-wasm`](packages/inform6-wasm/CHANGELOG.md). Versions follow [Semantic Versioning](https://semver.org/). Part of [frotz, Inc.](https://frotzinc.com).
 
+## [0.3.17] - 2026-11-08
+
+### Fixed
+- **The About dialog says what each app is.** It opened with frotzlens's sentence in frotzplay and frotztrace too ("disassemble it, explore it and play it"); each app now gives its own (`product.summary`, `@frotzinc/nuxt-base` 0.3.2). Found while bringing frotzsmith onto the shared header.
+
 ## [0.3.16] - 2026-11-08
 
 ### Changed
