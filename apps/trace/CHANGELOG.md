@@ -2,6 +2,11 @@
 
 All notable changes to frotztrace, the site at [frotztrace.frotzinc.com](https://frotztrace.frotzinc.com). Versions follow [Semantic Versioning](https://semver.org/). Part of [frotz, Inc.](https://frotzinc.com).
 
+## [0.0.4] - 2026-11-08
+
+### Changed
+- The social card's faded disassembly sits above and below the wordmark, as frotzplay's does.
+
 ## [0.0.3] - 2026-11-08
 
 ### Fixed

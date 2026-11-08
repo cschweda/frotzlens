@@ -7,7 +7,7 @@
 [![Netlify Status](https://api.netlify.com/api/v1/badges/ff4e0b7c-4eed-4fb8-8d7e-25dd7e1f8e69/deploy-status)](https://app.netlify.com/projects/frotzlens/deploys)
 [![TypeScript](https://img.shields.io/badge/TypeScript-strict-3178C6.svg)](https://www.typescriptlang.org)
 [![Z-machine](https://img.shields.io/badge/Z--machine-v3%20%C2%B7%20v4%20%C2%B7%20v5%20%C2%B7%20v8-f59e0b.svg)](https://inform-fiction.org/zmachine/standards/)
-[![Status](https://img.shields.io/badge/status-v0.3.8-brightgreen.svg)](./CHANGELOG.md)
+[![Status](https://img.shields.io/badge/status-v0.3.9-brightgreen.svg)](./CHANGELOG.md)
 
 **This repository holds two apps, a third in development, and the libraries they share:**
 
@@ -15,9 +15,9 @@
 |---|---|---|
 | **frotzlens** | Look inside a Z-machine story file: disassembly, objects, grammar, the map, and Inform 6 source. | [frotzlens.frotzinc.com](https://frotzlens.frotzinc.com) |
 | **[frotzplay](#frotzplay)** | Play a Z-machine story: an accessible player that embeds under a strict CSP and exports to a single HTML file or a folder. | [frotzplay.frotzinc.com](https://frotzplay.frotzinc.com) |
-| **[frotztrace](docs/frotztrace-design.md)** *(in development)* | Debug a Z-machine story: run it under observation, set breakpoints, watch the objects and globals change, and step backwards. Built on frotzplay's interpreter. | frotztrace.frotzinc.com (not yet live) |
+| **[frotztrace](#frotztrace)** *(in development)* | Debug a Z-machine story: run it under observation, set breakpoints, watch the objects and globals change, and step backwards. Built on frotzplay's interpreter. | frotztrace.frotzinc.com (not yet live) |
 
-frotzlens lives in [`apps/web`](apps/web) and frotzplay in [`apps/play`](apps/play). The libraries in [`packages/`](packages) are published to npm under `@frotzinc/`, and the `frotzlens` command-line tool is in [`packages/cli`](packages/cli). The rest of this page is frotzlens first, then [frotzplay](#frotzplay).
+frotzlens lives in [`apps/web`](apps/web), frotzplay in [`apps/play`](apps/play), and frotztrace in [`apps/trace`](apps/trace). The libraries in [`packages/`](packages) are published to npm under `@frotzinc/`, and the `frotzlens` command-line tool is in [`packages/cli`](packages/cli). The rest of this page is frotzlens first, then [frotzplay](#frotzplay) and [frotztrace](#frotztrace).
 
 frotzlens is a browser-based disassembler and inspector for Z-machine story files. Drop a `.z3`, `.z4`, `.z5`, `.z8` or `.zblorb` into a tab and see what's inside: the header, the memory map, the object tree, the dictionary and grammar, every routine as cross-referenced disassembly, and every string. Everything runs in your browser; nothing is uploaded.
 
@@ -46,6 +46,12 @@ Then **play it**, in Parchment, walled off in a sandbox ([details](docs/07-play.
 | ![frotzplay's start page: the drop zone and four sample stories](docs/screenshots/frotzplay/start.png) **The start page.** Drop a story, choose a file, or try a sample. | ![The Dark Cellar playing on frotzplay, on its own warm dark page](docs/screenshots/frotzplay/site-playing.png) **Playing.** The story on its own page, dark by default, every piece of text at 7:1 contrast or better. |
 | ![The player's Settings: theme, font, text size and spacing, what the screen reader says, motion and timers](docs/screenshots/frotzplay/settings.png) **Settings.** Three themes, OpenDyslexic, text size and spacing, screen-reader verbosity, the story's timers off. | ![An exported story: frotzplay's header, the player, and links to frotzplay, GitHub and frotz, Inc.](docs/screenshots/frotzplay/export.png) **Export.** One HTML file that plays from a double-click, or a folder for any web host. |
 | ![The same story on parchment, the light theme](docs/screenshots/frotzplay/play-light.png) **Light: parchment.** | ![The upper window shown as text, with a status row and a map](docs/screenshots/frotzplay/upper-window.png) **The upper window as text**, read aloud on demand. |
+
+## frotztrace
+
+[![frotztrace — step through a Z-machine story, backwards too](apps/trace/public/og-image.png)](https://frotztrace.frotzinc.com)
+
+**[frotztrace](apps/trace)** is the family's debugger, being built in this repository: open a story file (and, if you have them, its `gameinfo.dbg` and Inform 6 source), press Run, and the game plays while everything frotzlens shows (objects, globals, memory, routines) is live, with what just changed lit. Breakpoints on routines, actions, printed text and property changes; watches; a call stack with named locals; and **step backwards**, because every run is deterministic and can be replayed. It's built on frotzplay's interpreter, [`@frotzinc/zmachine`](packages/zmachine), and frotzlens's views, [`@frotzinc/zcode-ui`](packages/zcode-ui). [The design](docs/frotztrace-design.md) has the plan and the phases; the site at frotztrace.frotzinc.com says what's coming until the debugger is ready.
 
 ## Who it's for
 

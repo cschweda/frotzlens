@@ -17,19 +17,19 @@
   <rect width="1200" height="630" fill="#0b0b0e"/>
   <rect width="1200" height="630" fill="url(#glow)"/>
 
-  <!-- Texture: a paused machine, one turn's instructions, the program counter on one line -->
-  <rect x="628" y="263" width="572" height="34" fill="#f59e0b" fill-opacity="0.07"/>
+  <!-- Texture: a paused machine, one turn's instructions with the program counter on one line. Kept
+       above and below the wordmark (as frotzplay's transcript is), so the band never sits behind it. -->
   <g font-family="'Courier New', Courier, monospace" font-size="23" fill="#23232b" xml:space="preserve">
-    <text x="640" y="118">turn 12   &gt; take key</text>
-    <text x="640" y="186">  27f8  CALL_VS    R0344 (#32,#01) -&gt; sp</text>
-    <text x="640" y="220">  2801  JZ         sp [FALSE] 2810</text>
-    <text x="640" y="254">  2805  TEST_ATTR  L01,#0b [TRUE] 2812</text>
-    <text x="640" y="288" fill="#3a3226">&#9656; 2809  INSERT_OBJ L01,G00</text>
-    <text x="640" y="322">  280c  PRINT      "Taken."</text>
-    <text x="640" y="356">  2811  RTRUE</text>
-    <text x="640" y="424">watch  score    4 &#8594; 5</text>
-    <text x="640" y="458">break  Take (action)</text>
-    <text x="640" y="526" fill="#2c2c34">[paused: step back available]</text>
+    <text x="640" y="56">turn 12   &gt; take key</text>
+    <text x="640" y="104">  27f8  CALL_VS    R0344 (#32,#01) -&gt; sp</text>
+    <text x="640" y="138">  2801  JZ         sp [FALSE] 2810</text>
+    <text x="640" y="172">  2805  TEST_ATTR  L01,#0b [TRUE] 2812</text>
+  </g>
+  <rect x="628" y="432" width="572" height="34" fill="#f59e0b" fill-opacity="0.07"/>
+  <g font-family="'Courier New', Courier, monospace" font-size="23" fill="#23232b" xml:space="preserve">
+    <text x="640" y="457" fill="#3a3226">&#9656; 2809  INSERT_OBJ L01,G00</text>
+    <text x="640" y="491">  280c  PRINT      "Taken."</text>
+    <text x="640" y="525">watch  score  4 &#8594; 5  &#183;  break  Take</text>
   </g>
 
   <!-- Instrument mark: a stepped trace under a playhead, in an amber tile -->
