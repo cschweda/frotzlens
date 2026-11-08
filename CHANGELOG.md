@@ -2,6 +2,12 @@
 
 All notable changes to frotzlens: the web app at [frotzlens.frotzinc.com](https://frotzlens.frotzinc.com), and this repository. The packages keep their own changelogs: [`@frotzinc/zcode`](packages/zcode/CHANGELOG.md), [`frotzlens`](packages/cli/CHANGELOG.md) (the CLI), [`@frotzinc/worker-rpc`](packages/worker-rpc/CHANGELOG.md), [`@frotzinc/nuxt-base`](packages/nuxt-base/CHANGELOG.md), [`@frotzinc/inform6-wasm`](packages/inform6-wasm/CHANGELOG.md). Versions follow [Semantic Versioning](https://semver.org/). Part of [frotz, Inc.](https://frotzinc.com).
 
+## [Unreleased]
+
+### Added
+- **frotztrace's design, Draft 2** ([docs/frotztrace-design.md](docs/frotztrace-design.md)) and its kickoff prompt ([docs/frotztrace-kickoff-prompt.md](docs/frotztrace-kickoff-prompt.md)), revised for what frotzplay built: the debugger goes into the existing `@frotzinc/zmachine` as an additive `Debugger`, the Screen pane reuses `@frotzinc/player`, the ZVM oracle and the conformance licences are settled, and the phases are re-cut (§10, §13). Its social card is drafted in `docs/frotztrace/`.
+- The README lists frotztrace as in development.
+
 ## [0.3.6] - 2026-11-08
 
 ### Changed

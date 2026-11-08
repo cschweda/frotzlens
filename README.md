@@ -9,12 +9,13 @@
 [![Z-machine](https://img.shields.io/badge/Z--machine-v3%20%C2%B7%20v4%20%C2%B7%20v5%20%C2%B7%20v8-f59e0b.svg)](https://inform-fiction.org/zmachine/standards/)
 [![Status](https://img.shields.io/badge/status-v0.3.6-brightgreen.svg)](./CHANGELOG.md)
 
-**This repository holds two apps, and the libraries they share:**
+**This repository holds two apps, a third in development, and the libraries they share:**
 
 | App | What it does | Live at |
 |---|---|---|
 | **frotzlens** | Look inside a Z-machine story file: disassembly, objects, grammar, the map, and Inform 6 source. | [frotzlens.frotzinc.com](https://frotzlens.frotzinc.com) |
 | **[frotzplay](#frotzplay)** | Play a Z-machine story: an accessible player that embeds under a strict CSP and exports to a single HTML file or a folder. | [frotzplay.frotzinc.com](https://frotzplay.frotzinc.com) |
+| **[frotztrace](docs/frotztrace-design.md)** *(in development)* | Debug a Z-machine story: run it under observation, set breakpoints, watch the objects and globals change, and step backwards. Built on frotzplay's interpreter. | frotztrace.frotzinc.com (not yet live) |
 
 frotzlens lives in [`apps/web`](apps/web) and frotzplay in [`apps/play`](apps/play). The libraries in [`packages/`](packages) are published to npm under `@frotzinc/`, and the `frotzlens` command-line tool is in [`packages/cli`](packages/cli). The rest of this page is frotzlens first, then [frotzplay](#frotzplay).
 
