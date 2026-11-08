@@ -62,7 +62,7 @@ test('Timeline: back to a turn, and the scrubber', async ({ page }) => {
   await openSample(page)
   for (const c of ['down', 'up']) await type(page, c)
   await nav(page, 'Timeline').click()
-  await expect(page.getByText('> down')).toBeVisible()
+  await expect(page.locator('#views').getByText('> down')).toBeVisible()
   await axe(page, 'timeline')
   await page.getByRole('button', { name: 'Go here (turn 1)' }).click()
   await expect(status(page)).toContainText('turn 1')

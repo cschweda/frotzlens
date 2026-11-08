@@ -2,6 +2,11 @@
 
 All notable changes to frotztrace, the site at [frotztrace.frotzinc.com](https://frotztrace.frotzinc.com). Versions follow [Semantic Versioning](https://semver.org/). Part of [frotz, Inc.](https://frotzinc.com).
 
+## [0.2.1] - 2026-11-08
+
+### Fixed
+- An e2e check of the Timeline read the command from the game's transcript too; it looks in the Timeline only.
+
 ## [0.2.0] - 2026-11-08
 
 Source, time, polish (frotztrace Phase 5, docs/22).
