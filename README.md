@@ -7,7 +7,7 @@
 [![Netlify Status](https://api.netlify.com/api/v1/badges/ff4e0b7c-4eed-4fb8-8d7e-25dd7e1f8e69/deploy-status)](https://app.netlify.com/projects/frotzlens/deploys)
 [![TypeScript](https://img.shields.io/badge/TypeScript-strict-3178C6.svg)](https://www.typescriptlang.org)
 [![Z-machine](https://img.shields.io/badge/Z--machine-v3%20%C2%B7%20v4%20%C2%B7%20v5%20%C2%B7%20v8-f59e0b.svg)](https://inform-fiction.org/zmachine/standards/)
-[![Status](https://img.shields.io/badge/status-v0.3.12-brightgreen.svg)](./CHANGELOG.md)
+[![Status](https://img.shields.io/badge/status-v0.3.13-brightgreen.svg)](./CHANGELOG.md)
 
 **This repository holds three apps (one still in development) and the libraries they share:**
 

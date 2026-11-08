@@ -2,6 +2,11 @@
 
 All notable changes to frotzlens: the web app at [frotzlens.frotzinc.com](https://frotzlens.frotzinc.com), and this repository. The packages keep their own changelogs: [`@frotzinc/zcode`](packages/zcode/CHANGELOG.md), [`@frotzinc/zcode-ui`](packages/zcode-ui/CHANGELOG.md), [`frotzlens`](packages/cli/CHANGELOG.md) (the CLI), [`@frotzinc/worker-rpc`](packages/worker-rpc/CHANGELOG.md), [`@frotzinc/nuxt-base`](packages/nuxt-base/CHANGELOG.md), [`@frotzinc/inform6-wasm`](packages/inform6-wasm/CHANGELOG.md). Versions follow [Semantic Versioning](https://semver.org/). Part of [frotz, Inc.](https://frotzinc.com).
 
+## [0.3.13] - 2026-11-08
+
+### Changed
+- **frotzlens's Netlify build is skipped when nothing it's built from changed**, as frotzplay's and frotztrace's already are: a README-, docs-, frotzplay- or frotztrace-only merge no longer redeploys frotzlens (production deploys cost credits). The root `netlify.toml`'s `ignore` lists `apps/web`, the libraries it is built from, the samples, the root `CHANGELOG.md` (What's new), the `netlify.toml` itself, the CLI's `package.json` (About's versions) and the workspace files. Checked against past commits: a README-only commit skips; one that also changed the changelog builds.
+
 ## [0.3.12] - 2026-11-08
 
 ### Changed
