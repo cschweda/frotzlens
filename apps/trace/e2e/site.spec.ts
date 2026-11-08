@@ -80,7 +80,8 @@ test('About → Report a problem sends by email through the site’s report func
   await expect(dialog.getByRole('heading', { name: 'Sent' })).toBeFocused()
   await expect(dialog.getByRole('status')).toContainText('Your report went to frotztrace’s maker by email. Thank you.')
   await expect(dialog.getByRole('status')).toContainText('A reply, if one’s needed, will go to reader@example.org.')
-  await expect(page.getByText('Report sent')).toBeVisible()
+  // The toast (Nuxt UI also repeats its title in a screen-reader announcement, so take the first).
+  await expect(page.getByText('Report sent').first()).toBeVisible()
   await axe(page)
   expect(posted).toMatchObject({ kind: 'problem', title: 'A test', happened: 'Nothing, this is a test.', replyTo: 'reader@example.org', website: '' })
   expect(Number(posted?.elapsed)).toBeGreaterThanOrEqual(3000)
