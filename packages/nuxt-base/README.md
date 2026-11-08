@@ -72,9 +72,22 @@ import changelog from '../../../CHANGELOG.md?raw'
 
 - **`AppHeader`**: the logo (`/logo.svg`, the app's) and name linking to `homeHref`, the `#context` and `#actions` slots, the About menu, the color-mode switch.
 - **`AppFooter`**: frotz, Inc. (`/frotzinc-mark.svg`), Changelog, GitHub, npm, and the version.
-- **`AboutMenu`** and **`AboutDialogs`**: About (versions and licences), What's new, Report a problem, Suggest a feature (they open GitHub's issue form filled in; nothing is sent), Check for updates, Source.
+- **`AboutMenu`** and **`AboutDialogs`**: About (versions and licences), What's new, Report a problem, Suggest a feature, Check for updates, Source. The report forms open GitHub's issue form filled in; with `reportEndpoint` set (below) they can also **send by email**.
+- **`AppHeader wide`**: full width, wrapping onto a second row, for a header that is a toolbar (an IDE).
+- **Your own update check**: `useAbout().setUpdateCheck(fn)` makes the About menu's Check for updates call `fn` (an app with a service worker, or a desktop build). Unset, it asks the site's Nuxt build manifest.
 - The versions come from `runtimeConfig.public.about` (`{ version, commit, date, packages }`), which the app builds with `netlify/version` below.
 - The report forms expect `.github/ISSUE_TEMPLATE/bug.yml` and `idea.yml` in the app's repository, and a `SECURITY.md`.
+
+### Reports by email (Resend)
+
+Set `reportEndpoint: '/.netlify/functions/report'` in `product`, and add the function to the app (`netlify/functions/report.mjs`, beside its `netlify.toml`):
+
+```js
+import { createReportHandler } from '@frotzinc/nuxt-base/netlify/report'
+export default createReportHandler({ app: 'frotzlens' })
+```
+
+Then give the Netlify site three environment variables: `RESEND_API_KEY` (secret), `REPORT_TO` (where reports go: always this address, never one from the form) and `REPORT_FROM` (`'frotzlens <reports@mail.frotzinc.com>'`, on a domain verified in Resend). The dialog gains **Send** and an optional reply address; **Open on GitHub** stays. Without the variables the function answers 503 and the dialog says to use GitHub. Against abuse: a fixed recipient, a hidden honeypot field, forms filled in under three seconds refused, size limits on every field, and five reports a minute per address per function instance. The page posts to its own site, so a CSP of `connect-src 'self'` covers it.
 
 The layer does **not** add `@nuxt/ui` (list it in your own `modules`), any CSS (import it yourself, as shown above, so Tailwind has one entry), or a PWA.
 
@@ -88,5 +101,6 @@ Plain Node ES modules, run from your own `postgenerate` scripts:
 | `netlify/check-sw` | `runCheckSw(config, mode)` checks a generated `sw.js` against your required and forbidden precache entries, ignored query params and runtime-cache routes. It also checks a no-worker build and a self-destroying kill-switch worker. |
 | `netlify/version` | `packageVersion(pkgJson)` and `buildCommit(cwd)` give the version and the commit's short hash and date, for an About panel. |
 | `netlify/redirects` | `parseRedirects`, `readRedirects`, `scriptProxies` and `externalRules`, for writing tests against a `_redirects` file. |
+| `netlify/report` | `createReportHandler({ app })`: the Netlify Function behind Report a problem / Suggest a feature by email, through Resend (above). |
 
 `nuxt`, `@nuxt/ui` and `vue` are peer dependencies. MIT. From [frotz, Inc.](https://frotzinc.com).

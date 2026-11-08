@@ -1,8 +1,9 @@
 <script setup lang="ts">
 import type { StoryFile } from '@frotzinc/zcode'
+import type { MachineView } from '../utils/live'
 
 /** The 240 global variables: their starting values, names (with a debug file) and the routines that use them. */
-const props = defineProps<{ story: StoryFile; fileName: string; id?: string }>()
+const props = defineProps<{ story: StoryFile; fileName: string; id?: string; live?: MachineView }>()
 
 const number = computed(() => (props.id && /^\d+$/.test(props.id) ? Number(props.id) : undefined))
 const global = computed(() => (number.value === undefined ? undefined : props.story.globals[number.value]))

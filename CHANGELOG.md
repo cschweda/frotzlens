@@ -1,6 +1,39 @@
 # Changelog
 
-All notable changes to frotzlens: the web app at [frotzlens.frotzinc.com](https://frotzlens.frotzinc.com), and this repository. The packages keep their own changelogs: [`@frotzinc/zcode`](packages/zcode/CHANGELOG.md), [`frotzlens`](packages/cli/CHANGELOG.md) (the CLI), [`@frotzinc/worker-rpc`](packages/worker-rpc/CHANGELOG.md), [`@frotzinc/nuxt-base`](packages/nuxt-base/CHANGELOG.md), [`@frotzinc/inform6-wasm`](packages/inform6-wasm/CHANGELOG.md). Versions follow [Semantic Versioning](https://semver.org/). Part of [frotz, Inc.](https://frotzinc.com).
+All notable changes to frotzlens: the web app at [frotzlens.frotzinc.com](https://frotzlens.frotzinc.com), and this repository. The packages keep their own changelogs: [`@frotzinc/zcode`](packages/zcode/CHANGELOG.md), [`@frotzinc/zcode-ui`](packages/zcode-ui/CHANGELOG.md), [`frotzlens`](packages/cli/CHANGELOG.md) (the CLI), [`@frotzinc/worker-rpc`](packages/worker-rpc/CHANGELOG.md), [`@frotzinc/nuxt-base`](packages/nuxt-base/CHANGELOG.md), [`@frotzinc/inform6-wasm`](packages/inform6-wasm/CHANGELOG.md). Versions follow [Semantic Versioning](https://semver.org/). Part of [frotz, Inc.](https://frotzinc.com).
+
+## [0.3.11] - 2026-11-08
+
+### Added
+- **Reports by email, through Resend**, in frotzlens, frotzplay and frotztrace. About → Report a problem / Suggest a feature can now **Send** what you write (with an optional address for a reply), as well as open it on GitHub. Each site has a small Netlify Function (`netlify/functions/report.mjs`, from `@frotzinc/nuxt-base` 0.3.0) that holds the Resend key and always sends to one fixed address. Until a site has its `RESEND_API_KEY`, `REPORT_TO` and `REPORT_FROM`, Send says it isn't set up and GitHub stays the way. frotztrace's e2e tests the dialog against a stand-in function.
+
+## [0.3.10] - 2026-11-08
+
+### Added
+- **`@frotzinc/nuxt-base` 0.3.0** (with reports by email, below), so frotzsmith can wear the family header and About menu too: `useAbout().setUpdateCheck(fn)` lets an app supply its own "Check for updates" (frotzsmith's goes through its service worker), and `<AppHeader wide>` is a full-width header that wraps, for an IDE toolbar. frotzlens, frotzplay and frotztrace are unchanged; their e2e suites pass.
+
+## [0.3.9] - 2026-11-08
+
+### Added
+- **frotztrace in the README:** its own section, after frotzplay's, with its social card linked to frotztrace.frotzinc.com, so it's clear frotztrace lives in this repository.
+
+### Changed
+- frotztrace's social card keeps its faded disassembly above and below the wordmark, as frotzplay's does, so the program counter's highlight no longer runs behind the name. Re-rendered.
+
+## [0.3.8] - 2026-11-08
+
+### Added
+- **frotztrace's site, before the debugger** ([apps/trace](apps/trace)): a page saying what frotztrace will do, in the family shell and look, so the Netlify site and its domain can be set up now. It has its own `netlify.toml`, modelled on frotzplay's: base directory `apps/trace`, an `ignore` rule that skips the build unless frotztrace or what it's built from changed, and a stricter Content-Security-Policy than either other app (no `'unsafe-eval'` and no `'wasm-unsafe-eval'`). Node is pinned by `apps/trace/.nvmrc` (22). The social card moves from `docs/frotztrace/` to `apps/trace/public/`, and the logo and favicons use its instrument mark. CI typechecks, generates and tests it (axe, dark and light, under the real CSP).
+
+## [0.3.7] - 2026-11-08
+
+frotztrace begins. frotzlens looks and works as before.
+
+### Added
+- **`@frotzinc/zcode-ui`** ([packages/zcode-ui](packages/zcode-ui), MIT, 0.1.0): frotzlens's story views as a Nuxt layer, so frotztrace can show a running story with the same components and the same look (frotztrace Phase 0, [docs/17](docs/17-frotztrace-phase-0-zcode-ui.md)). `ObjectTree`, `GlobalsView`, `MapView`, `SearchPalette`, `AppNav`, the links and headers they use, `useHashRoute`, `useSymbols` and the naming utils move out of `apps/web`; the hex pane and the disassembly are split out of the Memory and Routines views as `HexPane` and `Disassembly`. The views take an optional `live` prop, unused until frotztrace has a machine to show. frotzlens extends the layer; its Playwright and axe suite passes unchanged.
+- `publish.sh` publishes `zcode-ui`, with a smoke test (`scripts/smoke/zcode-ui.mjs`) that also fails if the layer ever ships CSS: the look stays in `@frotzinc/nuxt-base`.
+- **frotztrace's design, Draft 2** ([docs/frotztrace-design.md](docs/frotztrace-design.md)) and its kickoff prompt ([docs/frotztrace-kickoff-prompt.md](docs/frotztrace-kickoff-prompt.md)), revised for what frotzplay built: the debugger goes into the existing `@frotzinc/zmachine` as an additive `Debugger`, the Screen pane reuses `@frotzinc/player`, the ZVM oracle and the conformance licences are settled, and the phases are re-cut (§10, §13). Its social card is drafted in `docs/frotztrace/`.
+- The README lists frotztrace as in development.
 
 ## [0.3.6] - 2026-11-08
 

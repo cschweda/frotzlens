@@ -5,20 +5,23 @@
  *   #context  beside the name: what's open (frotzlens: "/ story.z5"). Hidden on a phone is the app's call.
  *   #actions  before the About menu: the app's own buttons (frotzlens: Go to…, Names, Open another file).
  * The app supplies /logo.svg.
+ *   wide  full width, and wrapping onto a second row when the actions don't fit: for an app whose
+ *         header is a toolbar (frotzsmith's IDE). Without it, the header is centred at max-w-7xl.
  */
+defineProps<{ wide?: boolean }>()
 const product = useProduct()
 </script>
 
 <template>
   <header class="sticky top-0 z-10 border-b border-default bg-default/90 backdrop-blur">
-    <div class="mx-auto flex h-16 max-w-7xl items-center gap-3 px-4">
+    <div class="flex items-center gap-3 px-4" :class="wide ? 'min-h-16 flex-wrap py-2' : 'mx-auto h-16 max-w-7xl'">
       <a :href="product.homeHref" class="flex items-center gap-3" :aria-label="`${product.name} — home`">
         <img src="/logo.svg" alt="" width="36" height="36" class="size-9">
         <!-- On a phone the logo stands for the name (the link is labelled), leaving room for the buttons. -->
         <span class="hidden font-display text-xl font-bold text-highlighted sm:inline">{{ product.name }}</span>
       </a>
       <slot name="context" />
-      <div class="ml-auto flex items-center gap-2">
+      <div class="ml-auto flex items-center gap-2" :class="wide ? 'flex-wrap' : ''">
         <slot name="actions" />
         <AboutMenu />
         <UColorModeButton />

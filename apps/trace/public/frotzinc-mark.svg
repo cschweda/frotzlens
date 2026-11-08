@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 156 156" width="156" height="156">
+  <defs>
+    <linearGradient id="b" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#f7c35a"/><stop offset="1" stop-color="#e3921c"/></linearGradient>
+    <radialGradient id="glow" cx="0.5" cy="0.5" r="0.5"><stop offset="0" stop-color="#fff3c4" stop-opacity=".95"/><stop offset="1" stop-color="#fff3c4" stop-opacity="0"/></radialGradient>
+  </defs>
+  <rect width="156" height="156" rx="30" fill="url(#b)"/>
+  <!-- light -->
+  <circle cx="78" cy="86" r="46" fill="url(#glow)"/>
+  <!-- brass lantern: ring, cap, body, base -->
+  <g fill="none" stroke="#1a1206" stroke-width="11" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M62 36 a16 16 0 0 1 32 0"/>
+    <path d="M50 50 h56"/>
+    <path d="M56 50 v54 a22 22 0 0 0 44 0 v-54"/>
+    <path d="M48 118 h60"/>
+  </g>
+  <!-- flame -->
+  <path d="M78 66 c-9 10 -11 18 -5 25 c3 3 9 3 12 0 c6 -7 2 -15 -7 -25 z" fill="#1a1206"/>
+</svg>

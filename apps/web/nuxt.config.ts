@@ -18,6 +18,7 @@ const about = {
     frotzlens: pkg('../../packages/cli/package.json'),
     '@frotzinc/worker-rpc': pkg('../../packages/worker-rpc/package.json'),
     '@frotzinc/nuxt-base': pkg('../../packages/nuxt-base/package.json'),
+    '@frotzinc/zcode-ui': pkg('../../packages/zcode-ui/package.json'),
   },
 }
 
@@ -49,8 +50,9 @@ export default defineNuxtConfig({
   compatibilityDate: '2025-06-01',
 
   // The shared frotz, Inc. layer: ssr:false (a pure client-side, static site), dark-default color
-  // mode, the Nuxt UI color roles, safe-storage/slug/shortcut, and the build:manifest hook.
-  extends: ['@frotzinc/nuxt-base'],
+  // mode, the Nuxt UI color roles, safe-storage/slug/shortcut, and the build:manifest hook. Then the
+  // story views shared with frotztrace (@frotzinc/zcode-ui): ObjectTree, GlobalsView, Disassembly, …
+  extends: ['@frotzinc/nuxt-base', '@frotzinc/zcode-ui'],
   modules: ['@nuxt/ui'],
   css: ['~/assets/css/main.css'],
 

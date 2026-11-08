@@ -6,8 +6,22 @@ export type AboutDialog = 'about' | 'changelog' | 'problem' | 'idea'
 
 const open = ref<AboutDialog | null>(null)
 
+/**
+ * The app's own "Check for updates", when it has one (frotzsmith's goes through its service worker,
+ * and its desktop build has no web manifest to ask). Unset, the About menu asks the site's Nuxt
+ * build manifest, which is right for a static site with no service worker.
+ */
+const updateCheck = shallowRef<(() => void | Promise<void>) | null>(null)
+
 export function useAbout() {
-  return { dialog: open, show: (d: AboutDialog) => (open.value = d), close: () => (open.value = null) }
+  return {
+    dialog: open,
+    show: (d: AboutDialog) => (open.value = d),
+    close: () => (open.value = null),
+    /** The About menu's "Check for updates" calls this instead of its own check. */
+    setUpdateCheck: (fn: (() => void | Promise<void>) | null) => (updateCheck.value = fn),
+    updateCheck,
+  }
 }
 
 /**

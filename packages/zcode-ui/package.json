@@ -1,0 +1,56 @@
+{
+  "name": "@frotzinc/zcode-ui",
+  "version": "0.1.0",
+  "description": "The Z-machine story views of frotzlens as a Nuxt layer: object tree, globals, map, disassembly, hex, go-to palette and the pieces they share, for frotzlens and frotztrace.",
+  "license": "MIT",
+  "author": "Christopher Schweda",
+  "type": "module",
+  "homepage": "https://github.com/cschweda/frotzlens/tree/main/packages/zcode-ui",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/cschweda/frotzlens.git",
+    "directory": "packages/zcode-ui"
+  },
+  "bugs": {
+    "url": "https://github.com/cschweda/frotzlens/issues"
+  },
+  "keywords": [
+    "z-machine",
+    "interactive-fiction",
+    "nuxt",
+    "nuxt-layer",
+    "nuxt-ui",
+    "frotzinc"
+  ],
+  "main": "./nuxt.config.ts",
+  "exports": {
+    ".": "./nuxt.config.ts",
+    "./nuxt.config.ts": "./nuxt.config.ts",
+    "./utils/*": "./app/utils/*.ts",
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "nuxt.config.ts",
+    "app",
+    "!**/*.test.ts",
+    "CHANGELOG.md",
+    "README.md",
+    "LICENSE"
+  ],
+  "scripts": {
+    "test": "vitest run",
+    "typecheck": "tsc -p tsconfig.json --noEmit"
+  },
+  "dependencies": {
+    "@frotzinc/zcode": "workspace:*"
+  },
+  "peerDependencies": {
+    "@nuxt/ui": "^4.12.0",
+    "nuxt": "^4.6.0",
+    "vue": "^3.5.0"
+  },
+  "devDependencies": {
+    "vitest": "^5.1.0",
+    "typescript": "5.9.3"
+  }
+}

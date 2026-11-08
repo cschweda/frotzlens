@@ -62,3 +62,14 @@ jobs:
           name: playwright-results
           path: apps/web/test-results/
           retention-days: 7
+      # frotztrace's site (apps/trace): typecheck, generate as Netlify does, and test the built site,
+      # served with its netlify.toml headers (Chromium is installed above).
+      - run: pnpm --filter frotztrace-web run typecheck
+      - run: pnpm --filter frotztrace-web run generate
+      - run: pnpm --filter frotztrace-web run test:e2e
+      - uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: frotztrace-site-results
+          path: apps/trace/test-results/
+          retention-days: 7

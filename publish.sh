@@ -9,9 +9,10 @@ set -euo pipefail
 #   ./publish.sh <package> --dry-run   run every check and a dry-run publish; change nothing, ask for
 #                                      no approval (if you're not logged in to npm, it warns instead)
 #   ./publish.sh --help                print this
-#   <package> is worker-rpc, nuxt-base, inform6-wasm, zcode, zmachine, player (or the full
-#   @frotzinc/<name>), or cli (the unscoped frotzlens CLI; `frotzlens` works too). Publish a package
-#   before what depends on it: zcode before the CLI and zmachine, zmachine before player.
+#   <package> is worker-rpc, nuxt-base, inform6-wasm, zcode, zcode-ui, zmachine, player (or the
+#   full @frotzinc/<name>), or cli (the unscoped frotzlens CLI; `frotzlens` works too). Publish a
+#   package before what depends on it: zcode before the CLI, zcode-ui and zmachine, zmachine before
+#   player.
 #
 # A release comes first, and this script never makes one: bump the package's version, add its
 # CHANGELOG.md section, merge to main, and push the tag <package name>@<version> (e.g.
@@ -43,7 +44,7 @@ set -euo pipefail
 SCOPE="@frotzinc"
 BRANCH="main"
 WORKFLOW="ci.yml"
-PACKAGES="worker-rpc nuxt-base inform6-wasm zcode zmachine player cli"
+PACKAGES="worker-rpc nuxt-base inform6-wasm zcode zcode-ui zmachine player cli"
 
 RED='\033[0;31m'
 GREEN='\033[0;32m'
@@ -75,7 +76,17 @@ required_files() {
         app/utils/report.ts app/utils/markdown.ts app/composables/useAbout.ts app/composables/useProduct.ts \
         app/components/AppHeader.vue app/components/AppFooter.vue app/components/AboutMenu.vue \
         app/components/AboutDialogs.vue css/base.css css/palette.css \
-        netlify/check-sw.mjs netlify/inject-preloads.mjs netlify/redirects.mjs netlify/version.mjs
+        netlify/check-sw.mjs netlify/inject-preloads.mjs netlify/redirects.mjs netlify/report.mjs netlify/version.mjs
+      ;;
+    zcode-ui)
+      echo package.json README.md CHANGELOG.md LICENSE nuxt.config.ts \
+        app/utils/story.ts app/utils/map-layout.ts app/utils/live.ts app/utils/nav.ts \
+        app/composables/useHashRoute.ts app/composables/useSymbols.ts \
+        app/components/AppNav.vue app/components/CopyText.vue app/components/Disassembly.vue \
+        app/components/GlobalsView.vue app/components/HexPane.vue app/components/MapView.vue \
+        app/components/NotFound.vue app/components/ObjectTree.vue app/components/RefLink.vue \
+        app/components/Referrers.vue app/components/SearchPalette.vue app/components/StatTile.vue \
+        app/components/ViewHeader.vue
       ;;
     zmachine)
       echo package.json README.md CHANGELOG.md LICENSE dist/index.js dist/index.d.ts dist/machine.js bin/run.mjs
@@ -307,8 +318,8 @@ EXTRA=$(grep -E "$FORBIDDEN_RE" <<<"$FILES" || true)
 [[ -z "$EXTRA" ]] || die "The package holds files it mustn't:"$'\n'"$EXTRA"
 
 # The packed manifest: its license, and nothing that runs on install. A library has no runtime
-# dependencies (peers are fine), except the @frotzinc packages it's built on: zmachine has
-# @frotzinc/zcode, player has @frotzinc/zmachine. The CLI has @frotzinc/zcode and, for --inform,
+# dependencies (peers are fine), except the @frotzinc packages it's built on: zmachine and zcode-ui
+# have @frotzinc/zcode, player has @frotzinc/zmachine. The CLI has @frotzinc/zcode and, for --inform,
 # @frotzinc/inform6-wasm. Each at an exact version that is already on npm (so publish those first).
 tar -xzf "$TARBALL" -C "$WORK" package/package.json
 node --input-type=commonjs -e '
@@ -321,6 +332,7 @@ node --input-type=commonjs -e '
   const ALLOWED = {
     "frotzlens": [["@frotzinc/zcode"], ["@frotzinc/inform6-wasm"]],
     "@frotzinc/zmachine": [["@frotzinc/zcode"], []],
+    "@frotzinc/zcode-ui": [["@frotzinc/zcode"], []],
     "@frotzinc/player": [["@frotzinc/zmachine"], []],
   };
   const keys = Object.keys(deps);

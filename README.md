@@ -7,16 +7,17 @@
 [![Netlify Status](https://api.netlify.com/api/v1/badges/ff4e0b7c-4eed-4fb8-8d7e-25dd7e1f8e69/deploy-status)](https://app.netlify.com/projects/frotzlens/deploys)
 [![TypeScript](https://img.shields.io/badge/TypeScript-strict-3178C6.svg)](https://www.typescriptlang.org)
 [![Z-machine](https://img.shields.io/badge/Z--machine-v3%20%C2%B7%20v4%20%C2%B7%20v5%20%C2%B7%20v8-f59e0b.svg)](https://inform-fiction.org/zmachine/standards/)
-[![Status](https://img.shields.io/badge/status-v0.3.6-brightgreen.svg)](./CHANGELOG.md)
+[![Status](https://img.shields.io/badge/status-v0.3.11-brightgreen.svg)](./CHANGELOG.md)
 
-**This repository holds two apps, and the libraries they share:**
+**This repository holds two apps, a third in development, and the libraries they share:**
 
 | App | What it does | Live at |
 |---|---|---|
 | **frotzlens** | Look inside a Z-machine story file: disassembly, objects, grammar, the map, and Inform 6 source. | [frotzlens.frotzinc.com](https://frotzlens.frotzinc.com) |
 | **[frotzplay](#frotzplay)** | Play a Z-machine story: an accessible player that embeds under a strict CSP and exports to a single HTML file or a folder. | [frotzplay.frotzinc.com](https://frotzplay.frotzinc.com) |
+| **[frotztrace](#frotztrace)** *(in development)* | Debug a Z-machine story: run it under observation, set breakpoints, watch the objects and globals change, and step backwards. Built on frotzplay's interpreter. | frotztrace.frotzinc.com (not yet live) |
 
-frotzlens lives in [`apps/web`](apps/web) and frotzplay in [`apps/play`](apps/play). The libraries in [`packages/`](packages) are published to npm under `@frotzinc/`, and the `frotzlens` command-line tool is in [`packages/cli`](packages/cli). The rest of this page is frotzlens first, then [frotzplay](#frotzplay).
+frotzlens lives in [`apps/web`](apps/web), frotzplay in [`apps/play`](apps/play), and frotztrace in [`apps/trace`](apps/trace). The libraries in [`packages/`](packages) are published to npm under `@frotzinc/`, and the `frotzlens` command-line tool is in [`packages/cli`](packages/cli). The rest of this page is frotzlens first, then [frotzplay](#frotzplay) and [frotztrace](#frotztrace).
 
 frotzlens is a browser-based disassembler and inspector for Z-machine story files. Drop a `.z3`, `.z4`, `.z5`, `.z8` or `.zblorb` into a tab and see what's inside: the header, the memory map, the object tree, the dictionary and grammar, every routine as cross-referenced disassembly, and every string. Everything runs in your browser; nothing is uploaded.
 
@@ -45,6 +46,12 @@ Then **play it**, in Parchment, walled off in a sandbox ([details](docs/07-play.
 | ![frotzplay's start page: the drop zone and four sample stories](docs/screenshots/frotzplay/start.png) **The start page.** Drop a story, choose a file, or try a sample. | ![The Dark Cellar playing on frotzplay, on its own warm dark page](docs/screenshots/frotzplay/site-playing.png) **Playing.** The story on its own page, dark by default, every piece of text at 7:1 contrast or better. |
 | ![The player's Settings: theme, font, text size and spacing, what the screen reader says, motion and timers](docs/screenshots/frotzplay/settings.png) **Settings.** Three themes, OpenDyslexic, text size and spacing, screen-reader verbosity, the story's timers off. | ![An exported story: frotzplay's header, the player, and links to frotzplay, GitHub and frotz, Inc.](docs/screenshots/frotzplay/export.png) **Export.** One HTML file that plays from a double-click, or a folder for any web host. |
 | ![The same story on parchment, the light theme](docs/screenshots/frotzplay/play-light.png) **Light: parchment.** | ![The upper window shown as text, with a status row and a map](docs/screenshots/frotzplay/upper-window.png) **The upper window as text**, read aloud on demand. |
+
+## frotztrace
+
+[![frotztrace — step through a Z-machine story, backwards too](apps/trace/public/og-image.png)](https://frotztrace.frotzinc.com)
+
+**[frotztrace](apps/trace)** is the family's debugger, being built in this repository: open a story file (and, if you have them, its `gameinfo.dbg` and Inform 6 source), press Run, and the game plays while everything frotzlens shows (objects, globals, memory, routines) is live, with what just changed lit. Breakpoints on routines, actions, printed text and property changes; watches; a call stack with named locals; and **step backwards**, because every run is deterministic and can be replayed. It's built on frotzplay's interpreter, [`@frotzinc/zmachine`](packages/zmachine), and frotzlens's views, [`@frotzinc/zcode-ui`](packages/zcode-ui). [The design](docs/frotztrace-design.md) has the plan and the phases; the site at frotztrace.frotzinc.com says what's coming until the debugger is ready.
 
 ## Who it's for
 
@@ -110,7 +117,8 @@ The plan and its decisions are in [`docs/`](docs/), starting with [`00-master-de
 | [`@frotzinc/zcode`](packages/zcode) | MIT | The parser and disassembler: `Uint8Array` in, typed model out, plus `txd`- and `infodump`-format text, Blorb, debug symbols, fingerprinting, the room graph, ZIL grammar and the Inform 6 decompiler | [0.4.1](https://www.npmjs.com/package/@frotzinc/zcode) |
 | [`frotzlens`](packages/cli) | GPL-3.0-or-later | The CLI: `frotzlens game.z5`; also `--inform`, `--symbols`, `--info`, `--rooms`, `--json` | [0.3.1](https://www.npmjs.com/package/frotzlens) |
 | [`@frotzinc/worker-rpc`](packages/worker-rpc) | MIT | Long-lived Web Worker request/response client | [0.1.1](https://www.npmjs.com/package/@frotzinc/worker-rpc) |
-| [`@frotzinc/nuxt-base`](packages/nuxt-base) | MIT | Shared frotz, Inc. Nuxt layer (with the family's header, footer and About menu) and Netlify tools | [0.2.1](https://www.npmjs.com/package/@frotzinc/nuxt-base) |
+| [`@frotzinc/nuxt-base`](packages/nuxt-base) | MIT | Shared frotz, Inc. Nuxt layer (with the family's header, footer and About menu) and Netlify tools | [0.2.1](https://www.npmjs.com/package/@frotzinc/nuxt-base) (0.3.0 next) |
+| [`@frotzinc/zcode-ui`](packages/zcode-ui) | MIT | The story views (object tree, globals, map, disassembly, hex, go-to palette) as a Nuxt layer, shared by frotzlens and frotztrace | 0.1.0 (not yet on npm) |
 | [`@frotzinc/inform6-wasm`](packages/inform6-wasm) | MIT (wrapper) | Inform 6.44 in WebAssembly, with the Standard Library and PunyInform | [0.1.1](https://www.npmjs.com/package/@frotzinc/inform6-wasm) |
 | [`@frotzinc/zmachine`](packages/zmachine) | MIT | A Z-machine interpreter (v3, 4, 5, 8): no `eval`, all state plain data, input supplied by the host. frotzplay's engine | [0.1.1](https://www.npmjs.com/package/@frotzinc/zmachine) |
 | [`@frotzinc/player`](packages/player) | MIT | frotzplay's accessible player as Vue components ([its contract](docs/accessibility.md)), the `<frotz-play>` web component, and Export | [0.2.1](https://www.npmjs.com/package/@frotzinc/player) |
@@ -157,7 +165,7 @@ Each `@frotzinc/*` package, and the `frotzlens` CLI, is released on its own, fro
 
 1. Bump `packages/<name>/package.json`'s version and add its `## [x.y.z]` section to `packages/<name>/CHANGELOG.md`.
 2. Merge to `main`, then tag and push the tag: `git tag @frotzinc/<name>@x.y.z && git push origin @frotzinc/<name>@x.y.z` (the CLI's tag is `frotzlens@x.y.z`). The `ci` workflow runs on it.
-3. `./publish.sh <name> --dry-run`, then `./publish.sh <name>` in a terminal. `<name>` is `zcode`, `cli`, and so on. Publish a package before what depends on it: `zcode` before the `cli` and `zmachine`, `zmachine` before `player`. It builds and tests the tag in a temporary worktree, checks the packed files, installs the tarball and runs `scripts/smoke/<name>.mjs` against it, asks you to type the version, and then npm asks for your approval.
+3. `./publish.sh <name> --dry-run`, then `./publish.sh <name>` in a terminal. `<name>` is `zcode`, `cli`, and so on. Publish a package before what depends on it: `zcode` before the `cli`, `zcode-ui` and `zmachine`, `zmachine` before `player`. It builds and tests the tag in a temporary worktree, checks the packed files, installs the tarball and runs `scripts/smoke/<name>.mjs` against it, asks you to type the version, and then npm asks for your approval.
 
 The script never commits, tags or pushes.
 
