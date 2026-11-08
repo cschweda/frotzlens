@@ -2,6 +2,11 @@
 
 All notable changes to `@frotzinc/zcode-ui`. Versions follow [Semantic Versioning](https://semver.org/). Part of [frotz, Inc.](https://frotzinc.com).
 
+## [0.1.1] - 2026-11-08
+
+### Changed
+- `MachineView` is now the Debugger's own type from `@frotzinc/zmachine` (0.2.0), re-exported; the same shape as the placeholder it replaces. `@frotzinc/zmachine` is a new dependency, for the type.
+
 ## [0.1.0] - 2026-11-08
 
 The first release: frotzlens's story views, moved out of the app (and relicensed MIT by their author) so frotztrace can show a running story with the same components.

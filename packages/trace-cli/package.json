@@ -1,6 +1,6 @@
 {
   "name": "frotztrace",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "private": true,
   "description": "A debugger for Z-machine story files, on the command line: play a script under observation, trace every call, and stop on a routine with its stack. The CLI of frotztrace.",
   "license": "GPL-3.0-or-later",
@@ -34,6 +34,7 @@
     "typecheck": "tsc -p tsconfig.json --noEmit"
   },
   "dependencies": {
+    "@frotzinc/inform6-wasm": "workspace:*",
     "@frotzinc/zcode": "workspace:*",
     "@frotzinc/zmachine": "workspace:*"
   },

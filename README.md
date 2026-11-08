@@ -7,7 +7,7 @@
 [![Netlify Status](https://api.netlify.com/api/v1/badges/ff4e0b7c-4eed-4fb8-8d7e-25dd7e1f8e69/deploy-status)](https://app.netlify.com/projects/frotzlens/deploys)
 [![TypeScript](https://img.shields.io/badge/TypeScript-strict-3178C6.svg)](https://www.typescriptlang.org)
 [![Z-machine](https://img.shields.io/badge/Z--machine-v3%20%C2%B7%20v4%20%C2%B7%20v5%20%C2%B7%20v8-f59e0b.svg)](https://inform-fiction.org/zmachine/standards/)
-[![Status](https://img.shields.io/badge/status-v0.3.17-brightgreen.svg)](./CHANGELOG.md)
+[![Status](https://img.shields.io/badge/status-v0.3.18-brightgreen.svg)](./CHANGELOG.md)
 
 **This repository holds three apps (one still in development) and the libraries they share:**
 
@@ -116,7 +116,7 @@ The plan and its decisions are in [`docs/`](docs/), starting with [`00-master-de
 |---|---|---|---|
 | [`@frotzinc/zcode`](packages/zcode) | MIT | The parser and disassembler: `Uint8Array` in, typed model out, plus `txd`- and `infodump`-format text, Blorb, debug symbols, fingerprinting, the room graph, ZIL grammar and the Inform 6 decompiler | [0.4.1](https://www.npmjs.com/package/@frotzinc/zcode) |
 | [`frotzlens`](packages/cli) | GPL-3.0-or-later | The CLI: `frotzlens game.z5`; also `--inform`, `--symbols`, `--info`, `--rooms`, `--json` | [0.3.1](https://www.npmjs.com/package/frotzlens) |
-| [`frotztrace`](packages/trace-cli) | GPL-3.0-or-later | The debugger's CLI: `frotztrace game.z5 --script walk.txt --trace calls --break R0097` | in development |
+| [`frotztrace`](packages/trace-cli) | GPL-3.0-or-later | The debugger's CLI: `frotztrace game.z5 --script walk.txt --break action:Take --if 'noun == lantern' --watch score` | in development |
 | [`@frotzinc/worker-rpc`](packages/worker-rpc) | MIT | Long-lived Web Worker request/response client | [0.1.1](https://www.npmjs.com/package/@frotzinc/worker-rpc) |
 | [`@frotzinc/nuxt-base`](packages/nuxt-base) | MIT | Shared frotz, Inc. Nuxt layer (with the family's header, footer and About menu) and Netlify tools | [0.3.1](https://www.npmjs.com/package/@frotzinc/nuxt-base) |
 | [`@frotzinc/zcode-ui`](packages/zcode-ui) | MIT | The story views (object tree, globals, map, disassembly, hex, go-to palette) as a Nuxt layer, shared by frotzlens and frotztrace | [0.1.0](https://www.npmjs.com/package/@frotzinc/zcode-ui) |
@@ -176,7 +176,7 @@ Each `@frotzinc/*` package, and the `frotzlens` CLI, is released on its own, fro
 
 1. Bump `packages/<name>/package.json`'s version and add its `## [x.y.z]` section to `packages/<name>/CHANGELOG.md`.
 2. Merge to `main`, then tag and push the tag: `git tag @frotzinc/<name>@x.y.z && git push origin @frotzinc/<name>@x.y.z` (the CLI's tag is `frotzlens@x.y.z`). The `ci` workflow runs on it.
-3. `./publish.sh <name> --dry-run`, then `./publish.sh <name>` in a terminal. `<name>` is `zcode`, `cli`, and so on. Publish a package before what depends on it: `zcode` before the `cli`, `zcode-ui` and `zmachine`, `zmachine` before `player`. It builds and tests the tag in a temporary worktree, checks the packed files, installs the tarball and runs `scripts/smoke/<name>.mjs` against it, asks you to type the version, and then npm asks for your approval.
+3. `./publish.sh <name> --dry-run`, then `./publish.sh <name>` in a terminal. `<name>` is `zcode`, `cli`, and so on. Publish a package before what depends on it: `zcode` before the `cli` and `zmachine`, `zmachine` before `player` and `zcode-ui`. It builds and tests the tag in a temporary worktree, checks the packed files, installs the tarball and runs `scripts/smoke/<name>.mjs` against it, asks you to type the version, and then npm asks for your approval.
 
 The script never commits, tags or pushes.
 

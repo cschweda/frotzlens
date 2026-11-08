@@ -5,6 +5,10 @@ A debugger for Z-machine story files, on the command line: play a command script
 > **In development** (frotztrace Phase 1 of 5): not on npm yet beyond the name; `frotztrace` 0.1.0 is published when the debugger is finished.
 
 ```sh
+frotztrace game.z5 --script walk.txt --break action:Take  # stop when the library begins Take
+frotztrace game.z5 --script walk.txt --break action:Take --if 'noun == lantern'
+frotztrace game.z5 --script walk.txt --watch 'score, lantern in player'
+frotztrace game.z5 --script walk.txt --save-at 3 out.qzl  # and --quetzal out.qzl to read it
 frotztrace game.z5 --script walk.txt                      # play it, turn by turn
 frotztrace game.z5 --script walk.txt --trace calls        # with every call and return, by depth
 frotztrace game.z5 --script walk.txt --break R0097        # stop there and print the stack
@@ -24,4 +28,4 @@ Stack (innermost first):
 
 **Exit codes, for CI:** 0 the script ran to the end; 1 the story faulted, or a usage error; 2 a breakpoint was hit; 3 the story quit before the script ended.
 
-Built on [`@frotzinc/zmachine`](../zmachine)'s `Debugger` and [`@frotzinc/zcode`](../zcode). Coming (docs/frotztrace-design.md §10): breakpoints on actions (`--break action:Take`), lines, printed text and property writes, `--watch`, `--save-at`, and rewind.
+Built on [`@frotzinc/zmachine`](../zmachine)'s `Debugger` and [`@frotzinc/zcode`](../zcode). Names come from `--symbols gameinfo.dbg`, or are worked out from the story when there's no debug file (Inform games: it compiles the library alone to compare). Source lines need the debug file.

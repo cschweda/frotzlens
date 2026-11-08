@@ -17,6 +17,31 @@ const debugFixtures = storyFiles().filter(f => readdirSync(FIXTURES_DIR).include
 const dbg = (story: string) => readFileSync(FIXTURES_DIR + story.replace(/\.z\d$/, '.dbg'), 'utf8')
 
 describe('readSymbols', () => {
+  it.each(debugFixtures)('%s: reads the sequence points, sorted, each a statement start inside a routine', (f) => {
+    const story = parseStory(readStory(f))
+    const s = readSymbols(dbg(f))
+    expect(s.lines?.length).toBeGreaterThan(0)
+    const lines = s.lines!
+    for (let i = 1; i < lines.length; i++) expect(lines[i]!.address).toBeGreaterThanOrEqual(lines[i - 1]!.address)
+    // A statement starts an instruction, or is a routine's closing ] after a statement that returned
+    // (the compiler emits no code for it, so it's at the routine's end).
+    const starts = new Set(story.code.routines.flatMap(r => [...r.instructions.map(x => x.address), r.end]))
+    for (const p of lines) {
+      expect(starts.has(p.address)).toBe(true)
+      expect(s.sources[p.location.file]).toBeDefined()
+      expect(p.location.line).toBeGreaterThan(0)
+    }
+  })
+
+  it('maps a known statement: Initialise’s first line in dark-cellar.inf', () => {
+    const s = readSymbols(dbg('dark-cellar.z5'))
+    const init = Object.values(s.routines).find(r => r.name === 'Initialise')!
+    const own = s.lines!.filter(p => p.address > init.address && p.address < init.address + init.byteCount!)
+    // `location = Hall;`, the print, and the closing ]: the lines after `[ Initialise;`, in the game's own file.
+    expect(own.map(p => p.location.line)).toEqual([init.location!.line + 1, init.location!.line + 2, init.location!.line + 3])
+    expect(own.every(p => p.location.file === init.location!.file)).toBe(true)
+  })
+
   it('has debug fixtures to check', () => expect(debugFixtures.length).toBeGreaterThanOrEqual(10))
 
   it.each(debugFixtures)('%s: reads cleanly, matches its story, and names exactly the routines the sweep finds', (f) => {
