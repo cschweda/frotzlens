@@ -10,9 +10,9 @@ set -euo pipefail
 #                                      no approval (if you're not logged in to npm, it warns instead)
 #   ./publish.sh --help                print this
 #   <package> is worker-rpc, nuxt-base, inform6-wasm, zcode, zcode-ui, zmachine, player (or the
-#   full @frotzinc/<name>), or cli (the unscoped frotzlens CLI; `frotzlens` works too). Publish a
-#   package before what depends on it: zcode before the CLI and zmachine, zmachine before player
-#   and zcode-ui.
+#   full @frotzinc/<name>), cli (the unscoped frotzlens CLI; `frotzlens` works too), or trace-cli
+#   (the unscoped frotztrace CLI; `frotztrace` works too). Publish a package before what depends on
+#   it: zcode before the CLIs and zmachine, zmachine before player, zcode-ui and frotztrace.
 #
 # A release comes first, and this script never makes one: bump the package's version, add its
 # CHANGELOG.md section, merge to main, and push the tag <package name>@<version> (e.g.
@@ -44,7 +44,7 @@ set -euo pipefail
 SCOPE="@frotzinc"
 BRANCH="main"
 WORKFLOW="ci.yml"
-PACKAGES="worker-rpc nuxt-base inform6-wasm zcode zcode-ui zmachine player cli"
+PACKAGES="worker-rpc nuxt-base inform6-wasm zcode zcode-ui zmachine player cli trace-cli"
 
 RED='\033[0;31m'
 GREEN='\033[0;32m'
@@ -99,7 +99,7 @@ required_files() {
       echo package.json README.md CHANGELOG.md LICENSE \
         dist/index.js dist/index.d.ts dist/format/index.js dist/format/index.d.ts
       ;;
-    cli)
+    cli | trace-cli)
       echo package.json README.md CHANGELOG.md LICENSE dist/bin.js dist/main.js
       ;;
     inform6-wasm)
@@ -135,6 +135,7 @@ for arg in "$@"; do
       }
       NAME="${arg#"$SCOPE"/}"
       [[ "$NAME" == frotzlens ]] && NAME=cli
+      [[ "$NAME" == frotztrace ]] && NAME=trace-cli
       ;;
   esac
 done
@@ -144,9 +145,13 @@ done
 }
 [[ " $PACKAGES " == *" $NAME "* ]] || die "'$NAME' isn't a publishable package (one of $PACKAGES)."
 
-# The CLI is the one unscoped package: frotzlens, from packages/cli, GPL, depending on zcode.
+# The CLIs are the unscoped packages, GPL: frotzlens from packages/cli, frotztrace from
+# packages/trace-cli.
 if [[ "$NAME" == cli ]]; then
   PACKAGE_NAME="frotzlens"
+  LICENSE_ID="GPL-3.0-or-later"
+elif [[ "$NAME" == trace-cli ]]; then
+  PACKAGE_NAME="frotztrace"
   LICENSE_ID="GPL-3.0-or-later"
 else
   PACKAGE_NAME="$SCOPE/$NAME"
@@ -320,7 +325,7 @@ EXTRA=$(grep -E "$FORBIDDEN_RE" <<<"$FILES" || true)
 # The packed manifest: its license, and nothing that runs on install. A library has no runtime
 # dependencies (peers are fine), except the @frotzinc packages it's built on: zmachine has
 # @frotzinc/zcode, zcode-ui has zcode and zmachine, player has @frotzinc/zmachine. The CLI has @frotzinc/zcode and, for --inform,
-# @frotzinc/inform6-wasm. Each at an exact version that is already on npm (so publish those first).
+# @frotzinc/inform6-wasm; frotztrace has zcode, zmachine and inform6-wasm. Each at an exact version that is already on npm (so publish those first).
 tar -xzf "$TARBALL" -C "$WORK" package/package.json
 node --input-type=commonjs -e '
   const [path, license, name] = process.argv.slice(1);
@@ -331,6 +336,7 @@ node --input-type=commonjs -e '
   // What each package may depend on at run time: [required, also allowed].
   const ALLOWED = {
     "frotzlens": [["@frotzinc/zcode"], ["@frotzinc/inform6-wasm"]],
+    "frotztrace": [["@frotzinc/zcode", "@frotzinc/zmachine", "@frotzinc/inform6-wasm"], []],
     "@frotzinc/zmachine": [["@frotzinc/zcode"], []],
     "@frotzinc/zcode-ui": [["@frotzinc/zcode", "@frotzinc/zmachine"], []],
     "@frotzinc/player": [["@frotzinc/zmachine"], []],

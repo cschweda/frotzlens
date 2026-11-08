@@ -2,7 +2,11 @@
 
 A debugger for Z-machine story files, on the command line: play a command script under observation, trace every call, and stop on a routine with its stack. Part of [frotztrace](https://frotztrace.frotzinc.com), from [frotz, Inc.](https://frotzinc.com). GPL-3.0-or-later.
 
-> **In development** (frotztrace Phase 1 of 5): not on npm yet beyond the name; `frotztrace` 0.1.0 is published when the debugger is finished.
+```sh
+npm install -g frotztrace   # Node 22.12 or later
+```
+
+In the browser: [frotztrace.frotzinc.com](https://frotztrace.frotzinc.com), with the same debugger.
 
 ```sh
 frotztrace game.z5 --script walk.txt --break action:Take  # stop when the library begins Take

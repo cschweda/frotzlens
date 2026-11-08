@@ -2,6 +2,13 @@
 
 All notable changes to frotzlens: the web app at [frotzlens.frotzinc.com](https://frotzlens.frotzinc.com), and this repository. The packages keep their own changelogs: [`@frotzinc/zcode`](packages/zcode/CHANGELOG.md), [`@frotzinc/zcode-ui`](packages/zcode-ui/CHANGELOG.md), [`frotzlens`](packages/cli/CHANGELOG.md) (the CLI), [`@frotzinc/worker-rpc`](packages/worker-rpc/CHANGELOG.md), [`@frotzinc/nuxt-base`](packages/nuxt-base/CHANGELOG.md), [`@frotzinc/inform6-wasm`](packages/inform6-wasm/CHANGELOG.md). Versions follow [Semantic Versioning](https://semver.org/). Part of [frotz, Inc.](https://frotzinc.com).
 
+## [0.5.1] - 2026-11-08
+
+The release of frotztrace's first phases to npm.
+
+### Added
+- `publish.sh trace-cli` (or `frotztrace`) publishes the frotztrace CLI, GPL, depending on `@frotzinc/zcode`, `@frotzinc/zmachine` and `@frotzinc/inform6-wasm`; its smoke test (`scripts/smoke/trace-cli.mjs`) compiles a small game and stops it at an action breakpoint. [`frotztrace`](packages/trace-cli/CHANGELOG.md) 0.1.0 is its first release.
+
 ## [0.5.0] - 2026-11-08
 
 frotztrace Phase 5 ([docs/22](docs/22-frotztrace-phase-5.md)): source, time and polish; and frotzlens can hand a story to it.

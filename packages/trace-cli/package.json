@@ -1,7 +1,6 @@
 {
   "name": "frotztrace",
-  "version": "0.0.3",
-  "private": true,
+  "version": "0.1.0",
   "description": "A debugger for Z-machine story files, on the command line: play a script under observation, trace every call, and stop on a routine with its stack. The CLI of frotztrace.",
   "license": "GPL-3.0-or-later",
   "author": "Christopher Schweda",
