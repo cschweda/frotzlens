@@ -196,7 +196,8 @@ Frotz, Inc. policy, unchanged: **apps GPL-3.0-or-later, libraries MIT.** `@frotz
 - Icon: the family badge with the instrument — a stepped trace line (a square-wave-like step pattern) under the loupe's cousin. Not a lantern (that's the company's).
 - Footer and About menu as Frotzlens.
 - Social card in the house style; `og:` meta; canonical `https://frotztrace.frotzinc.com/`.
-- Social card: drafted in `docs/frotztrace/og-image.svg` (rendered to `og-image.png`); it moves to `apps/trace/public/` in Phase 4.
+- Social card: `apps/trace/public/og-image.svg` (rendered to `og-image.png`); the logo and favicons are its instrument mark.
+- **The site exists before the app** (2026-11-08, Chris): `apps/trace` holds a placeholder page, its `netlify.toml` (modelled on frotzplay's) and `.nvmrc`, so the Netlify site and domain are set up early. Phase 4 replaces the page with the debugger and widens the `ignore` include-list to the packages it then uses.
 - Netlify: a third site on this repository, base `apps/trace`, with its own `netlify.toml` and `ignore` rule (§5.5). Chris connects it. **Production deploys cost Netlify credits (15 each); Deploy Previews are free.** Work happens in pull requests and their previews; nothing is merged to `main` until Chris says so. A merge that changes `zmachine` deploys both frotzplay and frotztrace.
 - `frotztrace` is free on npm and reserved before Phase 0 with the same placeholder pattern as `frotzlens` was (GPL this time, correct scope, no `infocom` keyword).
 

@@ -2,6 +2,11 @@
 
 All notable changes to frotzlens: the web app at [frotzlens.frotzinc.com](https://frotzlens.frotzinc.com), and this repository. The packages keep their own changelogs: [`@frotzinc/zcode`](packages/zcode/CHANGELOG.md), [`@frotzinc/zcode-ui`](packages/zcode-ui/CHANGELOG.md), [`frotzlens`](packages/cli/CHANGELOG.md) (the CLI), [`@frotzinc/worker-rpc`](packages/worker-rpc/CHANGELOG.md), [`@frotzinc/nuxt-base`](packages/nuxt-base/CHANGELOG.md), [`@frotzinc/inform6-wasm`](packages/inform6-wasm/CHANGELOG.md). Versions follow [Semantic Versioning](https://semver.org/). Part of [frotz, Inc.](https://frotzinc.com).
 
+## [0.3.8] - 2026-11-08
+
+### Added
+- **frotztrace's site, before the debugger** ([apps/trace](apps/trace)): a page saying what frotztrace will do, in the family shell and look, so the Netlify site and its domain can be set up now. It has its own `netlify.toml`, modelled on frotzplay's: base directory `apps/trace`, an `ignore` rule that skips the build unless frotztrace or what it's built from changed, and a stricter Content-Security-Policy than either other app (no `'unsafe-eval'` and no `'wasm-unsafe-eval'`). Node is pinned by `apps/trace/.nvmrc` (22). The social card moves from `docs/frotztrace/` to `apps/trace/public/`, and the logo and favicons use its instrument mark. CI typechecks, generates and tests it (axe, dark and light, under the real CSP).
+
 ## [0.3.7] - 2026-11-08
 
 frotztrace begins. frotzlens looks and works as before.

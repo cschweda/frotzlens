@@ -1,7 +1,7 @@
 <svg width="1200" height="630" viewBox="0 0 1200 630" xmlns="http://www.w3.org/2000/svg" font-family="Helvetica, Arial, sans-serif">
   <!-- frotztrace social card. Same system as frotzlens's: dark ground, amber glow, an amber
        instrument tile, a serif wordmark, the subject's own material as faint texture.
-       Render: rsvg-convert -w 1200 -h 630 og-image.svg -o og-image.png (moves to apps/trace/public/ in Phase 4) -->
+       Render: rsvg-convert -w 1200 -h 630 og-image.svg -o og-image.png (in apps/trace/public/) -->
   <defs>
     <radialGradient id="glow" cx="18%" cy="12%" r="70%">
       <stop offset="0%" stop-color="#f59e0b" stop-opacity="0.20"/>

@@ -1,0 +1,71 @@
+# Netlify configuration for frotztrace (frotztrace.frotzinc.com).
+#
+# A static Nuxt 4 app (ssr: false), like frotzlens and frotzplay, in the same monorepo: frotzlens is
+# `apps/web` (the root netlify.toml), frotzplay is `apps/play`, frotztrace is `apps/trace` (this
+# file). All three are Netlify sites on the one GitHub repo.
+#
+# Connect the repo in the Netlify UI as a third site with base directory `apps/trace`. Netlify then
+# reads this file from the base directory (not the root one), so no `base` is set here, and every
+# path below is relative to `apps/trace`. Node is pinned by .nvmrc here (22) and NODE_VERSION below.
+#
+# As in frotzlens and frotzplay: on Netlify, Nitro's Netlify preset writes the static site to `dist`
+# (not .output/public), so `dist` is what's published.
+
+[build]
+  # Skip the build when a push changes nothing frotztrace is built from, so a frotzlens- or
+  # frotzplay-only commit doesn't redeploy frotztrace (each production deploy costs credits).
+  # Netlify skips when this exits 0 and builds otherwise. The paths are this app, the libraries it
+  # is built from, and the workspace files that decide how they build. Add a package here when
+  # apps/trace starts depending on it (Phase 4: zcode, zcode-ui, zmachine, player, worker-rpc).
+  # The first test always builds when there is no previous deploy to compare with (Netlify sets
+  # CACHED_COMMIT_REF to COMMIT_REF then; the diff would be empty and the very first deploy would
+  # be skipped).
+  ignore = "test \"$CACHED_COMMIT_REF\" = \"$COMMIT_REF\" && exit 1; git diff --quiet \"$CACHED_COMMIT_REF\" \"$COMMIT_REF\" -- . ../../packages/nuxt-base ../../package.json ../../pnpm-lock.yaml ../../pnpm-workspace.yaml ../../tsconfig.base.json"
+  # Netlify runs its own `pnpm install` first; the frozen install keeps a drifted lockfile from
+  # being rewritten (and passing). Then build the workspace libraries the app depends on (`^...` =
+  # its dependencies, not the app itself), then generate the static site.
+  command = "pnpm install --frozen-lockfile && pnpm --filter \"frotztrace-web^...\" run build && pnpm run generate"
+  publish = "dist"
+
+[build.environment]
+  # Matches .nvmrc and the monorepo's engines (node >= 22.12).
+  NODE_VERSION = "22"
+  PNPM_FLAGS = "--frozen-lockfile"
+
+# Custom redirects belong in apps/trace/public/_redirects: Nitro's netlify preset emits its own
+# `_redirects` catch-all that shadows [[redirects]] here.
+
+# Security headers. frotztrace loads nothing from another origin: no analytics (yet), no CDN, fonts
+# self-hosted, and a story file will be read locally and never uploaded, so everything is 'self'.
+#  - 'unsafe-inline' (scripts): Nuxt's inline SPA bootstrap and the colour-mode script; (styles):
+#    Nuxt UI's inline styles.
+#  - No 'unsafe-eval' and no 'wasm-unsafe-eval': the interpreter (@frotzinc/zmachine) is plain
+#    TypeScript, never a JIT, and nothing here runs WebAssembly. That is the point of frotztrace
+#    (design §5.5): unlike frotzlens's Play view, there is no sandbox to need.
+#  - worker-src 'self': the machine will run in a same-origin worker (Phase 4).
+#  - img-src data: blob:: a Blorb cover image, shown from a blob URL.
+#  - frame-ancestors 'none': nobody embeds it. (frotzlens's "Debug this story" opens it in a new
+#    tab and hands the file over by postMessage, which needs no framing.)
+# The e2e test serves the built site with exactly this header (scripts/serve.mjs) and fails on any
+# violation.
+[[headers]]
+  for = "/*"
+  [headers.values]
+    X-Frame-Options = "DENY"
+    X-Content-Type-Options = "nosniff"
+    Permissions-Policy = "camera=(), microphone=(), geolocation=(), payment=()"
+    Referrer-Policy = "strict-origin-when-cross-origin"
+    Content-Security-Policy = "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self'; connect-src 'self'; worker-src 'self'; frame-src 'none'; frame-ancestors 'none'; base-uri 'self'; form-action 'self'; object-src 'none'"
+
+# Long-cache content-hashed build assets.
+[[headers]]
+  for = "/_nuxt/*"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
+
+# EXCEPT Nuxt's app manifest (builds/latest.json, builds/meta/<id>.json): it is unfingerprinted and
+# must never be immutable-cached. (Later rules override earlier ones on Netlify.)
+[[headers]]
+  for = "/_nuxt/builds/*"
+  [headers.values]
+    Cache-Control = "no-cache"

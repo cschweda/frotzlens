@@ -1,0 +1,29 @@
+{
+  "name": "frotztrace-web",
+  "version": "0.0.1",
+  "private": true,
+  "license": "GPL-3.0-or-later",
+  "type": "module",
+  "scripts": {
+    "assets": "node scripts/seo-files.mjs",
+    "dev": "pnpm run assets && nuxt dev --port 3002",
+    "generate": "pnpm run assets && nuxt generate",
+    "preview": "node scripts/serve.mjs",
+    "typecheck": "nuxt typecheck",
+    "postinstall": "nuxt prepare",
+    "test:e2e": "playwright test"
+  },
+  "dependencies": {
+    "@frotzinc/nuxt-base": "workspace:*",
+    "@nuxt/ui": "4.12.0",
+    "nuxt": "4.6.4",
+    "vue": "^3.5.45"
+  },
+  "devDependencies": {
+    "@axe-core/playwright": "4.14.0",
+    "@iconify-json/lucide": "^1.2.148",
+    "@playwright/test": "1.64.1",
+    "typescript": "5.9.3",
+    "vue-tsc": "^3.1.0"
+  }
+}

@@ -1,0 +1,54 @@
+@import "tailwindcss";
+@import "@nuxt/ui";
+/* The frotz, Inc. look: --frotz-amber, .frotz-glow, .frotz-grid, reduced motion. */
+@import "@frotzinc/nuxt-base/css/base.css";
+/* The palette: ground, ink, panel, rule, lamp (dark and light), mapped onto Nuxt UI. */
+@import "@frotzinc/nuxt-base/css/palette.css";
+
+/* Type: Segoe UI where it's installed, Open Sans (self-hosted) elsewhere; data in a monospace face
+   with tabular numerals. */
+@theme {
+  --font-sans: "Segoe UI Variable Text", "Segoe UI", "Open Sans", system-ui, sans-serif;
+  --font-display: "Segoe UI Variable Display", "Segoe UI", "Open Sans", system-ui, sans-serif;
+  --font-mono: "Cascadia Code", "JetBrains Mono", "Courier Prime", ui-monospace, monospace;
+}
+
+html {
+  font-size: 17px; /* body text is 17px; the rest of the scale is in rem */
+}
+
+body {
+  font-family: var(--font-sans);
+  line-height: 1.55;
+}
+
+.font-display {
+  font-family: var(--font-display);
+}
+
+.data {
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+}
+
+/* Amber as text: the AA-safe token (darker in light mode). */
+.text-lamp {
+  color: var(--frotz-lamp-text);
+}
+
+/* Focus is always visible (WCAG 2.4.7 / 2.4.11). lamp-text, not lamp: the bright
+   amber is about 2.4:1 on light-mode paper, under 1.4.11's 3:1; lamp-text is 5.65:1. */
+/* Not on <main>, which the app focuses after each new view so a screen reader announces it: a ring
+   round the whole page says nothing. Everything else, including a line a label jumps to, keeps it. */
+:focus-visible:not(main) {
+  outline: 3px solid var(--frotz-lamp-text);
+  outline-offset: 2px;
+}
+
+/* Primary (amber) in light mode: Nuxt UI's amber-500 under white text is about 2.1:1, under AA's 4.5:1.
+   The palette's light lamp-text (#8a5208) under white is about 6.4:1, so solid primary buttons
+   ("Play the game", "Choose a file") read in both themes. Dark mode keeps the bright amber, with
+   Nuxt UI's dark text on it. */
+:root.light {
+  --ui-primary: var(--frotz-lamp-text);
+}
