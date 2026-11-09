@@ -197,10 +197,12 @@ async function openIssue() {
         <UFormField v-if="product.reportEndpoint" label="Your email, for a reply (optional)" name="replyTo" help="Only to answer you. Leave it empty to send without one.">
           <UInput v-model="replyTo" type="email" autocomplete="email" class="w-full" />
         </UFormField>
-        <!-- The honeypot: no person sees or fills it. -->
+        <!-- The honeypot: no person sees or fills it. Named nothing a browser's autofill or a password
+             manager recognises: "Website" was, and Chrome could fill it, so a person's report was taken
+             for a bot's and dropped while the dialog said it was sent (2026-11-09). -->
         <div aria-hidden="true" class="absolute -left-[10000px] size-px overflow-hidden">
-          <label for="report-website">Website</label>
-          <input id="report-website" v-model="website" type="text" name="website" tabindex="-1" autocomplete="off">
+          <label for="report-extra">Leave this empty</label>
+          <input id="report-extra" v-model="website" type="text" tabindex="-1" autocomplete="off" data-1p-ignore data-lpignore="true" data-form-type="other">
         </div>
         <UCheckbox v-model="draft.includeDetails" :label="`Include technical details (${product.name}’s version, the browser)`" />
         <details v-if="draft.includeDetails" class="rounded-md border border-default p-3">

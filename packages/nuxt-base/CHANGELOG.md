@@ -2,6 +2,12 @@
 
 All notable changes to `@frotzinc/nuxt-base`. Versions follow [Semantic Versioning](https://semver.org/). Part of [frotz, Inc.](https://frotzinc.com).
 
+## [Unreleased]
+
+### Fixed
+- **The report function's rate limit can't be reset by many addresses.** It cleared its whole table of counts once more than 1,000 addresses had sent, so someone with enough addresses could wipe everyone's count and send past the limit. Now only earlier minutes' counts are dropped, a new address is refused while the table is full, and everyone together may send thirty reports a minute per function instance. Found by an automated security review of Drafter's copy of this function.
+- **The report dialog's anti-spam field could drop a person's report.** It was labelled "Website", which Chrome's autofill fills; a report with it filled was taken for a bot's, answered as sent, and thrown away. It now has a name no autofill or password manager recognises.
+
 ## [0.3.3] - 2026-11-08
 
 ### Changed

@@ -2,6 +2,11 @@
 
 All notable changes to frotzlens: the web app at [frotzlens.frotzinc.com](https://frotzlens.frotzinc.com), and this repository. The packages keep their own changelogs: [`@frotzinc/zcode`](packages/zcode/CHANGELOG.md), [`@frotzinc/zcode-ui`](packages/zcode-ui/CHANGELOG.md), [`frotzlens`](packages/cli/CHANGELOG.md) (the CLI), [`@frotzinc/worker-rpc`](packages/worker-rpc/CHANGELOG.md), [`@frotzinc/nuxt-base`](packages/nuxt-base/CHANGELOG.md), [`@frotzinc/inform6-wasm`](packages/inform6-wasm/CHANGELOG.md). Versions follow [Semantic Versioning](https://semver.org/). Part of [frotz, Inc.](https://frotzinc.com).
 
+## [Unreleased]
+
+### Fixed
+- The report function behind **Send email** keeps its rate limit however many addresses send at once, and the report dialog's hidden anti-spam field can no longer be filled by the browser's autofill (which made a real report look like spam and vanish). In every frotz app (frotzlens, frotzplay, frotztrace), which use `@frotzinc/nuxt-base` from this repository, on their next deploy.
+
 ## [0.5.2] - 2026-11-08
 
 ### Changed
