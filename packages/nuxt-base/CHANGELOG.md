@@ -2,6 +2,18 @@
 
 All notable changes to `@frotzinc/nuxt-base`. Versions follow [Semantic Versioning](https://semver.org/). Part of [frotz, Inc.](https://frotzinc.com).
 
+## [Unreleased]
+
+### Fixed
+- **The report function could be posted to by a script, without limit across instances.** Its three-second check trusts a number the client sends, and its counts live in one function instance's memory. Now it takes a report only from its own site (the `Origin` header must name the request's host; 403 otherwise) and only as `application/json` (415), puts the title on one line (it becomes the email's subject), and, given a `store` (`createReportHandler({ app, store: () => getStore({ name: 'report-count', consistency: 'strong' }) })`, with `@netlify/blobs`), sends at most 100 reports a day however many instances run. Each report takes its place before it is sent, so posts arriving together can't slip under the cap. The guard is `netlify/report-guard.mjs`, first written for frotzsmith (its review of 2026-11-09).
+- **The report function's rate limit can't be reset by many addresses.** It cleared its whole table of counts once more than 1,000 addresses had sent, so someone with enough addresses could wipe everyone's count and send past the limit. Now only earlier minutes' counts are dropped, a new address is refused while the table is full, and everyone together may send thirty reports a minute per function instance. Found by an automated security review of Drafter's copy of this function.
+- **The report dialog's anti-spam field could drop a person's report.** It was labelled "Website", which Chrome's autofill fills; a report with it filled was taken for a bot's, answered as sent, and thrown away. It now has a name no autofill or password manager recognises.
+
+## [0.3.3] - 2026-11-08
+
+### Changed
+- The report dialog's **Send** is now **Send email**, and **Send another** is **Send another email**, so it's clear the report goes by email (and **Open on GitHub** is the other way).
+
 ## [0.3.2] - 2026-11-08
 
 ### Fixed

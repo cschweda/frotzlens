@@ -172,7 +172,7 @@ async function openIssue() {
           {{ sent.replyTo ? `A reply, if one’s needed, will go to ${sent.replyTo}.` : 'You didn’t leave an address, so there won’t be a reply, but it will be read.' }}
         </p>
         <div class="mt-2 flex flex-wrap justify-center gap-2">
-          <UButton color="neutral" variant="outline" icon="i-lucide-rotate-ccw" @click="sendAnother">Send another</UButton>
+          <UButton color="neutral" variant="outline" icon="i-lucide-rotate-ccw" @click="sendAnother">Send another email</UButton>
           <UButton icon="i-lucide-check" @click="close">Close</UButton>
         </div>
       </div>
@@ -197,10 +197,12 @@ async function openIssue() {
         <UFormField v-if="product.reportEndpoint" label="Your email, for a reply (optional)" name="replyTo" help="Only to answer you. Leave it empty to send without one.">
           <UInput v-model="replyTo" type="email" autocomplete="email" class="w-full" />
         </UFormField>
-        <!-- The honeypot: no person sees or fills it. -->
+        <!-- The honeypot: no person sees or fills it. Named nothing a browser's autofill or a password
+             manager recognises: "Website" was, and Chrome could fill it, so a person's report was taken
+             for a bot's and dropped while the dialog said it was sent (2026-11-09). -->
         <div aria-hidden="true" class="absolute -left-[10000px] size-px overflow-hidden">
-          <label for="report-website">Website</label>
-          <input id="report-website" v-model="website" type="text" name="website" tabindex="-1" autocomplete="off">
+          <label for="report-extra">Leave this empty</label>
+          <input id="report-extra" v-model="website" type="text" tabindex="-1" autocomplete="off" data-1p-ignore data-lpignore="true" data-form-type="other">
         </div>
         <UCheckbox v-model="draft.includeDetails" :label="`Include technical details (${product.name}’s version, the browser)`" />
         <details v-if="draft.includeDetails" class="rounded-md border border-default p-3">
@@ -214,7 +216,7 @@ async function openIssue() {
         <p v-if="sendError" role="alert" class="rounded-md border border-default border-l-4 border-l-[var(--ui-error)] bg-elevated p-3 text-highlighted">{{ sendError }}</p>
         <p v-if="copied" role="status" class="text-muted">{{ copied }}</p>
         <div class="flex flex-wrap gap-2">
-          <UButton v-if="product.reportEndpoint" type="submit" icon="i-lucide-send" :loading="sending" :disabled="!required || sending">Send</UButton>
+          <UButton v-if="product.reportEndpoint" type="submit" icon="i-lucide-send" :loading="sending" :disabled="!required || sending">Send email</UButton>
           <UButton v-if="product.reportEndpoint" color="neutral" variant="outline" icon="i-lucide-external-link" :disabled="!required" @click="openIssue">Open on GitHub</UButton>
           <UButton v-else type="submit" icon="i-lucide-external-link" :disabled="!required">Open on GitHub</UButton>
           <UButton color="neutral" variant="outline" icon="i-lucide-clipboard" :disabled="!required" @click="copy(reportText(draft, details), 'The report')">Copy the report</UButton>

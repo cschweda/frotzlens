@@ -4,11 +4,14 @@ import { createReportHandler } from './report.mjs'
 const ENV: Record<string, string> = { RESEND_API_KEY: 're_test', REPORT_TO: 'owner@example.com', REPORT_FROM: 'app <reports@mail.example.com>' }
 const ok = () => new Response('{"id":"1"}', { status: 200 })
 
-function setup(env: Record<string, string> = ENV, now = () => 1_000_000) {
+const URL_ = 'https://x/.netlify/functions/report'
+const HEADERS = { Origin: 'https://x', 'Content-Type': 'application/json' }
+
+function setup(env: Record<string, string> = ENV, now = () => 1_000_000, more: Record<string, unknown> = {}) {
   const send = vi.fn(async () => ok())
-  const handler = createReportHandler({ app: 'frotzlens', env: (n: string) => env[n], send, now })
-  const post = (body: unknown, ip = '1.2.3.4') =>
-    handler(new Request('https://x/.netlify/functions/report', { method: 'POST', body: typeof body === 'string' ? body : JSON.stringify(body) }), { ip })
+  const handler = createReportHandler({ app: 'frotzlens', env: (n: string) => env[n], send, now, ...more })
+  const post = (body: unknown, ip = '1.2.3.4', headers: Record<string, string> = HEADERS) =>
+    handler(new Request(URL_, { method: 'POST', headers, body: typeof body === 'string' ? body : JSON.stringify(body) }), { ip })
   return { send, post, handler }
 }
 const problem = { kind: 'problem', title: 'Map is blank', happened: 'The map shows nothing.', elapsed: 9000 }
@@ -66,6 +69,29 @@ describe('the report function', () => {
     expect((await post(problem, '5.6.7.8')).status).toBe(200)
   })
 
+  it('never lets many addresses reset another’s count', async () => {
+    let clock = 1_000_000
+    const { post } = setup(ENV, () => clock)
+    for (let i = 0; i < 5; i++) expect((await post(problem, 'a')).status).toBe(200)
+    // A thousand other addresses in the same minute: past the table's size they are refused, and
+    // the first address's count is kept, not cleared.
+    for (let i = 0; i < 1100; i++) await post(problem, `b${i}`)
+    expect((await post(problem, 'a')).status).toBe(429)
+    expect((await post(problem, 'new')).status).toBe(429)
+    // The next minute, the old counts go and everyone may send again.
+    clock += 60_000
+    expect((await post(problem, 'a')).status).toBe(200)
+    expect((await post(problem, 'new')).status).toBe(200)
+  })
+
+  it('caps everyone together at thirty a minute', async () => {
+    const { post } = setup()
+    const codes = []
+    for (let i = 0; i < 31; i++) codes.push((await post(problem, `ip${i}`)).status)
+    expect(codes.slice(0, 30).every(code => code === 200)).toBe(true)
+    expect(codes[30]).toBe(429)
+  })
+
   it('cuts long fields and strips control characters', async () => {
     const { send, post } = setup()
     await post({ kind: 'idea', idea: `a\u0007b${'x'.repeat(9000)}`, title: 't'.repeat(400), elapsed: 9000 })
@@ -78,7 +104,41 @@ describe('the report function', () => {
   it('says so when Resend fails', async () => {
     const send = vi.fn(async () => new Response('no', { status: 500 }))
     const h = createReportHandler({ app: 'a', env: (n: string) => ENV[n], send })
-    const res = await h(new Request('https://x/', { method: 'POST', body: JSON.stringify(problem) }), { ip: '9' })
+    const res = await h(new Request('https://x/', { method: 'POST', headers: HEADERS, body: JSON.stringify(problem) }), { ip: '9' })
     expect(res.status).toBe(502)
+  })
+
+  it('takes a report only from its own site, as JSON', async () => {
+    const { send, post } = setup()
+    expect((await post(problem, '1', { ...HEADERS, Origin: 'https://evil.example' })).status).toBe(403)
+    expect((await post(problem, '1', { 'Content-Type': 'application/json' })).status).toBe(403)
+    expect((await post(problem, '1', { Origin: 'https://x', 'Content-Type': 'text/plain' })).status).toBe(415)
+    expect(send).not.toHaveBeenCalled()
+  })
+
+  it('puts a title on one line', async () => {
+    const { send, post } = setup()
+    await post({ ...problem, title: 'Map\r\nBcc: x@y.z' })
+    const sent = JSON.parse(String((send.mock.calls[0] as unknown as [string, RequestInit])[1].body))
+    expect(sent.subject).toBe('[frotzlens] Problem: Map Bcc: x@y.z')
+  })
+
+  it('with a store, sends no more than the daily cap, and gives back the place of a report not sent', async () => {
+    const places = new Map<string, string>()
+    const store = () => ({
+      set: async (k: string, v: string) => { places.set(k, v) },
+      list: async ({ prefix }: { prefix: string }) => ({ blobs: [...places.keys()].filter(k => k.startsWith(prefix)) }),
+      delete: async (k: string) => { places.delete(k) },
+    })
+    const { send, post } = setup(ENV, () => 1_000_000, { store, dailyCap: 2 })
+    expect((await post({ ...problem, elapsed: 1 }, 'a')).status).toBe(400)
+    expect(places.size).toBe(0)
+    expect((await post(problem, 'a')).status).toBe(200)
+    expect((await post(problem, 'b')).status).toBe(200)
+    const third = await post(problem, 'c')
+    expect(third.status).toBe(429)
+    expect(third.headers.get('X-Report-Counted')).toBe(null)
+    expect(send).toHaveBeenCalledTimes(2)
+    expect(places.size).toBe(2)
   })
 })

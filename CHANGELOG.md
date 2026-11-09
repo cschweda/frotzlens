@@ -2,6 +2,17 @@
 
 All notable changes to frotzlens: the web app at [frotzlens.frotzinc.com](https://frotzlens.frotzinc.com), and this repository. The packages keep their own changelogs: [`@frotzinc/zcode`](packages/zcode/CHANGELOG.md), [`@frotzinc/zcode-ui`](packages/zcode-ui/CHANGELOG.md), [`frotzlens`](packages/cli/CHANGELOG.md) (the CLI), [`@frotzinc/worker-rpc`](packages/worker-rpc/CHANGELOG.md), [`@frotzinc/nuxt-base`](packages/nuxt-base/CHANGELOG.md), [`@frotzinc/inform6-wasm`](packages/inform6-wasm/CHANGELOG.md). Versions follow [Semantic Versioning](https://semver.org/). Part of [frotz, Inc.](https://frotzinc.com).
 
+## [Unreleased]
+
+### Fixed
+- The report function behind **Send email** takes a report only from the app's own page, and sends at most 100 a day (counted in Netlify Blobs), so a script can't flood the inbox or use up the email quota. In frotzlens, frotzplay and frotztrace, from `@frotzinc/nuxt-base`'s new report guard.
+- The report function behind **Send email** keeps its rate limit however many addresses send at once, and the report dialog's hidden anti-spam field can no longer be filled by the browser's autofill (which made a real report look like spam and vanish). In every frotz app (frotzlens, frotzplay, frotztrace), which use `@frotzinc/nuxt-base` from this repository, on their next deploy.
+
+## [0.5.2] - 2026-11-08
+
+### Changed
+- Every frotz app's report dialog says **Send email** (not **Send**), from `@frotzinc/nuxt-base` 0.3.3. frotzlens 0.5.2, frotzplay 0.1.6, frotztrace 0.2.2.
+
 ## [0.5.1] - 2026-11-08
 
 The release of frotztrace's first phases to npm.

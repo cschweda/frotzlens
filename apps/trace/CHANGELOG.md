@@ -2,6 +2,11 @@
 
 All notable changes to frotztrace, the site at [frotztrace.frotzinc.com](https://frotztrace.frotzinc.com). Versions follow [Semantic Versioning](https://semver.org/). Part of [frotz, Inc.](https://frotzinc.com).
 
+## [0.2.2] - 2026-11-08
+
+### Changed
+- The report dialog says **Send email** (not **Send**): `@frotzinc/nuxt-base` 0.3.3.
+
 ## [0.2.1] - 2026-11-08
 
 ### Fixed

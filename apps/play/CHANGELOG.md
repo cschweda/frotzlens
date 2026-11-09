@@ -2,6 +2,11 @@
 
 All notable changes to frotzplay: the web player at frotzplay.frotzinc.com, and this repository. Versions follow [Semantic Versioning](https://semver.org/). Part of [frotz, Inc.](https://frotzinc.com).
 
+## [0.1.6] - 2026-11-08
+
+### Changed
+- The report dialog says **Send email** (not **Send**): `@frotzinc/nuxt-base` 0.3.3.
+
 ## [0.1.5] - 2026-11-07
 
 ### Changed
