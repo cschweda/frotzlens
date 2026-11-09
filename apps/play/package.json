@@ -18,6 +18,7 @@
     "@frotzinc/player": "workspace:*",
     "@frotzinc/zcode": "workspace:*",
     "@frotzinc/zmachine": "workspace:*",
+    "@netlify/blobs": "11.1.7",
     "@nuxt/ui": "4.12.0",
     "nuxt": "4.6.4",
     "vue": "^3.5.45"

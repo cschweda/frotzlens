@@ -5,6 +5,7 @@ All notable changes to frotzlens: the web app at [frotzlens.frotzinc.com](https:
 ## [Unreleased]
 
 ### Fixed
+- The report function behind **Send email** takes a report only from the app's own page, and sends at most 100 a day (counted in Netlify Blobs), so a script can't flood the inbox or use up the email quota. In frotzlens, frotzplay and frotztrace, from `@frotzinc/nuxt-base`'s new report guard.
 - The report function behind **Send email** keeps its rate limit however many addresses send at once, and the report dialog's hidden anti-spam field can no longer be filled by the browser's autofill (which made a real report look like spam and vanish). In every frotz app (frotzlens, frotzplay, frotztrace), which use `@frotzinc/nuxt-base` from this repository, on their next deploy.
 
 ## [0.5.2] - 2026-11-08

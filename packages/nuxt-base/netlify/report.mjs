@@ -2,9 +2,10 @@
 // wrote to the app's owner through Resend (https://resend.com). The browser never sees the API key;
 // it posts to this function on its own site (so the CSP's connect-src 'self' covers it).
 //
-// Each app has a three-line netlify/functions/report.mjs:
+// Each app has a short netlify/functions/report.mjs:
+//   import { getStore } from '@netlify/blobs'
 //   import { createReportHandler } from '@frotzinc/nuxt-base/netlify/report'
-//   export default createReportHandler({ app: 'frotzlens' })
+//   export default createReportHandler({ app: 'frotzlens', store: () => getStore({ name: 'report-count', consistency: 'strong' }) })
 //
 // Configured by the site's environment variables (Netlify → Site configuration → Environment):
 //   RESEND_API_KEY  the Resend key (secret)
@@ -17,6 +18,11 @@
 // every field has a size limit; each address may send a few reports a minute, and everyone together
 // a few dozen, per instance. Old minutes' counts are dropped, never the current one's: clearing them
 // all would let someone with many addresses reset the limit (security review, 2026-11-09).
+// Those counts live in one instance's memory and `elapsed` is the client's word, so the handler is
+// wrapped in report-guard.mjs: same-site JSON posts only, a one-line title, and (with `store`) a
+// daily cap that every instance shares.
+
+import { guardReports } from './report-guard.mjs'
 
 const LIMITS = { title: 256, happened: 8000, expected: 4000, story: 2000, idea: 8000, details: 4000, replyTo: 254 }
 const MAX_BODY = 32 * 1024
@@ -40,16 +46,18 @@ function text(v, max) {
 }
 
 /**
- * @param {{ app: string, env?: (name: string) => string | undefined, send?: typeof fetch, now?: () => number }} options
- *   `env`, `send` and `now` are for the tests; on Netlify they are the environment, fetch and the clock.
+ * @param {{ app: string, store?: () => { set(key: string, value: string): Promise<unknown>, list(o: { prefix: string }): Promise<{ blobs: unknown[] }>, delete(key: string): Promise<unknown> }, dailyCap?: number, env?: (name: string) => string | undefined, send?: typeof fetch, now?: () => number, id?: () => string }} options
+ *   `store` opens where the day's reports are counted (Netlify Blobs, strongly consistent); without
+ *   it there is no daily cap. `dailyCap` is 100 unless given.
+ *   `env`, `send`, `now` and `id` are for the tests; on Netlify they are the environment, fetch, the clock and a UUID.
  */
-export function createReportHandler({ app, env = name => globalThis.Netlify?.env?.get(name) ?? process.env[name], send = (...a) => fetch(...a), now = () => Date.now() }) {
+export function createReportHandler({ app, store, dailyCap, id, env = name => globalThis.Netlify?.env?.get(name) ?? process.env[name], send = (...a) => fetch(...a), now = () => Date.now() }) {
   /** Reports per address in the current minute, for this instance. */
   const recent = new Map()
   /** Reports from everyone in the current minute, for this instance. */
   const total = { minute: -1, count: 0 }
 
-  return async function report(req, context) {
+  return guardReports(async function report(req, context) {
     if (req.method !== 'POST') return json(405, { error: 'Use POST.' })
     const key = env('RESEND_API_KEY')
     const to = env('REPORT_TO')
@@ -117,5 +125,5 @@ export function createReportHandler({ app, env = name => globalThis.Netlify?.env
     }
     if (!res.ok) return json(502, { error: 'The report couldn’t be sent just now.' })
     return json(200, { ok: true })
-  }
+  }, { store, dailyCap, id, now })
 }
