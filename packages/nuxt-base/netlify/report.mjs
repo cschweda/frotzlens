@@ -14,12 +14,18 @@
 //
 // A public form that sends email is an abuse target, so: the recipient is fixed; a hidden field
 // (`website`) that people never fill and bots do; a form filled in under three seconds is refused;
-// every field has a size limit; and each address may send a few reports a minute per instance.
+// every field has a size limit; each address may send a few reports a minute, and everyone together
+// a few dozen, per instance. Old minutes' counts are dropped, never the current one's: clearing them
+// all would let someone with many addresses reset the limit (security review, 2026-11-09).
 
 const LIMITS = { title: 256, happened: 8000, expected: 4000, story: 2000, idea: 8000, details: 4000, replyTo: 254 }
 const MAX_BODY = 32 * 1024
 const MIN_MS = 3000
 const PER_MINUTE = 5
+/** Reports a minute from everyone together, for this instance: a flood from many addresses stops here. */
+const ALL_PER_MINUTE = 30
+/** Addresses counted at once; a new one past this is refused for the minute, never let in by a reset. */
+const MAX_ADDRESSES = 1000
 
 /** A plausible single address (Resend checks it properly); nothing that could add headers. */
 const EMAIL = /^[^\s@<>,;"]+@[^\s@<>,;"]+\.[^\s@<>,;"]+$/
@@ -40,6 +46,8 @@ function text(v, max) {
 export function createReportHandler({ app, env = name => globalThis.Netlify?.env?.get(name) ?? process.env[name], send = (...a) => fetch(...a), now = () => Date.now() }) {
   /** Reports per address in the current minute, for this instance. */
   const recent = new Map()
+  /** Reports from everyone in the current minute, for this instance. */
+  const total = { minute: -1, count: 0 }
 
   return async function report(req, context) {
     if (req.method !== 'POST') return json(405, { error: 'Use POST.' })
@@ -70,11 +78,19 @@ export function createReportHandler({ app, env = name => globalThis.Netlify?.env
 
     const ip = context?.ip ?? req.headers.get('x-nf-client-connection-ip') ?? 'unknown'
     const minute = Math.floor(now() / 60000)
+    const busy = () => json(429, { error: 'That’s a lot of reports at once. Please wait a minute.' })
+    // Earlier minutes' counts are done with; only they are dropped.
+    if (recent.size >= MAX_ADDRESSES) {
+      for (const [address, seen] of recent) if (seen.minute !== minute) recent.delete(address)
+    }
     const seen = recent.get(ip)
+    if (!seen && recent.size >= MAX_ADDRESSES) return busy()
     const count = seen?.minute === minute ? seen.count + 1 : 1
     recent.set(ip, { minute, count })
-    if (recent.size > 1000) recent.clear()
-    if (count > PER_MINUTE) return json(429, { error: 'That’s a lot of reports at once. Please wait a minute.' })
+    if (count > PER_MINUTE) return busy()
+    if (total.minute !== minute) Object.assign(total, { minute, count: 0 })
+    total.count += 1
+    if (total.count > ALL_PER_MINUTE) return busy()
 
     const label = kind === 'problem' ? 'Problem' : 'Idea'
     const subject = `[${app}] ${label}: ${f.title || (kind === 'problem' ? f.happened : f.idea).split('\n')[0]}`.slice(0, 200)

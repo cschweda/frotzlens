@@ -66,6 +66,29 @@ describe('the report function', () => {
     expect((await post(problem, '5.6.7.8')).status).toBe(200)
   })
 
+  it('never lets many addresses reset another’s count', async () => {
+    let clock = 1_000_000
+    const { post } = setup(ENV, () => clock)
+    for (let i = 0; i < 5; i++) expect((await post(problem, 'a')).status).toBe(200)
+    // A thousand other addresses in the same minute: past the table's size they are refused, and
+    // the first address's count is kept, not cleared.
+    for (let i = 0; i < 1100; i++) await post(problem, `b${i}`)
+    expect((await post(problem, 'a')).status).toBe(429)
+    expect((await post(problem, 'new')).status).toBe(429)
+    // The next minute, the old counts go and everyone may send again.
+    clock += 60_000
+    expect((await post(problem, 'a')).status).toBe(200)
+    expect((await post(problem, 'new')).status).toBe(200)
+  })
+
+  it('caps everyone together at thirty a minute', async () => {
+    const { post } = setup()
+    const codes = []
+    for (let i = 0; i < 31; i++) codes.push((await post(problem, `ip${i}`)).status)
+    expect(codes.slice(0, 30).every(code => code === 200)).toBe(true)
+    expect(codes[30]).toBe(429)
+  })
+
   it('cuts long fields and strips control characters', async () => {
     const { send, post } = setup()
     await post({ kind: 'idea', idea: `a\u0007b${'x'.repeat(9000)}`, title: 't'.repeat(400), elapsed: 9000 })
