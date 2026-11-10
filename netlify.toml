@@ -27,6 +27,17 @@
   # the app itself), then generate the static site.
   command = "pnpm install --frozen-lockfile && pnpm --filter \"frotzlens-web^...\" run build && pnpm run generate"
   publish = "dist"
+  # A production deploy costs Netlify credits; a Deploy Preview does not. Skip the
+  # build when a push changes only files the site is not built from, so a README or
+  # docs commit to main doesn't spend a production deploy. Netlify skips when this
+  # exits 0 and builds otherwise. The first test always builds when there is no
+  # previous deploy to compare with (Netlify sets CACHED_COMMIT_REF to COMMIT_REF
+  # then, the diff would be empty, and the deploy would be skipped).
+  # The command runs in `base` (apps/web), so the paths use git's :(top) magic to
+  # mean the whole repository. Not built from: any README.md, docs/, .github/, and
+  # apps/play (frotzplay is its own site, with its own rule in apps/play/netlify.toml).
+  # CHANGELOG.md is NOT excluded: app.vue imports it for the About dialog.
+  ignore = "test \"$CACHED_COMMIT_REF\" = \"$COMMIT_REF\" && exit 1; git diff --quiet \"$CACHED_COMMIT_REF\" \"$COMMIT_REF\" -- \":(top)\" \":(top,exclude,glob)**/README.md\" \":(top,exclude)docs\" \":(top,exclude).github\" \":(top,exclude)apps/play\""
 
 [build.environment]
   NODE_VERSION = "22"

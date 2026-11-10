@@ -18,10 +18,12 @@
   # exits 0 and builds otherwise. The paths are this app, the libraries it is
   # built from, and the workspace files that decide how they build. Add a
   # package here when apps/play starts depending on it.
+  # apps/play/README.md is excluded (nothing builds from it); its CHANGELOG.md is
+  # not, because app.vue imports it for the About dialog.
   # The first test always builds when there is no previous deploy to compare
   # with (Netlify sets CACHED_COMMIT_REF to COMMIT_REF then; the diff would be
   # empty and the very first deploy would be skipped).
-  ignore = "test \"$CACHED_COMMIT_REF\" = \"$COMMIT_REF\" && exit 1; git diff --quiet \"$CACHED_COMMIT_REF\" \"$COMMIT_REF\" -- . ../../packages/zcode ../../packages/zmachine ../../packages/player ../../packages/worker-rpc ../../packages/nuxt-base ../../samples ../../scripts ../../package.json ../../pnpm-lock.yaml ../../pnpm-workspace.yaml ../../tsconfig.base.json"
+  ignore = "test \"$CACHED_COMMIT_REF\" = \"$COMMIT_REF\" && exit 1; git diff --quiet \"$CACHED_COMMIT_REF\" \"$COMMIT_REF\" -- . \":(exclude)README.md\" ../../packages/zcode ../../packages/zmachine ../../packages/player ../../packages/worker-rpc ../../packages/nuxt-base ../../samples ../../scripts ../../package.json ../../pnpm-lock.yaml ../../pnpm-workspace.yaml ../../tsconfig.base.json"
   # Netlify runs its own `pnpm install` first; the frozen install keeps a
   # drifted lockfile from being rewritten (and passing). Then build the
   # workspace libraries the app depends on (`^...` = its dependencies, not the
